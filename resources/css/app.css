@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    /**
+     * The BeShop screens are locked to a mobile-width canvas on every device, so
+     * the page itself never scrolls — each screen scrolls inside its own frame.
+     */
+    html,
+    body {
+        height: 100%;
+    }
+}
+
+@layer utilities {
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+}
