@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
-import Icon from '@/Components/BeShop/Icon';
+import IconLink from '@/Components/BeShop/IconLink';
 import TabBar from '@/Components/BeShop/TabBar';
 import { categories } from '@/Components/BeShop/data';
 
@@ -14,8 +14,8 @@ export default function Categories() {
                     brand
                     actions={
                         <>
-                            <Icon name="search" size={19} />
-                            <Icon name="bag" size={19} />
+                            <IconLink name="search" href="/ui/shop" label="Search" />
+                            <IconLink name="bag" href="/ui/cart" label="Cart" />
                         </>
                     }
                 />

@@ -1,11 +1,45 @@
+import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
-import Icon from '@/Components/BeShop/Icon';
+import IconLink from '@/Components/BeShop/IconLink';
 import TabBar from '@/Components/BeShop/TabBar';
-import { cartItems } from '@/Components/BeShop/data';
+import { cartItems, money } from '@/Components/BeShop/data';
 
 export default function Cart() {
+    const [items, setItems] = useState(cartItems);
+    const [promo, setPromo] = useState('');
+    const [applied, setApplied] = useState(false);
+
+    /**
+     * Adjust a line quantity. Dropping to zero removes the line, and emptying the
+     * cart entirely sends the shopper to the empty-cart screen.
+     *
+     * @param {string} name
+     * @param {number} delta
+     */
+    const changeQuantity = (name, delta) => {
+        const next = items
+            .map((item) =>
+                item.name === name
+                    ? { ...item, quantity: item.quantity + delta }
+                    : item,
+            )
+            .filter((item) => item.quantity > 0);
+
+        if (next.length === 0) {
+            router.visit('/ui/cart-empty');
+
+            return;
+        }
+
+        setItems(next);
+    };
+
+    const subtotal = items.reduce((total, item) => total + item.amount * item.quantity, 0);
+    const discount = applied ? subtotal * 0.15 : 0;
+
     return (
         <MobileLayout
             title="Cart / Order"
@@ -14,8 +48,12 @@ export default function Cart() {
                     title="Order"
                     actions={
                         <>
-                            <Icon name="bag" size={19} />
-                            <Icon name="user" size={19} />
+                            <IconLink
+                                name="bag"
+                                href="/ui/order-history"
+                                label="Order history"
+                            />
+                            <IconLink name="user" href="/ui/profile" label="Profile" />
                         </>
                     }
                 />
@@ -23,12 +61,15 @@ export default function Cart() {
             footer={<TabBar active="order" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pt-3.5">
-                {cartItems.map((item) => (
+                {items.map((item) => (
                     <div
                         key={item.name}
                         className="mb-2 flex h-[88px] gap-2.5 border border-line p-2.5"
                     >
-                        <div className="relative w-[68px] shrink-0">
+                        <Link
+                            href="/ui/product-detail"
+                            className="relative w-[68px] shrink-0"
+                        >
                             <img
                                 src={item.image}
                                 alt={item.name}
@@ -40,9 +81,12 @@ export default function Cart() {
                                     SALE
                                 </div>
                             ) : null}
-                        </div>
+                        </Link>
 
-                        <div className="flex flex-1 flex-col justify-center">
+                        <Link
+                            href="/ui/product-detail"
+                            className="flex flex-1 flex-col justify-center"
+                        >
                             <div className="mb-1 text-[13px] font-semibold text-ink">
                                 {item.name}
                             </div>
@@ -51,36 +95,67 @@ export default function Cart() {
                                     item.onSale ? 'text-brand' : 'text-muted'
                                 }`}
                             >
-                                {item.price}
+                                {money(item.amount)}
                             </div>
-                        </div>
+                        </Link>
 
                         <div className="flex min-w-[24px] flex-col items-center justify-between py-1">
-                            <div className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none">
+                            <button
+                                type="button"
+                                onClick={() => changeQuantity(item.name, 1)}
+                                aria-label={`Increase ${item.name} quantity`}
+                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none"
+                            >
                                 +
-                            </div>
+                            </button>
+
                             <span className="text-xs">{item.quantity}</span>
-                            <div className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none">
+
+                            <button
+                                type="button"
+                                onClick={() => changeQuantity(item.name, -1)}
+                                aria-label={`Decrease ${item.name} quantity`}
+                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none"
+                            >
                                 −
-                            </div>
+                            </button>
                         </div>
                     </div>
                 ))}
 
                 <div className="mb-[18px] grid grid-cols-[1.5fr_1fr] gap-2">
-                    <div className="flex h-[50px] items-center border border-blush px-3.5 text-xs text-[#bbbbbb]">
-                        Enter promo code
-                    </div>
-                    <div className="flex h-[50px] items-center justify-center border border-line bg-lilac text-xs font-bold uppercase">
-                        Apply
-                    </div>
+                    <input
+                        value={promo}
+                        onChange={(event) => setPromo(event.target.value)}
+                        placeholder="Enter promo code"
+                        className="h-[50px] border border-blush px-3.5 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                    />
+
+                    <button
+                        type="button"
+                        onClick={() => setApplied(promo.trim().length > 0)}
+                        className={`flex h-[50px] items-center justify-center border text-xs font-bold uppercase ${
+                            applied
+                                ? 'border-brand bg-brand text-white'
+                                : 'border-line bg-lilac'
+                        }`}
+                    >
+                        {applied ? 'Applied' : 'Apply'}
+                    </button>
                 </div>
 
                 <div className="mb-3.5 border border-line bg-lilac p-3.5">
                     <div className="mb-1.5 flex justify-between text-[13px]">
                         <span>Subtotal</span>
-                        <span className="font-bold">$324.98</span>
+                        <span className="font-bold">{money(subtotal)}</span>
                     </div>
+
+                    {applied ? (
+                        <div className="mb-1.5 flex justify-between text-[13px]">
+                            <span>Discount</span>
+                            <span className="text-brand">-{money(discount)}</span>
+                        </div>
+                    ) : null}
 
                     <div className="mb-1.5 flex justify-between border-b-2 border-ink pb-1.5 text-[13px]">
                         <span>Delivery</span>
@@ -89,7 +164,7 @@ export default function Cart() {
 
                     <div className="flex justify-between text-[13px]">
                         <span className="font-bold">Total</span>
-                        <span className="font-bold">$324.98</span>
+                        <span className="font-bold">{money(subtotal - discount)}</span>
                     </div>
                 </div>
 

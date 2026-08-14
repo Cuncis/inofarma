@@ -1,20 +1,45 @@
+import { router } from '@inertiajs/react';
 import Icon from './Icon';
 
 /**
- * Facebook / Twitter / Google sign-in circles shared by Sign In and Sign Up.
+ * Social sign-in circles.
+ *
+ * Each provider signs the shopper in through the same prototype endpoint as the
+ * email form, using a stand-in address for that provider.
  */
 export default function SocialButtons() {
+    const signInWith = (provider) =>
+        router.post('/ui/signin', {
+            email: `kristin.watson@${provider}.test`,
+            password: 'social',
+        });
+
     return (
         <div className="mb-5 flex justify-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#3b5998] text-white">
+            <button
+                type="button"
+                onClick={() => signInWith('facebook')}
+                aria-label="Continue with Facebook"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-[#3b5998] text-white"
+            >
                 <Icon name="facebook" size={18} />
-            </div>
+            </button>
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1da1f2] text-white">
+            <button
+                type="button"
+                onClick={() => signInWith('twitter')}
+                aria-label="Continue with Twitter"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1da1f2] text-white"
+            >
                 <Icon name="twitter" size={18} />
-            </div>
+            </button>
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white">
+            <button
+                type="button"
+                onClick={() => signInWith('google')}
+                aria-label="Continue with Google"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white"
+            >
                 <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
                     <path
                         d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.91c1.7-1.57 2.68-3.88 2.68-6.62z"
@@ -33,7 +58,7 @@ export default function SocialButtons() {
                         fill="#EA4335"
                     />
                 </svg>
-            </div>
+            </button>
         </div>
     );
 }

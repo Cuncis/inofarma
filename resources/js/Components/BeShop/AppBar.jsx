@@ -32,7 +32,9 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
                 ) : null}
 
                 {brand ? (
-                    <span className="font-display text-base tracking-[2px]">BESHOP</span>
+                    <Link href="/" className="font-display text-base tracking-[2px]">
+                        BESHOP
+                    </Link>
                 ) : null}
             </div>
 

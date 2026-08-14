@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/react';
+import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
@@ -11,6 +12,18 @@ const lines = [
 ];
 
 export default function Checkout() {
+    const [comment, setComment] = useState('');
+    const [placing, setPlacing] = useState(false);
+
+    /**
+     * Stands in for the order request: a short pause, then the success screen.
+     */
+    const confirmOrder = () => {
+        setPlacing(true);
+
+        window.setTimeout(() => router.visit('/ui/order-successful'), 600);
+    };
+
     return (
         <MobileLayout
             title="Checkout"
@@ -39,36 +52,42 @@ export default function Checkout() {
                     </div>
                 </div>
 
-                <div className="mb-2 border border-line bg-lilac p-3.5">
+                <Link
+                    href="/ui/shipping-details"
+                    className="mb-2 block border border-line bg-lilac p-3.5"
+                >
                     <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
                         <span>Shipping details</span>
-                        <Link href="/ui/shipping-details" aria-label="Edit shipping details">
-                            <Icon name="edit" size={15} className="text-ink" />
-                        </Link>
+                        <Icon name="edit" size={15} className="text-ink" />
                     </div>
 
                     <span className="text-xs text-muted">
                         8000 S Kirkland Ave, Chicago, IL 60652
                     </span>
-                </div>
+                </Link>
 
-                <div className="mb-2 border border-line bg-lilac p-3.5">
+                <Link
+                    href="/ui/payment-method"
+                    className="mb-2 block border border-line bg-lilac p-3.5"
+                >
                     <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
                         <span>Payment method</span>
-                        <Link href="/ui/payment-method" aria-label="Edit payment method">
-                            <Icon name="edit" size={15} className="text-ink" />
-                        </Link>
+                        <Icon name="edit" size={15} className="text-ink" />
                     </div>
 
                     <span className="text-xs text-muted">**** **** **** 6644</span>
-                </div>
+                </Link>
 
-                <div className="mb-3.5 min-h-[80px] border border-blush p-3 text-xs text-[#bbbbbb]">
-                    Comment (optional)...
-                </div>
+                <textarea
+                    value={comment}
+                    onChange={(event) => setComment(event.target.value)}
+                    placeholder="Comment (optional)..."
+                    rows={3}
+                    className="mb-3.5 w-full resize-none border border-blush p-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                />
 
-                <Button href="/ui/order-successful" className="mb-2">
-                    Confirm Order ($324.98)
+                <Button onClick={confirmOrder} disabled={placing} className="mb-2">
+                    {placing ? 'Placing order…' : 'Confirm Order ($324.98)'}
                 </Button>
             </div>
         </MobileLayout>

@@ -1,6 +1,8 @@
+import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Icon from '@/Components/BeShop/Icon';
+import IconLink from '@/Components/BeShop/IconLink';
 import ProductCard from '@/Components/BeShop/ProductCard';
 import SectionHeading from '@/Components/BeShop/SectionHeading';
 import TabBar from '@/Components/BeShop/TabBar';
@@ -15,8 +17,8 @@ export default function Home() {
                     brand
                     actions={
                         <>
-                            <Icon name="search" size={19} />
-                            <Icon name="bag" size={19} />
+                            <IconLink name="search" href="/ui/shop" label="Search" />
+                            <IconLink name="bag" href="/ui/cart" label="Cart" />
                         </>
                     }
                 />
@@ -24,18 +26,25 @@ export default function Home() {
             footer={<TabBar active="home" />}
         >
             <div className="flex-1 overflow-y-auto">
-                <img src={asset.banner('01')} alt="" className="w-full" />
+                <Link href="/ui/categories" className="block">
+                    <img src={asset.banner('01')} alt="Shop the new season" className="w-full" />
+                </Link>
 
                 <div className="mt-3.5">
                     <SectionHeading
                         title="Trending Products"
                         action="View all"
+                        actionHref="/ui/shop"
                         className="px-3.5"
                     />
 
                     <div className="flex gap-2.5 overflow-x-auto px-3.5 scrollbar-none">
                         {trendingProducts.map((product) => (
-                            <div key={product.name} className="w-[115px] shrink-0">
+                            <Link
+                                key={product.name}
+                                href="/ui/product-detail"
+                                className="w-[115px] shrink-0"
+                            >
                                 <div className="relative h-[145px] w-[115px] overflow-hidden bg-[#f5f5f5]">
                                     <img
                                         src={product.image}
@@ -57,15 +66,21 @@ export default function Home() {
                                 <div className="text-[11px] font-bold text-brand">
                                     {product.price}
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
 
-                <img src={asset.banner('02')} alt="" className="mt-3 w-full" />
+                <Link href="/ui/shop" className="mt-3 block">
+                    <img src={asset.banner('02')} alt="Season sale" className="w-full" />
+                </Link>
 
                 <div className="mt-3 px-3.5 pb-[70px]">
-                    <SectionHeading title="New Arrivals" action="View all" />
+                    <SectionHeading
+                        title="New Arrivals"
+                        action="View all"
+                        actionHref="/ui/shop"
+                    />
 
                     <div className="grid grid-cols-2 gap-3">
                         {newArrivals.map((product) => (

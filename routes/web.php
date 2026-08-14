@@ -1,18 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/', fn () => Inertia::render('BeShop/Home'))->name('home');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -72,6 +66,32 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
     foreach ($beShopScreens as $slug => $component) {
         Route::get($slug, fn () => Inertia::render("BeShop/{$component}"))->name($slug);
     }
+
+    /**
+     * Prototype sign-in: any email and password combination is accepted and the
+     * resulting "session user" is kept in the session only. There is no user
+     * record, no password check, and no auth guard behind this — it exists so the
+     * screens can be clicked through as a flow.
+     */
+    Route::post('signin', function (Request $request) {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $request->session()->put('beshop_user', [
+            'name' => Str::of($credentials['email'])->before('@')->replace(['.', '_', '-'], ' ')->title()->value(),
+            'email' => $credentials['email'],
+        ]);
+
+        return redirect()->route('home');
+    })->name('signin.store');
+
+    Route::post('signout', function (Request $request) {
+        $request->session()->forget('beshop_user');
+
+        return redirect()->route('ui.signin');
+    })->name('signout');
 });
 
 Route::middleware('auth')->group(function () {

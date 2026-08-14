@@ -30,10 +30,10 @@ export default function PromocodesEmpty() {
                 </p>
 
                 <div className="mb-3 w-full">
-                    <Field value="Discount2022" />
+                    <Field name="promocode" placeholder="Discount2022" />
                 </div>
 
-                <Button>Add a Promocode</Button>
+                <Button href="/ui/my-promocodes">Add a Promocode</Button>
             </div>
         </MobileLayout>
     );

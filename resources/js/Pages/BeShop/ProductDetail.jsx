@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import Button from '@/Components/BeShop/Button';
@@ -9,6 +10,10 @@ import { asset, reviews, sizes } from '@/Components/BeShop/data';
 const colors = ['#222222', '#c4a882', '#d05278', '#7ecac5'];
 
 export default function ProductDetail() {
+    const [color, setColor] = useState(colors[0]);
+    const [size, setSize] = useState('S');
+    const [liked, setLiked] = useState(false);
+
     return (
         <MobileLayout title="Product Detail">
             <div className="relative h-[285px] shrink-0 bg-[#f0f0f0]">
@@ -26,9 +31,16 @@ export default function ProductDetail() {
                     <Icon name="back" size={19} />
                 </Link>
 
-                <div className="absolute right-3 top-2.5 flex h-9 w-9 items-center justify-center bg-white/90">
+                <button
+                    type="button"
+                    onClick={() => setLiked((current) => ! current)}
+                    aria-label={liked ? 'Remove from wishlist' : 'Add to wishlist'}
+                    className={`absolute right-3 top-2.5 flex h-9 w-9 items-center justify-center bg-white/90 ${
+                        liked ? 'text-brand' : 'text-ink'
+                    }`}
+                >
                     <Icon name="heart" size={19} />
-                </div>
+                </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-3.5">
@@ -45,21 +57,27 @@ export default function ProductDetail() {
                     </div>
                 </div>
 
-                <div className="mb-3.5 flex items-center gap-[5px]">
+                <Link
+                    href="/ui/reviews"
+                    className="mb-3.5 flex items-center gap-[5px]"
+                >
                     <Rating score={5} />
                     <span className="text-xs text-muted">4.9 (128)</span>
-                </div>
+                </Link>
 
                 <div className="mb-3">
                     <div className="mb-[7px] text-[13px] font-bold">Color</div>
 
                     <div className="flex gap-2">
-                        {colors.map((color, index) => (
-                            <div
-                                key={color}
-                                style={{ background: color }}
+                        {colors.map((swatch) => (
+                            <button
+                                key={swatch}
+                                type="button"
+                                onClick={() => setColor(swatch)}
+                                aria-label={`Select colour ${swatch}`}
+                                style={{ background: swatch }}
                                 className={`h-[27px] w-[27px] rounded-full ${
-                                    index === 0
+                                    color === swatch
                                         ? 'outline outline-[2.5px] outline-offset-2 outline-brand'
                                         : ''
                                 }`}
@@ -72,22 +90,26 @@ export default function ProductDetail() {
                     <div className="mb-[7px] text-[13px] font-bold">Size</div>
 
                     <div className="flex gap-[7px]">
-                        {sizes.map((size) => (
-                            <div
-                                key={size}
+                        {sizes.map((option) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => setSize(option)}
                                 className={`flex h-8 w-8 items-center justify-center text-[11px] ${
-                                    size === 'S'
+                                    size === option
                                         ? 'border-2 border-brand font-bold'
                                         : 'border border-line'
                                 }`}
                             >
-                                {size}
-                            </div>
+                                {option}
+                            </button>
                         ))}
                     </div>
                 </div>
 
-                <Button className="mb-2">Add to Cart</Button>
+                <Button href="/ui/cart" className="mb-2">
+                    Add to Cart
+                </Button>
 
                 <div className="mb-2.5 mt-4 flex justify-between border-t-2 border-ink pt-2.5">
                     <span className="font-display text-sm">Reviews</span>

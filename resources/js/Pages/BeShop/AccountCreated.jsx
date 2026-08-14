@@ -22,7 +22,7 @@ export default function AccountCreated() {
                     successfully.
                 </p>
 
-                <Button href="/ui/home">Shop Now</Button>
+                <Button href="/">Shop Now</Button>
             </div>
         </MobileLayout>
     );

@@ -28,7 +28,7 @@ export default function OrderHistory() {
         >
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-2 border border-line">
-                    <div className="bg-lilac p-3.5">
+                    <Link href="/ui/track-order" className="block bg-lilac p-3.5">
                         <div className="mb-[5px] flex justify-between">
                             <span className="font-display text-sm">#205479</span>
                             <span className="bg-[#FFF4E5] px-2.5 py-[3px] text-[11px] font-bold text-warning">
@@ -40,7 +40,7 @@ export default function OrderHistory() {
                             <span className="text-[11px] text-[#aaaaaa]">14 Aug 2025</span>
                             <span className="text-xs font-bold">$324.98</span>
                         </div>
-                    </div>
+                    </Link>
 
                     <div className="border-t border-line bg-lilac p-3.5">
                         <div className="mb-1.5 flex justify-between text-xs text-muted">
@@ -64,7 +64,11 @@ export default function OrderHistory() {
                 </div>
 
                 {pastOrders.map((order) => (
-                    <div key={order.number} className="mb-2 border border-line p-3.5">
+                    <Link
+                        key={order.number}
+                        href="/ui/track-order"
+                        className="mb-2 block border border-line p-3.5"
+                    >
                         <div className="mb-[5px] flex justify-between">
                             <span className="font-display text-sm">{order.number}</span>
                             <span
@@ -78,7 +82,7 @@ export default function OrderHistory() {
                             <span className="text-[11px] text-[#aaaaaa]">{order.date}</span>
                             <span className="text-xs font-bold">{order.total}</span>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </MobileLayout>

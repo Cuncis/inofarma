@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Fab from '@/Components/BeShop/Fab';
@@ -5,6 +6,16 @@ import Icon from '@/Components/BeShop/Icon';
 import { promocodes } from '@/Components/BeShop/data';
 
 export default function MyPromocodes() {
+    const [tab, setTab] = useState('current');
+    const [copied, setCopied] = useState(null);
+
+    const copyCode = (code) => {
+        navigator.clipboard?.writeText(code);
+
+        setCopied(code);
+        window.setTimeout(() => setCopied(null), 1500);
+    };
+
     return (
         <MobileLayout
             title="My Promocodes"
@@ -12,32 +23,54 @@ export default function MyPromocodes() {
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 <div className="mb-3.5 flex border-b border-line">
-                    <div className="flex-1 border-b-2 border-ink p-[11px] text-center text-[13px] font-bold">
-                        Current
-                    </div>
-                    <div className="flex-1 p-[11px] text-center text-[13px] font-bold text-[#aaaaaa]">
-                        Used
-                    </div>
+                    {['current', 'used'].map((name) => (
+                        <button
+                            key={name}
+                            type="button"
+                            onClick={() => setTab(name)}
+                            className={`flex-1 p-[11px] text-center text-[13px] font-bold capitalize ${
+                                tab === name
+                                    ? 'border-b-2 border-ink'
+                                    : 'text-[#aaaaaa]'
+                            }`}
+                        >
+                            {name}
+                        </button>
+                    ))}
                 </div>
 
-                {promocodes.map((promo) => (
-                    <div key={promo.code} className="mb-2.5 border border-line p-3.5">
-                        <div className="mb-1.5 flex items-center gap-2">
-                            <Icon name="tag" size={18} className="text-ink" />
-                            <span className="flex-1 font-display text-sm">{promo.name}</span>
-                            <span className={`font-bold ${promo.tone}`}>
-                                {promo.discount}
-                            </span>
-                        </div>
+                {tab === 'current' ? (
+                    promocodes.map((promo) => (
+                        <div key={promo.code} className="mb-2.5 border border-line p-3.5">
+                            <div className="mb-1.5 flex items-center gap-2">
+                                <Icon name="tag" size={18} className="text-ink" />
+                                <span className="flex-1 font-display text-sm">
+                                    {promo.name}
+                                </span>
+                                <span className={`font-bold ${promo.tone}`}>
+                                    {promo.discount}
+                                </span>
+                            </div>
 
-                        <div className="mb-2 text-[11px] text-[#aaaaaa]">{promo.expires}</div>
+                            <div className="mb-2 text-[11px] text-[#aaaaaa]">
+                                {promo.expires}
+                            </div>
 
-                        <div className="flex items-center justify-between border border-dashed border-[#dddddd] bg-lilac px-3 py-2 text-xs font-bold tracking-[1px]">
-                            {promo.code}
-                            <Icon name="copy" size={15} className="text-[#aaaaaa]" />
+                            <button
+                                type="button"
+                                onClick={() => copyCode(promo.code)}
+                                className="flex w-full items-center justify-between border border-dashed border-[#dddddd] bg-lilac px-3 py-2 text-xs font-bold tracking-[1px]"
+                            >
+                                {copied === promo.code ? 'Copied!' : promo.code}
+                                <Icon name="copy" size={15} className="text-[#aaaaaa]" />
+                            </button>
                         </div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <p className="mt-10 text-center text-[13px] text-muted">
+                        You have not used any promocodes yet.
+                    </p>
+                )}
             </div>
 
             <Fab href="/ui/promocodes-empty" label="Add a promocode" />

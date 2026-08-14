@@ -1,7 +1,7 @@
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
-import Icon from '@/Components/BeShop/Icon';
+import IconLink from '@/Components/BeShop/IconLink';
 import TabBar from '@/Components/BeShop/TabBar';
 import { asset } from '@/Components/BeShop/data';
 
@@ -9,7 +9,12 @@ export default function CartEmpty() {
     return (
         <MobileLayout
             title="Cart Empty"
-            header={<AppBar tone="white" actions={<Icon name="user" size={19} />} />}
+            header={
+                <AppBar
+                    tone="white"
+                    actions={<IconLink name="user" href="/ui/profile" label="Profile" />}
+                />
+            }
             footer={<TabBar active="order" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">

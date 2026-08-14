@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
@@ -5,12 +7,21 @@ import Icon from '@/Components/BeShop/Icon';
 import { asset } from '@/Components/BeShop/data';
 
 export default function LeaveAReview() {
+    const [score, setScore] = useState(4);
+    const [body, setBody] = useState('');
+
+    const submit = (event) => {
+        event.preventDefault();
+
+        router.visit('/ui/reviews');
+    };
+
     return (
         <MobileLayout
             title="Leave a Review"
             header={<AppBar title="Leave a Review" back="/ui/order-history" tone="white" />}
         >
-            <div className="flex-1 overflow-y-auto p-4 text-center">
+            <form onSubmit={submit} className="flex-1 overflow-y-auto p-4 text-center">
                 <img
                     src={asset.other('07')}
                     alt=""
@@ -25,12 +36,18 @@ export default function LeaveAReview() {
 
                 <div className="mb-3.5 flex justify-center gap-1.5">
                     {[1, 2, 3, 4, 5].map((star) => (
-                        <Icon
+                        <button
                             key={star}
-                            name="star"
-                            size={28}
-                            className={star <= 4 ? 'text-star' : 'text-[#dddddd]'}
-                        />
+                            type="button"
+                            onClick={() => setScore(star)}
+                            aria-label={`Rate ${star} out of 5`}
+                        >
+                            <Icon
+                                name="star"
+                                size={28}
+                                className={star <= score ? 'text-star' : 'text-[#dddddd]'}
+                            />
+                        </button>
                     ))}
                 </div>
 
@@ -38,12 +55,16 @@ export default function LeaveAReview() {
                     Your comments and suggestions help us improve the service quality!
                 </p>
 
-                <div className="mb-3.5 min-h-[80px] border border-line p-3 text-left text-xs text-[#bbbbbb]">
-                    Write your review here...
-                </div>
+                <textarea
+                    value={body}
+                    onChange={(event) => setBody(event.target.value)}
+                    placeholder="Write your review here..."
+                    rows={3}
+                    className="mb-3.5 w-full resize-none border border-line p-3 text-left text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                />
 
-                <Button>Submit</Button>
-            </div>
+                <Button type="submit">Submit</Button>
+            </form>
         </MobileLayout>
     );
 }

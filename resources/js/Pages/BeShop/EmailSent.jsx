@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
@@ -26,11 +27,13 @@ export default function EmailSent() {
                     instructions to your email.
                 </p>
 
-                <Button>OK, Got It!</Button>
+                <Button href="/ui/new-password">OK, Got It!</Button>
 
                 <div className="mt-2.5 flex gap-1 text-xs">
                     <span>Did not receive the email?</span>
-                    <span className="text-brand">Resend</span>
+                    <Link href="/ui/forgot-password" className="text-brand">
+                        Resend
+                    </Link>
                 </div>
             </div>
         </MobileLayout>

@@ -103,18 +103,28 @@ export const cartItems = [
     {
         name: 'Silk Maxi Dress',
         image: asset.product('01'),
-        price: '$89.99',
+        amount: 89.99,
         quantity: 2,
         onSale: false,
     },
     {
         name: 'Leather Jacket',
         image: asset.product('03'),
-        price: '$145.00',
+        amount: 145,
         quantity: 1,
         onSale: true,
     },
 ];
+
+/**
+ * Format a number as the storefront's display price.
+ *
+ * @param {number} amount
+ * @returns {string}
+ */
+export function money(amount) {
+    return `$${amount.toFixed(2)}`;
+}
 
 /** @type {import('./ReviewCard').Review[]} */
 export const reviews = [

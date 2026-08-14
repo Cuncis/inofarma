@@ -1,20 +1,33 @@
+import { useState } from 'react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
+import Button from '@/Components/BeShop/Button';
 import Radio from '@/Components/BeShop/Radio';
 import { addresses } from '@/Components/BeShop/data';
 
 export default function ShippingDetails() {
+    const [selected, setSelected] = useState(addresses[0].title);
+
     return (
         <MobileLayout
             title="Checkout Shipping"
             header={<AppBar title="Shipping Details" back="/ui/checkout" />}
+            footer={
+                <div className="border-t border-line p-3.5">
+                    <Button href="/ui/checkout">Deliver Here</Button>
+                </div>
+            }
         >
             <div className="flex-1 overflow-y-auto p-3.5">
-                {addresses.map((address, index) => (
-                    <div
+                {addresses.map((address) => (
+                    <button
                         key={address.title}
-                        className={`mb-2 flex items-center gap-3 p-3.5 ${
-                            index === 0 ? 'border border-brand' : 'border border-line'
+                        type="button"
+                        onClick={() => setSelected(address.title)}
+                        className={`mb-2 flex w-full items-center gap-3 p-3.5 text-left ${
+                            selected === address.title
+                                ? 'border border-brand'
+                                : 'border border-line'
                         }`}
                     >
                         <div className="flex-1">
@@ -22,8 +35,8 @@ export default function ShippingDetails() {
                             <div className="text-xs text-muted">{address.line}</div>
                         </div>
 
-                        <Radio checked={index === 0} />
-                    </div>
+                        <Radio checked={selected === address.title} />
+                    </button>
                 ))}
             </div>
         </MobileLayout>

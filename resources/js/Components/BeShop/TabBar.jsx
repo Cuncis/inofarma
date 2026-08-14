@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import Icon from './Icon';
 
 const tabs = [
-    { key: 'home', label: 'Home', icon: 'home', route: '/ui/home' },
+    { key: 'home', label: 'Home', icon: 'home', route: '/' },
     { key: 'order', label: 'Order', icon: 'bagSimple', route: '/ui/cart' },
     { key: 'wishlist', label: 'Wishlist', icon: 'heart', route: '/ui/wishlist' },
     { key: 'profile', label: 'Profile', icon: 'user', route: '/ui/profile' },
