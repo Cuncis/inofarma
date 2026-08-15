@@ -76,7 +76,13 @@ class ProfileTest extends TestCase
             ->assertRedirect('/');
 
         $this->assertGuest();
-        $this->assertNull($user->fresh());
+
+        // Staf memakai soft delete: baris tetap ada agar atribusi pada
+        // inventory_movements dan audit_logs tidak hilang, tetapi akun tidak
+        // lagi bisa dipakai masuk. Penghapusan permanen untuk pemenuhan hak
+        // penghapusan data pribadi ditangani terpisah (lihat ROADMAP Fase 9).
+        $this->assertSoftDeleted($user);
+        $this->assertNull(User::find($user->id));
     }
 
     public function test_correct_password_must_be_provided_to_delete_account(): void
