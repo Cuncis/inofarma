@@ -7,7 +7,7 @@ export default function AuthPassword() {
     const submit = (event) => {
         event.preventDefault();
 
-        router.visit('/admin/auth/masuk');
+        router.visit('/admin/masuk');
     };
 
     return (
@@ -34,7 +34,7 @@ export default function AuthPassword() {
 
             <p className="mt-5 text-center text-[13px] text-admin-muted dark:text-admin-dark-muted">
                 Kembali ke{' '}
-                <Link href="/admin/auth/masuk" className="font-semibold text-brand hover:underline">
+                <Link href="/admin/masuk" className="font-semibold text-brand hover:underline">
                     halaman masuk
                 </Link>
             </p>

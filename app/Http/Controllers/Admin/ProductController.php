@@ -7,6 +7,7 @@ use App\Http\Requests\ProductRequest;
 use App\Support\Catalog;
 use App\Support\CategoryStore;
 use App\Support\ProductStore;
+use App\Support\SellerStore;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,6 +24,7 @@ class ProductController extends Controller
     public function __construct(
         private readonly ProductStore $products,
         private readonly CategoryStore $categories,
+        private readonly SellerStore $sellers,
     ) {}
 
     public function index(): Response
@@ -100,6 +102,7 @@ class ProductController extends Controller
     {
         return [
             'categories' => $this->categories->names(),
+            'sellers' => $this->sellers->names(),
             'units' => Catalog::units(),
             'statuses' => Catalog::statuses(),
         ];

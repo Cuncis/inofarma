@@ -13,17 +13,26 @@ import { money } from './data';
  * @param {{
  *   product?: object,
  *   categories: string[],
+ *   sellers: string[],
  *   units: string[],
  *   statuses: string[],
  *   submitLabel: string,
  * }} props
  */
-export default function ProductForm({ product, categories, units, statuses, submitLabel }) {
+export default function ProductForm({
+    product,
+    categories,
+    sellers,
+    units,
+    statuses,
+    submitLabel,
+}) {
     const editing = Boolean(product);
 
     const { data, setData, post, put, processing, errors, isDirty } = useForm({
         name: product?.name ?? '',
         category: product?.category ?? categories[0],
+        seller: product?.seller ?? sellers[0],
         unit: product?.unit ?? units[0],
         status: product?.status ?? statuses[0],
         price: product?.price ?? '',
@@ -96,6 +105,20 @@ export default function ProductForm({ product, categories, units, statuses, subm
                                     value={data.unit}
                                     onChange={(event) => setData('unit', event.target.value)}
                                     options={units}
+                                />
+                            </Field>
+
+                            <Field
+                                label="Penjual"
+                                htmlFor="seller"
+                                hint={errors.seller}
+                                className="sm:col-span-2"
+                            >
+                                <Select
+                                    id="seller"
+                                    value={data.seller}
+                                    onChange={(event) => setData('seller', event.target.value)}
+                                    options={sellers}
                                 />
                             </Field>
                         </div>

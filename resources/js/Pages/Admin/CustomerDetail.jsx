@@ -2,23 +2,33 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
+import Icon from '@/Components/Admin/Icon';
 import Table from '@/Components/Admin/Table';
-import { customers, money, orders, statusTone } from '@/Components/Admin/data';
+import { money, statusTone } from '@/Components/Admin/data';
 
-const customer = customers[0];
+export default function CustomerDetail({ customer, orders }) {
+    const details = [
+        { label: 'Email', value: customer.email, icon: 'solar:letter-broken' },
+        { label: 'Telepon', value: customer.phone, icon: 'solar:phone-broken' },
+        { label: 'Kota', value: customer.city, icon: 'solar:city-broken' },
+        { label: 'Bergabung', value: customer.joined, icon: 'solar:clock-circle-broken' },
+    ];
 
-export default function CustomerDetail() {
     return (
         <AdminLayout
-            title="Detail Pelanggan"
+            title={`Pelanggan ${customer.name}`}
             heading={customer.name}
             breadcrumb={[
                 { label: 'Inofarma', href: '/admin' },
                 { label: 'Pelanggan', href: '/admin/pelanggan' },
-                { label: 'Detail' },
+                { label: customer.name },
             ]}
             actions={
-                <Button href="/admin/pelanggan/ubah" size="sm" icon="solar:pen-2-broken">
+                <Button
+                    href={`/admin/pelanggan/${customer.id}/ubah`}
+                    size="sm"
+                    icon="solar:pen-2-broken"
+                >
                     Ubah
                 </Button>
             }
@@ -28,36 +38,65 @@ export default function CustomerDetail() {
                     <div className="text-center">
                         <img
                             src={customer.avatar}
-                            alt={customer.name}
+                            alt=""
                             className="mx-auto h-20 w-20 rounded-full object-cover"
                         />
                         <h2 className="mt-3 text-[15px] font-semibold text-admin-heading dark:text-admin-dark-heading">
                             {customer.name}
                         </h2>
-                        <p className="text-xs text-admin-muted dark:text-admin-dark-muted">{customer.email}</p>
+                        <p className="text-xs text-admin-muted dark:text-admin-dark-muted">
+                            {customer.id}
+                        </p>
                         <Badge tone={statusTone(customer.status)} className="mt-2">
                             {customer.status}
                         </Badge>
                     </div>
 
-                    <dl className="mt-5 space-y-3 border-t border-admin-border pt-5 text-[13px] dark:border-admin-dark-border">
-                        <div className="flex justify-between">
-                            <dt className="text-admin-muted dark:text-admin-dark-muted">Telepon</dt>
-                            <dd>{customer.phone}</dd>
+                    <dl className="mt-5 space-y-4 border-t border-admin-border pt-5 dark:border-admin-dark-border">
+                        {details.map((detail) => (
+                            <div key={detail.label} className="flex items-start gap-3">
+                                <Icon
+                                    name={detail.icon}
+                                    size={17}
+                                    className="mt-0.5 shrink-0 text-admin-muted"
+                                />
+                                <div className="min-w-0">
+                                    <dt className="text-xs text-admin-muted dark:text-admin-dark-muted">
+                                        {detail.label}
+                                    </dt>
+                                    <dd className="truncate text-[13px] font-medium text-admin-heading dark:text-admin-dark-heading">
+                                        {detail.value}
+                                    </dd>
+                                </div>
+                            </div>
+                        ))}
+                    </dl>
+
+                    {customer.address ? (
+                        <div className="mt-4 border-t border-admin-border pt-4 dark:border-admin-dark-border">
+                            <p className="text-xs text-admin-muted dark:text-admin-dark-muted">
+                                Alamat
+                            </p>
+                            <p className="mt-1 text-[13px] leading-relaxed text-admin-body dark:text-admin-dark-body">
+                                {customer.address}
+                            </p>
                         </div>
-                        <div className="flex justify-between">
-                            <dt className="text-admin-muted dark:text-admin-dark-muted">Kota</dt>
-                            <dd>{customer.city}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                            <dt className="text-admin-muted dark:text-admin-dark-muted">Total pesanan</dt>
-                            <dd className="font-semibold text-admin-heading dark:text-admin-dark-heading">
+                    ) : null}
+
+                    <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-admin-border pt-4 dark:border-admin-dark-border">
+                        <div>
+                            <dt className="text-xs text-admin-muted dark:text-admin-dark-muted">
+                                Pesanan
+                            </dt>
+                            <dd className="text-[15px] font-semibold text-admin-heading dark:text-admin-dark-heading">
                                 {customer.orders}
                             </dd>
                         </div>
-                        <div className="flex justify-between">
-                            <dt className="text-admin-muted dark:text-admin-dark-muted">Total belanja</dt>
-                            <dd className="font-semibold text-admin-heading dark:text-admin-dark-heading">
+                        <div>
+                            <dt className="text-xs text-admin-muted dark:text-admin-dark-muted">
+                                Total belanja
+                            </dt>
+                            <dd className="text-[15px] font-semibold text-admin-heading dark:text-admin-dark-heading">
                                 {money(customer.spent)}
                             </dd>
                         </div>
@@ -75,6 +114,7 @@ export default function CustomerDetail() {
                         ]}
                         rows={orders}
                         rowKey={(row) => row.id}
+                        empty="Pelanggan ini belum pernah memesan."
                         renderCell={(row, key) => {
                             if (key === 'total') {
                                 return (

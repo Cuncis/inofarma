@@ -4,10 +4,20 @@ namespace Tests\Feature\Admin;
 
 use App\Support\Catalog;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class ProductCrudTest extends TestCase
 {
+    use SignsInAsAdmin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->signInAsAdmin();
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -16,6 +26,7 @@ class ProductCrudTest extends TestCase
         return array_merge([
             'name' => 'Ibuprofen 400mg',
             'category' => 'Obat Bebas',
+            'seller' => 'Apotek Sehat Bersama',
             'unit' => 'Strip',
             'status' => 'Aktif',
             'price' => 17500,
@@ -111,11 +122,12 @@ class ProductCrudTest extends TestCase
             'category' => 'Bukan Kategori',
             'unit' => 'Karung',
             'status' => 'Entah',
+            'seller' => 'Toko Fiktif',
             'price' => -5,
             'stock' => 'banyak',
             'prescription' => 'mungkin',
         ])->assertSessionHasErrors([
-            'name', 'category', 'unit', 'status', 'price', 'stock', 'prescription',
+            'name', 'category', 'seller', 'unit', 'status', 'price', 'stock', 'prescription',
         ]);
 
         $this->get('/admin/produk')

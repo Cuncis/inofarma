@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import ProductForm from '@/Components/Admin/ProductForm';
 
-export default function ProductEdit({ product, categories, units, statuses }) {
+export default function ProductEdit({ product, categories, sellers, units, statuses }) {
     return (
         <AdminLayout
             title={`Ubah ${product.name}`}
@@ -15,6 +15,7 @@ export default function ProductEdit({ product, categories, units, statuses }) {
             <ProductForm
                 product={product}
                 categories={categories}
+                sellers={sellers}
                 units={units}
                 statuses={statuses}
                 submitLabel="Simpan Perubahan"

@@ -7,10 +7,10 @@ import { navSections } from './nav';
  * Is this path the one currently being viewed?
  *
  * Top-level items match their whole subtree, so "Produk" stays lit on
- * `/admin/produk/PRD-001/ubah`. Child links match exactly — otherwise "Daftar
- * Pesanan" (`/admin/pesanan`) would light up alongside "Keranjang"
- * (`/admin/pesanan/keranjang`), since one is a prefix of the other. `/admin`
- * is always exact or it would match every admin page.
+ * `/admin/produk/PRD-001/ubah`. Child links match exactly — otherwise a parent
+ * path like `/admin/pembelian` would light up alongside its own child
+ * `/admin/pembelian/order`, since one is a prefix of the other. `/admin` is
+ * always exact or it would match every admin page.
  *
  * @param {string} current
  * @param {string} href

@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SellerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,11 +34,6 @@ $adminScreens = [
     'inventaris/gudang' => 'InventoryWarehouse',
     'inventaris/pesanan-masuk' => 'InventoryReceivedOrders',
 
-    'pesanan' => 'OrderList',
-    'pesanan/detail' => 'OrderDetail',
-    'pesanan/keranjang' => 'OrderCart',
-    'pesanan/checkout' => 'OrderCheckout',
-
     'pembelian' => 'PurchaseList',
     'pembelian/order' => 'PurchaseOrder',
     'pembelian/retur' => 'PurchaseReturns',
@@ -43,16 +42,6 @@ $adminScreens = [
     'faktur/detail' => 'InvoiceDetail',
     'faktur/tambah' => 'InvoiceAdd',
     'faktur/ubah' => 'InvoiceEdit',
-
-    'pelanggan' => 'CustomerList',
-    'pelanggan/detail' => 'CustomerDetail',
-    'pelanggan/tambah' => 'CustomerAdd',
-    'pelanggan/ubah' => 'CustomerEdit',
-
-    'penjual' => 'SellerList',
-    'penjual/detail' => 'SellerDetail',
-    'penjual/tambah' => 'SellerAdd',
-    'penjual/ubah' => 'SellerEdit',
 
     'kupon' => 'CouponList',
     'kupon/tambah' => 'CouponAdd',
@@ -75,57 +64,98 @@ $adminScreens = [
     'faq' => 'Faq',
     'kebijakan-privasi' => 'PrivacyPolicy',
 
-    'auth/masuk' => 'AuthSignIn',
-    'auth/daftar' => 'AuthSignUp',
-    'auth/atur-ulang-sandi' => 'AuthPassword',
-    'auth/kunci-layar' => 'AuthLockScreen',
-
-    'halaman/selamat-datang' => 'Starter',
-    'halaman/segera-hadir' => 'ComingSoon',
-    'halaman/linimasa' => 'Timeline',
-    'halaman/harga' => 'Pricing',
-    'halaman/pemeliharaan' => 'Maintenance',
-    'halaman/404' => 'Error404',
-    'halaman/404-alt' => 'Error404Alt',
 ];
 
 Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
     /**
-     * Product CRUD. Backed by the session store rather than a database, but the
-     * routes are the ones a real resource would expose.
+     * Sign-in sits outside the guard, or reaching it would loop.
      */
-    /**
-     * Category CRUD. Deleting is refused while products still reference the
-     * category, so `destroy` can come back with an error rather than a success.
-     */
-    Route::prefix('kategori')->name('kategori.')->controller(CategoryController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('tambah', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
-        Route::post('reset', 'reset')->name('reset');
-        Route::get('{category}', 'show')->name('show');
-        Route::get('{category}/ubah', 'edit')->name('edit');
-        Route::put('{category}', 'update')->name('update');
-        Route::delete('{category}', 'destroy')->name('destroy');
+    Route::get('masuk', [AdminAuthController::class, 'show'])->name('masuk');
+    Route::post('masuk', [AdminAuthController::class, 'login'])->name('masuk.store');
+    Route::get('lupa-sandi', [AdminAuthController::class, 'forgotPassword'])->name('lupa-sandi');
+
+    Route::middleware('admin')->group(function () use ($adminScreens) {
+        Route::post('keluar', [AdminAuthController::class, 'logout'])->name('keluar');
+
+        /**
+         * Product CRUD. Backed by the session store rather than a database, but the
+         * routes are the ones a real resource would expose.
+         */
+        /**
+         * Category CRUD. Deleting is refused while products still reference the
+         * category, so `destroy` can come back with an error rather than a success.
+         */
+        /**
+         * Customer CRUD. Deleting is refused while order history exists.
+         */
+        /**
+         * Seller CRUD. Deleting is refused while the seller still stocks products.
+         */
+        /**
+         * Order CRUD. A completed order cannot be deleted, only cancelled.
+         */
+        Route::prefix('pesanan')->name('pesanan.')->controller(OrderController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::post('reset', 'reset')->name('reset');
+            Route::get('{order}', 'show')->name('show');
+            Route::get('{order}/ubah', 'edit')->name('edit');
+            Route::put('{order}', 'update')->name('update');
+            Route::delete('{order}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('penjual')->name('penjual.')->controller(SellerController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::post('reset', 'reset')->name('reset');
+            Route::get('{seller}', 'show')->name('show');
+            Route::get('{seller}/ubah', 'edit')->name('edit');
+            Route::put('{seller}', 'update')->name('update');
+            Route::delete('{seller}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::post('reset', 'reset')->name('reset');
+            Route::get('{customer}', 'show')->name('show');
+            Route::get('{customer}/ubah', 'edit')->name('edit');
+            Route::put('{customer}', 'update')->name('update');
+            Route::delete('{customer}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('kategori')->name('kategori.')->controller(CategoryController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::post('reset', 'reset')->name('reset');
+            Route::get('{category}', 'show')->name('show');
+            Route::get('{category}/ubah', 'edit')->name('edit');
+            Route::put('{category}', 'update')->name('update');
+            Route::delete('{category}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('produk')->name('produk.')->controller(ProductController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::post('reset', 'reset')->name('reset');
+            Route::get('{product}', 'show')->name('show');
+            Route::get('{product}/ubah', 'edit')->name('edit');
+            Route::put('{product}', 'update')->name('update');
+            Route::delete('{product}', 'destroy')->name('destroy');
+        });
+
+        foreach ($adminScreens as $slug => $component) {
+            $path = $slug === '/' ? '/' : $slug;
+            $name = $slug === '/' ? 'dashboard' : str_replace('/', '.', $slug);
+
+            Route::get($path, fn () => Inertia::render("Admin/{$component}"))->name($name);
+        }
     });
-
-    Route::prefix('produk')->name('produk.')->controller(ProductController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('tambah', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
-        Route::post('reset', 'reset')->name('reset');
-        Route::get('{product}', 'show')->name('show');
-        Route::get('{product}/ubah', 'edit')->name('edit');
-        Route::put('{product}', 'update')->name('update');
-        Route::delete('{product}', 'destroy')->name('destroy');
-    });
-
-    foreach ($adminScreens as $slug => $component) {
-        $path = $slug === '/' ? '/' : $slug;
-        $name = $slug === '/' ? 'dashboard' : str_replace('/', '.', $slug);
-
-        Route::get($path, fn () => Inertia::render("Admin/{$component}"))->name($name);
-    }
 });
 
 Route::get('/dashboard', function () {

@@ -134,10 +134,10 @@ export default function Dashboard() {
                         if (key === 'id') {
                             return (
                                 <Link
-                                    href="/admin/pesanan/detail"
+                                    href={`/admin/pesanan/${row.id}`}
                                     className="font-semibold text-brand hover:underline"
                                 >
-                                    {row.id}
+                                    #{row.id}
                                 </Link>
                             );
                         }

@@ -4,10 +4,20 @@ namespace Tests\Feature\Admin;
 
 use App\Support\Catalog;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class CategoryCrudTest extends TestCase
 {
+    use SignsInAsAdmin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->signInAsAdmin();
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -191,6 +201,7 @@ class CategoryCrudTest extends TestCase
         $this->post('/admin/produk', [
             'name' => 'Sabun Bayi 200ml',
             'category' => 'Perawatan Bayi',
+            'seller' => 'Apotek Sehat Bersama',
             'unit' => 'Botol',
             'status' => 'Aktif',
             'price' => 27000,

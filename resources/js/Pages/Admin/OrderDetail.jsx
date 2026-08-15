@@ -1,42 +1,35 @@
+import { Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
 import Icon from '@/Components/Admin/Icon';
 import Table from '@/Components/Admin/Table';
-import { invoiceLines, money, orders, statusTone } from '@/Components/Admin/data';
+import { money, statusTone } from '@/Components/Admin/data';
 
-const order = orders[0];
-const subtotal = invoiceLines.reduce((total, line) => total + line.qty * line.price, 0);
-const shipping = 25000;
+export default function OrderDetail({ order, statuses }) {
+    // The lifecycle runs in order; Dibatalkan sits outside it.
+    const lifecycle = statuses.filter((status) => status !== 'Dibatalkan');
+    const reached = lifecycle.indexOf(order.status);
+    const cancelled = order.status === 'Dibatalkan';
 
-const timeline = [
-    { label: 'Pesanan dibuat', at: '14 Agu 2025, 09.00 WIB', done: true },
-    { label: 'Pembayaran diterima', at: '14 Agu 2025, 09.12 WIB', done: true },
-    { label: 'Sedang disiapkan', at: '14 Agu 2025, 11.30 WIB', done: true },
-    { label: 'Dikirim', at: '15 Agu 2025, 08.00 WIB', done: false },
-    { label: 'Diterima', at: 'Menunggu', done: false },
-];
-
-export default function OrderDetail() {
     return (
         <AdminLayout
-            title="Detail Pesanan"
-            heading={`Pesanan ${order.id}`}
+            title={`Pesanan #${order.id}`}
+            heading={`Pesanan #${order.id}`}
             breadcrumb={[
                 { label: 'Inofarma', href: '/admin' },
                 { label: 'Pesanan', href: '/admin/pesanan' },
-                { label: 'Detail' },
+                { label: `#${order.id}` },
             ]}
             actions={
-                <>
-                    <Button variant="outline" size="sm" icon="solar:printer-broken">
-                        Cetak
-                    </Button>
-                    <Button href="/admin/faktur/detail" size="sm">
-                        Lihat Faktur
-                    </Button>
-                </>
+                <Button
+                    href={`/admin/pesanan/${order.id}/ubah`}
+                    size="sm"
+                    icon="solar:pen-2-broken"
+                >
+                    Ubah
+                </Button>
             }
         >
             <div className="grid gap-5 lg:grid-cols-3">
@@ -49,9 +42,20 @@ export default function OrderDetail() {
                                 { key: 'price', label: 'Harga', align: 'right' },
                                 { key: 'sum', label: 'Subtotal', align: 'right' },
                             ]}
-                            rows={invoiceLines}
-                            rowKey={(row) => row.name}
+                            rows={order.items}
+                            rowKey={(row) => row.productId}
                             renderCell={(row, key) => {
+                                if (key === 'name') {
+                                    return (
+                                        <Link
+                                            href={`/admin/produk/${row.productId}`}
+                                            className="font-medium text-admin-heading hover:text-brand dark:text-admin-dark-heading"
+                                        >
+                                            {row.name}
+                                        </Link>
+                                    );
+                                }
+
                                 if (key === 'price') {
                                     return money(row.price);
                                 }
@@ -71,46 +75,58 @@ export default function OrderDetail() {
                         <div className="ml-auto w-full max-w-xs space-y-2 px-5 py-4 text-[13px]">
                             <div className="flex justify-between">
                                 <span className="text-admin-muted dark:text-admin-dark-muted">Subtotal</span>
-                                <span>{money(subtotal)}</span>
+                                <span>{money(order.subtotal)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-admin-muted dark:text-admin-dark-muted">Ongkos kirim</span>
-                                <span>{money(shipping)}</span>
+                                <span>{money(order.shipping)}</span>
                             </div>
                             <div className="flex justify-between border-t border-admin-border pt-2 text-[15px] font-bold text-admin-heading dark:border-admin-dark-border dark:text-admin-dark-heading">
                                 <span>Total</span>
-                                <span>{money(subtotal + shipping)}</span>
+                                <span>{money(order.total)}</span>
                             </div>
                         </div>
                     </Card>
 
-                    <Card title="Status Pengiriman">
-                        <ol className="relative space-y-6 border-l border-admin-border pl-6 dark:border-admin-dark-border">
-                            {timeline.map((step) => (
-                                <li key={step.label} className="relative">
-                                    <span
-                                        className={`absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full ${
-                                            step.done
-                                                ? 'bg-brand text-white'
-                                                : 'border-2 border-admin-border bg-admin-card dark:border-admin-dark-border dark:bg-admin-dark-card'
-                                        }`}
-                                    >
-                                        {step.done ? <Icon name="solar:check-circle-broken" size={12} /> : null}
-                                    </span>
+                    <Card title="Status Pesanan">
+                        {cancelled ? (
+                            <p className="flex items-center gap-2.5 rounded-lg bg-[#fdecec] px-3.5 py-3 text-[13px] text-danger-deep dark:bg-danger/20 dark:text-danger">
+                                <Icon name="solar:danger-triangle-broken" size={18} />
+                                Pesanan ini dibatalkan.
+                            </p>
+                        ) : (
+                            <ol className="relative space-y-5 border-l border-admin-border pl-6 dark:border-admin-dark-border">
+                                {lifecycle.map((status, index) => {
+                                    const done = index <= reached;
 
-                                    <p
-                                        className={`text-[13px] font-semibold ${
-                                            step.done
-                                                ? 'text-admin-heading dark:text-admin-dark-heading'
-                                                : 'text-admin-muted dark:text-admin-dark-muted'
-                                        }`}
-                                    >
-                                        {step.label}
-                                    </p>
-                                    <p className="text-xs text-admin-muted dark:text-admin-dark-muted">{step.at}</p>
-                                </li>
-                            ))}
-                        </ol>
+                                    return (
+                                        <li key={status} className="relative">
+                                            <span
+                                                className={`absolute -left-[31px] flex h-5 w-5 items-center justify-center rounded-full ${
+                                                    done
+                                                        ? 'bg-brand text-white dark:bg-brand-lift'
+                                                        : 'border-2 border-admin-border bg-admin-card dark:border-admin-dark-border dark:bg-admin-dark-card'
+                                                }`}
+                                            >
+                                                {done ? (
+                                                    <Icon name="solar:check-circle-broken" size={12} />
+                                                ) : null}
+                                            </span>
+
+                                            <p
+                                                className={`text-[13px] font-semibold ${
+                                                    done
+                                                        ? 'text-admin-heading dark:text-admin-dark-heading'
+                                                        : 'text-admin-muted dark:text-admin-dark-muted'
+                                                }`}
+                                            >
+                                                {status}
+                                            </p>
+                                        </li>
+                                    );
+                                })}
+                            </ol>
+                        )}
                     </Card>
                 </div>
 
@@ -135,31 +151,52 @@ export default function OrderDetail() {
                                     {order.payment}
                                 </dd>
                             </div>
+                            <div className="flex justify-between">
+                                <dt className="text-admin-muted dark:text-admin-dark-muted">Jumlah item</dt>
+                                <dd className="font-medium text-admin-heading dark:text-admin-dark-heading">
+                                    {order.itemCount}
+                                </dd>
+                            </div>
                         </dl>
                     </Card>
 
                     <Card title="Pelanggan">
                         <div className="flex items-center gap-3">
-                            <img src={order.avatar} alt="" className="h-11 w-11 rounded-full object-cover" />
-                            <div>
-                                <p className="text-[13px] font-semibold text-admin-heading dark:text-admin-dark-heading">
-                                    {order.customer}
-                                </p>
-                                <p className="text-xs text-admin-muted dark:text-admin-dark-muted">
-                                    kirana.wijaya@mail.com
+                            {order.customerAvatar ? (
+                                <img
+                                    src={order.customerAvatar}
+                                    alt=""
+                                    className="h-11 w-11 rounded-full object-cover"
+                                />
+                            ) : null}
+
+                            <div className="min-w-0">
+                                {order.customerId ? (
+                                    <Link
+                                        href={`/admin/pelanggan/${order.customerId}`}
+                                        className="block truncate text-[13px] font-semibold text-admin-heading hover:text-brand dark:text-admin-dark-heading"
+                                    >
+                                        {order.customerName}
+                                    </Link>
+                                ) : (
+                                    <p className="truncate text-[13px] font-semibold text-admin-heading dark:text-admin-dark-heading">
+                                        {order.customerName}
+                                    </p>
+                                )}
+                                <p className="truncate text-xs text-admin-muted dark:text-admin-dark-muted">
+                                    {order.customerEmail}
                                 </p>
                             </div>
                         </div>
-
-                        <div className="mt-4 border-t border-admin-border pt-4 dark:border-admin-dark-border">
-                            <p className="text-xs text-admin-muted dark:text-admin-dark-muted">Alamat pengiriman</p>
-                            <p className="mt-1 text-[13px] leading-relaxed text-admin-body dark:text-admin-dark-body">
-                                Jl. Kebon Jeruk Raya No. 27
-                                <br />
-                                Jakarta Barat 11530
-                            </p>
-                        </div>
                     </Card>
+
+                    {order.note ? (
+                        <Card title="Catatan">
+                            <p className="text-[13px] leading-relaxed text-admin-body dark:text-admin-dark-body">
+                                {order.note}
+                            </p>
+                        </Card>
+                    ) : null}
                 </div>
             </div>
         </AdminLayout>

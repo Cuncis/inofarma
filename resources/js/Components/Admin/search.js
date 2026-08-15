@@ -19,11 +19,10 @@ const actionPages = [
     { label: 'Tambah Peran', href: '/admin/peran/tambah' },
     { label: 'Ubah Peran', href: '/admin/peran/ubah' },
     { label: 'Tambah Pelanggan', href: '/admin/pelanggan/tambah' },
-    { label: 'Ubah Pelanggan', href: '/admin/pelanggan/ubah' },
     { label: 'Tambah Penjual', href: '/admin/penjual/tambah' },
-    { label: 'Ubah Penjual', href: '/admin/penjual/ubah' },
     { label: 'Tambah Kupon', href: '/admin/kupon/tambah' },
-    { label: 'Detail Pesanan', href: '/admin/pesanan/detail' },
+    { label: 'Buat Pesanan', href: '/admin/pesanan/tambah' },
+    { label: 'Lupa Kata Sandi', href: '/admin/lupa-sandi' },
 ];
 
 /**
@@ -60,9 +59,9 @@ export const searchIndex = [
 
     ...orders.map((order) => ({
         group: 'Pesanan',
-        label: order.id,
+        label: `#${order.id}`,
         meta: `${order.customer} · ${order.status}`,
-        href: '/admin/pesanan/detail',
+        href: `/admin/pesanan/${order.id}`,
         icon: 'solar:bag-smile-bold-duotone',
     })),
 
@@ -70,7 +69,7 @@ export const searchIndex = [
         group: 'Pelanggan',
         label: customer.name,
         meta: customer.email,
-        href: '/admin/pelanggan/detail',
+        href: `/admin/pelanggan/${customer.id}`,
         icon: 'solar:users-group-two-rounded-bold-duotone',
     })),
 
@@ -78,7 +77,7 @@ export const searchIndex = [
         group: 'Penjual',
         label: seller.name,
         meta: `${seller.owner} · ${seller.city}`,
-        href: '/admin/penjual/detail',
+        href: `/admin/penjual/${seller.id}`,
         icon: 'solar:shop-bold-duotone',
     })),
 

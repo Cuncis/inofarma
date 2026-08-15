@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import Dropdown from './Dropdown';
 import GlobalSearch from './GlobalSearch';
 import Icon from './Icon';
+import useAdminUser from './useAdminUser';
 import useDarkMode from './useDarkMode';
 import { notifications } from './data';
 
@@ -13,6 +14,7 @@ import { notifications } from './data';
  */
 export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
     const [dark, setDark] = useDarkMode();
+    const admin = useAdminUser();
 
     return (
         <header className="sticky top-0 z-30 flex h-topbar shrink-0 items-center gap-2 border-b border-admin-border bg-admin-nav px-4 dark:border-admin-dark-border dark:bg-admin-dark-nav sm:px-6">
@@ -117,7 +119,7 @@ export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
                     )}
                 >
                     <p className="border-b border-admin-border px-4 py-3 text-xs font-semibold text-admin-muted dark:border-admin-dark-border dark:text-admin-dark-muted">
-                        Selamat datang!
+                        {admin.name}
                     </p>
 
                     {[
@@ -125,7 +127,6 @@ export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
                         { label: 'Pesan', icon: 'solar:chat-round-bold-duotone', href: '/admin/chat' },
                         { label: 'Pengaturan', icon: 'solar:settings-bold-duotone', href: '/admin/pengaturan' },
                         { label: 'Bantuan', icon: 'solar:help-bold-duotone', href: '/admin/bantuan' },
-                        { label: 'Kunci Layar', icon: 'solar:lock-keyhole-bold-duotone', href: '/admin/auth/kunci-layar' },
                     ].map((item) => (
                         <Link
                             key={item.href}
@@ -139,8 +140,10 @@ export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
 
                     <div className="border-t border-admin-border dark:border-admin-dark-border">
                         <Link
-                            href="/admin/auth/masuk"
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-danger hover:bg-admin-hover dark:hover:bg-admin-dark-hover"
+                            href="/admin/keluar"
+                            method="post"
+                            as="button"
+                            className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium text-danger hover:bg-admin-hover dark:hover:bg-admin-dark-hover"
                         >
                             <Icon name="solar:logout-3-broken" size={18} />
                             Keluar

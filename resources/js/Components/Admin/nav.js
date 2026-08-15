@@ -31,15 +31,7 @@ export const navSections = [
                     { label: 'Pesanan Masuk', href: '/admin/inventaris/pesanan-masuk' },
                 ],
             },
-            {
-                label: 'Pesanan',
-                icon: 'solar:bag-smile-bold-duotone',
-                children: [
-                    { label: 'Daftar Pesanan', href: '/admin/pesanan' },
-                    { label: 'Keranjang', href: '/admin/pesanan/keranjang' },
-                    { label: 'Checkout', href: '/admin/pesanan/checkout' },
-                ],
-            },
+            { label: 'Pesanan', icon: 'solar:bag-smile-bold-duotone', href: '/admin/pesanan' },
             {
                 label: 'Pembelian',
                 icon: 'solar:card-send-bold-duotone',
@@ -91,29 +83,6 @@ export const navSections = [
                 label: 'Kebijakan Privasi',
                 icon: 'solar:document-text-bold-duotone',
                 href: '/admin/kebijakan-privasi',
-            },
-            {
-                label: 'Halaman',
-                icon: 'solar:gift-bold-duotone',
-                children: [
-                    { label: 'Selamat Datang', href: '/admin/halaman/selamat-datang' },
-                    { label: 'Segera Hadir', href: '/admin/halaman/segera-hadir' },
-                    { label: 'Linimasa', href: '/admin/halaman/linimasa' },
-                    { label: 'Harga', href: '/admin/halaman/harga' },
-                    { label: 'Pemeliharaan', href: '/admin/halaman/pemeliharaan' },
-                    { label: 'Error 404', href: '/admin/halaman/404' },
-                    { label: 'Error 404 (alt)', href: '/admin/halaman/404-alt' },
-                ],
-            },
-            {
-                label: 'Autentikasi',
-                icon: 'solar:lock-keyhole-bold-duotone',
-                children: [
-                    { label: 'Masuk', href: '/admin/auth/masuk' },
-                    { label: 'Daftar', href: '/admin/auth/daftar' },
-                    { label: 'Atur Ulang Sandi', href: '/admin/auth/atur-ulang-sandi' },
-                    { label: 'Kunci Layar', href: '/admin/auth/kunci-layar' },
-                ],
             },
         ],
     },

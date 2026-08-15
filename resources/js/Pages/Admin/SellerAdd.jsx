@@ -1,19 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import EntityForm from '@/Components/Admin/EntityForm';
+import SellerForm from '@/Components/Admin/SellerForm';
 
-const fields = [
-    { name: 'name', label: 'Nama Toko', placeholder: 'Apotek Sehat Bersama' },
-    { name: 'owner', label: 'Nama Pemilik', placeholder: 'Kirana Wijaya' },
-    { name: 'email', label: 'Email', type: 'email', placeholder: 'apotek@mail.com' },
-    { name: 'phone', label: 'Nomor Telepon', type: 'tel', placeholder: '+62 812-3456-7890' },
-    { name: 'license', label: 'Nomor Izin Apotek', placeholder: 'SIA/2025/00123' },
-    { name: 'city', label: 'Kota', placeholder: 'Jakarta Selatan' },
-    { name: 'address', label: 'Alamat Toko', type: 'textarea', placeholder: 'Jl. Jend. Sudirman Kav. 52-53...' },
-    { name: 'status', label: 'Status', type: 'select', options: ['Menunggu', 'Terverifikasi', 'Nonaktif'] },
-    { name: 'logo', label: 'Logo Toko', type: 'upload' },
-];
-
-export default function SellerAdd() {
+export default function SellerAdd({ statuses }) {
     return (
         <AdminLayout
             title="Tambah Penjual"
@@ -24,12 +12,7 @@ export default function SellerAdd() {
                 { label: 'Tambah' },
             ]}
         >
-            <EntityForm
-                title="Data Penjual"
-                fields={fields}
-                submitLabel="Simpan Penjual"
-                backHref="/admin/penjual"
-            />
+            <SellerForm statuses={statuses} submitLabel="Simpan Penjual" />
         </AdminLayout>
     );
 }

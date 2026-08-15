@@ -157,148 +157,42 @@ export function revenueTotal(period) {
 
 export const products = catalogProducts;
 
+/**
+ * Order fixtures kept in step with the PHP seed in `App\Support\Catalog`.
+ *
+ * The order screens read from the server store; this list only feeds the global
+ * search index and the dashboard tables, so ids must match (no `#` prefix — the
+ * hash is added at render time, it is not part of the identifier).
+ */
 export const orders = [
-    {
-        id: '#INO-2451',
-        customer: 'Kirana Wijaya',
-        avatar: img.user(1),
-        date: '14 Agu 2025',
-        total: 486000,
-        payment: 'Transfer Bank',
-        status: 'Selesai',
-    },
-    {
-        id: '#INO-2450',
-        customer: 'Rizky Ananda',
-        avatar: img.user(2),
-        date: '14 Agu 2025',
-        total: 1250000,
-        payment: 'GoPay',
-        status: 'Diproses',
-    },
-    {
-        id: '#INO-2449',
-        customer: 'Dinda Puspita',
-        avatar: img.user(3),
-        date: '13 Agu 2025',
-        total: 275000,
-        payment: 'OVO',
-        status: 'Dikirim',
-    },
-    {
-        id: '#INO-2448',
-        customer: 'Bagas Saputra',
-        avatar: img.user(4),
-        date: '13 Agu 2025',
-        total: 92000,
-        payment: 'DANA',
-        status: 'Dibatalkan',
-    },
-    {
-        id: '#INO-2447',
-        customer: 'Sari Wulandari',
-        avatar: img.user(5),
-        date: '12 Agu 2025',
-        total: 640000,
-        payment: 'Transfer Bank',
-        status: 'Selesai',
-    },
+    { id: 'INO-2451', customer: 'Kirana Wijaya', avatar: img.user(1), date: '14 Agu 2025', total: 482000, payment: 'Transfer Bank', status: 'Selesai' },
+    { id: 'INO-2450', customer: 'Rizky Ananda', avatar: img.user(2), date: '14 Agu 2025', total: 1251000, payment: 'GoPay', status: 'Diproses' },
+    { id: 'INO-2449', customer: 'Dinda Puspita', avatar: img.user(3), date: '13 Agu 2025', total: 264000, payment: 'OVO', status: 'Dikirim' },
+    { id: 'INO-2448', customer: 'Bagas Saputra', avatar: img.user(4), date: '13 Agu 2025', total: 89500, payment: 'DANA', status: 'Dibatalkan' },
+    { id: 'INO-2447', customer: 'Sari Wulandari', avatar: img.user(5), date: '12 Agu 2025', total: 630000, payment: 'Transfer Bank', status: 'Selesai' },
 ];
 
 export const customers = [
-    {
-        name: 'Kirana Wijaya',
-        email: 'kirana.wijaya@mail.com',
-        avatar: img.user(1),
-        phone: '+62 812-3456-7890',
-        city: 'Jakarta Barat',
-        orders: 24,
-        spent: 4820000,
-        status: 'Aktif',
-    },
-    {
-        name: 'Rizky Ananda',
-        email: 'rizky.ananda@mail.com',
-        avatar: img.user(2),
-        phone: '+62 813-2233-4455',
-        city: 'Bandung',
-        orders: 12,
-        spent: 2140000,
-        status: 'Aktif',
-    },
-    {
-        name: 'Dinda Puspita',
-        email: 'dinda.puspita@mail.com',
-        avatar: img.user(3),
-        phone: '+62 856-7788-9900',
-        city: 'Surabaya',
-        orders: 31,
-        spent: 7630000,
-        status: 'Aktif',
-    },
-    {
-        name: 'Bagas Saputra',
-        email: 'bagas.saputra@mail.com',
-        avatar: img.user(4),
-        phone: '+62 878-1122-3344',
-        city: 'Yogyakarta',
-        orders: 3,
-        spent: 380000,
-        status: 'Nonaktif',
-    },
-    {
-        name: 'Sari Wulandari',
-        email: 'sari.wulandari@mail.com',
-        avatar: img.user(5),
-        phone: '+62 811-5566-7788',
-        city: 'Semarang',
-        orders: 18,
-        spent: 3120000,
-        status: 'Aktif',
-    },
+    { id: 'CUS-001', name: 'Kirana Wijaya', email: 'kirana.wijaya@mail.com', avatar: img.user(1), phone: '+62 812-3456-7890', city: 'Jakarta Barat', status: 'Aktif' },
+    { id: 'CUS-002', name: 'Rizky Ananda', email: 'rizky.ananda@mail.com', avatar: img.user(2), phone: '+62 813-2233-4455', city: 'Bandung', status: 'Aktif' },
+    { id: 'CUS-003', name: 'Dinda Puspita', email: 'dinda.puspita@mail.com', avatar: img.user(3), phone: '+62 856-7788-9900', city: 'Surabaya', status: 'Aktif' },
+    { id: 'CUS-004', name: 'Bagas Saputra', email: 'bagas.saputra@mail.com', avatar: img.user(4), phone: '+62 878-1122-3344', city: 'Yogyakarta', status: 'Nonaktif' },
+    { id: 'CUS-005', name: 'Sari Wulandari', email: 'sari.wulandari@mail.com', avatar: img.user(5), phone: '+62 811-5566-7788', city: 'Semarang', status: 'Aktif' },
+    { id: 'CUS-006', name: 'Anisa Rahmawati', email: 'anisa.rahmawati@mail.com', avatar: img.user(6), phone: '+62 852-9900-1122', city: 'Medan', status: 'Aktif' },
 ];
 
+/**
+ * Seller fixtures kept in step with the PHP seed in `App\Support\Catalog`.
+ *
+ * The seller screens read from the server store; this list only feeds the
+ * global search index, so the ids must match or search would link nowhere.
+ */
 export const sellers = [
-    {
-        name: 'Apotek Sehat Bersama',
-        owner: 'Kirana Wijaya',
-        logo: img.seller('nike'),
-        city: 'Jakarta Selatan',
-        products: 128,
-        revenue: 84500000,
-        rating: 4.8,
-        status: 'Terverifikasi',
-    },
-    {
-        name: 'Toko Obat Mandiri',
-        owner: 'Rizky Ananda',
-        logo: img.seller('dyson'),
-        city: 'Bandung',
-        products: 76,
-        revenue: 42300000,
-        rating: 4.5,
-        status: 'Terverifikasi',
-    },
-    {
-        name: 'Farmasi Nusantara',
-        owner: 'Dinda Puspita',
-        logo: img.seller('huawei'),
-        city: 'Surabaya',
-        products: 214,
-        revenue: 156700000,
-        rating: 4.9,
-        status: 'Terverifikasi',
-    },
-    {
-        name: 'Griya Farma',
-        owner: 'Bagas Saputra',
-        logo: img.seller('gopro'),
-        city: 'Yogyakarta',
-        products: 41,
-        revenue: 18900000,
-        rating: 4.1,
-        status: 'Menunggu',
-    },
+    { id: 'SEL-001', name: 'Apotek Sehat Bersama', owner: 'Kirana Wijaya', logo: img.seller('nike'), city: 'Jakarta Selatan', status: 'Terverifikasi' },
+    { id: 'SEL-002', name: 'Toko Obat Mandiri', owner: 'Rizky Ananda', logo: img.seller('dyson'), city: 'Bandung', status: 'Terverifikasi' },
+    { id: 'SEL-003', name: 'Farmasi Nusantara', owner: 'Dinda Puspita', logo: img.seller('huawei'), city: 'Surabaya', status: 'Terverifikasi' },
+    { id: 'SEL-004', name: 'Griya Farma', owner: 'Bagas Saputra', logo: img.seller('gopro'), city: 'Yogyakarta', status: 'Menunggu' },
+    { id: 'SEL-005', name: 'Apotek Melati', owner: 'Anisa Rahmawati', logo: img.seller('zara'), city: 'Medan', status: 'Menunggu' },
 ];
 
 export const categories = categoriesWithCounts;
@@ -329,6 +223,7 @@ export function statusTone(status) {
         Sebagian: 'warning',
         'Hampir Penuh': 'warning',
         'Jatuh Tempo': 'danger',
+        'Menunggu Pembayaran': 'warning',
     };
 
     return map[status] ?? 'neutral';

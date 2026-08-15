@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\Catalog;
 use App\Support\CategoryStore;
+use App\Support\SellerStore;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,6 +18,7 @@ class ProductRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:120'],
             'category' => ['required', Rule::in(app(CategoryStore::class)->names())],
+            'seller' => ['required', Rule::in(app(SellerStore::class)->names())],
             'unit' => ['required', Rule::in(Catalog::units())],
             'status' => ['required', Rule::in(Catalog::statuses())],
             'price' => ['required', 'integer', 'min:0', 'max:1000000000'],
@@ -35,6 +37,7 @@ class ProductRequest extends FormRequest
         return [
             'name' => 'nama produk',
             'category' => 'kategori',
+            'seller' => 'penjual',
             'unit' => 'satuan',
             'status' => 'status',
             'price' => 'harga jual',

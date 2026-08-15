@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
@@ -5,11 +6,9 @@ import Card from '@/Components/Admin/Card';
 import Icon from '@/Components/Admin/Icon';
 import StatCard from '@/Components/Admin/StatCard';
 import Table from '@/Components/Admin/Table';
-import { money, products, sellers, statusTone } from '@/Components/Admin/data';
+import { money, statusTone } from '@/Components/Admin/data';
 
-const seller = sellers[0];
-
-export default function SellerDetail() {
+export default function SellerDetail({ seller, products }) {
     return (
         <AdminLayout
             title="Detail Penjual"
@@ -20,7 +19,7 @@ export default function SellerDetail() {
                 { label: 'Detail' },
             ]}
             actions={
-                <Button href="/admin/penjual/ubah" size="sm" icon="solar:pen-2-broken">
+                <Button href={`/admin/penjual/${seller.id}/ubah`} size="sm" icon="solar:pen-2-broken">
                     Ubah
                 </Button>
             }
@@ -49,7 +48,7 @@ export default function SellerDetail() {
                     <span className="flex items-center gap-1.5 rounded-lg bg-admin-hover px-3 py-2 dark:bg-admin-dark-hover">
                         <Icon name="solar:star-bold" size={16} className="text-warning" />
                         <span className="text-[13px] font-bold text-admin-heading dark:text-admin-dark-heading">
-                            {seller.rating.toLocaleString('id-ID', { minimumFractionDigits: 1 })}
+                            {seller.rating}
                         </span>
                     </span>
                 </div>
@@ -68,7 +67,7 @@ export default function SellerDetail() {
                 />
                 <StatCard
                     label="Rating Rata-rata"
-                    value={seller.rating.toLocaleString('id-ID', { minimumFractionDigits: 1 })}
+                    value={seller.rating}
                     icon="solar:chat-square-like-bold-duotone"
                 />
             </div>
@@ -84,10 +83,15 @@ export default function SellerDetail() {
                     ]}
                     rows={products}
                     rowKey={(row) => row.id}
+                    empty="Penjual ini belum menjual produk apa pun."
+
                     renderCell={(row, key) => {
                         if (key === 'name') {
                             return (
-                                <span className="flex items-center gap-3">
+                                <Link
+                                    href={`/admin/produk/${row.id}`}
+                                    className="flex items-center gap-3"
+                                >
                                     <img
                                         src={row.image}
                                         alt=""
@@ -96,7 +100,7 @@ export default function SellerDetail() {
                                     <span className="font-medium text-admin-heading dark:text-admin-dark-heading">
                                         {row.name}
                                     </span>
-                                </span>
+                                </Link>
                             );
                         }
 
