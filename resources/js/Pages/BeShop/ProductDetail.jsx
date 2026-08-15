@@ -5,22 +5,22 @@ import Button from '@/Components/BeShop/Button';
 import Icon from '@/Components/BeShop/Icon';
 import Rating from '@/Components/BeShop/Rating';
 import ReviewCard from '@/Components/BeShop/ReviewCard';
-import { asset, money, reviews, sizes } from '@/Components/BeShop/data';
+import { findProduct, money, reviews } from '@/Components/BeShop/data';
 
-const colors = ['#222222', '#c4a882', '#0900AA', '#7ecac5'];
+/** The catalogue entry this screen shows; the prototype has no routing param. */
+const product = findProduct('PRD-001');
 
 export default function ProductDetail() {
-    const [color, setColor] = useState(colors[0]);
-    const [size, setSize] = useState('S');
+    const [variant, setVariant] = useState(product.variants[0]);
     const [liked, setLiked] = useState(false);
 
     return (
         <MobileLayout title="Detail Produk">
             <div className="relative h-[285px] shrink-0 bg-[#f0f0f0]">
                 <img
-                    src={asset.product('01')}
-                    alt="Dress Maxi Sutra"
-                    className="absolute inset-0 h-full w-full object-cover"
+                    src={product.image}
+                    alt={product.name}
+                    className="absolute inset-0 h-full w-full object-contain p-8"
                 />
 
                 <Link
@@ -41,70 +41,72 @@ export default function ProductDetail() {
                 >
                     <Icon name="heart" size={19} />
                 </button>
+
+                {product.prescription ? (
+                    <span className="absolute bottom-3 left-3 bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink">
+                        Perlu resep
+                    </span>
+                ) : null}
             </div>
 
             <div className="flex-1 overflow-y-auto p-3.5">
-                <div className="mb-2 flex justify-between">
-                    <h2 className="max-w-[55%] font-display text-lg leading-tight">
-                        Dress Maxi Sutra
-                    </h2>
+                <div className="mb-2 flex justify-between gap-3">
+                    <div className="min-w-0">
+                        <h2 className="font-display text-lg leading-tight">{product.name}</h2>
+                        <p className="mt-0.5 text-[11px] text-faint">{product.category}</p>
+                    </div>
 
-                    <div className="text-right">
-                        <span className="block text-[10px] text-faint line-through">
-                            {money(1485000)}
-                        </span>
-                        <span className="text-xl font-bold text-brand">{money(1350000)}</span>
+                    <div className="shrink-0 text-right">
+                        {product.oldPrice ? (
+                            <span className="block text-[10px] text-faint line-through">
+                                {money(product.oldPrice)}
+                            </span>
+                        ) : null}
+                        <span className="text-xl font-bold text-brand">{money(product.price)}</span>
                     </div>
                 </div>
 
-                <Link
-                    href="/ui/reviews"
-                    className="mb-3.5 flex items-center gap-[5px]"
-                >
-                    <Rating score={5} />
-                    <span className="text-xs text-muted">4.9 (128)</span>
+                <Link href="/ui/reviews" className="mb-3 flex items-center gap-[5px]">
+                    <Rating score={Math.round(Number(product.rating))} />
+                    <span className="text-xs text-muted">
+                        {product.rating} ({product.sold} terjual)
+                    </span>
                 </Link>
 
-                <div className="mb-3">
-                    <div className="mb-[7px] text-[13px] font-bold">Warna</div>
-
-                    <div className="flex gap-2">
-                        {colors.map((swatch) => (
-                            <button
-                                key={swatch}
-                                type="button"
-                                onClick={() => setColor(swatch)}
-                                aria-label={`Pilih warna ${swatch}`}
-                                style={{ background: swatch }}
-                                className={`h-[27px] w-[27px] rounded-full ${
-                                    color === swatch
-                                        ? 'outline outline-[2.5px] outline-offset-2 outline-brand'
-                                        : ''
-                                }`}
-                            />
-                        ))}
-                    </div>
-                </div>
+                <p className="mb-3.5 text-xs leading-relaxed text-muted">{product.blurb}</p>
 
                 <div className="mb-3.5">
-                    <div className="mb-[7px] text-[13px] font-bold">Ukuran</div>
+                    <div className="mb-[7px] text-[13px] font-bold">Kemasan</div>
 
-                    <div className="flex gap-[7px]">
-                        {sizes.map((option) => (
+                    <div className="flex flex-wrap gap-[7px]">
+                        {product.variants.map((option) => (
                             <button
                                 key={option}
                                 type="button"
-                                onClick={() => setSize(option)}
-                                className={`flex h-8 w-8 items-center justify-center text-[11px] ${
-                                    size === option
-                                        ? 'border-2 border-brand font-bold'
-                                        : 'border border-line'
+                                onClick={() => setVariant(option)}
+                                className={`flex h-9 items-center justify-center px-3 text-[11px] ${
+                                    variant === option
+                                        ? 'border-2 border-brand font-bold text-brand'
+                                        : 'border border-line text-muted'
                                 }`}
                             >
                                 {option}
                             </button>
                         ))}
                     </div>
+                </div>
+
+                <div className="mb-3.5 flex items-center gap-2 border border-line bg-lilac px-3 py-2.5">
+                    <Icon
+                        name="check"
+                        size={16}
+                        className={product.stock > 0 ? 'text-success-deep' : 'text-brand'}
+                    />
+                    <span className="text-[11px] text-muted">
+                        {product.stock > 0
+                            ? `Stok tersedia — ${product.stock} ${product.unit.toLowerCase()}`
+                            : 'Stok sedang kosong'}
+                    </span>
                 </div>
 
                 <Button href="/ui/cart" className="mb-2">

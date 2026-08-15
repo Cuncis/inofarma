@@ -4,9 +4,10 @@ import AppBar from '@/Components/BeShop/AppBar';
 import Icon from '@/Components/BeShop/Icon';
 import IconLink from '@/Components/BeShop/IconLink';
 import ProductCard from '@/Components/BeShop/ProductCard';
+import PromoBanner from '@/Components/BeShop/PromoBanner';
 import SectionHeading from '@/Components/BeShop/SectionHeading';
 import TabBar from '@/Components/BeShop/TabBar';
-import { asset, newArrivals, trendingProducts } from '@/Components/BeShop/data';
+import { newArrivals, trendingProducts } from '@/Components/BeShop/data';
 
 export default function Home() {
     return (
@@ -26,9 +27,14 @@ export default function Home() {
             footer={<TabBar active="home" />}
         >
             <div className="flex-1 overflow-y-auto">
-                <Link href="/ui/categories" className="block">
-                    <img src={asset.banner('01')} alt="Belanja koleksi musim baru" className="w-full" />
-                </Link>
+                <PromoBanner
+                    href="/ui/categories"
+                    eyebrow="Apotek online"
+                    title={'Obat & vitamin\nsampai hari ini'}
+                    caption="Gratis ongkir untuk pembelian di atas Rp 750.000"
+                    cta="Lihat kategori"
+                    icon="bag"
+                />
 
                 <div className="mt-3.5">
                     <SectionHeading
@@ -71,9 +77,16 @@ export default function Home() {
                     </div>
                 </div>
 
-                <Link href="/ui/shop" className="mt-3 block">
-                    <img src={asset.banner('02')} alt="Diskon musiman" className="w-full" />
-                </Link>
+                <PromoBanner
+                    href="/ui/shop"
+                    eyebrow="Promo bulan ini"
+                    title={'Diskon hingga 20%\nuntuk suplemen'}
+                    caption="Pakai kode HEMAT15 di halaman keranjang"
+                    cta="Belanja sekarang"
+                    icon="promo"
+                    tone="success"
+                    className="mt-3"
+                />
 
                 <div className="mt-3 px-3.5 pb-[70px]">
                     <SectionHeading

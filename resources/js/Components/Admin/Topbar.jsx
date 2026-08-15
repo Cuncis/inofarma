@@ -122,7 +122,7 @@ export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
                     trigger={() => (
                         <span className="flex items-center gap-2">
                             <img
-                                src="/admin-assets/images/users/avatar-1.jpg"
+                                src="/media/images/users/avatar-1.jpg"
                                 alt=""
                                 className="h-8 w-8 rounded-full object-cover"
                             />

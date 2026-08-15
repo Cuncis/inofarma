@@ -2,7 +2,12 @@ import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Icon from '@/Components/BeShop/Icon';
-import { money } from '@/Components/BeShop/data';
+import { cartItems, money } from '@/Components/BeShop/data';
+
+const openOrderTotal = cartItems.reduce(
+    (total, item) => total + item.amount * item.quantity,
+    0,
+);
 
 const pastOrders = [
     {
@@ -10,14 +15,14 @@ const pastOrders = [
         status: 'Diterima',
         statusClass: 'bg-success text-ink',
         date: '10 Agu 2025',
-        total: money(1350000),
+        total: money(112500),
     },
     {
         number: '#205100',
         status: 'Dibatalkan',
         statusClass: 'bg-line text-muted',
         date: '02 Agu 2025',
-        total: money(630000),
+        total: money(45000),
     },
 ];
 
@@ -39,20 +44,23 @@ export default function OrderHistory() {
 
                         <div className="flex justify-between">
                             <span className="text-[11px] text-[#aaaaaa]">14 Agu 2025</span>
-                            <span className="text-xs font-bold">{money(4875000)}</span>
+                            <span className="text-xs font-bold">{money(openOrderTotal)}</span>
                         </div>
                     </Link>
 
                     <div className="border-t border-line bg-lilac p-3.5">
-                        <div className="mb-1.5 flex justify-between text-xs text-muted">
-                            <span>Dress Maxi Sutra</span>
-                            <span>2 x {money(1350000)}</span>
-                        </div>
+                        {cartItems.map((item) => (
+                            <div
+                                key={item.name}
+                                className="mb-1.5 flex justify-between text-xs text-muted"
+                            >
+                                <span>{item.name}</span>
+                                <span>
+                                    {item.quantity} x {money(item.amount)}
+                                </span>
+                            </div>
+                        ))}
 
-                        <div className="mb-2.5 flex justify-between text-xs text-muted">
-                            <span>Jaket Kulit</span>
-                            <span>1 x {money(2175000)}</span>
-                        </div>
 
                         <Link
                             href="/ui/leave-a-review"

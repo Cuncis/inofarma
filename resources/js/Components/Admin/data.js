@@ -1,19 +1,15 @@
 import { money } from '@/lib/format';
+import { catalogProducts, categoriesWithCounts, media } from '@/lib/catalog';
 
 /**
  * Admin demo fixtures.
  *
- * Static stand-ins so every screen renders with believable content. Images come
- * from the theme assets copied into `public/admin-assets/images` — that path
- * deliberately avoids `public/admin`, which would shadow the `/admin` routes.
+ * Static stand-ins so every screen renders with believable content. Products and
+ * categories come from `@/lib/catalog`, the same source the storefront sells
+ * from, so the two areas never drift apart.
  */
 
-export const img = {
-    user: (n) => `/admin-assets/images/users/avatar-${n}.jpg`,
-    product: (n) => `/admin-assets/images/product/p-${n}.png`,
-    seller: (n) => `/admin-assets/images/seller/${n}.svg`,
-    brand: (n) => `/admin-assets/images/brands/${n}.png`,
-};
+export const img = media;
 
 export const notifications = [
     {
@@ -85,68 +81,7 @@ export const revenueSeries = [
     { label: 'Min', value: 79 },
 ];
 
-export const products = [
-    {
-        id: 'PRD-001',
-        name: 'Paracetamol 500mg',
-        category: 'Obat Bebas',
-        image: img.product('1'),
-        price: 12500,
-        stock: 482,
-        sold: 1240,
-        status: 'Aktif',
-    },
-    {
-        id: 'PRD-002',
-        name: 'Amoxicillin 500mg',
-        category: 'Obat Keras',
-        image: img.product('2'),
-        price: 38000,
-        stock: 126,
-        sold: 860,
-        status: 'Aktif',
-    },
-    {
-        id: 'PRD-003',
-        name: 'Vitamin C 1000mg',
-        category: 'Suplemen',
-        image: img.product('3'),
-        price: 75000,
-        stock: 0,
-        sold: 2130,
-        status: 'Habis',
-    },
-    {
-        id: 'PRD-004',
-        name: 'Masker Medis 3 Ply',
-        category: 'Alat Kesehatan',
-        image: img.product('4'),
-        price: 45000,
-        stock: 1520,
-        sold: 4210,
-        status: 'Aktif',
-    },
-    {
-        id: 'PRD-005',
-        name: 'Hand Sanitizer 500ml',
-        category: 'Antiseptik',
-        image: img.product('5'),
-        price: 32000,
-        stock: 64,
-        sold: 980,
-        status: 'Stok Menipis',
-    },
-    {
-        id: 'PRD-006',
-        name: 'Termometer Digital',
-        category: 'Alat Kesehatan',
-        image: img.product('6'),
-        price: 125000,
-        stock: 213,
-        sold: 540,
-        status: 'Aktif',
-    },
-];
+export const products = catalogProducts;
 
 export const orders = [
     {
@@ -292,14 +227,8 @@ export const sellers = [
     },
 ];
 
-export const categories = [
-    { name: 'Obat Bebas', slug: 'obat-bebas', products: 148, status: 'Aktif' },
-    { name: 'Obat Keras', slug: 'obat-keras', products: 92, status: 'Aktif' },
-    { name: 'Suplemen', slug: 'suplemen', products: 213, status: 'Aktif' },
-    { name: 'Alat Kesehatan', slug: 'alat-kesehatan', products: 176, status: 'Aktif' },
-    { name: 'Antiseptik', slug: 'antiseptik', products: 54, status: 'Aktif' },
-    { name: 'Perawatan Kulit', slug: 'perawatan-kulit', products: 118, status: 'Nonaktif' },
-];
+export const categories = categoriesWithCounts;
+
 
 /**
  * Map a fixture status word onto a Badge tone.

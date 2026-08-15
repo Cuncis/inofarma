@@ -1,132 +1,78 @@
 import { money } from '@/lib/format';
+import {
+    bestSellers,
+    catalogCategories,
+    catalogProducts,
+    discounted,
+    findProduct,
+    media,
+} from '@/lib/catalog';
 
-const assets = 'https://george-fx.github.io/beshop-data/assets';
+export { money, media, catalogProducts, findProduct };
 
+const illustrations = 'https://george-fx.github.io/beshop-data/assets';
+
+/**
+ * Decorative artwork for the empty/success screens. Product and people imagery
+ * comes from `media` so the storefront and admin show the same pictures.
+ */
 export const asset = {
-    product: (n) => `${assets}/products/${n}.jpg`,
-    banner: (n) => `${assets}/banners/${n}.jpg`,
-    category: (n) => `${assets}/categories/${n}.jpg`,
-    user: (n) => `${assets}/users/${n}.jpg`,
-    other: (n) => `${assets}/other/${n}.png`,
+    other: (n) => `${illustrations}/other/${n}.png`,
+    user: (n) => media.user(Number(n)),
 };
 
-export { money };
+/**
+ * Storefront view of the shared catalogue.
+ *
+ * The shop sells the same products the admin manages — see `@/lib/catalog` for
+ * the source data. These exports only reshape it for the mobile screens, which
+ * expect pre-formatted price strings.
+ */
+
+/**
+ * @param {import('@/lib/catalog').CatalogProduct} product
+ * @returns {{ name: string, image: string, price: string, oldPrice?: string, rating: string }}
+ */
+const toTile = (product) => ({
+    id: product.id,
+    name: product.name,
+    image: product.image,
+    price: money(product.price),
+    oldPrice: product.oldPrice ? money(product.oldPrice) : undefined,
+    rating: product.rating,
+});
 
 /** @type {import('./ProductCard').Product[]} */
-export const trendingProducts = [
-    {
-        name: 'Dress Maxi Sutra',
-        image: asset.product('01'),
-        price: money(1350000),
-        rating: '4.9',
-    },
-    {
-        name: 'Blus Motif Bunga',
-        image: asset.product('02'),
-        price: money(630000),
-        rating: '4.7',
-    },
-    { name: 'Jaket Kulit', image: asset.product('03'), price: money(2175000), rating: '4.5' },
-    { name: 'Dress Santai', image: asset.product('04'), price: money(570000), rating: '4.8' },
-];
+export const trendingProducts = bestSellers.slice(0, 6).map(toTile);
 
 /** @type {import('./ProductCard').Product[]} */
-export const newArrivals = [
-    {
-        name: 'Rok Denim',
-        image: asset.product('05'),
-        price: money(540000),
-        oldPrice: money(780000),
-        rating: '4.6',
-    },
-    { name: 'Kaos Kasual', image: asset.product('06'), price: money(375000), rating: '4.3' },
-    {
-        name: 'Celana Kulot',
-        image: asset.product('07'),
-        price: money(825000),
-        oldPrice: money(1170000),
-        rating: '4.6',
-    },
-    { name: 'Blazer Linen', image: asset.product('08'), price: money(1470000), rating: '4.8' },
-];
+export const newArrivals = catalogProducts.slice(-4).map(toTile);
 
 /** @type {import('./ProductCard').Product[]} */
-export const shopProducts = [
-    {
-        name: 'Dress Maxi Sutra',
-        image: asset.product('01'),
-        price: money(1350000),
-        oldPrice: money(1485000),
-        rating: '4.9',
-    },
-    {
-        name: 'Blus Motif Bunga',
-        image: asset.product('02'),
-        price: money(630000),
-        oldPrice: money(885000),
-        rating: '4.7',
-    },
-    { name: 'Jaket Kulit', image: asset.product('03'), price: money(2175000), rating: '4.5' },
-    { name: 'Dress Santai', image: asset.product('04'), price: money(570000), rating: '4.8' },
-    { name: 'Kaos Kasual', image: asset.product('06'), price: money(375000), rating: '4.3' },
-    {
-        name: 'Celana Kulot',
-        image: asset.product('07'),
-        price: money(825000),
-        oldPrice: money(1170000),
-        rating: '4.6',
-    },
-];
+export const shopProducts = catalogProducts.map(toTile);
 
 /** @type {import('./ProductCard').Product[]} */
-export const wishlistProducts = [
-    {
-        name: 'Dress Maxi Sutra',
-        image: asset.product('01'),
-        price: money(1350000),
-        oldPrice: money(1485000),
-        rating: '4.9',
-    },
-    {
-        name: 'Blus Motif Bunga',
-        image: asset.product('02'),
-        price: money(630000),
-        oldPrice: money(885000),
-        rating: '4.7',
-    },
-    { name: 'Dress Santai', image: asset.product('04'), price: money(570000), rating: '4.8' },
-    {
-        name: 'Rok Denim',
-        image: asset.product('05'),
-        price: money(540000),
-        oldPrice: money(780000),
-        rating: '4.6',
-    },
-];
+export const wishlistProducts = discounted.slice(0, 4).map(toTile);
 
-export const categories = [
-    { name: 'Wanita', image: asset.category('01') },
-    { name: 'Pria', image: asset.category('02') },
-    { name: 'Anak', image: asset.category('03') },
-    { name: 'Aksesori', image: asset.category('04') },
-    { name: 'Rumah Tangga', image: asset.category('05') },
-    { name: 'Kecantikan', image: asset.category('06') },
-];
+export const categories = catalogCategories.map((category) => ({
+    name: category.name,
+    image: category.image,
+}));
 
 export const cartItems = [
     {
-        name: 'Dress Maxi Sutra',
-        image: asset.product('01'),
-        amount: 1350000,
+        name: catalogProducts[0].name,
+        image: catalogProducts[0].image,
+        amount: catalogProducts[0].price,
         quantity: 2,
-        onSale: false,
+        onSale: Boolean(catalogProducts[0].oldPrice),
     },
     {
-        name: 'Jaket Kulit',
-        image: asset.product('03'),
-        amount: 2175000,
+        name: catalogProducts[3].name,
+        image: catalogProducts[3].image,
+        amount: catalogProducts[3].price,
         quantity: 1,
-        onSale: true,
+        onSale: Boolean(catalogProducts[3].oldPrice),
     },
 ];
 
@@ -134,31 +80,31 @@ export const cartItems = [
 export const reviews = [
     {
         author: 'Sari W.',
-        avatar: asset.user('02'),
+        avatar: media.user(2),
         score: 5,
         age: '2 hari lalu',
-        body: 'Suka banget sama dress ini! Bahannya adem, jatuhnya bagus, dan ukurannya pas.',
+        body: 'Paracetamolnya asli dan segelnya utuh. Pengiriman cepat, sampai kurang dari sehari.',
     },
     {
         author: 'Rizky A.',
-        avatar: asset.user('03'),
+        avatar: media.user(3),
         score: 4,
         age: '5 hari lalu',
-        body: 'Kualitas bagus, tapi ukurannya agak kecil. Sebaiknya ambil satu nomor di atasnya.',
+        body: 'Harga bersaing dan stok selalu ada. Sayang pilihan kemasan besarnya kadang kosong.',
     },
     {
         author: 'Dinda P.',
-        avatar: asset.user('04'),
+        avatar: media.user(4),
         score: 5,
         age: '1 minggu lalu',
-        body: 'Pengiriman cepat dan kemasannya rapi. Pasti belanja di sini lagi!',
+        body: 'Dikemas rapi pakai bubble wrap, tanggal kedaluwarsanya juga masih lama. Puas!',
     },
     {
         author: 'Bagas S.',
-        avatar: asset.user('05'),
+        avatar: media.user(5),
         score: 3,
         age: '2 minggu lalu',
-        body: 'Produknya lumayan untuk harga segini. Warnanya sedikit beda dari foto.',
+        body: 'Produknya bagus, tapi proses verifikasi resep untuk obat keras agak lama.',
     },
 ];
 
@@ -206,15 +152,13 @@ export const faqs = [
     { question: 'Bagaimana cara melacak pesanan saya?', open: false },
 ];
 
-export const swatches = [
-    '#222222',
-    '#0900AA',
-    '#24CE30',
-    '#FE7900',
-    '#c4a882',
-    '#7ecac5',
-    '#4a90e2',
-    '#bd10e0',
-];
+/** Category names offered as filter chips on the shop screen. */
+export const filterCategories = catalogCategories.map((category) => category.name);
 
-export const sizes = ['XS', 'S', 'M', 'L', 'XL'];
+/** Price brackets used by the filter screen, in rupiah. */
+export const priceRanges = [
+    { label: 'Di bawah Rp 25.000', max: 25000 },
+    { label: 'Rp 25.000 - Rp 50.000', min: 25000, max: 50000 },
+    { label: 'Rp 50.000 - Rp 100.000', min: 50000, max: 100000 },
+    { label: 'Di atas Rp 100.000', min: 100000 },
+];

@@ -4,13 +4,15 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
 import Icon from '@/Components/BeShop/Icon';
-import { money } from '@/Components/BeShop/data';
+import { cartItems, money } from '@/Components/BeShop/data';
 
-const orderTotal = 4875000;
+const orderTotal = cartItems.reduce((total, item) => total + item.amount * item.quantity, 0);
 
 const lines = [
-    { label: 'Dress Maxi Sutra x2', value: money(2700000) },
-    { label: 'Jaket Kulit x1', value: money(2175000) },
+    ...cartItems.map((item) => ({
+        label: `${item.name} x${item.quantity}`,
+        value: money(item.amount * item.quantity),
+    })),
     { label: 'Diskon', value: `-${money(0)}` },
 ];
 

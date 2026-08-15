@@ -3,20 +3,18 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
 import Checkbox from '@/Components/BeShop/Checkbox';
-import { swatches } from '@/Components/BeShop/data';
-
-const tags = ['Atasan', 'Bawahan', 'Dress', 'Outerwear', 'Aksesori', 'Sepatu'];
+import { filterCategories, priceRanges } from '@/Components/BeShop/data';
 
 export default function Filter() {
-    const [color, setColor] = useState(swatches[0]);
-    const [labels, setLabels] = useState({ sale: true, new: false });
-    const [selectedTags, setSelectedTags] = useState(['Atasan']);
+    const [selectedCategories, setSelectedCategories] = useState([filterCategories[0]]);
+    const [range, setRange] = useState(priceRanges[0].label);
+    const [labels, setLabels] = useState({ sale: true, prescription: false, inStock: true });
 
-    const toggleTag = (tag) =>
-        setSelectedTags((current) =>
-            current.includes(tag)
-                ? current.filter((existing) => existing !== tag)
-                : [...current, tag],
+    const toggleCategory = (name) =>
+        setSelectedCategories((current) =>
+            current.includes(name)
+                ? current.filter((existing) => existing !== name)
+                : [...current, name],
         );
 
     return (
@@ -30,22 +28,49 @@ export default function Filter() {
             }
         >
             <div className="flex-1 overflow-y-auto p-4">
-                <div className="mb-2.5 font-display text-[15px]">Warna</div>
+                <div className="mb-2.5 font-display text-[15px]">Kategori</div>
 
-                <div className="mb-[18px] flex flex-wrap gap-2.5">
-                    {swatches.map((swatch) => (
+                <div className="mb-[18px] flex flex-wrap gap-2">
+                    {filterCategories.map((name) => (
                         <button
-                            key={swatch}
+                            key={name}
                             type="button"
-                            onClick={() => setColor(swatch)}
-                            aria-label={`Saring berdasarkan warna ${swatch}`}
-                            style={{ background: swatch }}
-                            className={`h-[29px] w-[29px] rounded-full ${
-                                color === swatch
-                                    ? 'outline outline-2 outline-offset-2 outline-brand'
-                                    : ''
+                            onClick={() => toggleCategory(name)}
+                            className={`px-3.5 py-[7px] text-xs ${
+                                selectedCategories.includes(name)
+                                    ? 'border border-brand text-brand'
+                                    : 'border border-line text-muted'
                             }`}
-                        />
+                        >
+                            {name}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="mb-2.5 font-display text-[15px]">Rentang Harga</div>
+
+                <div className="mb-[18px] space-y-2">
+                    {priceRanges.map((option) => (
+                        <button
+                            key={option.label}
+                            type="button"
+                            onClick={() => setRange(option.label)}
+                            className={`flex w-full items-center justify-between border px-3.5 py-2.5 text-left text-xs ${
+                                range === option.label
+                                    ? 'border-brand text-brand'
+                                    : 'border-line text-muted'
+                            }`}
+                        >
+                            {option.label}
+
+                            <span
+                                className={`h-3.5 w-3.5 rounded-full border-2 ${
+                                    range === option.label
+                                        ? 'border-[4px] border-brand'
+                                        : 'border-line'
+                                }`}
+                            />
+                        </button>
                     ))}
                 </div>
 
@@ -54,9 +79,7 @@ export default function Filter() {
                 <div className="mb-2.5">
                     <Checkbox
                         checked={labels.sale}
-                        onChange={() =>
-                            setLabels((current) => ({ ...current, sale: ! current.sale }))
-                        }
+                        onChange={() => setLabels((current) => ({ ...current, sale: ! current.sale }))}
                         size={17}
                         label={
                             <span className="bg-sale px-3 py-1 text-[11px] font-bold text-ink">
@@ -66,38 +89,29 @@ export default function Filter() {
                     />
                 </div>
 
-                <div className="mb-[18px]">
+                <div className="mb-2.5">
                     <Checkbox
-                        checked={labels.new}
+                        checked={labels.inStock}
                         onChange={() =>
-                            setLabels((current) => ({ ...current, new: ! current.new }))
+                            setLabels((current) => ({ ...current, inStock: ! current.inStock }))
                         }
                         size={17}
-                        label={
-                            <span className="bg-brand px-3 py-1 text-[11px] font-bold text-white">
-                                BARU
-                            </span>
-                        }
+                        label={<span className="text-xs text-muted">Hanya yang tersedia</span>}
                     />
                 </div>
 
-                <div className="mb-2.5 font-display text-[15px]">Kategori</div>
-
-                <div className="mb-5 flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                        <button
-                            key={tag}
-                            type="button"
-                            onClick={() => toggleTag(tag)}
-                            className={`px-3.5 py-[7px] text-xs ${
-                                selectedTags.includes(tag)
-                                    ? 'border border-brand text-brand'
-                                    : 'border border-line text-muted'
-                            }`}
-                        >
-                            {tag}
-                        </button>
-                    ))}
+                <div className="mb-5">
+                    <Checkbox
+                        checked={labels.prescription}
+                        onChange={() =>
+                            setLabels((current) => ({
+                                ...current,
+                                prescription: ! current.prescription,
+                            }))
+                        }
+                        size={17}
+                        label={<span className="text-xs text-muted">Sembunyikan obat resep</span>}
+                    />
                 </div>
             </div>
         </MobileLayout>
