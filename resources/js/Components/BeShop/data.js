@@ -1,3 +1,5 @@
+import { money } from '@/lib/format';
+
 const assets = 'https://george-fx.github.io/beshop-data/assets';
 
 export const asset = {
@@ -8,15 +10,7 @@ export const asset = {
     other: (n) => `${assets}/other/${n}.png`,
 };
 
-/**
- * Format a rupiah amount the way Indonesian storefronts display it.
- *
- * @param {number} amount
- * @returns {string}
- */
-export function money(amount) {
-    return `Rp ${Math.round(amount).toLocaleString('id-ID')}`;
-}
+export { money };
 
 /** @type {import('./ProductCard').Product[]} */
 export const trendingProducts = [

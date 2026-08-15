@@ -8,6 +8,105 @@ use Inertia\Inertia;
 
 Route::get('/', fn () => Inertia::render('BeShop/Home'))->name('home');
 
+/**
+ * Admin screens.
+ *
+ * Layout-only Inertia pages converted from the source HTML theme. The slug order
+ * mirrors `resources/js/Components/Admin/nav.js`.
+ *
+ * @var array<string, string>
+ */
+$adminScreens = [
+    '/' => 'Dashboard',
+    'dasbor/penjualan' => 'DashboardSales',
+    'dasbor/keuangan' => 'DashboardFinance',
+
+    'produk' => 'ProductList',
+    'produk/grid' => 'ProductGrid',
+    'produk/detail' => 'ProductDetail',
+    'produk/tambah' => 'ProductAdd',
+    'produk/ubah' => 'ProductEdit',
+
+    'kategori' => 'CategoryList',
+    'kategori/detail' => 'CategoryDetail',
+    'kategori/tambah' => 'CategoryAdd',
+    'kategori/ubah' => 'CategoryEdit',
+
+    'atribut' => 'AttributeList',
+    'atribut/tambah' => 'AttributeAdd',
+    'atribut/ubah' => 'AttributeEdit',
+
+    'inventaris/gudang' => 'InventoryWarehouse',
+    'inventaris/pesanan-masuk' => 'InventoryReceivedOrders',
+
+    'pesanan' => 'OrderList',
+    'pesanan/detail' => 'OrderDetail',
+    'pesanan/keranjang' => 'OrderCart',
+    'pesanan/checkout' => 'OrderCheckout',
+
+    'pembelian' => 'PurchaseList',
+    'pembelian/order' => 'PurchaseOrder',
+    'pembelian/retur' => 'PurchaseReturns',
+
+    'faktur' => 'InvoiceList',
+    'faktur/detail' => 'InvoiceDetail',
+    'faktur/tambah' => 'InvoiceAdd',
+    'faktur/ubah' => 'InvoiceEdit',
+
+    'pelanggan' => 'CustomerList',
+    'pelanggan/detail' => 'CustomerDetail',
+    'pelanggan/tambah' => 'CustomerAdd',
+    'pelanggan/ubah' => 'CustomerEdit',
+
+    'penjual' => 'SellerList',
+    'penjual/detail' => 'SellerDetail',
+    'penjual/tambah' => 'SellerAdd',
+    'penjual/ubah' => 'SellerEdit',
+
+    'kupon' => 'CouponList',
+    'kupon/tambah' => 'CouponAdd',
+
+    'peran' => 'RoleList',
+    'peran/tambah' => 'RoleAdd',
+    'peran/ubah' => 'RoleEdit',
+    'hak-akses' => 'Permissions',
+
+    'ulasan' => 'Reviews',
+    'profil' => 'Profile',
+    'pengaturan' => 'Settings',
+
+    'chat' => 'Chat',
+    'email' => 'Email',
+    'kalender' => 'Calendar',
+    'todo' => 'Todo',
+
+    'bantuan' => 'HelpCenter',
+    'faq' => 'Faq',
+    'kebijakan-privasi' => 'PrivacyPolicy',
+
+    'auth/masuk' => 'AuthSignIn',
+    'auth/daftar' => 'AuthSignUp',
+    'auth/atur-ulang-sandi' => 'AuthPassword',
+    'auth/kunci-layar' => 'AuthLockScreen',
+
+    'halaman/selamat-datang' => 'Starter',
+    'halaman/segera-hadir' => 'ComingSoon',
+    'halaman/linimasa' => 'Timeline',
+    'halaman/harga' => 'Pricing',
+    'halaman/pemeliharaan' => 'Maintenance',
+    'halaman/404' => 'Error404',
+    'halaman/404-alt' => 'Error404Alt',
+];
+
+Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
+    foreach ($adminScreens as $slug => $component) {
+        $path = $slug === '/' ? '/' : $slug;
+        $name = $slug === '/' ? 'dashboard' : str_replace('/', '.', $slug);
+
+        Route::get($path, fn () => Inertia::render("Admin/{$component}"))->name($name);
+    }
+});
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

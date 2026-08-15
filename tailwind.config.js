@@ -3,6 +3,8 @@ import forms from '@tailwindcss/forms';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: 'class',
+
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -46,6 +48,41 @@ export default {
                     DEFAULT: '#FE7900',
                     deep: '#B35400',
                 },
+
+                /**
+                 * Admin surfaces and text, carried over from the source theme's
+                 * proportions but repainted with the palette above. `danger` has
+                 * no counterpart in the three brand colours — destructive actions
+                 * still need a red that reads as "stop".
+                 */
+                admin: {
+                    bg: '#f7f7fb',
+                    nav: '#ffffff',
+                    card: '#ffffff',
+                    heading: '#313b5e',
+                    body: '#5d7186',
+                    muted: '#8a99ad',
+                    border: '#e6e9f0',
+                    hover: '#f2f3f9',
+                    dark: {
+                        bg: '#161a25',
+                        nav: '#1d2231',
+                        card: '#1d2231',
+                        heading: '#e6e9f0',
+                        body: '#a4aec1',
+                        muted: '#7a869c',
+                        border: '#2b3245',
+                        hover: '#252b3c',
+                    },
+                },
+                danger: {
+                    DEFAULT: '#ef5f5f',
+                    deep: '#c62828',
+                },
+                info: {
+                    DEFAULT: '#4ecac2',
+                    deep: '#0f766e',
+                },
             },
 
             maxWidth: {
@@ -56,6 +93,14 @@ export default {
                 appbar: '48px',
                 tabbar: '60px',
                 control: '52px',
+                topbar: '70px',
+                sidebar: '280px',
+                'sidebar-sm': '76px',
+            },
+
+            boxShadow: {
+                card: '0 3px 4px 0 rgba(0, 0, 0, 0.03)',
+                pop: '0 8px 24px -4px rgba(19, 25, 43, 0.14)',
             },
         },
     },

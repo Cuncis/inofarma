@@ -6,3 +6,5 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | resources/js/{Pages,Components}/BeShop/** | .ai/rules/be-shop.md |
 | tailwind.config.js | .ai/rules/general.md |
+| resources/js/{Pages,Components,Layouts}/Admin*/** | .ai/rules/pages-components-layouts.md |
+| public/** | .ai/rules/public.md |
