@@ -1,10 +1,25 @@
+import { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import BarChart from '@/Components/Admin/BarChart';
 import Card from '@/Components/Admin/Card';
+import PeriodFilter from '@/Components/Admin/PeriodFilter';
 import StatCard from '@/Components/Admin/StatCard';
 import Table from '@/Components/Admin/Table';
-import { money, orders, products, revenueSeries, statusTone } from '@/Components/Admin/data';
+import {
+    money,
+    orders,
+    products,
+    revenueByPeriod,
+    revenuePeriods,
+    revenueTotal,
+    statusTone,
+} from '@/Components/Admin/data';
+
+const periodOptions = revenuePeriods.map((key) => ({
+    value: key,
+    label: revenueByPeriod[key].label,
+}));
 
 const stats = [
     { label: 'Penjualan Hari Ini', value: money(12480000), icon: 'solar:cart-5-bold-duotone', change: '+4,2%', up: true, period: 'Kemarin' },
@@ -21,6 +36,10 @@ const channels = [
 ];
 
 export default function DashboardSales() {
+    const [period, setPeriod] = useState('mingguan');
+
+    const revenue = revenueByPeriod[period];
+
     return (
         <AdminLayout
             title="Dasbor Penjualan"
@@ -30,6 +49,14 @@ export default function DashboardSales() {
                 { label: 'Dasbor', href: '/admin' },
                 { label: 'Penjualan' },
             ]}
+            actions={
+                <PeriodFilter
+                    value={period}
+                    onChange={setPeriod}
+                    options={periodOptions}
+                    label="Periode penjualan"
+                />
+            }
         >
             <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {stats.map((stat) => (
@@ -38,8 +65,12 @@ export default function DashboardSales() {
             </div>
 
             <div className="mb-5 grid gap-4 lg:grid-cols-3">
-                <Card title="Penjualan Mingguan" className="lg:col-span-2">
-                    <BarChart series={revenueSeries} />
+                <Card title={revenue.title.replace('Pendapatan', 'Penjualan')} className="lg:col-span-2">
+                    <p className="-mt-1 mb-4 text-xs text-admin-muted dark:text-admin-dark-muted">
+                        {revenue.caption} · total {money(revenueTotal(period))}
+                    </p>
+
+                    <BarChart series={revenue.series} />
                 </Card>
 
                 <Card title="Kanal Penjualan">

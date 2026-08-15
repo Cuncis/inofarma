@@ -13,13 +13,14 @@ const stats = [
     { label: 'Piutang Belum Tertagih', value: money(96400000), icon: 'solar:clock-circle-bold-duotone', change: '-3,8%', up: true, period: 'Bulan lalu' },
 ];
 
+/** Monthly net cash flow, in rupiah. */
 const cashflow = [
-    { label: 'Mar', value: 62 },
-    { label: 'Apr', value: 71 },
-    { label: 'Mei', value: 58 },
-    { label: 'Jun', value: 84 },
-    { label: 'Jul', value: 76 },
-    { label: 'Agu', value: 92 },
+    { label: 'Mar', value: 984000000 },
+    { label: 'Apr', value: 1120000000 },
+    { label: 'Mei', value: 921000000 },
+    { label: 'Jun', value: 1340000000 },
+    { label: 'Jul', value: 1210000000 },
+    { label: 'Agu', value: 1400000000 },
 ];
 
 const expenses = [

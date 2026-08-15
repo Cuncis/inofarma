@@ -30,7 +30,15 @@ export default {
              * the DEFAULT for fills and icons, the `deep` shade for text.
              */
             colors: {
-                brand: '#0900AA',
+                /**
+                 * `lift` is the dark-mode step of the brand hue. #0900AA scores
+                 * 1.2:1 against the dark chart surface — invisible — so charts
+                 * switch to this step there rather than flipping automatically.
+                 */
+                brand: {
+                    DEFAULT: '#0900AA',
+                    lift: '#6C63FF',
+                },
                 blush: '#ebebf8',
                 ink: '#222222',
                 lilac: '#faf9ff',

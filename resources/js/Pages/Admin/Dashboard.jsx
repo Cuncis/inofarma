@@ -1,9 +1,12 @@
+import { useMemo, useState } from 'react';
 import { Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { moneyShort } from '@/lib/format';
 import BarChart from '@/Components/Admin/BarChart';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
+import PeriodFilter from '@/Components/Admin/PeriodFilter';
 import StatCard from '@/Components/Admin/StatCard';
 import Table from '@/Components/Admin/Table';
 import {
@@ -11,9 +14,16 @@ import {
     money,
     orders,
     products,
-    revenueSeries,
+    revenueByPeriod,
+    revenuePeriods,
+    revenueTotal,
     statusTone,
 } from '@/Components/Admin/data';
+
+const periodOptions = revenuePeriods.map((key) => ({
+    value: key,
+    label: revenueByPeriod[key].label,
+}));
 
 const orderColumns = [
     { key: 'id', label: 'Pesanan' },
@@ -24,30 +34,63 @@ const orderColumns = [
 ];
 
 export default function Dashboard() {
+    const [period, setPeriod] = useState('mingguan');
+
+    const revenue = revenueByPeriod[period];
+
+    // The revenue tile reports the same slice the chart plots, so the two can
+    // never show different numbers for the selected period.
+    const stats = useMemo(
+        () =>
+            dashboardStats.map((stat) =>
+                stat.label === 'Pendapatan'
+                    ? {
+                          ...stat,
+                          label: `Pendapatan (${revenue.label})`,
+                          value: moneyShort(revenueTotal(period)),
+                      }
+                    : stat,
+            ),
+        [period, revenue.label],
+    );
+
     return (
         <AdminLayout
             title="Dasbor"
             heading="Dasbor"
             breadcrumb={[{ label: 'Inofarma', href: '/admin' }, { label: 'Dasbor' }]}
             actions={
-                <Button icon="solar:download-minimalistic-broken" variant="outline" size="sm">
-                    Unduh Laporan
-                </Button>
+                <>
+                    <PeriodFilter
+                        value={period}
+                        onChange={setPeriod}
+                        options={periodOptions}
+                        label="Periode pendapatan"
+                    />
+
+                    <Button icon="solar:download-minimalistic-broken" variant="outline" size="sm">
+                        Unduh Laporan
+                    </Button>
+                </>
             }
         >
             <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {dashboardStats.map((stat) => (
+                {stats.map((stat) => (
                     <StatCard key={stat.label} {...stat} />
                 ))}
             </div>
 
             <div className="mb-5 grid gap-4 lg:grid-cols-3">
                 <Card
-                    title="Pendapatan Mingguan"
+                    title={revenue.title}
                     action={{ label: 'Lihat detail', href: '/admin/faktur' }}
                     className="lg:col-span-2"
                 >
-                    <BarChart series={revenueSeries} />
+                    <p className="-mt-1 mb-4 text-xs text-admin-muted dark:text-admin-dark-muted">
+                        {revenue.caption} · total {money(revenueTotal(period))}
+                    </p>
+
+                    <BarChart series={revenue.series} />
                 </Card>
 
                 <Card title="Produk Terlaris" action={{ label: 'Semua', href: '/admin/produk' }}>

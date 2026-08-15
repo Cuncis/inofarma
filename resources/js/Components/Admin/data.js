@@ -70,16 +70,90 @@ export const dashboardStats = [
     },
 ];
 
-/** Weekly revenue series, drawn as an inline SVG chart. */
-export const revenueSeries = [
-    { label: 'Sen', value: 42 },
-    { label: 'Sel', value: 58 },
-    { label: 'Rab', value: 51 },
-    { label: 'Kam', value: 73 },
-    { label: 'Jum', value: 66 },
-    { label: 'Sab', value: 88 },
-    { label: 'Min', value: 79 },
-];
+/**
+ * Revenue by reporting period, in rupiah.
+ *
+ * Each period supplies its own x-axis granularity: hours within today, days
+ * within the week, weeks within the month, months within the year. `total` is
+ * the sum the summary tile shows for that period, so the tile and the chart can
+ * never disagree.
+ *
+ * @type {Record<string, { label: string, title: string, caption: string, series: { label: string, value: number }[] }>}
+ */
+export const revenueByPeriod = {
+    harian: {
+        label: 'Harian',
+        title: 'Pendapatan Harian',
+        caption: 'Hari ini, per jam',
+        series: [
+            { label: '08.00', value: 3200000 },
+            { label: '10.00', value: 6800000 },
+            { label: '12.00', value: 8400000 },
+            { label: '14.00', value: 7100000 },
+            { label: '16.00', value: 9600000 },
+            { label: '18.00', value: 6900000 },
+            { label: '20.00', value: 3800000 },
+        ],
+    },
+    mingguan: {
+        label: 'Mingguan',
+        title: 'Pendapatan Mingguan',
+        caption: 'Minggu ini, per hari',
+        series: [
+            { label: 'Sen', value: 30400000 },
+            { label: 'Sel', value: 36200000 },
+            { label: 'Rab', value: 33100000 },
+            { label: 'Kam', value: 45800000 },
+            { label: 'Jum', value: 41200000 },
+            { label: 'Sab', value: 54600000 },
+            { label: 'Min', value: 46500000 },
+        ],
+    },
+    bulanan: {
+        label: 'Bulanan',
+        title: 'Pendapatan Bulanan',
+        caption: 'Bulan ini, per minggu',
+        series: [
+            { label: 'Mgg 1', value: 268000000 },
+            { label: 'Mgg 2', value: 312000000 },
+            { label: 'Mgg 3', value: 287000000 },
+            { label: 'Mgg 4', value: 241000000 },
+            { label: 'Mgg 5', value: 128000000 },
+        ],
+    },
+    tahunan: {
+        label: 'Tahunan',
+        title: 'Pendapatan Tahunan',
+        caption: 'Tahun ini, per bulan',
+        series: [
+            { label: 'Jan', value: 892000000 },
+            { label: 'Feb', value: 845000000 },
+            { label: 'Mar', value: 984000000 },
+            { label: 'Apr', value: 1120000000 },
+            { label: 'Mei', value: 921000000 },
+            { label: 'Jun', value: 1340000000 },
+            { label: 'Jul', value: 1210000000 },
+            { label: 'Agu', value: 1400000000 },
+            { label: 'Sep', value: 1180000000 },
+            { label: 'Okt', value: 1265000000 },
+            { label: 'Nov', value: 1390000000 },
+            { label: 'Des', value: 1520000000 },
+        ],
+    },
+};
+
+/** Period keys in the order the filter presents them. */
+export const revenuePeriods = ['harian', 'mingguan', 'bulanan', 'tahunan'];
+
+/**
+ * Total revenue for a period, summed from the same series the chart plots.
+ *
+ * @param {string} period
+ * @returns {number}
+ */
+export function revenueTotal(period) {
+    return revenueByPeriod[period].series.reduce((sum, point) => sum + point.value, 0);
+}
 
 export const products = catalogProducts;
 
