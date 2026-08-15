@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
-Route::get('/', fn () => Inertia::render('BeShop/Home'))->name('home');
+Route::get('/', fn () => Inertia::render('Shop/Home'))->name('home');
 
 /**
  * Admin screens.
@@ -112,10 +112,10 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 /**
- * BeShop UI screens.
+ * Inofarma UI screens.
  *
  * Layout-only Inertia pages, one per screen from the design reference. The slug
- * order here mirrors `resources/js/Components/BeShop/screens.js`.
+ * order here mirrors `resources/js/Components/Shop/screens.js`.
  *
  * @var array<string, string>
  */
@@ -160,10 +160,10 @@ $beShopScreens = [
 ];
 
 Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
-    Route::get('/', fn () => Inertia::render('BeShop/Index'))->name('index');
+    Route::get('/', fn () => Inertia::render('Shop/Index'))->name('index');
 
     foreach ($beShopScreens as $slug => $component) {
-        Route::get($slug, fn () => Inertia::render("BeShop/{$component}"))->name($slug);
+        Route::get($slug, fn () => Inertia::render("Shop/{$component}"))->name($slug);
     }
 
     /**
@@ -178,7 +178,7 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
             'password' => ['required', 'string'],
         ]);
 
-        $request->session()->put('beshop_user', [
+        $request->session()->put('shop_user', [
             'name' => Str::of($credentials['email'])->before('@')->replace(['.', '_', '-'], ' ')->title()->value(),
             'email' => $credentials['email'],
         ]);
@@ -187,7 +187,7 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
     })->name('signin.store');
 
     Route::post('signout', function (Request $request) {
-        $request->session()->forget('beshop_user');
+        $request->session()->forget('shop_user');
 
         return redirect()->route('ui.signin');
     })->name('signout');

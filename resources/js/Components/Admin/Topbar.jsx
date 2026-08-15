@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import Dropdown from './Dropdown';
+import GlobalSearch from './GlobalSearch';
 import Icon from './Icon';
 import useDarkMode from './useDarkMode';
 import { notifications } from './data';
@@ -33,21 +34,7 @@ export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
                 <Icon name="solar:hamburger-menu-broken" size={24} />
             </button>
 
-            <form
-                onSubmit={(event) => event.preventDefault()}
-                className="relative ml-1 hidden md:block"
-            >
-                <Icon
-                    name="solar:magnifer-linear"
-                    size={18}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-admin-muted"
-                />
-                <input
-                    type="search"
-                    placeholder="Cari..."
-                    className="h-10 w-64 rounded-lg border border-admin-border bg-admin-bg pl-10 pr-3 text-[13px] text-admin-body placeholder:text-admin-muted focus:border-brand focus:outline-none focus:ring-0 dark:border-admin-dark-border dark:bg-admin-dark-bg dark:text-admin-dark-body"
-                />
-            </form>
+            <GlobalSearch />
 
             <div className="ml-auto flex items-center gap-1">
                 <button

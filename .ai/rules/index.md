@@ -4,7 +4,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 
 | Applies to | Rule file |
 | --- | --- |
-| resources/js/{Pages,Components}/BeShop/** | .ai/rules/be-shop.md |
+| resources/js/{Pages,Components}/Shop/** | .ai/rules/shop.md |
 | tailwind.config.js | .ai/rules/general.md |
 | resources/js/lib/catalog.js | .ai/rules/lib.md |
 | resources/js/{Pages,Components,Layouts}/Admin*/** | .ai/rules/pages-components-layouts.md |

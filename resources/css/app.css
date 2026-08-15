@@ -4,7 +4,7 @@
 
 @layer base {
     /**
-     * The BeShop screens are locked to a mobile-width canvas on every device, so
+     * The storefront screens are locked to a mobile-width canvas on every device, so
      * the page itself never scrolls — each screen scrolls inside its own frame.
      */
     html,

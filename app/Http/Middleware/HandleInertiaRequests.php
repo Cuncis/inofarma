@@ -34,7 +34,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'beshopUser' => fn () => $request->session()->get('beshop_user'),
+            'shopUser' => fn () => $request->session()->get('shop_user'),
         ];
     }
 }
