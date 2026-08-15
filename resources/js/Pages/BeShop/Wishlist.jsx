@@ -29,12 +29,12 @@ export default function Wishlist() {
 
     return (
         <MobileLayout
-            title="Wishlist"
+            title="Favorit"
             header={
                 <AppBar
                     brand
-                    title="Wishlist"
-                    actions={<IconLink name="bag" href="/ui/cart" label="Cart" />}
+                    title="Favorit"
+                    actions={<IconLink name="bag" href="/ui/cart" label="Keranjang" />}
                 />
             }
             footer={<TabBar active="wishlist" />}

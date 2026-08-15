@@ -4,18 +4,18 @@ import Icon from '@/Components/BeShop/Icon';
 import { asset } from '@/Components/BeShop/data';
 
 const steps = [
-    { label: 'Order Placed', at: '14 Aug 2025, 09:00 AM', state: 'done' },
-    { label: 'Processing', at: '14 Aug 2025, 11:30 AM', state: 'current' },
-    { label: 'On the Way', at: 'Pending', state: 'pending' },
-    { label: 'Delivered', at: 'Pending', state: 'pending' },
+    { label: 'Pesanan Dibuat', at: '14 Agu 2025, 09.00 WIB', state: 'done' },
+    { label: 'Sedang Diproses', at: '14 Agu 2025, 11.30 WIB', state: 'current' },
+    { label: 'Dalam Perjalanan', at: 'Menunggu', state: 'pending' },
+    { label: 'Diterima', at: 'Menunggu', state: 'pending' },
 ];
 
 export default function TrackOrder() {
     return (
         <MobileLayout
-            title="Track Your Order"
+            title="Lacak Pesanan"
             background="bg-blush"
-            header={<AppBar title="Track Your Order" back="/ui/order-history" />}
+            header={<AppBar title="Lacak Pesanan" back="/ui/order-history" />}
         >
             <div className="flex-1 overflow-y-auto bg-blush p-[18px]">
                 <img
@@ -25,7 +25,7 @@ export default function TrackOrder() {
                 />
 
                 <div className="mb-[3px] text-center font-display text-[17px]">
-                    Your order:
+                    Pesanan Anda:
                 </div>
                 <div className="mb-[22px] text-center text-[13px] text-muted">#205479</div>
 

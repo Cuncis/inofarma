@@ -6,8 +6,8 @@ import { asset } from '@/Components/BeShop/data';
 export default function OrderHistoryEmpty() {
     return (
         <MobileLayout
-            title="Order History Empty"
-            header={<AppBar title="Order History" back="/ui/profile" tone="ink" />}
+            title="Riwayat Pesanan Kosong"
+            header={<AppBar title="Riwayat Pesanan" back="/ui/profile" tone="ink" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">
                 <img
@@ -17,18 +17,18 @@ export default function OrderHistoryEmpty() {
                 />
 
                 <h2 className="mb-2.5 font-display text-[21px] leading-tight">
-                    You do not have
+                    Anda belum memiliki
                     <br />
-                    orders yet!
+                    pesanan!
                 </h2>
 
                 <p className="mb-[22px] text-[13px] leading-relaxed text-muted">
-                    Your order history is empty.
+                    Riwayat pesanan Anda masih kosong.
                     <br />
-                    Start shopping!
+                    Yuk, mulai belanja!
                 </p>
 
-                <Button href="/ui/shop">Shop Now</Button>
+                <Button href="/ui/shop">Mulai Belanja</Button>
             </div>
         </MobileLayout>
     );

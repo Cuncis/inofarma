@@ -8,11 +8,11 @@ import { asset } from '@/Components/BeShop/data';
 export default function CartEmpty() {
     return (
         <MobileLayout
-            title="Cart Empty"
+            title="Keranjang Kosong"
             header={
                 <AppBar
                     tone="white"
-                    actions={<IconLink name="user" href="/ui/profile" label="Profile" />}
+                    actions={<IconLink name="user" href="/ui/profile" label="Profil" />}
                 />
             }
             footer={<TabBar active="order" />}
@@ -24,15 +24,15 @@ export default function CartEmpty() {
                     className="mx-auto mb-4 h-[190px] w-[190px] object-contain"
                 />
 
-                <h2 className="mb-2.5 font-display text-[22px]">Your cart is empty!</h2>
+                <h2 className="mb-2.5 font-display text-[22px]">Keranjang Anda kosong!</h2>
 
                 <p className="mb-[22px] text-[13px] leading-relaxed text-muted">
-                    Looks like you have not made
+                    Sepertinya Anda belum melakukan
                     <br />
-                    your order yet.
+                    pemesanan.
                 </p>
 
-                <Button href="/ui/shop">Shop Now</Button>
+                <Button href="/ui/shop">Mulai Belanja</Button>
             </div>
         </MobileLayout>
     );

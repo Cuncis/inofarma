@@ -7,14 +7,14 @@ import { allScreens, screenGroups } from '@/Components/BeShop/screens';
 export default function Index() {
     return (
         <MobileLayout
-            title="Screens"
-            header={<AppBar brand title="Screens" />}
+            title="Daftar Halaman"
+            header={<AppBar brand title="Halaman" />}
         >
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-4 bg-blush p-4 text-center">
-                    <div className="font-display text-lg">UI Screen Previews</div>
+                    <div className="font-display text-lg">Pratinjau Halaman UI</div>
                     <div className="mt-1 text-xs text-muted">
-                        {allScreens.length} screens · mobile layout on every device
+                        {allScreens.length} halaman · tampilan mobile di semua perangkat
                     </div>
                 </div>
 

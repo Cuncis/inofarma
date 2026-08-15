@@ -21,17 +21,17 @@ export default function SignIn() {
     };
 
     return (
-        <MobileLayout title="Sign In" background="bg-blush">
+        <MobileLayout title="Masuk" background="bg-blush">
             <form
                 onSubmit={submit}
                 className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-[22px] py-6"
             >
                 <div className="mb-6 font-display text-[22px] tracking-[2px]">BESHOP</div>
 
-                <h1 className="mb-2 font-display text-2xl">Sign in</h1>
+                <h1 className="mb-2 font-display text-2xl">Masuk</h1>
 
                 <p className="mb-5 text-center text-[13px] text-muted">
-                    Use social networks or your email
+                    Gunakan media sosial atau email Anda
                 </p>
 
                 <SocialButtons />
@@ -42,7 +42,7 @@ export default function SignIn() {
                         name="email"
                         value={data.email}
                         onChange={(event) => setData('email', event.target.value)}
-                        placeholder="kristinwatson@mail.com"
+                        placeholder="kirana.wijaya@mail.com"
                         error={errors.email}
                         autoComplete="email"
                         className="mb-2.5"
@@ -64,22 +64,22 @@ export default function SignIn() {
                     <Checkbox
                         checked={remember}
                         onChange={() => setRemember((current) => ! current)}
-                        label={<span>Remember me</span>}
+                        label={<span>Ingat saya</span>}
                     />
 
                     <Link href="/ui/forgot-password" className="text-brand">
-                        Lost your password?
+                        Lupa kata sandi?
                     </Link>
                 </div>
 
                 <Button type="submit" disabled={processing}>
-                    {processing ? 'Signing in…' : 'Sign In'}
+                    {processing ? 'Memproses…' : 'Masuk'}
                 </Button>
 
                 <div className="mt-3 flex gap-1 text-xs">
-                    <span>No account?</span>
+                    <span>Belum punya akun?</span>
                     <Link href="/ui/signup" className="text-brand">
-                        Register now
+                        Daftar sekarang
                     </Link>
                 </div>
             </form>

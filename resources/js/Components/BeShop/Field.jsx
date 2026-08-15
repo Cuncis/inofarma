@@ -62,7 +62,7 @@ export default function Field({
                     <button
                         type="button"
                         onClick={() => setRevealed((shown) => ! shown)}
-                        aria-label={revealed ? 'Hide password' : 'Show password'}
+                        aria-label={revealed ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                     >
                         <Icon
                             name={revealed ? 'eye' : 'eyeOff'}

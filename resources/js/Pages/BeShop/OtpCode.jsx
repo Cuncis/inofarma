@@ -32,15 +32,15 @@ export default function OtpCode() {
 
     return (
         <MobileLayout
-            title="Confirmation Code"
+            title="Kode Verifikasi"
             header={
-                <AppBar title="Verify Phone Number" back="/ui/verify-phone" tone="white" />
+                <AppBar title="Verifikasi Nomor HP" back="/ui/verify-phone" tone="white" />
             }
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
                 <div className="bg-blush p-6">
                     <p className="mb-[18px] text-[13px] leading-[1.7] text-muted">
-                        Enter your OTP code here.
+                        Masukkan kode OTP Anda di sini.
                     </p>
 
                     <div className="mb-4 flex gap-2">
@@ -53,7 +53,7 @@ export default function OtpCode() {
                                 onKeyDown={(event) => handleKeyDown(index, event)}
                                 inputMode="numeric"
                                 maxLength={1}
-                                aria-label={`Digit ${index + 1}`}
+                                aria-label={`Digit ke-${index + 1}`}
                                 className={`aspect-square min-w-0 flex-1 bg-transparent p-0 text-center text-xl font-bold focus:outline-none focus:ring-0 ${
                                     digit
                                         ? 'border-2 border-ink'
@@ -64,17 +64,17 @@ export default function OtpCode() {
                     </div>
 
                     <div className="mb-4 flex gap-1 text-xs">
-                        <span>Did not receive the OTP?</span>
+                        <span>Tidak menerima kode OTP?</span>
                         <button
                             type="button"
                             onClick={() => setDigits(['', '', '', '', ''])}
                             className="text-brand"
                         >
-                            Resend.
+                            Kirim ulang.
                         </button>
                     </div>
 
-                    <Button type="submit">Verify</Button>
+                    <Button type="submit">Verifikasi</Button>
                 </div>
             </form>
         </MobileLayout>

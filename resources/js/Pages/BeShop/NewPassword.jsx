@@ -13,28 +13,28 @@ export default function NewPassword() {
 
     return (
         <MobileLayout
-            title="New Password"
-            header={<AppBar title="Reset Password" back="/ui/email-sent" tone="white" />}
+            title="Kata Sandi Baru"
+            header={<AppBar title="Atur Ulang Sandi" back="/ui/email-sent" tone="white" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-[18px]">
                 <p className="mb-4 text-[13px] leading-relaxed text-muted">
-                    Enter new password and confirm.
+                    Masukkan kata sandi baru lalu konfirmasi.
                 </p>
 
                 <Field
                     type="password"
                     name="password"
-                    placeholder="New password"
+                    placeholder="Kata sandi baru"
                     className="mb-2.5"
                 />
                 <Field
                     type="password"
                     name="password_confirmation"
-                    placeholder="Confirm new password"
+                    placeholder="Ulangi kata sandi baru"
                     className="mb-2.5"
                 />
 
-                <Button type="submit">Change Password</Button>
+                <Button type="submit">Ubah Kata Sandi</Button>
             </form>
         </MobileLayout>
     );

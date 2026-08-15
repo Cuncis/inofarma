@@ -5,8 +5,14 @@ import Fab from '@/Components/BeShop/Fab';
 import Icon from '@/Components/BeShop/Icon';
 import { promocodes } from '@/Components/BeShop/data';
 
+const tabs = [
+    { key: 'current', label: 'Aktif' },
+    { key: 'used', label: 'Terpakai' },
+];
+
 export default function MyPromocodes() {
     const [tab, setTab] = useState('current');
+
     const [copied, setCopied] = useState(null);
 
     const copyCode = (code) => {
@@ -18,23 +24,23 @@ export default function MyPromocodes() {
 
     return (
         <MobileLayout
-            title="My Promocodes"
-            header={<AppBar title="My Promocodes" back="/ui/profile" />}
+            title="Kode Promo Saya"
+            header={<AppBar title="Kode Promo Saya" back="/ui/profile" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 <div className="mb-3.5 flex border-b border-line">
-                    {['current', 'used'].map((name) => (
+                    {tabs.map((option) => (
                         <button
-                            key={name}
+                            key={option.key}
                             type="button"
-                            onClick={() => setTab(name)}
-                            className={`flex-1 p-[11px] text-center text-[13px] font-bold capitalize ${
-                                tab === name
+                            onClick={() => setTab(option.key)}
+                            className={`flex-1 p-[11px] text-center text-[13px] font-bold ${
+                                tab === option.key
                                     ? 'border-b-2 border-ink'
                                     : 'text-[#aaaaaa]'
                             }`}
                         >
-                            {name}
+                            {option.label}
                         </button>
                     ))}
                 </div>
@@ -61,19 +67,19 @@ export default function MyPromocodes() {
                                 onClick={() => copyCode(promo.code)}
                                 className="flex w-full items-center justify-between border border-dashed border-[#dddddd] bg-lilac px-3 py-2 text-xs font-bold tracking-[1px]"
                             >
-                                {copied === promo.code ? 'Copied!' : promo.code}
+                                {copied === promo.code ? 'Tersalin!' : promo.code}
                                 <Icon name="copy" size={15} className="text-[#aaaaaa]" />
                             </button>
                         </div>
                     ))
                 ) : (
                     <p className="mt-10 text-center text-[13px] text-muted">
-                        You have not used any promocodes yet.
+                        Anda belum pernah memakai kode promo.
                     </p>
                 )}
             </div>
 
-            <Fab href="/ui/promocodes-empty" label="Add a promocode" />
+            <Fab href="/ui/promocodes-empty" label="Tambah kode promo" />
         </MobileLayout>
     );
 }

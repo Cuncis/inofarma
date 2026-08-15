@@ -2,10 +2,10 @@ import { Link } from '@inertiajs/react';
 import Icon from './Icon';
 
 const tabs = [
-    { key: 'home', label: 'Home', icon: 'home', route: '/' },
-    { key: 'order', label: 'Order', icon: 'bagSimple', route: '/ui/cart' },
-    { key: 'wishlist', label: 'Wishlist', icon: 'heart', route: '/ui/wishlist' },
-    { key: 'profile', label: 'Profile', icon: 'user', route: '/ui/profile' },
+    { key: 'home', label: 'Beranda', icon: 'home', route: '/' },
+    { key: 'order', label: 'Pesanan', icon: 'bagSimple', route: '/ui/cart' },
+    { key: 'wishlist', label: 'Favorit', icon: 'heart', route: '/ui/wishlist' },
+    { key: 'profile', label: 'Profil', icon: 'user', route: '/ui/profile' },
 ];
 
 /**

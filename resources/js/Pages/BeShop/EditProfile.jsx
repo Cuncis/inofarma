@@ -17,8 +17,8 @@ export default function EditProfile() {
 
     return (
         <MobileLayout
-            title="Edit Profile"
-            header={<AppBar title="Edit Profile" back="/ui/profile" tone="white" />}
+            title="Ubah Profil"
+            header={<AppBar title="Ubah Profil" back="/ui/profile" tone="white" />}
         >
             <form
                 onSubmit={submit}
@@ -48,16 +48,16 @@ export default function EditProfile() {
                     <Field
                         type="tel"
                         name="phone"
-                        defaultValue="+17 123456789"
+                        defaultValue="+62 812-3456-7890"
                         className="mb-2.5"
                     />
                     <Field
                         name="address"
-                        placeholder="Enter your address"
+                        placeholder="Masukkan alamat Anda"
                         className="mb-2.5"
                     />
 
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit">Simpan Perubahan</Button>
                 </div>
             </form>
         </MobileLayout>

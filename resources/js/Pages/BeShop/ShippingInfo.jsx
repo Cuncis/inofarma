@@ -1,26 +1,27 @@
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
+import { money } from '@/Components/BeShop/data';
 
 const sections = [
     {
-        title: 'Shipping Policy',
-        body: 'We offer free standard shipping on all orders over $50. Standard shipping takes 5-7 business days. Express shipping (2-3 business days) is available for $9.99.',
+        title: 'Kebijakan Pengiriman',
+        body: `Gratis ongkir untuk setiap pembelian di atas ${money(750000)}. Pengiriman reguler memakan waktu 5-7 hari kerja. Tersedia juga pengiriman ekspres (2-3 hari kerja) dengan biaya ${money(150000)}.`,
     },
     {
-        title: 'Returns Policy',
-        body: 'Items can be returned within 30 days of purchase in original condition with tags attached. Refunds are processed within 5-10 business days.',
+        title: 'Kebijakan Pengembalian',
+        body: 'Barang dapat dikembalikan dalam 30 hari setelah pembelian, dengan kondisi asli dan label masih terpasang. Dana dikembalikan dalam 5-10 hari kerja.',
     },
     {
-        title: 'Payment Info',
-        body: 'We accept Visa, MasterCard, AMEX, PayPal, Apple Pay, and Google Pay. All transactions are secured with SSL encryption.',
+        title: 'Info Pembayaran',
+        body: 'Kami menerima Visa, MasterCard, transfer bank, GoPay, OVO, dan DANA. Seluruh transaksi diamankan dengan enkripsi SSL.',
     },
 ];
 
 export default function ShippingInfo() {
     return (
         <MobileLayout
-            title="Shipping & Payment Info"
-            header={<AppBar title="Shipping & Payment Info" back="/ui/profile" />}
+            title="Info Pengiriman & Pembayaran"
+            header={<AppBar title="Info Pengiriman" back="/ui/profile" />}
         >
             <div className="flex-1 overflow-y-auto p-4">
                 {sections.map((section) => (

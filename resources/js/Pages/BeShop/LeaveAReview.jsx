@@ -18,8 +18,8 @@ export default function LeaveAReview() {
 
     return (
         <MobileLayout
-            title="Leave a Review"
-            header={<AppBar title="Leave a Review" back="/ui/order-history" tone="white" />}
+            title="Beri Ulasan"
+            header={<AppBar title="Beri Ulasan" back="/ui/order-history" tone="white" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-4 text-center">
                 <img
@@ -29,9 +29,9 @@ export default function LeaveAReview() {
                 />
 
                 <h2 className="mb-3.5 font-display text-lg leading-[1.35]">
-                    Please rate the quality of
+                    Beri penilaian untuk kualitas
                     <br />
-                    service for the order!
+                    layanan pesanan Anda!
                 </h2>
 
                 <div className="mb-3.5 flex justify-center gap-1.5">
@@ -40,7 +40,7 @@ export default function LeaveAReview() {
                             key={star}
                             type="button"
                             onClick={() => setScore(star)}
-                            aria-label={`Rate ${star} out of 5`}
+                            aria-label={`Beri nilai ${star} dari 5`}
                         >
                             <Icon
                                 name="star"
@@ -52,18 +52,18 @@ export default function LeaveAReview() {
                 </div>
 
                 <p className="mb-3.5 text-xs leading-relaxed text-muted">
-                    Your comments and suggestions help us improve the service quality!
+                    Komentar dan saran Anda membantu kami meningkatkan kualitas layanan!
                 </p>
 
                 <textarea
                     value={body}
                     onChange={(event) => setBody(event.target.value)}
-                    placeholder="Write your review here..."
+                    placeholder="Tulis ulasan Anda di sini..."
                     rows={3}
                     className="mb-3.5 w-full resize-none border border-line p-3 text-left text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
                 />
 
-                <Button type="submit">Submit</Button>
+                <Button type="submit">Kirim Ulasan</Button>
             </form>
         </MobileLayout>
     );

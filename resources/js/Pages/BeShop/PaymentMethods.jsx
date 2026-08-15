@@ -10,8 +10,8 @@ export default function PaymentMethods() {
 
     return (
         <MobileLayout
-            title="Payment Method"
-            header={<AppBar title="Payment Method" back="/ui/profile" />}
+            title="Metode Pembayaran"
+            header={<AppBar title="Metode Pembayaran" back="/ui/profile" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 {saved.map((card) => (
@@ -29,7 +29,7 @@ export default function PaymentMethods() {
                                     current.filter((existing) => existing !== card),
                                 )
                             }
-                            aria-label={`Remove card ending ${card.slice(-4)}`}
+                            aria-label={`Hapus kartu berakhiran ${card.slice(-4)}`}
                         >
                             <Icon name="trash" size={17} className="text-[#cccccc]" />
                         </button>
@@ -38,12 +38,12 @@ export default function PaymentMethods() {
 
                 {saved.length === 0 ? (
                     <p className="mt-10 text-center text-[13px] text-muted">
-                        No saved cards yet. Add one to continue.
+                        Belum ada kartu tersimpan. Tambahkan kartu untuk melanjutkan.
                     </p>
                 ) : null}
             </div>
 
-            <Fab href="/ui/add-new-card" label="Add a new card" />
+            <Fab href="/ui/add-new-card" label="Tambah kartu baru" />
         </MobileLayout>
     );
 }

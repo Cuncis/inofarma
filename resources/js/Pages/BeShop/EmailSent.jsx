@@ -7,9 +7,9 @@ import { asset } from '@/Components/BeShop/data';
 export default function EmailSent() {
     return (
         <MobileLayout
-            title="Password Email Sent"
+            title="Email Terkirim"
             header={
-                <AppBar title="Reset Password" back="/ui/forgot-password" tone="white" />
+                <AppBar title="Atur Ulang Sandi" back="/ui/forgot-password" tone="white" />
             }
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-blush p-6 text-center">
@@ -19,20 +19,20 @@ export default function EmailSent() {
                     className="mx-auto mb-4 h-[180px] w-[180px] object-contain"
                 />
 
-                <h2 className="mb-2.5 font-display text-[22px]">Email Sent!</h2>
+                <h2 className="mb-2.5 font-display text-[22px]">Email Terkirim!</h2>
 
                 <p className="mb-[22px] text-[13px] leading-relaxed text-muted">
-                    We have sent a password recover
+                    Kami telah mengirim petunjuk pemulihan
                     <br />
-                    instructions to your email.
+                    kata sandi ke email Anda.
                 </p>
 
-                <Button href="/ui/new-password">OK, Got It!</Button>
+                <Button href="/ui/new-password">Oke, Mengerti!</Button>
 
                 <div className="mt-2.5 flex gap-1 text-xs">
-                    <span>Did not receive the email?</span>
+                    <span>Tidak menerima email?</span>
                     <Link href="/ui/forgot-password" className="text-brand">
-                        Resend
+                        Kirim ulang
                     </Link>
                 </div>
             </div>

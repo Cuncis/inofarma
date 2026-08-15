@@ -10,11 +10,11 @@ export default function ShippingDetails() {
 
     return (
         <MobileLayout
-            title="Checkout Shipping"
-            header={<AppBar title="Shipping Details" back="/ui/checkout" />}
+            title="Pengiriman"
+            header={<AppBar title="Detail Pengiriman" back="/ui/checkout" />}
             footer={
                 <div className="border-t border-line p-3.5">
-                    <Button href="/ui/checkout">Deliver Here</Button>
+                    <Button href="/ui/checkout">Kirim ke Sini</Button>
                 </div>
             }
         >

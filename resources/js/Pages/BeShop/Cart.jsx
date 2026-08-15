@@ -42,18 +42,18 @@ export default function Cart() {
 
     return (
         <MobileLayout
-            title="Cart / Order"
+            title="Keranjang"
             header={
                 <AppBar
-                    title="Order"
+                    title="Pesanan"
                     actions={
                         <>
                             <IconLink
                                 name="bag"
                                 href="/ui/order-history"
-                                label="Order history"
+                                label="Riwayat pesanan"
                             />
-                            <IconLink name="user" href="/ui/profile" label="Profile" />
+                            <IconLink name="user" href="/ui/profile" label="Profil" />
                         </>
                     }
                 />
@@ -77,8 +77,8 @@ export default function Cart() {
                             />
 
                             {item.onSale ? (
-                                <div className="absolute right-0 top-0 bg-sale px-1.5 py-0.5 text-[8px] font-bold text-white">
-                                    SALE
+                                <div className="absolute right-0 top-0 bg-sale px-1.5 py-0.5 text-[8px] font-bold text-ink">
+                                    DISKON
                                 </div>
                             ) : null}
                         </Link>
@@ -103,7 +103,7 @@ export default function Cart() {
                             <button
                                 type="button"
                                 onClick={() => changeQuantity(item.name, 1)}
-                                aria-label={`Increase ${item.name} quantity`}
+                                aria-label={`Tambah jumlah ${item.name}`}
                                 className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none"
                             >
                                 +
@@ -114,7 +114,7 @@ export default function Cart() {
                             <button
                                 type="button"
                                 onClick={() => changeQuantity(item.name, -1)}
-                                aria-label={`Decrease ${item.name} quantity`}
+                                aria-label={`Kurangi jumlah ${item.name}`}
                                 className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none"
                             >
                                 −
@@ -127,7 +127,7 @@ export default function Cart() {
                     <input
                         value={promo}
                         onChange={(event) => setPromo(event.target.value)}
-                        placeholder="Enter promo code"
+                        placeholder="Masukkan kode promo"
                         className="h-[50px] border border-blush px-3.5 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
                     />
 
@@ -140,7 +140,7 @@ export default function Cart() {
                                 : 'border-line bg-lilac'
                         }`}
                     >
-                        {applied ? 'Applied' : 'Apply'}
+                        {applied ? 'Terpakai' : 'Pakai'}
                     </button>
                 </div>
 
@@ -152,14 +152,14 @@ export default function Cart() {
 
                     {applied ? (
                         <div className="mb-1.5 flex justify-between text-[13px]">
-                            <span>Discount</span>
+                            <span>Diskon</span>
                             <span className="text-brand">-{money(discount)}</span>
                         </div>
                     ) : null}
 
                     <div className="mb-1.5 flex justify-between border-b-2 border-ink pb-1.5 text-[13px]">
-                        <span>Delivery</span>
-                        <span className="text-success">Free</span>
+                        <span>Pengiriman</span>
+                        <span className="text-success-deep">Gratis</span>
                     </div>
 
                     <div className="flex justify-between text-[13px]">
@@ -169,7 +169,7 @@ export default function Cart() {
                 </div>
 
                 <Button href="/ui/checkout" className="mb-2">
-                    Proceed to Checkout
+                    Lanjut ke Pembayaran
                 </Button>
             </div>
         </MobileLayout>

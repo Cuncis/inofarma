@@ -10,8 +10,8 @@ export default function MyAddress() {
 
     return (
         <MobileLayout
-            title="My Address"
-            header={<AppBar title="My Address" back="/ui/profile" />}
+            title="Alamat Saya"
+            header={<AppBar title="Alamat Saya" back="/ui/profile" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 {saved.map((address) => (
@@ -35,7 +35,7 @@ export default function MyAddress() {
                                     ),
                                 )
                             }
-                            aria-label={`Remove ${address.title} address`}
+                            aria-label={`Hapus alamat ${address.title}`}
                         >
                             <Icon name="trash" size={17} className="text-[#cccccc]" />
                         </button>
@@ -44,12 +44,12 @@ export default function MyAddress() {
 
                 {saved.length === 0 ? (
                     <p className="mt-10 text-center text-[13px] text-muted">
-                        No saved addresses yet. Add one to continue.
+                        Belum ada alamat tersimpan. Tambahkan alamat untuk melanjutkan.
                     </p>
                 ) : null}
             </div>
 
-            <Fab href="/ui/add-new-address" label="Add a new address" />
+            <Fab href="/ui/add-new-address" label="Tambah alamat baru" />
         </MobileLayout>
     );
 }

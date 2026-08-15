@@ -26,7 +26,7 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
         >
             <div className="flex min-w-[40px] items-center">
                 {back ? (
-                    <Link href={typeof back === 'string' ? back : '#'} aria-label="Go back">
+                    <Link href={typeof back === 'string' ? back : '#'} aria-label="Kembali">
                         <Icon name="back" size={20} />
                     </Link>
                 ) : null}

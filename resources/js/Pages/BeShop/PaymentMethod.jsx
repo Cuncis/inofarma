@@ -6,25 +6,25 @@ import Icon from '@/Components/BeShop/Icon';
 import Radio from '@/Components/BeShop/Radio';
 import { cards } from '@/Components/BeShop/data';
 
-const otherMethods = ['Stripe', 'PayPal', 'Apple Pay', 'Google Pay'];
+const otherMethods = ['GoPay', 'OVO', 'DANA', 'Transfer Bank'];
 
 export default function PaymentMethod() {
     const [selected, setSelected] = useState(cards[0]);
 
     return (
         <MobileLayout
-            title="Checkout Payment"
-            header={<AppBar title="Payment Method" back="/ui/checkout" />}
+            title="Pembayaran"
+            header={<AppBar title="Metode Pembayaran" back="/ui/checkout" />}
             footer={
                 <div className="border-t border-line p-3.5">
-                    <Button href="/ui/checkout">Use This Method</Button>
+                    <Button href="/ui/checkout">Gunakan Metode Ini</Button>
                 </div>
             }
         >
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-2 border border-line bg-lilac p-3.5">
                     <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[13px]">
-                        My cards
+                        Kartu saya
                     </div>
 
                     {cards.map((card) => (
@@ -45,7 +45,7 @@ export default function PaymentMethod() {
 
                 <div className="border border-line bg-lilac p-3.5">
                     <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[13px]">
-                        Other methods
+                        Metode lain
                     </div>
 
                     {otherMethods.map((method) => (

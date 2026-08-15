@@ -13,24 +13,24 @@ export default function ForgotPassword() {
 
     return (
         <MobileLayout
-            title="Forgot Password"
-            header={<AppBar title="Forgot Password" back="/ui/signin" tone="white" />}
+            title="Lupa Kata Sandi"
+            header={<AppBar title="Lupa Kata Sandi" back="/ui/signin" tone="white" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
-                <div className="bg-blush bg-[radial-gradient(circle_at_10%_90%,rgba(255,117,87,.2)_0%,transparent_60%)] p-6">
+                <div className="bg-blush bg-[radial-gradient(circle_at_10%_90%,rgba(254,121,0,.18)_0%,transparent_60%)] p-6">
                     <p className="mb-5 text-[13px] leading-[1.7] text-muted">
-                        Enter the email address associated with your account and we will
-                        send you a link to reset your password.
+                        Masukkan alamat email yang terdaftar pada akun Anda, lalu kami
+                        akan mengirimkan tautan untuk mengatur ulang kata sandi.
                     </p>
 
                     <Field
                         type="email"
                         name="email"
-                        placeholder="kristinwatson@mail.com"
+                        placeholder="kirana.wijaya@mail.com"
                         className="mb-2.5"
                     />
 
-                    <Button type="submit">Send</Button>
+                    <Button type="submit">Kirim</Button>
                 </div>
             </form>
         </MobileLayout>

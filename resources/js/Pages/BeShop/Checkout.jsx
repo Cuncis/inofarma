@@ -4,11 +4,14 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/BeShop/AppBar';
 import Button from '@/Components/BeShop/Button';
 import Icon from '@/Components/BeShop/Icon';
+import { money } from '@/Components/BeShop/data';
+
+const orderTotal = 4875000;
 
 const lines = [
-    { label: 'Silk Maxi Dress x2', value: '$179.98' },
-    { label: 'Leather Jacket x1', value: '$145.00' },
-    { label: 'Discount', value: '-$0' },
+    { label: 'Dress Maxi Sutra x2', value: money(2700000) },
+    { label: 'Jaket Kulit x1', value: money(2175000) },
+    { label: 'Diskon', value: `-${money(0)}` },
 ];
 
 export default function Checkout() {
@@ -32,8 +35,8 @@ export default function Checkout() {
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-2 border border-line bg-lilac p-3.5">
                     <div className="mb-2.5 flex justify-between border-b-2 border-ink pb-2 font-display text-sm">
-                        <span>My order</span>
-                        <span>$324.98</span>
+                        <span>Pesanan saya</span>
+                        <span>{money(orderTotal)}</span>
                     </div>
 
                     {lines.map((line) => (
@@ -47,8 +50,8 @@ export default function Checkout() {
                     ))}
 
                     <div className="flex justify-between text-xs text-muted">
-                        <span>Delivery</span>
-                        <span className="text-success">Free</span>
+                        <span>Pengiriman</span>
+                        <span className="text-success-deep">Gratis</span>
                     </div>
                 </div>
 
@@ -57,12 +60,12 @@ export default function Checkout() {
                     className="mb-2 block border border-line bg-lilac p-3.5"
                 >
                     <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
-                        <span>Shipping details</span>
+                        <span>Detail pengiriman</span>
                         <Icon name="edit" size={15} className="text-ink" />
                     </div>
 
                     <span className="text-xs text-muted">
-                        8000 S Kirkland Ave, Chicago, IL 60652
+                        Jl. Kebon Jeruk Raya No. 27, Jakarta Barat 11530
                     </span>
                 </Link>
 
@@ -71,7 +74,7 @@ export default function Checkout() {
                     className="mb-2 block border border-line bg-lilac p-3.5"
                 >
                     <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
-                        <span>Payment method</span>
+                        <span>Metode pembayaran</span>
                         <Icon name="edit" size={15} className="text-ink" />
                     </div>
 
@@ -81,13 +84,13 @@ export default function Checkout() {
                 <textarea
                     value={comment}
                     onChange={(event) => setComment(event.target.value)}
-                    placeholder="Comment (optional)..."
+                    placeholder="Catatan (opsional)..."
                     rows={3}
                     className="mb-3.5 w-full resize-none border border-blush p-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
                 />
 
                 <Button onClick={confirmOrder} disabled={placing} className="mb-2">
-                    {placing ? 'Placing order…' : 'Confirm Order ($324.98)'}
+                    {placing ? 'Memproses pesanan…' : `Konfirmasi Pesanan (${money(orderTotal)})`}
                 </Button>
             </div>
         </MobileLayout>

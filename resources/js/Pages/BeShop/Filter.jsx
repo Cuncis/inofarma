@@ -5,12 +5,12 @@ import Button from '@/Components/BeShop/Button';
 import Checkbox from '@/Components/BeShop/Checkbox';
 import { swatches } from '@/Components/BeShop/data';
 
-const tags = ['Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Accessories', 'Shoes'];
+const tags = ['Atasan', 'Bawahan', 'Dress', 'Outerwear', 'Aksesori', 'Sepatu'];
 
 export default function Filter() {
     const [color, setColor] = useState(swatches[0]);
     const [labels, setLabels] = useState({ sale: true, new: false });
-    const [selectedTags, setSelectedTags] = useState(['Tops']);
+    const [selectedTags, setSelectedTags] = useState(['Atasan']);
 
     const toggleTag = (tag) =>
         setSelectedTags((current) =>
@@ -25,12 +25,12 @@ export default function Filter() {
             header={<AppBar title="Filter" back="/ui/shop" />}
             footer={
                 <div className="border-t border-line p-3.5">
-                    <Button href="/ui/shop">Apply Filters</Button>
+                    <Button href="/ui/shop">Terapkan Filter</Button>
                 </div>
             }
         >
             <div className="flex-1 overflow-y-auto p-4">
-                <div className="mb-2.5 font-display text-[15px]">Color</div>
+                <div className="mb-2.5 font-display text-[15px]">Warna</div>
 
                 <div className="mb-[18px] flex flex-wrap gap-2.5">
                     {swatches.map((swatch) => (
@@ -38,7 +38,7 @@ export default function Filter() {
                             key={swatch}
                             type="button"
                             onClick={() => setColor(swatch)}
-                            aria-label={`Filter by colour ${swatch}`}
+                            aria-label={`Saring berdasarkan warna ${swatch}`}
                             style={{ background: swatch }}
                             className={`h-[29px] w-[29px] rounded-full ${
                                 color === swatch
@@ -59,8 +59,8 @@ export default function Filter() {
                         }
                         size={17}
                         label={
-                            <span className="bg-sale px-3 py-1 text-[11px] font-bold text-white">
-                                SALE
+                            <span className="bg-sale px-3 py-1 text-[11px] font-bold text-ink">
+                                DISKON
                             </span>
                         }
                     />
@@ -75,13 +75,13 @@ export default function Filter() {
                         size={17}
                         label={
                             <span className="bg-brand px-3 py-1 text-[11px] font-bold text-white">
-                                NEW
+                                BARU
                             </span>
                         }
                     />
                 </div>
 
-                <div className="mb-2.5 font-display text-[15px]">Tags</div>
+                <div className="mb-2.5 font-display text-[15px]">Kategori</div>
 
                 <div className="mb-5 flex flex-wrap gap-2">
                     {tags.map((tag) => (

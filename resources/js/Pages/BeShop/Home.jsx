@@ -11,14 +11,14 @@ import { asset, newArrivals, trendingProducts } from '@/Components/BeShop/data';
 export default function Home() {
     return (
         <MobileLayout
-            title="Home"
+            title="Beranda"
             header={
                 <AppBar
                     brand
                     actions={
                         <>
-                            <IconLink name="search" href="/ui/shop" label="Search" />
-                            <IconLink name="bag" href="/ui/cart" label="Cart" />
+                            <IconLink name="search" href="/ui/shop" label="Cari" />
+                            <IconLink name="bag" href="/ui/cart" label="Keranjang" />
                         </>
                     }
                 />
@@ -27,13 +27,13 @@ export default function Home() {
         >
             <div className="flex-1 overflow-y-auto">
                 <Link href="/ui/categories" className="block">
-                    <img src={asset.banner('01')} alt="Shop the new season" className="w-full" />
+                    <img src={asset.banner('01')} alt="Belanja koleksi musim baru" className="w-full" />
                 </Link>
 
                 <div className="mt-3.5">
                     <SectionHeading
-                        title="Trending Products"
-                        action="View all"
+                        title="Produk Terlaris"
+                        action="Lihat semua"
                         actionHref="/ui/shop"
                         className="px-3.5"
                     />
@@ -72,13 +72,13 @@ export default function Home() {
                 </div>
 
                 <Link href="/ui/shop" className="mt-3 block">
-                    <img src={asset.banner('02')} alt="Season sale" className="w-full" />
+                    <img src={asset.banner('02')} alt="Diskon musiman" className="w-full" />
                 </Link>
 
                 <div className="mt-3 px-3.5 pb-[70px]">
                     <SectionHeading
-                        title="New Arrivals"
-                        action="View all"
+                        title="Produk Terbaru"
+                        action="Lihat semua"
                         actionHref="/ui/shop"
                     />
 

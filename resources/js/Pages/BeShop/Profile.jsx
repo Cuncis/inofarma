@@ -6,12 +6,12 @@ import useBeShopUser from '@/Components/BeShop/useBeShopUser';
 import { asset } from '@/Components/BeShop/data';
 
 const menu = [
-    { label: 'Edit profile', icon: 'user', href: '/ui/edit-profile' },
-    { label: 'Payment method', icon: 'card', href: '/ui/payment-methods' },
-    { label: 'My address', icon: 'pin', href: '/ui/my-address' },
-    { label: 'My promocodes', icon: 'promo', href: '/ui/my-promocodes' },
-    { label: 'Order history', icon: 'file', href: '/ui/order-history' },
-    { label: 'Shipping & payment info', icon: 'info', href: '/ui/shipping-info' },
+    { label: 'Ubah profil', icon: 'user', href: '/ui/edit-profile' },
+    { label: 'Metode pembayaran', icon: 'card', href: '/ui/payment-methods' },
+    { label: 'Alamat saya', icon: 'pin', href: '/ui/my-address' },
+    { label: 'Kode promo saya', icon: 'promo', href: '/ui/my-promocodes' },
+    { label: 'Riwayat pesanan', icon: 'file', href: '/ui/order-history' },
+    { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/ui/shipping-info' },
     { label: 'FAQ', icon: 'help', href: '/ui/faq' },
 ];
 
@@ -19,7 +19,7 @@ export default function Profile() {
     const user = useBeShopUser();
 
     return (
-        <MobileLayout title="Profile" footer={<TabBar active="profile" />}>
+        <MobileLayout title="Profil" footer={<TabBar active="profile" />}>
             <div className="flex-1 overflow-y-auto p-4 pb-[70px]">
                 <div className="flex flex-col items-center pb-[18px] pt-5">
                     <div className="mb-3 h-[88px] w-[88px] overflow-hidden rounded-full border-4 border-brand">
@@ -60,7 +60,7 @@ export default function Profile() {
                         <Icon name="logout" size={19} />
                     </span>
 
-                    <span className="flex-1 text-[13px] text-brand">Sign out</span>
+                    <span className="flex-1 text-[13px] text-brand">Keluar</span>
 
                     <Icon name="chevronRight" size={14} className="text-[#cccccc]" />
                 </Link>

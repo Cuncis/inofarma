@@ -6,8 +6,8 @@ import { reviews } from '@/Components/BeShop/data';
 export default function Reviews() {
     return (
         <MobileLayout
-            title="Reviews"
-            header={<AppBar title="Reviews" back="/ui/product-detail" />}
+            title="Ulasan"
+            header={<AppBar title="Ulasan" back="/ui/product-detail" />}
         >
             <div className="flex-1 overflow-y-auto p-3.5">
                 {reviews.map((review) => (

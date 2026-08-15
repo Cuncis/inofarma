@@ -12,8 +12,8 @@ export default function useBeShopUser() {
     const { beshopUser } = usePage().props;
 
     return {
-        name: beshopUser?.name || 'Kristin Watson',
-        email: beshopUser?.email || 'kristinwatson@mail.com',
+        name: beshopUser?.name || 'Kirana Wijaya',
+        email: beshopUser?.email || 'kirana.wijaya@mail.com',
         signedIn: Boolean(beshopUser),
     };
 }

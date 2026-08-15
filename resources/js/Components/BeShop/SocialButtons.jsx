@@ -10,7 +10,7 @@ import Icon from './Icon';
 export default function SocialButtons() {
     const signInWith = (provider) =>
         router.post('/ui/signin', {
-            email: `kristin.watson@${provider}.test`,
+            email: `kirana.wijaya@${provider}.test`,
             password: 'social',
         });
 
@@ -19,7 +19,7 @@ export default function SocialButtons() {
             <button
                 type="button"
                 onClick={() => signInWith('facebook')}
-                aria-label="Continue with Facebook"
+                aria-label="Lanjutkan dengan Facebook"
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-[#3b5998] text-white"
             >
                 <Icon name="facebook" size={18} />
@@ -28,7 +28,7 @@ export default function SocialButtons() {
             <button
                 type="button"
                 onClick={() => signInWith('twitter')}
-                aria-label="Continue with Twitter"
+                aria-label="Lanjutkan dengan Twitter"
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1da1f2] text-white"
             >
                 <Icon name="twitter" size={18} />
@@ -37,7 +37,7 @@ export default function SocialButtons() {
             <button
                 type="button"
                 onClick={() => signInWith('google')}
-                aria-label="Continue with Google"
+                aria-label="Lanjutkan dengan Google"
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-[#dddddd] bg-white"
             >
                 <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">

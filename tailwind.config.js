@@ -8,6 +8,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/js/**/*.jsx',
+        './resources/js/**/*.js',
     ],
 
     theme: {
@@ -17,19 +18,34 @@ export default {
                 display: ['"Tenor Sans"', ...defaultTheme.fontFamily.serif],
             },
 
+            /**
+             * Storefront palette.
+             *
+             * Three brand colours drive everything: `brand` (#0900AA), `success`
+             * (#24CE30) and `warning` (#FE7900). `blush` is a light tint of brand
+             * for panels and headers; the `deep` shades exist because the bright
+             * green and orange are unreadable as text on a light background — use
+             * the DEFAULT for fills and icons, the `deep` shade for text.
+             */
             colors: {
-                brand: '#d05278',
-                blush: '#fcedea',
+                brand: '#0900AA',
+                blush: '#ebebf8',
                 ink: '#222222',
                 lilac: '#faf9ff',
                 shell: '#d8dce3',
-                star: '#F5C102',
+                star: '#FE7900',
                 line: '#eeeeee',
                 muted: '#666666',
                 faint: '#999999',
-                sale: '#a3d2a2',
-                success: '#4caf50',
-                warning: '#EF962D',
+                sale: '#24CE30',
+                success: {
+                    DEFAULT: '#24CE30',
+                    deep: '#147A1D',
+                },
+                warning: {
+                    DEFAULT: '#FE7900',
+                    deep: '#B35400',
+                },
             },
 
             maxWidth: {

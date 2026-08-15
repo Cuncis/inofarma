@@ -51,7 +51,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }) {
                 <button
                     type="button"
                     onClick={toggleLike}
-                    aria-label={liked ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                    aria-label={liked ? `Hapus ${product.name} dari favorit` : `Tambahkan ${product.name} ke favorit`}
                     className={`absolute bottom-8 right-0 flex h-8 w-8 items-center justify-center bg-white/90 ${
                         liked ? 'text-brand' : 'text-faint'
                     }`}
@@ -62,7 +62,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }) {
                 <button
                     type="button"
                     onClick={() => router.visit('/ui/cart')}
-                    aria-label={`Add ${product.name} to cart`}
+                    aria-label={`Masukkan ${product.name} ke keranjang`}
                     className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center bg-white/90 text-faint"
                 >
                     <Icon name="bagSimple" size={18} />

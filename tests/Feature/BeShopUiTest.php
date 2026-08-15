@@ -79,6 +79,15 @@ class BeShopUiTest extends TestCase
         $this->assertNull(session('beshop_user'));
     }
 
+    public function test_validation_messages_are_returned_in_indonesian(): void
+    {
+        $this->post('/ui/signin', ['email' => 'bukan-email', 'password' => ''])
+            ->assertSessionHasErrors([
+                'email' => 'Kolom email harus berupa alamat email yang valid.',
+                'password' => 'Kolom kata sandi wajib diisi.',
+            ]);
+    }
+
     public function test_signing_out_clears_the_shopper_and_returns_to_sign_in(): void
     {
         $this->post('/ui/signin', ['email' => 'anyone@example.test', 'password' => 'x']);

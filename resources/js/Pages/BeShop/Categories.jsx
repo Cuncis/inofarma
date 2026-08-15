@@ -8,14 +8,14 @@ import { categories } from '@/Components/BeShop/data';
 export default function Categories() {
     return (
         <MobileLayout
-            title="Categories"
+            title="Kategori"
             header={
                 <AppBar
                     brand
                     actions={
                         <>
-                            <IconLink name="search" href="/ui/shop" label="Search" />
-                            <IconLink name="bag" href="/ui/cart" label="Cart" />
+                            <IconLink name="search" href="/ui/shop" label="Cari" />
+                            <IconLink name="bag" href="/ui/cart" label="Keranjang" />
                         </>
                     }
                 />

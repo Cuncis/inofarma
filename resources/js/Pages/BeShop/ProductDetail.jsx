@@ -5,9 +5,9 @@ import Button from '@/Components/BeShop/Button';
 import Icon from '@/Components/BeShop/Icon';
 import Rating from '@/Components/BeShop/Rating';
 import ReviewCard from '@/Components/BeShop/ReviewCard';
-import { asset, reviews, sizes } from '@/Components/BeShop/data';
+import { asset, money, reviews, sizes } from '@/Components/BeShop/data';
 
-const colors = ['#222222', '#c4a882', '#d05278', '#7ecac5'];
+const colors = ['#222222', '#c4a882', '#0900AA', '#7ecac5'];
 
 export default function ProductDetail() {
     const [color, setColor] = useState(colors[0]);
@@ -15,17 +15,17 @@ export default function ProductDetail() {
     const [liked, setLiked] = useState(false);
 
     return (
-        <MobileLayout title="Product Detail">
+        <MobileLayout title="Detail Produk">
             <div className="relative h-[285px] shrink-0 bg-[#f0f0f0]">
                 <img
                     src={asset.product('01')}
-                    alt="Silk Maxi Dress"
+                    alt="Dress Maxi Sutra"
                     className="absolute inset-0 h-full w-full object-cover"
                 />
 
                 <Link
                     href="/ui/shop"
-                    aria-label="Go back"
+                    aria-label="Kembali"
                     className="absolute left-3 top-2.5 flex h-9 w-9 items-center justify-center bg-white/90"
                 >
                     <Icon name="back" size={19} />
@@ -34,7 +34,7 @@ export default function ProductDetail() {
                 <button
                     type="button"
                     onClick={() => setLiked((current) => ! current)}
-                    aria-label={liked ? 'Remove from wishlist' : 'Add to wishlist'}
+                    aria-label={liked ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
                     className={`absolute right-3 top-2.5 flex h-9 w-9 items-center justify-center bg-white/90 ${
                         liked ? 'text-brand' : 'text-ink'
                     }`}
@@ -46,14 +46,14 @@ export default function ProductDetail() {
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-2 flex justify-between">
                     <h2 className="max-w-[55%] font-display text-lg leading-tight">
-                        Silk Maxi Dress
+                        Dress Maxi Sutra
                     </h2>
 
                     <div className="text-right">
                         <span className="block text-[10px] text-faint line-through">
-                            $99.00
+                            {money(1485000)}
                         </span>
-                        <span className="text-xl font-bold text-brand">$89.99</span>
+                        <span className="text-xl font-bold text-brand">{money(1350000)}</span>
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@ export default function ProductDetail() {
                 </Link>
 
                 <div className="mb-3">
-                    <div className="mb-[7px] text-[13px] font-bold">Color</div>
+                    <div className="mb-[7px] text-[13px] font-bold">Warna</div>
 
                     <div className="flex gap-2">
                         {colors.map((swatch) => (
@@ -74,7 +74,7 @@ export default function ProductDetail() {
                                 key={swatch}
                                 type="button"
                                 onClick={() => setColor(swatch)}
-                                aria-label={`Select colour ${swatch}`}
+                                aria-label={`Pilih warna ${swatch}`}
                                 style={{ background: swatch }}
                                 className={`h-[27px] w-[27px] rounded-full ${
                                     color === swatch
@@ -87,7 +87,7 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="mb-3.5">
-                    <div className="mb-[7px] text-[13px] font-bold">Size</div>
+                    <div className="mb-[7px] text-[13px] font-bold">Ukuran</div>
 
                     <div className="flex gap-[7px]">
                         {sizes.map((option) => (
@@ -108,13 +108,13 @@ export default function ProductDetail() {
                 </div>
 
                 <Button href="/ui/cart" className="mb-2">
-                    Add to Cart
+                    Masukkan ke Keranjang
                 </Button>
 
                 <div className="mb-2.5 mt-4 flex justify-between border-t-2 border-ink pt-2.5">
-                    <span className="font-display text-sm">Reviews</span>
+                    <span className="font-display text-sm">Ulasan</span>
                     <Link href="/ui/reviews" className="text-xs text-brand">
-                        View all
+                        Lihat semua
                     </Link>
                 </div>
 

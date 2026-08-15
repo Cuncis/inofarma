@@ -27,7 +27,7 @@ export default function Faq() {
                             {expanded ? (
                                 <div className="px-3.5 pb-3.5 text-xs leading-relaxed text-muted">
                                     {faq.answer ??
-                                        'Our team is happy to help — reach out through the app and we will get back to you within one business day.'}
+                                        'Tim kami siap membantu — hubungi kami lewat aplikasi dan kami akan membalas dalam satu hari kerja.'}
                                 </div>
                             ) : null}
                         </div>

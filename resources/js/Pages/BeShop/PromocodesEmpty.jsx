@@ -7,8 +7,8 @@ import { asset } from '@/Components/BeShop/data';
 export default function PromocodesEmpty() {
     return (
         <MobileLayout
-            title="Promocodes Empty"
-            header={<AppBar title="Add a Promocode" back="/ui/profile" tone="white" />}
+            title="Kode Promo Kosong"
+            header={<AppBar title="Tambah Kode Promo" back="/ui/profile" tone="white" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6 text-center">
                 <img
@@ -18,22 +18,22 @@ export default function PromocodesEmpty() {
                 />
 
                 <h2 className="mb-2.5 font-display text-[21px] leading-tight">
-                    You do not have
+                    Anda belum memiliki
                     <br />
-                    promocodes yet!
+                    kode promo!
                 </h2>
 
                 <p className="mb-[18px] text-xs leading-relaxed text-muted">
-                    Qui ex aute ipsum duis. Incididunt
+                    Punya kode promo? Masukkan di bawah ini
                     <br />
-                    adipisicing voluptate laborum
+                    untuk mendapatkan potongan harga.
                 </p>
 
                 <div className="mb-3 w-full">
-                    <Field name="promocode" placeholder="Discount2022" />
+                    <Field name="promocode" placeholder="HEMAT15" />
                 </div>
 
-                <Button href="/ui/my-promocodes">Add a Promocode</Button>
+                <Button href="/ui/my-promocodes">Tambah Kode Promo</Button>
             </div>
         </MobileLayout>
     );

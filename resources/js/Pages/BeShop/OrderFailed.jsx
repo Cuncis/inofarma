@@ -6,7 +6,7 @@ import { asset } from '@/Components/BeShop/data';
 export default function OrderFailed() {
     return (
         <MobileLayout
-            title="Order Failed"
+            title="Pesanan Gagal"
             header={<AppBar back="/ui/checkout" tone="white" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">
@@ -17,23 +17,23 @@ export default function OrderFailed() {
                 />
 
                 <h2 className="mb-2.5 font-display text-[22px]">
-                    Sorry! Your order
+                    Maaf! Pesanan Anda
                     <br />
-                    has failed!
+                    gagal diproses!
                 </h2>
 
                 <p className="mb-[22px] text-[13px] leading-relaxed text-muted">
-                    Something went wrong. Please try
+                    Terjadi kesalahan. Silakan coba lagi
                     <br />
-                    again to continue your order.
+                    untuk melanjutkan pesanan Anda.
                 </p>
 
                 <Button href="/ui/checkout" className="mb-2">
-                    Try Again
+                    Coba Lagi
                 </Button>
 
                 <Button href="/ui/profile" variant="outline">
-                    Go to My Profile
+                    Buka Profil Saya
                 </Button>
             </div>
         </MobileLayout>

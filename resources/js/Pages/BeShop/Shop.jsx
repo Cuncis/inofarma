@@ -8,14 +8,14 @@ import { shopProducts } from '@/Components/BeShop/data';
 export default function Shop() {
     return (
         <MobileLayout
-            title="Shop"
+            title="Belanja"
             header={
                 <AppBar
                     brand
                     actions={
                         <>
                             <IconLink name="search" href="/ui/filter" label="Filter" />
-                            <IconLink name="bag" href="/ui/cart" label="Cart" />
+                            <IconLink name="bag" href="/ui/cart" label="Keranjang" />
                         </>
                     }
                 />
