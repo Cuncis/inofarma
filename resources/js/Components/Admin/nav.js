@@ -21,27 +21,8 @@ export const navSections = [
         title: 'Umum',
         items: [
             { label: 'Dasbor', icon: 'solar:widget-5-bold-duotone', href: '/admin' },
-            {
-                label: 'Produk',
-                icon: 'solar:t-shirt-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/produk' },
-                    { label: 'Grid', href: '/admin/produk/grid' },
-                    { label: 'Detail', href: '/admin/produk/detail' },
-                    { label: 'Ubah', href: '/admin/produk/ubah' },
-                    { label: 'Tambah', href: '/admin/produk/tambah' },
-                ],
-            },
-            {
-                label: 'Kategori',
-                icon: 'solar:clipboard-list-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/kategori' },
-                    { label: 'Detail', href: '/admin/kategori/detail' },
-                    { label: 'Ubah', href: '/admin/kategori/ubah' },
-                    { label: 'Tambah', href: '/admin/kategori/tambah' },
-                ],
-            },
+            { label: 'Produk', icon: 'solar:t-shirt-bold-duotone', href: '/admin/produk' },
+            { label: 'Kategori', icon: 'solar:clipboard-list-bold-duotone', href: '/admin/kategori' },
             {
                 label: 'Inventaris',
                 icon: 'solar:box-bold-duotone',
@@ -54,8 +35,7 @@ export const navSections = [
                 label: 'Pesanan',
                 icon: 'solar:bag-smile-bold-duotone',
                 children: [
-                    { label: 'Daftar', href: '/admin/pesanan' },
-                    { label: 'Detail', href: '/admin/pesanan/detail' },
+                    { label: 'Daftar Pesanan', href: '/admin/pesanan' },
                     { label: 'Keranjang', href: '/admin/pesanan/keranjang' },
                     { label: 'Checkout', href: '/admin/pesanan/checkout' },
                 ],
@@ -72,33 +52,12 @@ export const navSections = [
             {
                 label: 'Atribut',
                 icon: 'solar:confetti-minimalistic-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/atribut' },
-                    { label: 'Ubah', href: '/admin/atribut/ubah' },
-                    { label: 'Tambah', href: '/admin/atribut/tambah' },
-                ],
+                href: '/admin/atribut',
             },
-            {
-                label: 'Faktur',
-                icon: 'solar:bill-list-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/faktur' },
-                    { label: 'Detail', href: '/admin/faktur/detail' },
-                    { label: 'Ubah', href: '/admin/faktur/ubah' },
-                    { label: 'Tambah', href: '/admin/faktur/tambah' },
-                ],
-            },
+            { label: 'Faktur', icon: 'solar:bill-list-bold-duotone', href: '/admin/faktur' },
             { label: 'Pengaturan', icon: 'solar:settings-bold-duotone', href: '/admin/pengaturan' },
             { label: 'Profil', icon: 'solar:user-circle-bold-duotone', href: '/admin/profil' },
-            {
-                label: 'Peran',
-                icon: 'solar:user-speak-rounded-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/peran' },
-                    { label: 'Ubah', href: '/admin/peran/ubah' },
-                    { label: 'Tambah', href: '/admin/peran/tambah' },
-                ],
-            },
+            { label: 'Peran', icon: 'solar:user-speak-rounded-bold-duotone', href: '/admin/peran' },
             {
                 label: 'Hak Akses',
                 icon: 'solar:checklist-minimalistic-bold-duotone',
@@ -107,31 +66,10 @@ export const navSections = [
             {
                 label: 'Pelanggan',
                 icon: 'solar:users-group-two-rounded-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/pelanggan' },
-                    { label: 'Detail', href: '/admin/pelanggan/detail' },
-                    { label: 'Ubah', href: '/admin/pelanggan/ubah' },
-                    { label: 'Tambah', href: '/admin/pelanggan/tambah' },
-                ],
+                href: '/admin/pelanggan',
             },
-            {
-                label: 'Penjual',
-                icon: 'solar:shop-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/penjual' },
-                    { label: 'Detail', href: '/admin/penjual/detail' },
-                    { label: 'Ubah', href: '/admin/penjual/ubah' },
-                    { label: 'Tambah', href: '/admin/penjual/tambah' },
-                ],
-            },
-            {
-                label: 'Kupon',
-                icon: 'solar:leaf-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/kupon' },
-                    { label: 'Tambah', href: '/admin/kupon/tambah' },
-                ],
-            },
+            { label: 'Penjual', icon: 'solar:shop-bold-duotone', href: '/admin/penjual' },
+            { label: 'Kupon', icon: 'solar:leaf-bold-duotone', href: '/admin/kupon' },
             { label: 'Ulasan', icon: 'solar:chat-square-like-bold-duotone', href: '/admin/ulasan' },
         ],
     },

@@ -10,3 +10,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/{Pages,Components,Layouts}/Admin*/** | .ai/rules/pages-components-layouts.md |
 | public/** | .ai/rules/public.md |
 | resources/js/{Pages,Components}/Shop/** | .ai/rules/shop.md |
+| app/Support/**, app/Support/CategoryStore.php | .ai/rules/support.md |

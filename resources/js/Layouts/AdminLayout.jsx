@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import Sidebar from '@/Components/Admin/Sidebar';
 import Topbar from '@/Components/Admin/Topbar';
+import FlashMessage from '@/Components/Admin/FlashMessage';
 import PageTitle from '@/Components/Admin/PageTitle';
 
 /**
@@ -63,6 +64,8 @@ export default function AdminLayout({ title, children, breadcrumb, heading, acti
                         </span>
                     </footer>
                 </div>
+
+                <FlashMessage />
             </div>
         </>
     );

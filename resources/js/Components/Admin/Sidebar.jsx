@@ -6,26 +6,35 @@ import { navSections } from './nav';
 /**
  * Is this path the one currently being viewed?
  *
- * `/admin` has to match exactly, otherwise it would light up on every admin
- * page; deeper paths also match their own sub-routes.
+ * Top-level items match their whole subtree, so "Produk" stays lit on
+ * `/admin/produk/PRD-001/ubah`. Child links match exactly — otherwise "Daftar
+ * Pesanan" (`/admin/pesanan`) would light up alongside "Keranjang"
+ * (`/admin/pesanan/keranjang`), since one is a prefix of the other. `/admin`
+ * is always exact or it would match every admin page.
  *
  * @param {string} current
  * @param {string} href
+ * @param {boolean} [exact]
  * @returns {boolean}
  */
-function isActive(current, href) {
+function isActive(current, href, exact = false) {
     if (! href) {
         return false;
     }
 
-    return href === '/admin' ? current === '/admin' : current.startsWith(href);
+    if (exact || href === '/admin') {
+        return current === href;
+    }
+
+    return current === href || current.startsWith(`${href}/`);
 }
 
 /**
  * @param {{ item: import('./nav').NavItem, current: string, collapsed: boolean }} props
  */
 function NavItem({ item, current, collapsed }) {
-    const childActive = item.children?.some((child) => isActive(current, child.href)) ?? false;
+    const childActive =
+        item.children?.some((child) => isActive(current, child.href, true)) ?? false;
     const [open, setOpen] = useState(childActive);
 
     // Following a link into a different branch should close this one, and
@@ -81,7 +90,7 @@ function NavItem({ item, current, collapsed }) {
                             <Link
                                 href={child.href}
                                 className={`block rounded-md px-3 py-2 text-[13px] transition-colors ${
-                                    isActive(current, child.href)
+                                    isActive(current, child.href, true)
                                         ? 'font-semibold text-brand dark:text-white'
                                         : 'text-admin-body hover:text-admin-heading dark:text-admin-dark-body dark:hover:text-admin-dark-heading'
                                 }`}

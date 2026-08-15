@@ -3,6 +3,30 @@ import { customers, invoices, orders, sellers } from './data';
 import { allNavLinks } from './nav';
 
 /**
+ * Create/edit screens that are reached from inside a list page rather than the
+ * sidebar. They left the nav when the CRUD groups were flattened, so they are
+ * listed here to stay findable in search.
+ *
+ * @type {{ label: string, href: string }[]}
+ */
+const actionPages = [
+    { label: 'Tambah Produk', href: '/admin/produk/tambah' },
+    { label: 'Tambah Kategori', href: '/admin/kategori/tambah' },
+    { label: 'Tambah Atribut', href: '/admin/atribut/tambah' },
+    { label: 'Ubah Atribut', href: '/admin/atribut/ubah' },
+    { label: 'Buat Faktur', href: '/admin/faktur/tambah' },
+    { label: 'Ubah Faktur', href: '/admin/faktur/ubah' },
+    { label: 'Tambah Peran', href: '/admin/peran/tambah' },
+    { label: 'Ubah Peran', href: '/admin/peran/ubah' },
+    { label: 'Tambah Pelanggan', href: '/admin/pelanggan/tambah' },
+    { label: 'Ubah Pelanggan', href: '/admin/pelanggan/ubah' },
+    { label: 'Tambah Penjual', href: '/admin/penjual/tambah' },
+    { label: 'Ubah Penjual', href: '/admin/penjual/ubah' },
+    { label: 'Tambah Kupon', href: '/admin/kupon/tambah' },
+    { label: 'Detail Pesanan', href: '/admin/pesanan/detail' },
+];
+
+/**
  * Everything the admin's global search can find.
  *
  * Built once at module load from the same fixtures the screens render, so a
@@ -22,7 +46,7 @@ export const searchIndex = [
         group: 'Produk',
         label: product.name,
         meta: `${product.id} · ${product.category}`,
-        href: '/admin/produk/detail',
+        href: `/admin/produk/${product.id}`,
         icon: 'solar:box-bold-duotone',
     })),
 
@@ -30,7 +54,7 @@ export const searchIndex = [
         group: 'Kategori',
         label: category.name,
         meta: `${category.products} produk`,
-        href: '/admin/kategori/detail',
+        href: `/admin/kategori/${category.slug}`,
         icon: 'solar:clipboard-list-bold-duotone',
     })),
 
@@ -72,6 +96,14 @@ export const searchIndex = [
         meta: link.href,
         href: link.href,
         icon: 'solar:file-broken',
+    })),
+
+    ...actionPages.map((page) => ({
+        group: 'Tindakan',
+        label: page.label,
+        meta: page.href,
+        href: page.href,
+        icon: 'solar:pen-2-broken',
     })),
 ];
 

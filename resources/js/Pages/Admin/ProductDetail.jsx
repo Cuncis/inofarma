@@ -5,18 +5,7 @@ import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
 import Icon from '@/Components/Admin/Icon';
 import Table from '@/Components/Admin/Table';
-import { money, products, statusTone } from '@/Components/Admin/data';
-
-const product = products[0];
-
-const specs = [
-    { label: 'SKU', value: product.id },
-    { label: 'Kategori', value: product.category },
-    { label: 'Satuan', value: 'Strip' },
-    { label: 'Berat', value: '150 gram' },
-    { label: 'Butuh Resep', value: 'Tidak' },
-    { label: 'Gudang', value: 'Gudang Jakarta' },
-];
+import { money, statusTone } from '@/Components/Admin/data';
 
 const movements = [
     { date: '14 Agu 2025', type: 'Masuk', qty: '+120', note: 'Pembelian PO-1043' },
@@ -25,8 +14,17 @@ const movements = [
     { date: '05 Agu 2025', type: 'Masuk', qty: '+200', note: 'Pembelian PO-1039' },
 ];
 
-export default function ProductDetail() {
+export default function ProductDetail({ product }) {
     const [tab, setTab] = useState('spesifikasi');
+
+    const specs = [
+        { label: 'SKU', value: product.id },
+        { label: 'Kategori', value: product.category },
+        { label: 'Satuan', value: product.unit },
+        { label: 'Butuh Resep', value: product.prescription ? 'Ya' : 'Tidak' },
+        { label: 'Harga Coret', value: product.oldPrice ? money(product.oldPrice) : '—' },
+        { label: 'Terjual', value: `${product.sold}` },
+    ];
 
     return (
         <AdminLayout
@@ -39,7 +37,7 @@ export default function ProductDetail() {
             ]}
             actions={
                 <>
-                    <Button href="/admin/produk/ubah" variant="outline" size="sm" icon="solar:pen-2-broken">
+                    <Button href={`/admin/produk/${product.id}/ubah`} variant="outline" size="sm" icon="solar:pen-2-broken">
                         Ubah
                     </Button>
                     <Button href="/admin/produk" size="sm">

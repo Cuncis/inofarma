@@ -1,16 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import EntityForm from '@/Components/Admin/EntityForm';
+import CategoryForm from '@/Components/Admin/CategoryForm';
 
-const fields = [
-    { name: 'name', label: 'Nama Kategori', placeholder: 'Obat Bebas' },
-    { name: 'slug', label: 'Slug', placeholder: 'obat-bebas', hint: 'Digunakan pada URL.' },
-    { name: 'parent', label: 'Kategori Induk', type: 'select', options: ['Tidak ada', 'Obat', 'Suplemen', 'Alat Kesehatan'] },
-    { name: 'status', label: 'Status', type: 'select', options: ['Aktif', 'Nonaktif'] },
-    { name: 'description', label: 'Deskripsi', type: 'textarea', placeholder: 'Jelaskan kategori ini...' },
-    { name: 'image', label: 'Gambar Kategori', type: 'upload' },
-];
-
-export default function CategoryAdd() {
+export default function CategoryAdd({ statuses }) {
     return (
         <AdminLayout
             title="Tambah Kategori"
@@ -21,12 +12,7 @@ export default function CategoryAdd() {
                 { label: 'Tambah' },
             ]}
         >
-            <EntityForm
-                title="Informasi Kategori"
-                fields={fields}
-                submitLabel="Simpan Kategori"
-                backHref="/admin/kategori"
-            />
+            <CategoryForm statuses={statuses} submitLabel="Simpan Kategori" />
         </AdminLayout>
     );
 }

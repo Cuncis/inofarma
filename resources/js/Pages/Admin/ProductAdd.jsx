@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import ProductForm from '@/Components/Admin/ProductForm';
 
-export default function ProductAdd() {
+export default function ProductAdd({ categories, units, statuses }) {
     return (
         <AdminLayout
             title="Tambah Produk"
@@ -12,7 +12,12 @@ export default function ProductAdd() {
                 { label: 'Tambah' },
             ]}
         >
-            <ProductForm submitLabel="Simpan Produk" />
+            <ProductForm
+                categories={categories}
+                units={units}
+                statuses={statuses}
+                submitLabel="Simpan Produk"
+            />
         </AdminLayout>
     );
 }

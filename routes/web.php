@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,17 +22,6 @@ $adminScreens = [
     '/' => 'Dashboard',
     'dasbor/penjualan' => 'DashboardSales',
     'dasbor/keuangan' => 'DashboardFinance',
-
-    'produk' => 'ProductList',
-    'produk/grid' => 'ProductGrid',
-    'produk/detail' => 'ProductDetail',
-    'produk/tambah' => 'ProductAdd',
-    'produk/ubah' => 'ProductEdit',
-
-    'kategori' => 'CategoryList',
-    'kategori/detail' => 'CategoryDetail',
-    'kategori/tambah' => 'CategoryAdd',
-    'kategori/ubah' => 'CategoryEdit',
 
     'atribut' => 'AttributeList',
     'atribut/tambah' => 'AttributeAdd',
@@ -99,6 +90,36 @@ $adminScreens = [
 ];
 
 Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
+    /**
+     * Product CRUD. Backed by the session store rather than a database, but the
+     * routes are the ones a real resource would expose.
+     */
+    /**
+     * Category CRUD. Deleting is refused while products still reference the
+     * category, so `destroy` can come back with an error rather than a success.
+     */
+    Route::prefix('kategori')->name('kategori.')->controller(CategoryController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('tambah', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::post('reset', 'reset')->name('reset');
+        Route::get('{category}', 'show')->name('show');
+        Route::get('{category}/ubah', 'edit')->name('edit');
+        Route::put('{category}', 'update')->name('update');
+        Route::delete('{category}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('produk')->name('produk.')->controller(ProductController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('tambah', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::post('reset', 'reset')->name('reset');
+        Route::get('{product}', 'show')->name('show');
+        Route::get('{product}/ubah', 'edit')->name('edit');
+        Route::put('{product}', 'update')->name('update');
+        Route::delete('{product}', 'destroy')->name('destroy');
+    });
+
     foreach ($adminScreens as $slug => $component) {
         $path = $slug === '/' ? '/' : $slug;
         $name = $slug === '/' ? 'dashboard' : str_replace('/', '.', $slug);
