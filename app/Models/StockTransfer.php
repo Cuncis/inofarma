@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Auth\Scopes\TransferBranchScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StockTransfer extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new TransferBranchScope);
+    }
 
     protected $fillable = [
         'code', 'from_branch_id', 'to_branch_id', 'product_id', 'quantity',

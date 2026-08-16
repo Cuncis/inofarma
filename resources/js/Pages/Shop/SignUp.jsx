@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
@@ -6,10 +6,17 @@ import Field from '@/Components/Shop/Field';
 import SocialButtons from '@/Components/Shop/SocialButtons';
 
 export default function SignUp() {
+    const { data, setData, post, processing, errors } = useForm({
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+    });
+
     const submit = (event) => {
         event.preventDefault();
 
-        router.visit('/ui/verify-phone');
+        post('/ui/daftar');
     };
 
     return (
@@ -29,27 +36,44 @@ export default function SignUp() {
 
                 <SocialButtons />
 
-                <Field name="name" placeholder="Kirana Wijaya" className="mb-2.5" />
+                <Field
+                    name="name"
+                    value={data.name}
+                    onChange={(event) => setData('name', event.target.value)}
+                    placeholder="Kirana Wijaya"
+                    error={errors.name}
+                    className="mb-2.5"
+                />
                 <Field
                     type="email"
                     name="email"
+                    value={data.email}
+                    onChange={(event) => setData('email', event.target.value)}
                     placeholder="kirana.wijaya@mail.com"
+                    error={errors.email}
                     className="mb-2.5"
                 />
                 <Field
                     type="password"
                     name="password"
+                    value={data.password}
+                    onChange={(event) => setData('password', event.target.value)}
                     placeholder="Masukkan kata sandi"
+                    error={errors.password}
                     className="mb-2.5"
                 />
                 <Field
                     type="password"
                     name="password_confirmation"
+                    value={data.password_confirmation}
+                    onChange={(event) => setData('password_confirmation', event.target.value)}
                     placeholder="Ulangi kata sandi"
                     className="mb-2.5"
                 />
 
-                <Button type="submit">Daftar</Button>
+                <Button type="submit" disabled={processing}>
+                    {processing ? 'Memproses…' : 'Daftar'}
+                </Button>
 
                 <div className="mt-2.5 flex justify-center gap-1 text-xs">
                     <span>Sudah punya akun?</span>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Auth\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BranchStock extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new BranchScope);
+    }
 
     protected $fillable = [
         'branch_id', 'product_id', 'quantity', 'reserved_quantity',

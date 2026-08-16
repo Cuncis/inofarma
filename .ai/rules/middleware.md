@@ -5,13 +5,13 @@ paths:
 
 # Middleware
 
-## Admin area is guarded by a session stand-in, not a real auth guard
-Every `/admin/*` route except `masuk`, `masuk.store` and `lupa-sandi` sits behind the `admin` middleware alias (`EnsureAdminIsAuthenticated`). It only checks the session carries `admin_user`; `AdminAuthController@login` accepts ANY email and password and derives a display name from the email local part. There is no user table and no password check yet.
+## Admin area is guarded by the real `web` guard (Fase 3.1)
+Every `/admin/*` route except `masuk`, `masuk.store`, `lupa-sandi(.store)`, `atur-ulang-sandi(.store)` and `dua-faktor(.store)` sits behind the `admin` middleware alias (`EnsureAdminIsAuthenticated`), which checks `Auth::guard('web')->check()`, that the account is `is_active`, and a 30-minute session idle timeout (`admin_last_activity` in session). `AdminAuthController` uses real `Auth::attempt`-equivalent credential checks (`Admin\LoginRequest::attemptCredentials()`), with a 5-attempts-per-minute-per-IP throttle.
 
-To make it real: replace the middleware body with Laravel's `auth` guard and `login()` with `Auth::attempt()`. Nothing else should need touching — the routes, the login screen and the tests already exercise the real path.
+A staff member with 2FA confirmed (`User::hasEnabledTwoFactor()`) does not get logged in by `AdminAuthController::login()` — it stops short of establishing the session and redirects to `TwoFactorChallengeController`, which is the only place that actually calls `establishSession()`. Don't add a session-establishing call anywhere else in the login path.
 
-Login records the blocked URL in `admin_intended` and returns you there afterwards; don't drop that when reworking it.
+Tests hitting guarded routes must `use SignsInAsAdmin` and sign in during `setUp()` (real credentials against a seeded/factory `User`) — that trait posts real credentials against the real guard. A CRUD test that suddenly 302s to `/admin/masuk` is a missing sign-in or a missing permission grant on the test user's role, not a broken route.
 
-Tests hitting guarded routes must `use SignsInAsAdmin` and sign in during `setUp()` — that trait posts real credentials rather than writing the session key, so it keeps working once a real guard lands. A CRUD test that suddenly 302s to `/admin/masuk` is a missing sign-in, not a broken route.
+Route groups also carry `permission:{Module}:{Ability}` middleware (spatie/laravel-permission) matching `App\Support\PermissionCatalog`. Kategori and Penjual (Seller) are deliberately NOT permission-gated yet (no catalog module was ever defined for them) — only the generic `admin` session check applies, same as before Fase 3.2. Extending that is a small, mechanical follow-up, not a design question.
 
-The storefront's separate `shop_user` session prototype is unrelated and unguarded — do not merge the two.
+The storefront's `customer` guard (`EnsureCustomerIsAuthenticated`) is completely separate — see the auth-guards rule in this directory's models section. Do not merge the two.

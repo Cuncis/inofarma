@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import Button from '@/Components/Shop/Button';
@@ -7,11 +6,10 @@ import Field from '@/Components/Shop/Field';
 import SocialButtons from '@/Components/Shop/SocialButtons';
 
 export default function SignIn() {
-    const [remember, setRemember] = useState(false);
-
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
+        remember: false,
     });
 
     const submit = (event) => {
@@ -62,8 +60,8 @@ export default function SignIn() {
 
                 <div className="mb-3.5 flex w-full justify-between text-xs">
                     <Checkbox
-                        checked={remember}
-                        onChange={() => setRemember((current) => ! current)}
+                        checked={data.remember}
+                        onChange={() => setData('remember', ! data.remember)}
                         label={<span>Ingat saya</span>}
                     />
 

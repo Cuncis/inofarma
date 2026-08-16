@@ -1,14 +1,16 @@
-import { router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
 
 export default function VerifyPhone() {
+    const { data, setData, post, processing, errors } = useForm({ phone: '+6281234567890' });
+
     const submit = (event) => {
         event.preventDefault();
 
-        router.visit('/ui/otp-code');
+        post('/ui/verify-phone');
     };
 
     return (
@@ -19,20 +21,21 @@ export default function VerifyPhone() {
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
                 <div className="bg-blush p-6">
                     <p className="mb-[18px] text-[13px] leading-[1.7] text-muted">
-                        Kami telah mengirim SMS berisi kode ke nomor{' '}
-                        <strong>+62 812-3456-7890</strong>.
+                        Kami akan mengirim kode verifikasi ke nomor ini.
                     </p>
 
                     <Field
                         type="tel"
                         name="phone"
-                        defaultValue="+6281234567890"
-                        icon="check"
-                        iconClassName="text-success"
+                        value={data.phone}
+                        onChange={(event) => setData('phone', event.target.value)}
+                        error={errors.phone}
                         className="mb-2.5"
                     />
 
-                    <Button type="submit">Konfirmasi</Button>
+                    <Button type="submit" disabled={processing}>
+                        {processing ? 'Mengirim…' : 'Konfirmasi'}
+                    </Button>
                 </div>
             </form>
         </MobileLayout>

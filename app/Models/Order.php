@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Auth\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Order extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new BranchScope);
+    }
 
     protected $fillable = [
         'number', 'branch_id', 'customer_id', 'fulfilment', 'status',

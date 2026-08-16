@@ -1,12 +1,13 @@
 import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
+import ConfirmDialog from '@/Components/Admin/ConfirmDialog';
 import RowActions from '@/Components/Admin/RowActions';
 import Table from '@/Components/Admin/Table';
 import TableToolbar from '@/Components/Admin/TableToolbar';
-import { roles as seed } from '@/Components/Admin/data';
 
 const columns = [
     { key: 'name', label: 'Peran' },
@@ -16,11 +17,27 @@ const columns = [
     { key: 'actions', label: '', align: 'right' },
 ];
 
-export default function RoleList() {
-    const [rows, setRows] = useState(seed);
+/**
+ * @param {{ roles: object[] }} props
+ */
+export default function RoleList({ roles }) {
     const [search, setSearch] = useState('');
+    const [pendingDelete, setPendingDelete] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
-    const visible = rows.filter((row) => row.name.toLowerCase().includes(search.toLowerCase()));
+    const visible = roles.filter((role) => role.name.toLowerCase().includes(search.toLowerCase()));
+
+    const confirmDelete = () => {
+        setDeleting(true);
+
+        router.delete(`/admin/peran/${pendingDelete.name}`, {
+            preserveScroll: true,
+            onFinish: () => {
+                setDeleting(false);
+                setPendingDelete(null);
+            },
+        });
+    };
 
     return (
         <AdminLayout
@@ -44,9 +61,12 @@ export default function RoleList() {
                     renderCell={(row, key) => {
                         if (key === 'name') {
                             return (
-                                <span className="font-medium text-admin-heading dark:text-admin-dark-heading">
+                                <Link
+                                    href={`/admin/peran/${row.name}/ubah`}
+                                    className="font-medium text-admin-heading dark:text-admin-dark-heading"
+                                >
                                     {row.name}
-                                </span>
+                                </Link>
                             );
                         }
 
@@ -58,12 +78,8 @@ export default function RoleList() {
                             return (
                                 <RowActions
                                     label={row.name}
-                                    editHref="/admin/peran/ubah"
-                                    onDelete={() =>
-                                        setRows((current) =>
-                                            current.filter((item) => item.name !== row.name),
-                                        )
-                                    }
+                                    editHref={`/admin/peran/${row.name}/ubah`}
+                                    onDelete={() => setPendingDelete(row)}
                                 />
                             );
                         }
@@ -72,6 +88,20 @@ export default function RoleList() {
                     }}
                 />
             </Card>
+
+            <ConfirmDialog
+                open={Boolean(pendingDelete)}
+                title="Hapus peran?"
+                body={
+                    pendingDelete
+                        ? `"${pendingDelete.name}" akan dihapus. Peran yang masih dipakai staf tidak bisa dihapus.`
+                        : ''
+                }
+                confirmLabel="Hapus"
+                processing={deleting}
+                onConfirm={confirmDelete}
+                onCancel={() => setPendingDelete(null)}
+            />
         </AdminLayout>
     );
 }

@@ -7,15 +7,17 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SellerController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StockMatrixController;
 use App\Http\Controllers\Admin\StockTransferController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\TwoFactorChallengeController;
+use App\Http\Controllers\Admin\TwoFactorController;
+use App\Http\Controllers\Shop\AuthController as ShopAuthController;
 use App\Http\Controllers\Shop\BranchController as ShopBranchController;
 use App\Http\Controllers\Shop\LocationController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 Route::get('/', fn () => Inertia::render('Shop/Home'))->name('home');
@@ -49,11 +51,6 @@ $adminScreens = [
     'kupon' => 'CouponList',
     'kupon/tambah' => 'CouponAdd',
 
-    'peran' => 'RoleList',
-    'peran/tambah' => 'RoleAdd',
-    'peran/ubah' => 'RoleEdit',
-    'hak-akses' => 'Permissions',
-
     'ulasan' => 'Reviews',
     'profil' => 'Profile',
     'pengaturan' => 'Settings',
@@ -71,14 +68,62 @@ $adminScreens = [
 
 Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
     /**
-     * Sign-in sits outside the guard, or reaching it would loop.
+     * Sign-in and password recovery sit outside the guard, or reaching them
+     * would loop. The 2FA challenge is a special case: the user has passed
+     * their password but isn't logged in yet (see `AdminAuthController::login()`
+     * and `TwoFactorChallengeController`), so it can't sit behind `admin` either.
      */
     Route::get('masuk', [AdminAuthController::class, 'show'])->name('masuk');
     Route::post('masuk', [AdminAuthController::class, 'login'])->name('masuk.store');
     Route::get('lupa-sandi', [AdminAuthController::class, 'forgotPassword'])->name('lupa-sandi');
+    Route::post('lupa-sandi', [AdminAuthController::class, 'sendResetLink'])->name('lupa-sandi.store');
+    Route::get('atur-ulang-sandi/{token}', [AdminAuthController::class, 'showResetPassword'])->name('atur-ulang-sandi');
+    Route::post('atur-ulang-sandi', [AdminAuthController::class, 'resetPassword'])->name('atur-ulang-sandi.store');
+
+    Route::get('dua-faktor', [TwoFactorChallengeController::class, 'show'])->name('dua-faktor');
+    Route::post('dua-faktor', [TwoFactorChallengeController::class, 'store'])->name('dua-faktor.store');
 
     Route::middleware('admin')->group(function () use ($adminScreens) {
         Route::post('keluar', [AdminAuthController::class, 'logout'])->name('keluar');
+
+        Route::prefix('keamanan')->name('keamanan.')->controller(TwoFactorController::class)->group(function () {
+            Route::get('/', 'show')->name('index');
+            Route::post('aktifkan', 'enable')->name('aktifkan');
+            Route::post('konfirmasi', 'confirm')->name('konfirmasi');
+            Route::delete('/', 'disable')->name('nonaktifkan');
+            Route::post('kode-pemulihan', 'regenerateRecoveryCodes')->name('kode-pemulihan');
+        });
+
+        /**
+         * Staf: the `users` rows admin sign-in actually checks, each with a
+         * branch (null = pusat) and one or more roles (Fase 3.2).
+         */
+        Route::prefix('staf')->name('staf.')->controller(StaffController::class)
+            ->middleware('permission:Pengaturan:Ubah')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('{staff}/ubah', 'edit')->name('edit');
+                Route::put('{staff}', 'update')->name('update');
+                Route::delete('{staff}', 'destroy')->name('destroy');
+            });
+
+        Route::prefix('peran')->name('peran.')->controller(RoleController::class)
+            ->middleware('permission:Peran:Lihat')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store')->middleware('permission:Peran:Ubah');
+                Route::get('{role}/ubah', 'edit')->name('edit');
+                Route::put('{role}', 'update')->name('update')->middleware('permission:Peran:Ubah');
+                Route::delete('{role}', 'destroy')->name('destroy')->middleware('permission:Peran:Ubah');
+            });
+
+        Route::get('hak-akses', [RoleController::class, 'matrix'])->name('hak-akses')
+            ->middleware('permission:Peran:Lihat');
+        Route::post('hak-akses', [RoleController::class, 'updateMatrix'])->name('hak-akses.store')
+            ->middleware('permission:Peran:Ubah');
 
         /**
          * Product CRUD. Backed by the session store rather than a database, but the
@@ -97,16 +142,18 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
         /**
          * Order CRUD. A completed order cannot be deleted, only cancelled.
          */
-        Route::prefix('pesanan')->name('pesanan.')->controller(OrderController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::post('reset', 'reset')->name('reset');
-            Route::get('{order}', 'show')->name('show');
-            Route::get('{order}/ubah', 'edit')->name('edit');
-            Route::put('{order}', 'update')->name('update');
-            Route::delete('{order}', 'destroy')->name('destroy');
-        });
+        Route::prefix('pesanan')->name('pesanan.')->controller(OrderController::class)
+            ->middleware('permission:Pesanan:Lihat')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::post('reset', 'reset')->name('reset');
+                Route::get('{order}', 'show')->name('show');
+                Route::get('{order}/ubah', 'edit')->name('edit');
+                Route::put('{order}', 'update')->name('update');
+                Route::delete('{order}', 'destroy')->name('destroy');
+            });
 
         Route::prefix('penjual')->name('penjual.')->controller(SellerController::class)->group(function () {
             Route::get('/', 'index')->name('index');
@@ -119,16 +166,18 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
             Route::delete('{seller}', 'destroy')->name('destroy');
         });
 
-        Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::post('reset', 'reset')->name('reset');
-            Route::get('{customer}', 'show')->name('show');
-            Route::get('{customer}/ubah', 'edit')->name('edit');
-            Route::put('{customer}', 'update')->name('update');
-            Route::delete('{customer}', 'destroy')->name('destroy');
-        });
+        Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)
+            ->middleware('permission:Pelanggan:Lihat')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::post('reset', 'reset')->name('reset');
+                Route::get('{customer}', 'show')->name('show');
+                Route::get('{customer}/ubah', 'edit')->name('edit');
+                Route::put('{customer}', 'update')->name('update');
+                Route::delete('{customer}', 'destroy')->name('destroy');
+            });
 
         Route::prefix('kategori')->name('kategori.')->controller(CategoryController::class)->group(function () {
             Route::get('/', 'index')->name('index');
@@ -141,42 +190,48 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
             Route::delete('{category}', 'destroy')->name('destroy');
         });
 
-        Route::prefix('produk')->name('produk.')->controller(ProductController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::post('reset', 'reset')->name('reset');
-            Route::get('{product}', 'show')->name('show');
-            Route::get('{product}/ubah', 'edit')->name('edit');
-            Route::put('{product}', 'update')->name('update');
-            Route::delete('{product}', 'destroy')->name('destroy');
-        });
+        Route::prefix('produk')->name('produk.')->controller(ProductController::class)
+            ->middleware('permission:Produk:Lihat')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::post('reset', 'reset')->name('reset');
+                Route::get('{product}', 'show')->name('show');
+                Route::get('{product}/ubah', 'edit')->name('edit');
+                Route::put('{product}', 'update')->name('update');
+                Route::delete('{product}', 'destroy')->name('destroy');
+            });
 
         /**
          * Branch CRUD. A branch with stock on its shelves or orders in its
          * history cannot be deleted, only closed.
          */
-        Route::prefix('cabang')->name('cabang.')->controller(AdminBranchController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::post('reset', 'reset')->name('reset');
-            Route::get('{branch}', 'show')->name('show');
-            Route::get('{branch}/ubah', 'edit')->name('edit');
-            Route::put('{branch}', 'update')->name('update');
-            Route::delete('{branch}', 'destroy')->name('destroy');
-        });
+        Route::prefix('cabang')->name('cabang.')->controller(AdminBranchController::class)
+            ->middleware('permission:Cabang:Lihat')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::post('reset', 'reset')->name('reset');
+                Route::get('{branch}', 'show')->name('show');
+                Route::get('{branch}/ubah', 'edit')->name('edit');
+                Route::put('{branch}', 'update')->name('update');
+                Route::delete('{branch}', 'destroy')->name('destroy');
+            });
 
         /**
          * Inventory across branches: per-branch stock (view/adjust/receive), the
          * product × branch matrix, and stock transfers between branches.
          */
-        Route::prefix('inventaris')->name('inventaris.')->group(function () {
+        Route::prefix('inventaris')->name('inventaris.')->middleware('permission:Inventaris:Lihat')->group(function () {
             Route::prefix('stok')->name('stok.')->controller(BranchStockController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('{branch}', 'show')->name('show');
-                Route::post('{branch}/{product}/sesuaikan', 'adjust')->name('adjust');
-                Route::post('{branch}/{product}/terima', 'receive')->name('receive');
+                Route::post('{branch}/{product}/sesuaikan', 'adjust')->name('adjust')
+                    ->middleware('permission:Inventaris:Sesuaikan Stok');
+                Route::post('{branch}/{product}/terima', 'receive')->name('receive')
+                    ->middleware('permission:Inventaris:Terima Barang');
             });
 
             Route::get('matriks', [StockMatrixController::class, 'index'])->name('matriks');
@@ -200,10 +255,6 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
         }
     });
 });
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 /**
  * Inofarma UI screens.
@@ -261,30 +312,28 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
     }
 
     /**
-     * Prototype sign-in: any email and password combination is accepted and the
-     * resulting "session user" is kept in the session only. There is no user
-     * record, no password check, and no auth guard behind this — it exists so the
-     * screens can be clicked through as a flow.
+     * Customer auth (Fase 3.3) — the `customer` guard. `signin`/`signup` etc.
+     * as GET pages already come from the `$beShopScreens` loop above; these
+     * are the actions those forms post to.
      */
-    Route::post('signin', function (Request $request) {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+    Route::post('signin', [ShopAuthController::class, 'login'])->name('signin.store');
+    Route::post('daftar', [ShopAuthController::class, 'register'])->name('daftar.store');
+    Route::post('lupa-sandi', [ShopAuthController::class, 'sendResetLink'])->name('forgot-password.store');
+    Route::post('atur-ulang-sandi', [ShopAuthController::class, 'resetPassword'])->name('reset-password.store');
 
-        $request->session()->put('shop_user', [
-            'name' => Str::of($credentials['email'])->before('@')->replace(['.', '_', '-'], ' ')->title()->value(),
-            'email' => $credentials['email'],
-        ]);
+    Route::get('verifikasi-email/{id}/{hash}', [ShopAuthController::class, 'verifyEmail'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verifikasi-email');
 
-        return redirect()->route('home');
-    })->name('signin.store');
-
-    Route::post('signout', function (Request $request) {
-        $request->session()->forget('shop_user');
-
-        return redirect()->route('ui.signin');
-    })->name('signout');
+    Route::middleware('customer')->group(function () {
+        Route::post('signout', [ShopAuthController::class, 'logout'])->name('signout');
+        Route::post('kirim-verifikasi-email', [ShopAuthController::class, 'sendVerificationEmail'])
+            ->middleware('throttle:6,1')
+            ->name('kirim-verifikasi-email');
+        Route::post('verify-phone', [ShopAuthController::class, 'sendPhoneOtp'])->name('verify-phone.store');
+        Route::post('otp-code', [ShopAuthController::class, 'verifyPhoneOtp'])->name('otp-code.store');
+        Route::post('otp-code/kirim-ulang', [ShopAuthController::class, 'resendPhoneOtp'])->name('otp-code.resend');
+    });
 
     /**
      * "Cabang Kami" — every branch, nearest first once we know where the
@@ -297,11 +346,3 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
     Route::post('lokasi', [LocationController::class, 'store'])->name('lokasi.store');
     Route::delete('lokasi', [LocationController::class, 'destroy'])->name('lokasi.destroy');
 });
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-require __DIR__.'/auth.php';

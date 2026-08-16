@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\BranchStock;
 use App\Models\InventoryMovement;
 use App\Models\Product;
+use App\Support\Auth\Scopes\BranchScope;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\DB;
  * Receiving new purchased stock should go through `StockAllocator::receive()`
  * instead — a purchase has a batch number and an expiry date, and losing that
  * at the point of entry is not recoverable later.
+ *
+ * Queries bypass `BranchScope` for the same reason as `StockAllocator` — see
+ * its docblock.
  */
 class StockAdjuster
 {
@@ -32,7 +36,7 @@ class StockAdjuster
         ?string $note = null,
     ): BranchStock {
         return DB::transaction(function () use ($branch, $product, $delta, $type, $userId, $note) {
-            $stock = BranchStock::lockForUpdate()->firstOrCreate(
+            $stock = BranchStock::withoutGlobalScope(BranchScope::class)->lockForUpdate()->firstOrCreate(
                 ['branch_id' => $branch->id, 'product_id' => $product->id],
                 ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 20, 'is_listed' => true],
             );

@@ -51,12 +51,14 @@ export const navSections = [
             { label: 'Faktur', icon: 'solar:bill-list-bold-duotone', href: '/admin/faktur' },
             { label: 'Pengaturan', icon: 'solar:settings-bold-duotone', href: '/admin/pengaturan' },
             { label: 'Profil', icon: 'solar:user-circle-bold-duotone', href: '/admin/profil' },
+            { label: 'Staf Admin', icon: 'solar:user-id-bold-duotone', href: '/admin/staf' },
             { label: 'Peran', icon: 'solar:user-speak-rounded-bold-duotone', href: '/admin/peran' },
             {
                 label: 'Hak Akses',
                 icon: 'solar:checklist-minimalistic-bold-duotone',
                 href: '/admin/hak-akses',
             },
+            { label: 'Keamanan', icon: 'solar:shield-check-bold-duotone', href: '/admin/keamanan' },
             {
                 label: 'Pelanggan',
                 icon: 'solar:users-group-two-rounded-bold-duotone',

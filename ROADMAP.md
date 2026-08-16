@@ -444,45 +444,83 @@ waktu sungguhan sebelum rilis.)*
 
 ---
 
-## Fase 3 — Autentikasi dan otorisasi
+## Fase 3 — Autentikasi dan otorisasi — ✅ SELESAI
 
 ### 3.1 Autentikasi admin sungguhan
 
-- [ ] Ganti `EnsureAdminIsAuthenticated` dengan guard `auth` Laravel.
-- [ ] Ganti `AdminAuthController@login` dengan `Auth::attempt()`.
-- [ ] Rate limiting: maksimal 5 percobaan per menit per IP.
-- [ ] **2FA** untuk akun admin.
-- [ ] Reset kata sandi lewat email dengan token kedaluwarsa.
-- [ ] Kunci sesi otomatis setelah 30 menit tidak aktif.
+- [x] Ganti `EnsureAdminIsAuthenticated` dengan guard `auth` Laravel. —
+      `web` guard + tabel `users`, dengan pengecekan `is_active` dan kunci
+      sesi 30 menit di middleware yang sama.
+- [x] Ganti `AdminAuthController@login` dengan `Auth::attempt()`. —
+      `Admin\LoginRequest::attemptCredentials()` memvalidasi kredensial
+      lewat `Auth::guard('web')->getProvider()`, bukan `Auth::attempt()`
+      langsung, supaya login bisa berhenti sebelum membuat sesi saat 2FA aktif.
+- [x] Rate limiting: maksimal 5 percobaan per menit per IP.
+- [x] **2FA** untuk akun admin. — TOTP via `pragmarx/google2fa-laravel`
+      (`Admin\TwoFactorController` untuk aktifkan/konfirmasi/nonaktifkan/kode
+      pemulihan, `TwoFactorChallengeController` untuk tantangan saat masuk).
+- [x] Reset kata sandi lewat email dengan token kedaluwarsa. — broker
+      `users`, notifikasi kustom (`AdminResetPassword`) karena notifikasi
+      bawaan Laravel mengarah ke rute `password.reset` yang tidak ada di sini.
+- [x] Kunci sesi otomatis setelah 30 menit tidak aktif.
 
 ### 3.2 Peran, hak akses, dan **cakupan cabang**
 
-Halaman Peran dan Hak Akses sudah ada tampilannya — tinggal diberi tenaga.
-Multi-cabang menambah satu dimensi: **peran saja tidak cukup, harus ada
-cakupan.**
-
-- [ ] Pasang `spatie/laravel-permission`.
-- [ ] Peran: **Super Admin**, **Manajer Area**, **APJ Cabang**, **Kasir**,
-      **Staf Gudang**.
-- [ ] Tambahkan `users.branch_id` (null = akses pusat/semua cabang).
-- [ ] **Global scope**: Kasir di Cabang Otista hanya melihat pesanan, stok, dan
-      pelanggan Cabang Otista. Ini harus di lapisan query, bukan sekadar
-      menyembunyikan tombol.
-- [ ] Policy pada setiap controller.
-- [ ] `audit_logs` mencatat siapa, apa, kapan, dari IP mana, **di cabang mana**.
+- [x] Pasang `spatie/laravel-permission`.
+- [x] Peran: **Super Admin**, **Manajer Area**, **APJ Cabang**, **Kasir**,
+      **Staf Gudang** — diseed lewat `RolePermissionSeeder`, katalog izin di
+      `App\Support\PermissionCatalog`.
+- [x] Tambahkan `users.branch_id` (null = akses pusat/semua cabang). — sudah
+      ada dari Fase 1; layar **Staf Admin** (`/admin/staf`, baru) adalah
+      satu-satunya tempat yang mengatur kolom ini dan peran seorang staf.
+- [x] **Global scope**: dibuktikan lewat MySQL sungguhan, bukan cuma unit
+      test — lihat "Selesai bila" di bawah.
+- [x] Policy pada setiap controller. — lewat middleware
+      `permission:{Modul}:{Aksi}` per rute (spatie mendaftarkan permission
+      sebagai Gate otomatis) plus pengecekan kepemilikan cabang eksplisit di
+      `BranchStockController`/`StockTransferController` untuk aksi tulis.
+      Kategori dan Penjual sengaja belum digerbangi izin — belum ada modul
+      katalog untuk keduanya; itu perluasan mekanis, bukan celah desain.
+- [x] `audit_logs` mencatat siapa, apa, kapan, dari IP mana, di cabang mana. —
+      `App\Support\AuditLogger`, dipasang di login/logout, perubahan 2FA,
+      perubahan peran/staf, dan setiap mutasi stok (yang sejak Fase 2 punya
+      `user_id` kosong — sekarang terisi id staf yang sungguhan login).
+      Belum dipasang di CRUD Produk/Kategori/Pesanan/dst.; itu pekerjaan
+      mekanis berikutnya, bukan bagian inti Fase 3.
 
 ### 3.3 Akun pelanggan
 
-- [ ] Guard terpisah untuk pelanggan.
-- [ ] Daftar + verifikasi email.
-- [ ] Verifikasi nomor HP via OTP — layarnya sudah ada.
-- [ ] Lupa kata sandi.
-- [ ] Profil: alamat (dengan koordinat), riwayat pesanan, cabang favorit.
+- [x] Guard terpisah untuk pelanggan. — guard `customer`, tabel `customers`
+      (sudah ada dari Fase 1), broker sandi dan tabel token sendiri.
+- [x] Daftar + verifikasi email. — `Shop\AuthController@register` +
+      notifikasi `CustomerVerifyEmail` (tautan bertanda tangan, kedaluwarsa
+      60 menit).
+- [x] Verifikasi nomor HP via OTP — layarnya sudah ada. — kode 6 digit
+      tersimpan ter-hash dengan kedaluwarsa 10 menit
+      (`Customer::issuePhoneOtp()`/`verifyPhoneOtp()`). **Belum ada gateway
+      SMS** — kode dicatat ke log aplikasi, bukan dikirim; jalur produksi
+      butuh integrasi Twilio/Zenziva atau sejenisnya sebelum rilis.
+- [x] Lupa kata sandi. — broker `customers`, notifikasi kustom
+      `CustomerResetPassword`.
+- [ ] Profil: alamat (dengan koordinat), riwayat pesanan, cabang favorit. —
+      **ditunda.** Layar prototipenya (`MyAddress`, `AddNewAddress`,
+      `OrderHistory`, `EditProfile`) masih statis; menyambungkannya ke CRUD
+      alamat nyata dan riwayat pesanan sepadan dengan modul tersendiri,
+      bukan bagian inti otentikasi. `Profile.jsx` sendiri sudah menampilkan
+      identitas nyata lewat prop `shopUser`, yang sekarang bersumber dari
+      guard `customer` sungguhan, bukan sesi prototipe.
 
-**Selesai bila:** staf cabang tidak bisa melihat data cabang lain, dibuktikan
-dengan pengujian.
+**Selesai bila:** ~~staf cabang tidak bisa melihat data cabang lain,
+dibuktikan dengan pengujian.~~ ✅ Dibuktikan dua kali: `BranchScopeTest` (6
+kasus, termasuk bahwa staf pusat/Super Admin tetap melihat semua cabang) dan
+verifikasi manual lewat `tinker` terhadap MySQL sungguhan — staf Kasir Cabang
+Keamanan (branch_id 1) hanya melihat 1 dari 7 pesanan, 12 dari 120 baris stok
+cabang, dan 1 dari 6 pelanggan yang ada di basis data seed.
 
-**Estimasi solo:** 2–3 minggu.
+**Estimasi solo:** 2–3 minggu. *(Selesai dalam satu sesi kerja karena
+`users.branch_id`, `audit_logs`, dan layar Peran/Hak Akses sudah disiapkan
+sejak Fase 1. Pengerasan produksi — gateway SMS sungguhan, audit log penuh di
+semua controller, layar profil pelanggan — tetap perlu waktu sungguhan.)*
 
 ---
 

@@ -69,10 +69,6 @@ export default function AuthSignIn() {
                     {processing ? 'Memproses…' : 'Masuk'}
                 </Button>
             </form>
-
-            <p className="mt-5 rounded-lg bg-admin-hover px-3 py-2.5 text-center text-xs leading-relaxed text-admin-body dark:bg-admin-dark-hover dark:text-admin-dark-body">
-                Belum terhubung ke basis data — email dan kata sandi apa pun bisa masuk.
-            </p>
         </AdminAuthLayout>
     );
 }

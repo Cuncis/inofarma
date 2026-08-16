@@ -1,7 +1,10 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import RoleForm from '@/Components/Admin/RoleForm';
 
-export default function RoleAdd() {
+/**
+ * @param {{ permissionGroups: Record<string, string[]> }} props
+ */
+export default function RoleAdd({ permissionGroups }) {
     return (
         <AdminLayout
             title="Tambah Peran"
@@ -12,7 +15,7 @@ export default function RoleAdd() {
                 { label: 'Tambah' },
             ]}
         >
-            <RoleForm submitLabel="Simpan Peran" />
+            <RoleForm permissionGroups={permissionGroups} submitLabel="Simpan Peran" />
         </AdminLayout>
     );
 }

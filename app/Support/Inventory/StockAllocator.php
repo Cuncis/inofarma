@@ -7,6 +7,7 @@ use App\Models\BranchStock;
 use App\Models\InventoryBatch;
 use App\Models\InventoryMovement;
 use App\Models\Product;
+use App\Support\Auth\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -23,6 +24,14 @@ use RuntimeException;
  * Both run inside a transaction with the branch's stock row locked, so two
  * concurrent sales (or a sale racing a transfer) cannot both succeed against
  * stock that only exists once.
+ *
+ * Both methods take `$branch` explicitly and query without `BranchScope`
+ * (Fase 3.2): this is a trusted internal service, not a staff-facing read —
+ * the caller (a controller) is responsible for having already authorized that
+ * branch. A transfer's receiving half legitimately touches a *different*
+ * branch than the acting user's own, e.g. a central admin shipping on behalf
+ * of a branch; re-applying the staff's own branch here would silently corrupt
+ * that write instead of refusing it outright.
  */
 class StockAllocator
 {
@@ -43,7 +52,8 @@ class StockAllocator
         ?string $note = null,
     ): array {
         return DB::transaction(function () use ($branch, $product, $quantity, $type, $reference, $userId, $note) {
-            $stock = BranchStock::where('branch_id', $branch->id)
+            $stock = BranchStock::withoutGlobalScope(BranchScope::class)
+                ->where('branch_id', $branch->id)
                 ->where('product_id', $product->id)
                 ->lockForUpdate()
                 ->first();
@@ -54,7 +64,8 @@ class StockAllocator
                 throw new InsufficientStockException($quantity, max($available, 0));
             }
 
-            $batches = InventoryBatch::where('branch_id', $branch->id)
+            $batches = InventoryBatch::withoutGlobalScope(BranchScope::class)
+                ->where('branch_id', $branch->id)
                 ->where('product_id', $product->id)
                 ->fefo()
                 ->lockForUpdate()
@@ -125,7 +136,7 @@ class StockAllocator
         ?string $note = null,
     ): BranchStock {
         return DB::transaction(function () use ($branch, $product, $manifest, $type, $reference, $userId, $note) {
-            $stock = BranchStock::lockForUpdate()->firstOrCreate(
+            $stock = BranchStock::withoutGlobalScope(BranchScope::class)->lockForUpdate()->firstOrCreate(
                 ['branch_id' => $branch->id, 'product_id' => $product->id],
                 ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 20, 'is_listed' => true],
             );
@@ -133,7 +144,7 @@ class StockAllocator
             $total = 0;
 
             foreach ($manifest as $entry) {
-                $batch = InventoryBatch::lockForUpdate()->firstOrNew([
+                $batch = InventoryBatch::withoutGlobalScope(BranchScope::class)->lockForUpdate()->firstOrNew([
                     'branch_id' => $branch->id,
                     'product_id' => $product->id,
                     'batch_number' => $entry['batch_number'],

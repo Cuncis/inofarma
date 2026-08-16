@@ -2,7 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
+use App\Notifications\CustomerVerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -51,24 +56,41 @@ class StorefrontUiTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->component($component));
     }
 
-    public function test_any_email_and_password_signs_in_and_lands_on_the_homepage(): void
+    private function makeCustomer(array $overrides = []): Customer
     {
-        $this->post('/ui/signin', [
-            'email' => 'anyone@example.test',
-            'password' => 'whatever',
-        ])
+        return Customer::factory()->create([
+            'password' => Hash::make('password'),
+            'status' => 'aktif',
+            ...$overrides,
+        ]);
+    }
+
+    public function test_valid_credentials_sign_in_and_land_on_the_homepage(): void
+    {
+        $customer = $this->makeCustomer();
+
+        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password'])
             ->assertRedirect(route('home'))
             ->assertSessionHasNoErrors();
 
-        $this->assertSame(
-            ['name' => 'Anyone', 'email' => 'anyone@example.test'],
-            session('shop_user'),
-        );
+        $this->assertTrue(Auth::guard('customer')->check());
+    }
+
+    public function test_the_wrong_password_is_rejected(): void
+    {
+        $customer = $this->makeCustomer();
+
+        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'salah'])
+            ->assertSessionHasErrors('email');
+
+        $this->assertFalse(Auth::guard('customer')->check());
     }
 
     public function test_the_signed_in_shopper_is_shared_with_every_screen(): void
     {
-        $this->post('/ui/signin', ['email' => 'kirana.wijaya@mail.com', 'password' => 'x']);
+        $customer = $this->makeCustomer(['name' => 'Kirana Wijaya', 'email' => 'kirana.wijaya@mail.com']);
+
+        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
 
         $this->get('/ui/profile')
             ->assertInertia(fn (AssertableInertia $page) => $page
@@ -82,7 +104,7 @@ class StorefrontUiTest extends TestCase
         $this->post('/ui/signin', ['email' => 'not-an-email', 'password' => ''])
             ->assertSessionHasErrors(['email', 'password']);
 
-        $this->assertNull(session('shop_user'));
+        $this->assertFalse(Auth::guard('customer')->check());
     }
 
     public function test_validation_messages_are_returned_in_indonesian(): void
@@ -96,10 +118,50 @@ class StorefrontUiTest extends TestCase
 
     public function test_signing_out_clears_the_shopper_and_returns_to_sign_in(): void
     {
-        $this->post('/ui/signin', ['email' => 'anyone@example.test', 'password' => 'x']);
+        $customer = $this->makeCustomer();
+        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
 
         $this->post('/ui/signout')->assertRedirect(route('ui.signin'));
 
-        $this->assertNull(session('shop_user'));
+        $this->assertFalse(Auth::guard('customer')->check());
+    }
+
+    public function test_registering_creates_an_account_and_sends_a_verification_email(): void
+    {
+        Notification::fake();
+
+        $this->post('/ui/daftar', [
+            'name' => 'Pelanggan Baru',
+            'email' => 'baru@example.test',
+            'password' => 'kata-sandi-baru',
+            'password_confirmation' => 'kata-sandi-baru',
+        ])->assertRedirect(route('ui.verify-phone'));
+
+        $this->assertTrue(Auth::guard('customer')->check());
+        $this->assertDatabaseHas('customers', ['email' => 'baru@example.test', 'email_verified_at' => null]);
+
+        Notification::assertSentTo(
+            Customer::where('email', 'baru@example.test')->first(),
+            CustomerVerifyEmail::class,
+        );
+    }
+
+    public function test_a_phone_otp_can_be_issued_and_verified(): void
+    {
+        $customer = $this->makeCustomer();
+        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
+
+        $this->post('/ui/verify-phone', ['phone' => '+6281234567890'])
+            ->assertRedirect(route('ui.otp-code'));
+
+        $customer->refresh();
+        $this->assertNotNull($customer->phone_otp_code);
+        $this->assertNull($customer->phone_verified_at);
+
+        // Correct-code verification and wrong-code rejection are both
+        // covered at the model level in CustomerPhoneOtpTest — the
+        // controller action is a two-line pass-through to
+        // `Customer::verifyPhoneOtp()`, and this test's job is proving the
+        // request reaches that far and issues a real, storable code.
     }
 }

@@ -35,8 +35,16 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'shopUser' => fn () => $request->session()->get('shop_user'),
-            'adminUser' => fn () => $request->session()->get('admin_user'),
+            'shopUser' => function () use ($request) {
+                $customer = $request->user('customer');
+
+                return $customer ? ['name' => $customer->name, 'email' => $customer->email, 'phone' => $customer->phone] : null;
+            },
+            'adminUser' => function () use ($request) {
+                $user = $request->user('web');
+
+                return $user ? ['name' => $user->name, 'email' => $user->email] : null;
+            },
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

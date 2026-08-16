@@ -1,14 +1,16 @@
-import { router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
 
 export default function ForgotPassword() {
+    const { data, setData, post, processing, errors } = useForm({ email: '' });
+
     const submit = (event) => {
         event.preventDefault();
 
-        router.visit('/ui/email-sent');
+        post('/ui/lupa-sandi');
     };
 
     return (
@@ -26,11 +28,16 @@ export default function ForgotPassword() {
                     <Field
                         type="email"
                         name="email"
+                        value={data.email}
+                        onChange={(event) => setData('email', event.target.value)}
                         placeholder="kirana.wijaya@mail.com"
+                        error={errors.email}
                         className="mb-2.5"
                     />
 
-                    <Button type="submit">Kirim</Button>
+                    <Button type="submit" disabled={processing}>
+                        {processing ? 'Mengirim…' : 'Kirim'}
+                    </Button>
                 </div>
             </form>
         </MobileLayout>

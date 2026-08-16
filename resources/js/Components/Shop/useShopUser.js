@@ -1,7 +1,8 @@
 import { usePage } from '@inertiajs/react';
 
 /**
- * The prototype session user set by the sign-in screen.
+ * The signed-in customer, shared from `HandleInertiaRequests` via the
+ * `customer` guard (Fase 3.3).
  *
  * Falls back to the design's placeholder shopper so the screens still read
  * correctly when nobody has signed in yet.

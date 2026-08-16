@@ -1,13 +1,15 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import AdminAuthLayout from '@/Layouts/AdminAuthLayout';
 import Button from '@/Components/Admin/Button';
 import { Field, Input } from '@/Components/Admin/Form';
 
 export default function AuthPassword() {
+    const { data, setData, post, processing, errors, recentlySuccessful } = useForm({ email: '' });
+
     const submit = (event) => {
         event.preventDefault();
 
-        router.visit('/admin/masuk');
+        post('/admin/lupa-sandi');
     };
 
     return (
@@ -16,19 +18,26 @@ export default function AuthPassword() {
             heading="Atur Ulang Kata Sandi"
             subheading="Masukkan email terdaftar Anda dan kami akan mengirimkan tautan pemulihan."
         >
+            {recentlySuccessful ? (
+                <p className="mb-4 rounded-lg bg-success/10 px-3 py-2.5 text-center text-[13px] text-success-deep">
+                    Tautan pemulihan telah dikirim. Periksa email Anda.
+                </p>
+            ) : null}
+
             <form onSubmit={submit} className="space-y-4">
-                <Field label="Email" htmlFor="email">
+                <Field label="Email" htmlFor="email" hint={errors.email}>
                     <Input
                         id="email"
                         type="email"
-                        name="email"
+                        value={data.email}
+                        onChange={(event) => setData('email', event.target.value)}
                         placeholder="admin@inofarma.co.id"
                         autoComplete="email"
                     />
                 </Field>
 
-                <Button type="submit" className="w-full">
-                    Kirim Tautan
+                <Button type="submit" disabled={processing} className="w-full">
+                    {processing ? 'Mengirim…' : 'Kirim Tautan'}
                 </Button>
             </form>
 

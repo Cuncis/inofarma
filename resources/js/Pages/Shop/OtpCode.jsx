@@ -1,17 +1,24 @@
 import { useRef, useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 
 export default function OtpCode() {
-    const [digits, setDigits] = useState(['4', '2', '7', '1', '']);
+    const [digits, setDigits] = useState(['', '', '', '', '', '']);
     const inputs = useRef([]);
+    const { data, setData, post, processing, errors } = useForm({ code: '' });
 
     const updateDigit = (index, value) => {
         const digit = value.replace(/\D/g, '').slice(-1);
 
-        setDigits((current) => current.map((existing, at) => (at === index ? digit : existing)));
+        setDigits((current) => {
+            const next = current.map((existing, at) => (at === index ? digit : existing));
+
+            setData('code', next.join(''));
+
+            return next;
+        });
 
         if (digit && index < digits.length - 1) {
             inputs.current[index + 1]?.focus();
@@ -27,7 +34,13 @@ export default function OtpCode() {
     const submit = (event) => {
         event.preventDefault();
 
-        router.visit('/ui/account-created');
+        post('/ui/otp-code');
+    };
+
+    const resend = () => {
+        setDigits(digits.map(() => ''));
+        setData('code', '');
+        router.post('/ui/otp-code/kirim-ulang', {}, { preserveScroll: true });
     };
 
     return (
@@ -63,18 +76,18 @@ export default function OtpCode() {
                         ))}
                     </div>
 
+                    {errors.code ? <p className="mb-3 text-xs text-brand">{errors.code}</p> : null}
+
                     <div className="mb-4 flex gap-1 text-xs">
                         <span>Tidak menerima kode OTP?</span>
-                        <button
-                            type="button"
-                            onClick={() => setDigits(['', '', '', '', ''])}
-                            className="text-brand"
-                        >
+                        <button type="button" onClick={resend} className="text-brand">
                             Kirim ulang.
                         </button>
                     </div>
 
-                    <Button type="submit">Verifikasi</Button>
+                    <Button type="submit" disabled={processing}>
+                        {processing ? 'Memverifikasi…' : 'Verifikasi'}
+                    </Button>
                 </div>
             </form>
         </MobileLayout>

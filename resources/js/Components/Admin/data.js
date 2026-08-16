@@ -261,22 +261,6 @@ export const attributes = [
     { name: 'Volume', slug: 'volume', values: ['60ml', '100ml', '500ml'], type: 'Teks' },
 ];
 
-export const roles = [
-    { name: 'Super Admin', users: 2, permissions: 24, description: 'Akses penuh ke seluruh modul.' },
-    { name: 'Apoteker', users: 8, permissions: 16, description: 'Kelola produk, resep, dan stok.' },
-    { name: 'Kasir', users: 14, permissions: 7, description: 'Proses pesanan dan pembayaran.' },
-    { name: 'Staf Gudang', users: 5, permissions: 9, description: 'Kelola inventaris dan penerimaan barang.' },
-];
-
-export const permissionGroups = [
-    { module: 'Produk', abilities: ['Lihat', 'Tambah', 'Ubah', 'Hapus'] },
-    { module: 'Pesanan', abilities: ['Lihat', 'Proses', 'Batalkan', 'Refund'] },
-    { module: 'Pelanggan', abilities: ['Lihat', 'Tambah', 'Ubah', 'Hapus'] },
-    { module: 'Inventaris', abilities: ['Lihat', 'Sesuaikan Stok', 'Terima Barang'] },
-    { module: 'Laporan', abilities: ['Lihat', 'Ekspor'] },
-    { module: 'Pengaturan', abilities: ['Lihat', 'Ubah'] },
-];
-
 export const coupons = [
     { code: 'HEMAT15', type: 'Persentase', value: '15%', minimum: 100000, used: 214, quota: 500, expires: '31 Des 2025', status: 'Aktif' },
     { code: 'KILAT25', type: 'Persentase', value: '25%', minimum: 250000, used: 480, quota: 500, expires: '31 Agu 2025', status: 'Aktif' },

@@ -2,22 +2,40 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Testing\AssertableInertia;
+use PragmaRX\Google2FAQRCode\Google2FA;
 use Tests\TestCase;
 
 class AdminAuthTest extends TestCase
 {
-    // The guarded screens query the database now, so the schema has to exist —
-    // the tables can stay empty, this suite is only about who gets through.
     use RefreshDatabase;
 
     /**
-     * Sign in as anyone — the prototype accepts any credentials.
+     * Super Admin so a signed-in user can reach every permission-gated
+     * screen this suite touches — this test is about the session mechanics,
+     * not the permission matrix (that's RoleCrudTest).
      */
-    private function signIn(string $email = 'dwi.lestari@inofarma.co.id'): self
+    private function makeUser(array $overrides = []): User
     {
-        $this->post('/admin/masuk', ['email' => $email, 'password' => 'apa saja']);
+        $user = User::factory()->create([
+            'password' => Hash::make('password'),
+            'is_active' => true,
+            ...$overrides,
+        ]);
+        $user->assignRole(Role::findOrCreate('Super Admin', 'web'));
+
+        return $user;
+    }
+
+    private function signIn(User $user, string $password = 'password'): self
+    {
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => $password]);
 
         return $this;
     }
@@ -29,19 +47,42 @@ class AdminAuthTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page->component('Admin/AuthSignIn'));
     }
 
-    public function test_any_email_and_password_signs_in(): void
+    public function test_valid_credentials_sign_in(): void
     {
-        $this->post('/admin/masuk', [
-            'email' => 'siapa.saja@inofarma.co.id',
-            'password' => 'terserah',
-        ])
+        $user = $this->makeUser();
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'])
             ->assertRedirect(route('admin.dashboard'))
             ->assertSessionHasNoErrors();
 
-        $this->assertSame(
-            ['name' => 'Siapa Saja', 'email' => 'siapa.saja@inofarma.co.id'],
-            session('admin_user'),
-        );
+        $this->assertTrue(Auth::guard('web')->check());
+        $this->assertTrue(Auth::guard('web')->user()->is($user));
+    }
+
+    public function test_the_wrong_password_is_rejected(): void
+    {
+        $user = $this->makeUser();
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'salah'])
+            ->assertSessionHasErrors('email');
+
+        $this->assertFalse(Auth::guard('web')->check());
+    }
+
+    public function test_an_unknown_email_is_rejected(): void
+    {
+        $this->post('/admin/masuk', ['email' => 'tidak-ada@inofarma.co.id', 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+    }
+
+    public function test_a_deactivated_account_cannot_sign_in(): void
+    {
+        $user = $this->makeUser(['is_active' => false]);
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+
+        $this->assertFalse(Auth::guard('web')->check());
     }
 
     public function test_signing_in_still_requires_an_email_and_a_password(): void
@@ -49,7 +90,23 @@ class AdminAuthTest extends TestCase
         $this->post('/admin/masuk', ['email' => 'bukan-email', 'password' => ''])
             ->assertSessionHasErrors(['email', 'password']);
 
-        $this->assertNull(session('admin_user'));
+        $this->assertFalse(Auth::guard('web')->check());
+    }
+
+    public function test_five_failed_attempts_lock_out_a_sixth(): void
+    {
+        $user = $this->makeUser();
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'salah']);
+        }
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+
+        $this->assertFalse(Auth::guard('web')->check());
+
+        RateLimiter::clear('admin-login:127.0.0.1');
     }
 
     public function test_the_admin_area_is_closed_to_anonymous_visitors(): void
@@ -69,15 +126,17 @@ class AdminAuthTest extends TestCase
 
     public function test_signing_in_returns_you_to_where_you_were_headed(): void
     {
+        $user = $this->makeUser();
+
         $this->get('/admin/kategori')->assertRedirect(route('admin.masuk'));
 
-        $this->post('/admin/masuk', ['email' => 'admin@inofarma.co.id', 'password' => 'x'])
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'])
             ->assertRedirect(url('/admin/kategori'));
     }
 
     public function test_a_signed_in_admin_reaches_the_dashboard(): void
     {
-        $this->signIn()
+        $this->signIn($this->makeUser())
             ->get('/admin')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page->component('Admin/Dashboard'));
@@ -85,7 +144,9 @@ class AdminAuthTest extends TestCase
 
     public function test_the_signed_in_admin_is_shared_with_every_screen(): void
     {
-        $this->signIn('kirana.wijaya@inofarma.co.id')
+        $user = $this->makeUser(['name' => 'Kirana Wijaya', 'email' => 'kirana.wijaya@inofarma.co.id']);
+
+        $this->signIn($user)
             ->get('/admin/produk')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('adminUser.name', 'Kirana Wijaya')
@@ -95,17 +156,38 @@ class AdminAuthTest extends TestCase
 
     public function test_visiting_login_while_signed_in_goes_to_the_dashboard(): void
     {
-        $this->signIn()
+        $this->signIn($this->makeUser())
             ->get('/admin/masuk')
             ->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_signing_out_closes_the_area_again(): void
     {
-        $this->signIn()->post('/admin/keluar')->assertRedirect(route('admin.masuk'));
+        $this->signIn($this->makeUser())->post('/admin/keluar')->assertRedirect(route('admin.masuk'));
 
-        $this->assertNull(session('admin_user'));
+        $this->assertFalse(Auth::guard('web')->check());
         $this->get('/admin')->assertRedirect(route('admin.masuk'));
+    }
+
+    public function test_an_account_with_two_factor_confirmed_is_sent_to_the_challenge_instead_of_logging_in(): void
+    {
+        $secret = (new Google2FA)->generateSecretKey();
+        $user = $this->makeUser([
+            'two_factor_secret' => $secret,
+            'two_factor_confirmed_at' => now(),
+        ]);
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'])
+            ->assertRedirect(route('admin.dua-faktor'));
+
+        $this->assertFalse(Auth::guard('web')->check());
+
+        $code = (new Google2FA)->getCurrentOtp($secret);
+
+        $this->post('/admin/dua-faktor', ['code' => $code])
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertTrue(Auth::guard('web')->check());
     }
 
     public function test_the_storefront_is_unaffected_by_the_admin_guard(): void
@@ -117,6 +199,8 @@ class AdminAuthTest extends TestCase
 
     public function test_the_removed_demo_pages_are_gone(): void
     {
+        $user = $this->makeUser();
+
         foreach ([
             '/admin/halaman/selamat-datang',
             '/admin/halaman/segera-hadir',
@@ -127,7 +211,7 @@ class AdminAuthTest extends TestCase
             '/admin/auth/daftar',
             '/admin/auth/kunci-layar',
         ] as $path) {
-            $this->signIn()->get($path)->assertNotFound();
+            $this->signIn($user)->get($path)->assertNotFound();
         }
     }
 }

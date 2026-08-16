@@ -13,6 +13,7 @@ use App\Support\Presenters\BranchPresenter;
 use App\Support\Presenters\ProductPresenter;
 use App\Support\Presenters\StockTransferPresenter;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
@@ -50,14 +51,18 @@ class StockTransferController extends Controller
     public function store(StockTransferRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $fromBranchId = Branch::where('code', $data['fromBranch'])->value('id');
+
+        $user = Auth::guard('web')->user();
+        abort_if($user->branch_id !== null && $user->branch_id !== $fromBranchId, 403, 'Anda hanya bisa meminta transfer dari cabang Anda sendiri.');
 
         $transfer = $this->transfers->request([
-            'from_branch_id' => Branch::where('code', $data['fromBranch'])->value('id'),
+            'from_branch_id' => $fromBranchId,
             'to_branch_id' => Branch::where('code', $data['toBranch'])->value('id'),
             'product_id' => Product::where('sku', $data['product'])->value('id'),
             'quantity' => $data['quantity'],
             'note' => $data['note'] ?? null,
-        ]);
+        ], $user->id);
 
         return redirect()
             ->route('admin.inventaris.transfer.index')
@@ -73,8 +78,11 @@ class StockTransferController extends Controller
 
     public function ship(string $transfer): RedirectResponse
     {
+        $found = $this->find($transfer);
+        $this->authorizeSide($found->from_branch_id, 'Hanya cabang asal yang bisa mengirim transfer ini.');
+
         try {
-            $record = $this->transfers->ship($this->find($transfer));
+            $record = $this->transfers->ship($found, Auth::guard('web')->id());
         } catch (RuntimeException $exception) {
             return back()->with('error', $exception->getMessage());
         }
@@ -84,8 +92,11 @@ class StockTransferController extends Controller
 
     public function receive(string $transfer): RedirectResponse
     {
+        $found = $this->find($transfer);
+        $this->authorizeSide($found->to_branch_id, 'Hanya cabang tujuan yang bisa menerima transfer ini.');
+
         try {
-            $record = $this->transfers->receive($this->find($transfer));
+            $record = $this->transfers->receive($found, Auth::guard('web')->id());
         } catch (RuntimeException $exception) {
             return back()->with('error', $exception->getMessage());
         }
@@ -95,13 +106,23 @@ class StockTransferController extends Controller
 
     public function cancel(string $transfer): RedirectResponse
     {
+        $found = $this->find($transfer);
+        $this->authorizeSide($found->from_branch_id, 'Hanya cabang asal yang bisa membatalkan transfer ini.');
+
         try {
-            $record = $this->transfers->cancel($this->find($transfer));
+            $record = $this->transfers->cancel($found);
         } catch (RuntimeException $exception) {
             return back()->with('error', $exception->getMessage());
         }
 
         return back()->with('success', "Transfer {$record->code} dibatalkan.");
+    }
+
+    private function authorizeSide(int $branchId, string $message): void
+    {
+        $user = Auth::guard('web')->user();
+
+        abort_if($user->branch_id !== null && $user->branch_id !== $branchId, 403, $message);
     }
 
     private function find(string $code): StockTransfer

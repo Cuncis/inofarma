@@ -13,6 +13,7 @@ use App\Support\Inventory\InsufficientStockException;
 use App\Support\Inventory\StockAdjuster;
 use App\Support\Inventory\StockAllocator;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -54,6 +55,7 @@ class BranchStockController extends Controller
     public function show(string $branch): Response
     {
         $record = $this->findBranch($branch);
+        $this->authorizeBranch($record);
 
         $stocks = BranchStock::query()
             ->with('product')
@@ -81,6 +83,7 @@ class BranchStockController extends Controller
     public function adjust(StockAdjustmentRequest $request, string $branch, string $product): RedirectResponse
     {
         $branchModel = $this->findBranch($branch);
+        $this->authorizeBranch($branchModel);
         $productModel = $this->findProduct($product);
         $data = $request->validated();
 
@@ -90,10 +93,7 @@ class BranchStockController extends Controller
                 $productModel,
                 (int) $data['delta'],
                 AdminOptions::toValue(AdminOptions::ADJUSTMENT_REASONS, $data['reason']),
-                // The admin guard is still the Fase 3.1 prototype (a session
-                // array, not a `users` row), so there is no real id to attach
-                // yet — every movement is anonymous until real auth lands.
-                null,
+                Auth::guard('web')->id(),
                 $data['note'] ?? null,
             );
         } catch (InsufficientStockException $exception) {
@@ -110,6 +110,7 @@ class BranchStockController extends Controller
     public function receive(StockReceiptRequest $request, string $branch, string $product): RedirectResponse
     {
         $branchModel = $this->findBranch($branch);
+        $this->authorizeBranch($branchModel);
         $productModel = $this->findProduct($product);
         $data = $request->validated();
 
@@ -124,8 +125,7 @@ class BranchStockController extends Controller
             ]],
             'pembelian',
             null,
-            // See the note in adjust() above — no real admin id exists yet.
-            null,
+            Auth::guard('web')->id(),
             $data['note'] ?? null,
         );
 
@@ -138,6 +138,19 @@ class BranchStockController extends Controller
     {
         return Branch::where('code', $code)
             ->firstOr(fn () => abort(404, 'Cabang tidak ditemukan.'));
+    }
+
+    /**
+     * A branch-scoped staff member (Fase 3.2) may only touch their own
+     * branch's stock — `Branch` itself carries no query scope, so this is the
+     * one place left to check before `StockAdjuster`/`StockAllocator` run,
+     * since those deliberately bypass `BranchScope` (see their docblocks).
+     */
+    private function authorizeBranch(Branch $branch): void
+    {
+        $user = Auth::guard('web')->user();
+
+        abort_if($user->branch_id !== null && $user->branch_id !== $branch->id, 403, 'Bukan cabang Anda.');
     }
 
     private function findProduct(string $sku): Product

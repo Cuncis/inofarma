@@ -1,19 +1,10 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import RoleForm from '@/Components/Admin/RoleForm';
-import { roles } from '@/Components/Admin/data';
 
-const granted = [
-    'Produk:Lihat',
-    'Produk:Tambah',
-    'Produk:Ubah',
-    'Pesanan:Lihat',
-    'Pesanan:Proses',
-    'Inventaris:Lihat',
-    'Inventaris:Sesuaikan Stok',
-    'Laporan:Lihat',
-];
-
-export default function RoleEdit() {
+/**
+ * @param {{ role: object, permissionGroups: Record<string, string[]> }} props
+ */
+export default function RoleEdit({ role, permissionGroups }) {
     return (
         <AdminLayout
             title="Ubah Peran"
@@ -24,7 +15,7 @@ export default function RoleEdit() {
                 { label: 'Ubah' },
             ]}
         >
-            <RoleForm role={roles[1]} granted={granted} submitLabel="Simpan Perubahan" />
+            <RoleForm role={role} permissionGroups={permissionGroups} submitLabel="Simpan Perubahan" />
         </AdminLayout>
     );
 }
