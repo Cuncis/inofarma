@@ -2,12 +2,18 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class StorefrontUiTest extends TestCase
 {
+    // Every storefront screen carries the shared catalogue prop, which is a
+    // real query — the schema has to exist even when the assertion is only
+    // about which component rendered.
+    use RefreshDatabase;
+
     public function test_the_homepage_renders_the_storefront_home_screen(): void
     {
         $this->get('/')

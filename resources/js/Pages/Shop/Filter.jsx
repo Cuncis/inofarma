@@ -3,9 +3,10 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Checkbox from '@/Components/Shop/Checkbox';
-import { filterCategories, priceRanges } from '@/Components/Shop/data';
+import { priceRanges, useShopCatalog } from '@/Components/Shop/data';
 
 export default function Filter() {
+    const { filterCategories } = useShopCatalog();
     const [selectedCategories, setSelectedCategories] = useState([filterCategories[0]]);
     const [range, setRange] = useState(priceRanges[0].label);
     const [labels, setLabels] = useState({ sale: true, prescription: false, inStock: true });

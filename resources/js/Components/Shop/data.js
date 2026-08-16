@@ -1,14 +1,8 @@
 import { money } from '@/lib/format';
-import {
-    bestSellers,
-    catalogCategories,
-    catalogProducts,
-    discounted,
-    findProduct,
-    media,
-} from '@/lib/catalog';
+import { bestSellers, discounted, findProduct, useCatalog } from '@/lib/catalog';
+import { media } from '@/lib/media';
 
-export { money, media, catalogProducts, findProduct };
+export { money, media, findProduct, useCatalog };
 
 /**
  * Empty-state artwork, still served from the original template author's host.
@@ -27,11 +21,14 @@ export const asset = {
 };
 
 /**
- * Storefront view of the shared catalogue.
+ * Storefront view of the catalogue.
  *
- * The shop sells the same products the admin manages — see `@/lib/catalog` for
- * the source data. These exports only reshape it for the mobile screens, which
- * expect pre-formatted price strings.
+ * Everything below is derived at render time from the shared `catalog` prop,
+ * not from a fixture file — the shop sells exactly what the admin manages, so a
+ * price changed in the admin is the price a shopper sees on the next request.
+ *
+ * The mobile screens want pre-formatted price strings, which is all `toTile`
+ * does.
  */
 
 /**
@@ -48,39 +45,44 @@ const toTile = (product) => ({
     rating: product.rating,
 });
 
-/** @type {import('./ProductCard').Product[]} */
-export const trendingProducts = bestSellers.slice(0, 6).map(toTile);
+/**
+ * Every catalogue-derived list a storefront screen needs, for the current page.
+ *
+ * @returns {{
+ *   products: import('@/lib/catalog').CatalogProduct[],
+ *   trendingProducts: object[],
+ *   newArrivals: object[],
+ *   shopProducts: object[],
+ *   wishlistProducts: object[],
+ *   categories: { name: string, image: string }[],
+ *   filterCategories: string[],
+ *   cartItems: object[],
+ * }}
+ */
+export function useShopCatalog() {
+    const { products, categories } = useCatalog();
 
-/** @type {import('./ProductCard').Product[]} */
-export const newArrivals = catalogProducts.slice(-4).map(toTile);
-
-/** @type {import('./ProductCard').Product[]} */
-export const shopProducts = catalogProducts.map(toTile);
-
-/** @type {import('./ProductCard').Product[]} */
-export const wishlistProducts = discounted.slice(0, 4).map(toTile);
-
-export const categories = catalogCategories.map((category) => ({
-    name: category.name,
-    image: category.image,
-}));
-
-export const cartItems = [
-    {
-        name: catalogProducts[0].name,
-        image: catalogProducts[0].image,
-        amount: catalogProducts[0].price,
-        quantity: 2,
-        onSale: Boolean(catalogProducts[0].oldPrice),
-    },
-    {
-        name: catalogProducts[3].name,
-        image: catalogProducts[3].image,
-        amount: catalogProducts[3].price,
-        quantity: 1,
-        onSale: Boolean(catalogProducts[3].oldPrice),
-    },
-];
+    return {
+        products,
+        trendingProducts: bestSellers(products).slice(0, 6).map(toTile),
+        newArrivals: products.slice(-4).map(toTile),
+        shopProducts: products.map(toTile),
+        wishlistProducts: discounted(products).slice(0, 4).map(toTile),
+        categories: categories.map((category) => ({
+            name: category.name,
+            image: category.image,
+        })),
+        filterCategories: categories.map((category) => category.name),
+        // Stand-in basket until the real cart arrives in Fase 5.3.
+        cartItems: products.slice(0, 2).map((product, index) => ({
+            name: product.name,
+            image: product.image,
+            amount: product.price,
+            quantity: index === 0 ? 2 : 1,
+            onSale: Boolean(product.oldPrice),
+        })),
+    };
+}
 
 /** @type {import('./ReviewCard').Review[]} */
 export const reviews = [
@@ -157,9 +159,6 @@ export const faqs = [
     { question: 'Apakah produk Anda bebas uji coba hewan?', open: false },
     { question: 'Bagaimana cara melacak pesanan saya?', open: false },
 ];
-
-/** Category names offered as filter chips on the shop screen. */
-export const filterCategories = catalogCategories.map((category) => category.name);
 
 /** Price brackets used by the filter screen, in rupiah. */
 export const priceRanges = [

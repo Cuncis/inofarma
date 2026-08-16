@@ -9,12 +9,12 @@ import Table from '@/Components/Admin/Table';
 import {
     money,
     orders,
-    products,
     revenueByPeriod,
     revenuePeriods,
     revenueTotal,
     statusTone,
 } from '@/Components/Admin/data';
+import { bestSellers, useCatalog } from '@/lib/catalog';
 
 const periodOptions = revenuePeriods.map((key) => ({
     value: key,
@@ -36,6 +36,10 @@ const channels = [
 ];
 
 export default function DashboardSales() {
+    // Produk terlaris diambil dari basis data, bukan fixture.
+    const { products } = useCatalog();
+    const topProducts = bestSellers(products).slice(0, 5);
+
     const [period, setPeriod] = useState('mingguan');
 
     const revenue = revenueByPeriod[period];
@@ -110,7 +114,7 @@ export default function DashboardSales() {
                             { key: 'sold', label: 'Terjual', align: 'right' },
                             { key: 'price', label: 'Harga', align: 'right' },
                         ]}
-                        rows={products.slice(0, 5)}
+                        rows={topProducts}
                         rowKey={(row) => row.id}
                         renderCell={(row, key) => {
                             if (key === 'name') {

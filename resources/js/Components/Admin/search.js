@@ -1,4 +1,3 @@
-import { catalogProducts, categoriesWithCounts } from '@/lib/catalog';
 import { customers, invoices, orders, sellers } from './data';
 import { allNavLinks } from './nav';
 
@@ -28,8 +27,9 @@ const actionPages = [
 /**
  * Everything the admin's global search can find.
  *
- * Built once at module load from the same fixtures the screens render, so a
- * result always corresponds to a page that exists.
+ * Products and categories come from the shared `catalog` prop, so search finds
+ * what is actually in the database rather than a fixture that has drifted. The
+ * rest are still fixtures, for screens whose feature does not exist yet.
  *
  * @typedef {object} SearchEntry
  * @property {string} group   Heading the result is listed under.
@@ -38,10 +38,12 @@ const actionPages = [
  * @property {string} href    Where selecting it navigates.
  * @property {string} icon
  *
- * @type {SearchEntry[]}
+ * @param {import('@/lib/catalog').Catalog} catalog
+ * @returns {SearchEntry[]}
  */
-export const searchIndex = [
-    ...catalogProducts.map((product) => ({
+export function buildSearchIndex(catalog) {
+    return [
+    ...catalog.products.map((product) => ({
         group: 'Produk',
         label: product.name,
         meta: `${product.id} · ${product.category}`,
@@ -49,7 +51,7 @@ export const searchIndex = [
         icon: 'solar:box-bold-duotone',
     })),
 
-    ...categoriesWithCounts.map((category) => ({
+    ...catalog.categories.map((category) => ({
         group: 'Kategori',
         label: category.name,
         meta: `${category.products} produk`,
@@ -104,7 +106,8 @@ export const searchIndex = [
         href: page.href,
         icon: 'solar:pen-2-broken',
     })),
-];
+    ];
+}
 
 /**
  * Rank matches for a query.
@@ -113,17 +116,18 @@ export const searchIndex = [
  * it, which keeps exact-ish matches at the top where the keyboard lands first.
  *
  * @param {string} query
+ * @param {import('@/lib/catalog').Catalog} catalog
  * @param {number} [limit]
  * @returns {SearchEntry[]}
  */
-export function searchAdmin(query, limit = 8) {
+export function searchAdmin(query, catalog, limit = 8) {
     const needle = query.trim().toLowerCase();
 
     if (! needle) {
         return [];
     }
 
-    return searchIndex
+    return buildSearchIndex(catalog)
         .map((entry) => {
             const label = entry.label.toLowerCase();
             const meta = (entry.meta ?? '').toLowerCase();

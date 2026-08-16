@@ -5,9 +5,10 @@ import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import IconLink from '@/Components/Shop/IconLink';
 import TabBar from '@/Components/Shop/TabBar';
-import { cartItems, money } from '@/Components/Shop/data';
+import { money, useShopCatalog } from '@/Components/Shop/data';
 
 export default function Cart() {
+    const { cartItems } = useShopCatalog();
     const [items, setItems] = useState(cartItems);
     const [promo, setPromo] = useState('');
     const [applied, setApplied] = useState(false);

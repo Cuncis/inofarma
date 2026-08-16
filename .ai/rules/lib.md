@@ -1,15 +1,23 @@
 ---
 paths:
   - resources/js/lib/catalog.js
+  - resources/js/lib/media.js
+  - resources/js/Components/Shop/data.js
 ---
 
 # Lib
 
-## One catalogue feeds both the storefront and the admin
-`resources/js/lib/catalog.js` is the single source of truth for products and categories. The storefront (`Components/Shop/data.js`) and the admin (`Components/Admin/data.js`) both derive their views from it — neither keeps its own product list. Add or edit a product there and both areas update.
+## The catalogue comes from the database, not from a file
+`resources/js/lib/catalog.js` no longer holds products. It holds the *shape* of the catalogue and the derived views (`useCatalog`, `findProduct`, `bestSellers`, `discounted`). The data arrives as the shared Inertia prop `catalog`, built by `App\Support\Presenters\ShopCatalogPresenter` and shared from `HandleInertiaRequests::share()`.
 
-Prices are stored as plain rupiah numbers, never formatted strings. Format at display time with `money()` from `@/lib/format`. Inofarma's grids want pre-formatted strings, so its `data.js` maps through a local `toTile()` adapter — extend that rather than putting strings in the catalogue.
+Never reintroduce a module-level product array. It was the reason an admin edit did not show up in the shop, and `StorefrontCatalogTest` exists to catch it coming back.
 
-Shared images live in `public/media/` and are addressed through the `media` helper exported from the catalogue; `Components/Admin/data.js` re-exports it as `img`.
+Because the catalogue is a prop, anything derived from it must be read **inside a component**, not at module load. The storefront's derived lists come from `useShopCatalog()` in `Components/Shop/data.js`; the admin's global search takes the catalogue as an argument (`searchAdmin(query, catalog)`).
 
-The catalogue is a pharmacy: products carry `variants` (pack sizes), `unit`, `prescription` and `blurb`. The original template's clothing concepts — colour swatches, XS-XL sizes, fashion tags — were removed, not repurposed. Don't reintroduce them.
+Prices are plain rupiah numbers, never formatted strings. Format at display time with `money()` from `@/lib/format`; the mobile grids want strings, so `useShopCatalog()` maps through a local `toTile()` adapter — extend that rather than putting strings in the prop.
+
+`media` moved to `resources/js/lib/media.js`. Product and category images now come back from the server with the record; `media` is only for fixtures still local to the front end (avatars, brand marks). `Components/Admin/data.js` re-exports it as `img`.
+
+The storefront's `status` is **availability** (Tersedia / Stok Menipis / Habis) derived from stock across all branches — not the catalogue status an administrator sets. Only `aktif` products are shared with the shop at all.
+
+The catalogue is a pharmacy: products carry `unit`, `prescription`, `blurb` and `variants`. The original template's clothing concepts — colour swatches, XS-XL sizes, fashion tags — were removed, not repurposed. Don't reintroduce them.

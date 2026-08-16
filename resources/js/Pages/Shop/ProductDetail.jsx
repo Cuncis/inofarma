@@ -1,18 +1,33 @@
 import { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import Button from '@/Components/Shop/Button';
 import Icon from '@/Components/Shop/Icon';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
-import { findProduct, money, reviews } from '@/Components/Shop/data';
-
-/** The catalogue entry this screen shows; the prototype has no routing param. */
-const product = findProduct('PRD-001');
+import { findProduct, money, reviews, useShopCatalog } from '@/Components/Shop/data';
 
 export default function ProductDetail() {
-    const [variant, setVariant] = useState(product.variants[0]);
+    const { products } = useShopCatalog();
+    const { url } = usePage();
+
+    // Which product to show comes from `?id=`, so a tile anywhere in the shop
+    // can link straight here. Falls back to the first product when absent.
+    const requested = new URLSearchParams(url.split('?')[1] ?? '').get('id');
+    const product = findProduct(products, requested ?? undefined);
+
+    const [variant, setVariant] = useState(product?.variants[0]);
     const [liked, setLiked] = useState(false);
+
+    if (! product) {
+        return (
+            <MobileLayout title="Detail Produk">
+                <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-muted">
+                    Produk tidak ditemukan.
+                </div>
+            </MobileLayout>
+        );
+    }
 
     return (
         <MobileLayout title="Detail Produk">

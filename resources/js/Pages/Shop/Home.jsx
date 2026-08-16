@@ -10,9 +10,10 @@ import PromoBanner from '@/Components/Shop/PromoBanner';
 import SectionHeading from '@/Components/Shop/SectionHeading';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
-import { newArrivals, trendingProducts } from '@/Components/Shop/data';
+import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Home() {
+    const { newArrivals, trendingProducts } = useShopCatalog();
     const [searching, setSearching] = useState(false);
 
     return (

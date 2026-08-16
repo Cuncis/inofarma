@@ -4,19 +4,21 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Icon from '@/Components/Shop/Icon';
-import { cartItems, money } from '@/Components/Shop/data';
-
-const orderTotal = cartItems.reduce((total, item) => total + item.amount * item.quantity, 0);
-
-const lines = [
-    ...cartItems.map((item) => ({
-        label: `${item.name} x${item.quantity}`,
-        value: money(item.amount * item.quantity),
-    })),
-    { label: 'Diskon', value: `-${money(0)}` },
-];
+import { money, useShopCatalog } from '@/Components/Shop/data';
 
 export default function Checkout() {
+    const { cartItems } = useShopCatalog();
+
+    const orderTotal = cartItems.reduce((total, item) => total + item.amount * item.quantity, 0);
+
+    const lines = [
+        ...cartItems.map((item) => ({
+            label: `${item.name} x${item.quantity}`,
+            value: money(item.amount * item.quantity),
+        })),
+        { label: 'Diskon', value: `-${money(0)}` },
+    ];
+
     const [comment, setComment] = useState('');
     const [placing, setPlacing] = useState(false);
 

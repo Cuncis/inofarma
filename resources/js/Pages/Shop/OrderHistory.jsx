@@ -2,12 +2,7 @@ import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Icon from '@/Components/Shop/Icon';
-import { cartItems, money } from '@/Components/Shop/data';
-
-const openOrderTotal = cartItems.reduce(
-    (total, item) => total + item.amount * item.quantity,
-    0,
-);
+import { money, useShopCatalog } from '@/Components/Shop/data';
 
 const pastOrders = [
     {
@@ -27,6 +22,13 @@ const pastOrders = [
 ];
 
 export default function OrderHistory() {
+    const { cartItems } = useShopCatalog();
+
+    const openOrderTotal = cartItems.reduce(
+        (total, item) => total + item.amount * item.quantity,
+        0,
+    );
+
     return (
         <MobileLayout
             title="Riwayat Pesanan"

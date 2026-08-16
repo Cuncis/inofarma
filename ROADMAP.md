@@ -228,89 +228,107 @@ Kerjakan paralel dengan Fase 1 karena perizinan makan waktu berminggu-minggu.
 
 ---
 
-## Fase 1 — Basis data dan model
+## Fase 1 — Basis data dan model — ✅ SELESAI
 
-Semua `*Store` berbasis session diganti Eloquent.
+Seluruh `*Store` berbasis session sudah diganti Eloquent. Data kini bertahan,
+dan etalase serta admin membaca tabel yang sama.
 
-Kabar baiknya: arsitekturnya sudah disiapkan. `ProductStore`, `CategoryStore`,
-`CustomerStore`, `SellerStore` dan `OrderStore` hanya mengekspos enam metode
-(`all`, `find`, `create`, `update`, `delete`, `reset`). Controller dan halaman
-React tidak menyentuh session langsung, jadi penggantian ini tidak seharusnya
-mengubah antarmuka.
+### 1.1 Siapkan basis data — ✅
 
-### 1.1 Siapkan basis data
+- [x] MySQL 8.0.46, basis data `inofarma_db`.
+      **Catatan:** MySQL 8 dipilih karena sudah cukup sampai ribuan cabang.
+      Jarak dihitung dengan rumus Haversine di SQL (`Branch::nearest()`),
+      bukan `ST_Distance_Sphere`, supaya pengujian tetap jalan di SQLite.
+- [x] `.env` diatur, seluruh migrasi jalan.
 
-- [ ] MySQL 8 atau PostgreSQL 15 di server Jakarta.
-      **Catatan:** bila memilih MySQL, pastikan versi 8+ karena kita butuh
-      fungsi geospasial (`ST_Distance_Sphere`) di Fase 2. PostgreSQL + PostGIS
-      lebih kuat untuk ini, tapi MySQL 8 sudah cukup sampai ribuan cabang.
-- [ ] Atur `.env`, jalankan migrasi bawaan Laravel.
+### 1.2 Skema inti — ✅ sebagian
 
-### 1.2 Skema inti
+Empat belas tabel sudah ada:
 
 ```
-users                    staf admin
-roles, permissions       kontrol akses
-branches                 ← BARU, lihat Fase 2
-customers                akun pelanggan
+users                    staf admin (+ branch_id, soft delete)
+branches                 10 cabang, dengan koordinat & jam buka
+customers                akun pelanggan, terpisah dari users
 customer_addresses       alamat + koordinat
 categories
-products                 katalog nasional (tanpa stok)
+products                 katalog nasional — TANPA kolom stok
 product_images
-branch_stocks            ← BARU: stok & harga per produk × cabang
-inventory_batches        ← batch + kedaluwarsa, per cabang
+branch_stocks            stok, stok dipesan & harga per produk × cabang
+inventory_batches        batch + kedaluwarsa, per cabang (FEFO)
 inventory_movements      setiap pergerakan stok, per cabang
-stock_transfers          ← BARU: pindah barang antar cabang
 suppliers                (dulu "penjual") distributor/PBF
-purchase_orders          pembelian ke pemasok, masuk ke satu cabang
-orders                   + branch_id + fulfilment
-order_items              + snapshot nama & harga
-payments
-shipments                pengantaran
-pickups                  ← BARU: kode ambil, batas waktu
-coupons, coupon_redemptions
-reviews
-audit_logs
-settings
+orders                   + branch_id + fulfilment (antar/ambil)
+order_items              + snapshot nama, SKU & harga satuan
+audit_logs, settings
 ```
 
-Aturan yang harus jadi *constraint* basis data, bukan hanya kode:
+Belum dibuat, menyusul di fase yang membutuhkannya: `roles`/`permissions`
+(Fase 3), `stock_transfers` (Fase 2.2), `purchase_orders` (Fase 4.3),
+`payments` (Fase 6), `shipments`/`pickups` (Fase 7), `coupons` (Fase 4.3),
+`reviews` (Fase 4.3).
 
-- [ ] `products.category_id`, `products.supplier_id` → FK `RESTRICT`.
-- [ ] `orders.customer_id`, `orders.branch_id` → FK `RESTRICT`.
-- [ ] `branch_stocks` → unique `(branch_id, product_id)`.
-- [ ] `order_items` menyimpan **`product_name` dan `unit_price` sebagai kolom
-      sendiri**. Ini mempertahankan perilaku snapshot yang sudah ada.
-- [ ] `categories.slug`, `products.sku`, `customers.email`,
-      `branches.slug`, `suppliers.license_number` → unique index.
-- [ ] Semua kolom uang → `unsignedBigInteger` dalam **rupiah penuh**, bukan
-      float.
+Aturan yang sudah menjadi *constraint* basis data, bukan hanya kode:
 
-### 1.3 Model, factory, seeder
+- [x] `products.category_id`, `products.supplier_id` → FK `RESTRICT`.
+- [x] `orders.customer_id`, `orders.branch_id` → FK `RESTRICT`.
+- [x] `order_items.product_id` → FK `SET NULL`, agar produk boleh hilang
+      tanpa merusak riwayat.
+- [x] `branch_stocks` → unique `(branch_id, product_id)`.
+- [x] `order_items` menyimpan `product_name`, `sku` dan `unit_price` sebagai
+      kolom sendiri.
+- [x] `categories.slug`, `products.sku`, `customers.email`, `branches.slug`,
+      `suppliers.license_number`, `orders.number` → unique index.
+- [x] Semua kolom uang → `unsignedBigInteger` dalam **rupiah penuh**.
 
-- [ ] Model + `$fillable` + relasi + casts.
-- [ ] Factory dan seeder; ambil data awal dari `App\Support\Catalog`.
-- [ ] Seeder cabang dari [Lampiran A](#lampiran-a--daftar-cabang-saat-ini).
-- [ ] *Soft deletes* pada products, customers, orders, branches.
+### 1.3 Model, factory, seeder — ✅
 
-### 1.4 Ganti store dengan Eloquent
+- [x] 14 model + `$fillable` + relasi + casts.
+- [x] Factory untuk seluruh entitas inti.
+- [x] Seeder: 10 cabang, 6 kategori, 5 pemasok, 12 produk, 120 baris stok,
+      6 pelanggan, 7 pesanan.
+- [x] *Soft deletes* pada products, customers, orders, branches, categories,
+      suppliers, dan users.
 
-Satu entitas per waktu, jalankan pengujian setelah masing-masing:
+**Masih harus dikerjakan manual:** koordinat sepuluh cabang sengaja dibiarkan
+`null`. Isi dari Google Maps sebelum Fase 2.3 — `Branch::nearest()` melewati
+baris tanpa koordinat.
 
-- [ ] Products, Categories, Customers, Suppliers, Orders.
-- [ ] Hapus `app/Support/*Store.php` dan `Catalog.php`.
-- [ ] Ubah pengujian agar pakai `RefreshDatabase` dan factory.
+### 1.4 Ganti store dengan Eloquent — ✅
 
-### 1.5 Satukan etalase dan admin
+- [x] Products, Categories, Customers, Suppliers, Orders.
+- [x] `app/Support/*Store.php` dan `Catalog.php` dihapus.
+- [x] Pengujian pakai `RefreshDatabase` dan data seeder.
 
-- [ ] Etalase mengambil produk dari basis data, bukan `resources/js/lib/catalog.js`.
-- [ ] Hapus katalog JS statis.
-- [ ] Verifikasi: ubah harga di admin → berubah di etalase.
+Yang berubah di antarmuka, karena skemanya menuntut:
 
-**Selesai bila:** data bertahan setelah restart, etalase dan admin sepakat, dan
-seluruh pengujian lulus dengan `RefreshDatabase`.
+- Formulir produk **tidak lagi punya kolom stok**. Stok milik produk × cabang;
+  satu kotak isian tidak bisa menjawab "stok di cabang yang mana". Daftar
+  produk menampilkan total seluruh cabang, dan halaman detail memecahnya per
+  cabang. Penyesuaian stok menyusul di Fase 2.4.
+- Status produk kini `Aktif / Nonaktif / Arsip` (yang bisa diatur), terpisah
+  dari ketersediaan `Tersedia / Stok Menipis / Habis` (yang diturunkan dari
+  stok). Keduanya ditampilkan.
+- Formulir pesanan **wajib** memilih cabang dan cara terima (antar/ambil).
+  Keduanya menentukan stok mana yang dipakai.
+- Status pemasok menjadi `Aktif / Nonaktif`, mengikuti enum tabel.
+- Mengubah email pelanggan **tidak lagi memutus riwayat pesanan**. Dulu
+  pesanan dikaitkan lewat email; sekarang lewat kunci asing.
 
-**Estimasi solo:** 3–5 minggu.
+### 1.5 Satukan etalase dan admin — ✅
+
+- [x] Etalase mengambil produk dari basis data lewat prop Inertia bersama
+      `catalog` (`ShopCatalogPresenter`), bukan `resources/js/lib/catalog.js`.
+- [x] Katalog JS statis dihapus; berkas itu kini hanya berisi bentuk data dan
+      turunannya (`useCatalog`, `findProduct`, `bestSellers`).
+- [x] Terverifikasi: ubah harga di admin → berubah di etalase, pada permintaan
+      berikutnya, untuk pengunjung yang belum masuk sekalipun.
+      Dijaga oleh `tests/Feature/StorefrontCatalogTest.php`.
+
+Etalase hanya menerima produk berstatus `aktif`, dan `status` yang dilihat
+pembeli adalah **ketersediaan**, bukan status katalog.
+
+**Selesai bila:** ~~data bertahan setelah restart, etalase dan admin sepakat,
+dan seluruh pengujian lulus dengan `RefreshDatabase`.~~ ✅ 133 pengujian lulus.
 
 ---
 
@@ -336,8 +354,8 @@ branches
   maps_url
 ```
 
-- [ ] Migrasi + model + factory.
-- [ ] Seed 10 cabang dari Lampiran A.
+- [x] Migrasi + model + factory. *(selesai di Fase 1)*
+- [x] Seed 10 cabang dari Lampiran A. *(selesai di Fase 1)*
 - [ ] **Geocoding**: dapatkan `latitude`/`longitude` setiap cabang. Untuk 10
       cabang, masukkan manual dari Google Maps — lebih cepat dan lebih akurat
       daripada memanggil API. Untuk 1.000 nanti, pakai Google Geocoding API
@@ -346,14 +364,15 @@ branches
 
 ### 2.2 Stok per cabang
 
-- [ ] `branch_stocks`: `branch_id`, `product_id`, `quantity`,
+- [x] `branch_stocks`: `branch_id`, `product_id`, `quantity`,
       `reserved_quantity`, `price_override` (nullable), `reorder_point`.
-- [ ] **Pindahkan `stock` keluar dari tabel `products`.** Ini perubahan yang
-      merambat ke admin produk, etalase, dan seluruh pengujian — kerjakan
-      sekaligus, jangan setengah.
-- [ ] Stok tersedia = `quantity − reserved_quantity`.
-- [ ] `inventory_batches` per cabang: nomor batch, kedaluwarsa, jumlah.
-- [ ] Pengambilan stok pakai **FEFO** (First Expired, First Out).
+      *(selesai di Fase 1)*
+- [x] **`stock` tidak pernah ada di tabel `products`.** Perambatannya ke admin
+      produk, etalase dan pengujian sudah dikerjakan sekaligus di Fase 1.4.
+- [x] Stok tersedia = `quantity − reserved_quantity` (`BranchStock::available`).
+- [x] `inventory_batches` per cabang: nomor batch, kedaluwarsa, jumlah.
+- [ ] Pengambilan stok pakai **FEFO** — indeksnya sudah ada
+      (`InventoryBatch::scopeFefo()`), logika pengambilannya belum ditulis.
 - [ ] `stock_transfers`: pindah barang antar cabang, dengan status
       (diminta → dikirim → diterima) dan pencatatan dua sisi.
 

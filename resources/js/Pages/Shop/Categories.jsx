@@ -6,9 +6,10 @@ import IconButton from '@/Components/Shop/IconButton';
 import IconLink from '@/Components/Shop/IconLink';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
-import { categories } from '@/Components/Shop/data';
+import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Categories() {
+    const { categories } = useShopCatalog();
     const [searching, setSearching] = useState(false);
 
     return (

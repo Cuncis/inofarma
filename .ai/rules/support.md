@@ -1,27 +1,25 @@
 ---
 paths:
   - 'app/Support/**'
-  - app/Support/CategoryStore.php
+  - 'app/Http/Controllers/Admin/**'
 ---
 
 # Support
 
-## ProductStore is the database stand-in — keep the seam clean
-Admin product CRUD is backed by `App\Support\ProductStore`, a session-backed repository seeded from `App\Support\Catalog`. There is no database yet. Writes land in the session, so they survive navigation but not a new browser or another user.
+## Referential integrity is the database's job now
+Products hold `category_id` and `supplier_id`. Both are `restrictOnDelete`, so:
 
-Swapping in a real table means reimplementing the six methods on `ProductStore` (`all/find/create/update/delete/reset`) against an Eloquent model and deleting `Catalog`. Nothing in `ProductController` or the React pages should need to change — keep controller actions talking only to the repository, never to session directly.
+- **Renaming needs no cascade.** The screens read the name through the relation, so it follows automatically. Delete any code that rewrites names across rows.
+- **Delete is refused while in use.** The controller counts first and turns a non-zero count into a `flash.error` with a readable message; MySQL would refuse it anyway. Keep both — the constraint is the guarantee, the check is the explanation.
+- **Slugs and codes are the route keys**, not ids. `/admin/produk/{sku}`, `/admin/kategori/{slug}`, `/admin/penjual/{code}`, `/admin/pelanggan/{code}`, `/admin/pesanan/{number}`.
 
-Admin product pages take `products`/`product` as Inertia props; they must not import fixtures from `@/Components/Admin/data`. That file's `products` export is now only used by non-product screens.
+Orders snapshot their lines (`product_name`, `sku`, `unit_price`) and store their own totals. Never recompute an order's money from today's catalogue.
 
-KNOWN GAP: the storefront still reads the static JS catalogue (`@/lib/catalog`), so an admin edit does not yet show up in the shop. Closing it means sharing the store globally from `HandleInertiaRequests` and converting the Shop pages to read that prop.
+## The session stores are gone — Eloquent + presenters, and the vocabulary lives in AdminOptions
+`App\Support\Catalog` and the five `*Store` classes were deleted in Fase 1.4. Do not reintroduce a session-backed repository; controllers talk to Eloquent directly.
 
-## Categories are referenced by name — the store keeps that honest
-Products store their category as a **name string**, not a foreign key. `CategoryStore` is what stops that going stale:
+Prop shaping lives in `App\Support\Presenters\*Presenter` — plain static classes, not JsonResource, so Inertia never wraps a `data` key. They emit the exact camelCase keys the React screens read (`id` is the human code: SKU, slug, or number — never the primary key).
 
-- **Rename cascades.** `update()` compares old and new name and rewrites every product in that category. Never write a category name straight to the session and skip this.
-- **Delete is refused while in use.** `delete()` returns `false` when `productCount()` is non-zero; the controller turns that into a `flash.error`, not a success. The list screen also pre-empts it — the confirm dialog explains the block instead of firing a request that will fail.
-- **Slugs are the identifier and must be unique.** `create()` runs `uniqueSlug()`, appending `-2`, `-3`… on collision. Routes are `/admin/kategori/{slug}`.
+`AdminOptions` is the only place that maps between the database's lowercase enums ('menunggu pembayaran') and the screens' Indonesian labels ('Menunggu Pembayaran'). Never hand-translate a status in a controller. `AdminOptions::stockLabel()` derives Tersedia/Stok Menipis/Habis from stock — that is a different field from a product's own status, and both are shown.
 
-The product form and `ProductRequest` validation both read `CategoryStore->names()`, never `Catalog::categories()` — otherwise a newly created category could not be assigned to a product. `Catalog::categories()` returns full records now; use `Catalog::categoryNames()` if you only want the names.
-
-When a real database arrives, swap the name column for a foreign key and these three behaviours become constraints instead of code.
+`CodeSequence::next()` and `Slug::unique()` must be handed a `withTrashed()` query: a soft-deleted row still holds its SKU/slug against the unique index.

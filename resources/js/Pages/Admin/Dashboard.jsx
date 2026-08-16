@@ -13,12 +13,12 @@ import {
     dashboardStats,
     money,
     orders,
-    products,
     revenueByPeriod,
     revenuePeriods,
     revenueTotal,
     statusTone,
 } from '@/Components/Admin/data';
+import { bestSellers, useCatalog } from '@/lib/catalog';
 
 const periodOptions = revenuePeriods.map((key) => ({
     value: key,
@@ -34,6 +34,10 @@ const orderColumns = [
 ];
 
 export default function Dashboard() {
+    // Produk terlaris diambil dari basis data, bukan fixture.
+    const { products } = useCatalog();
+    const topProducts = bestSellers(products).slice(0, 5);
+
     const [period, setPeriod] = useState('mingguan');
 
     const revenue = revenueByPeriod[period];
@@ -95,7 +99,7 @@ export default function Dashboard() {
 
                 <Card title="Produk Terlaris" action={{ label: 'Semua', href: '/admin/produk' }}>
                     <ul className="space-y-4">
-                        {products.slice(0, 5).map((product) => (
+                        {topProducts.map((product) => (
                             <li key={product.id} className="flex items-center gap-3">
                                 <img
                                     src={product.image}

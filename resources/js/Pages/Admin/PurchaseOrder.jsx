@@ -5,14 +5,17 @@ import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
 import Icon from '@/Components/Admin/Icon';
 import { Field, Input, Select, Textarea } from '@/Components/Admin/Form';
-import { money, products } from '@/Components/Admin/data';
+import { useCatalog } from '@/lib/catalog';
+import { money } from '@/Components/Admin/data';
 
 const suppliers = ['PT Kimia Farma', 'PT Kalbe Farma', 'PT Dexa Medica', 'PT Bio Farma'];
 
 export default function PurchaseOrder() {
-    const [lines, setLines] = useState([
-        { id: 1, product: products[0].name, qty: 100, price: 9000 },
-        { id: 2, product: products[1].name, qty: 50, price: 28000 },
+    const { products } = useCatalog();
+
+    const [lines, setLines] = useState(() => [
+        { id: 1, product: products[0]?.name ?? '', qty: 100, price: 9000 },
+        { id: 2, product: products[1]?.name ?? '', qty: 50, price: 28000 },
     ]);
 
     const update = (id, patch) =>
@@ -23,7 +26,7 @@ export default function PurchaseOrder() {
     const addLine = () =>
         setLines((current) => [
             ...current,
-            { id: Math.max(0, ...current.map((line) => line.id)) + 1, product: products[0].name, qty: 1, price: 0 },
+            { id: Math.max(0, ...current.map((line) => line.id)) + 1, product: products[0]?.name ?? '', qty: 1, price: 0 },
         ]);
 
     const total = lines.reduce((sum, line) => sum + line.qty * line.price, 0);

@@ -5,9 +5,10 @@ import AppBar from '@/Components/Shop/AppBar';
 import IconLink from '@/Components/Shop/IconLink';
 import ProductCard from '@/Components/Shop/ProductCard';
 import TabBar from '@/Components/Shop/TabBar';
-import { wishlistProducts } from '@/Components/Shop/data';
+import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Wishlist() {
+    const { wishlistProducts } = useShopCatalog();
     const [products, setProducts] = useState(wishlistProducts);
 
     /**

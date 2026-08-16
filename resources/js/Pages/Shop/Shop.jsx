@@ -8,7 +8,7 @@ import IconLink from '@/Components/Shop/IconLink';
 import ProductCard from '@/Components/Shop/ProductCard';
 import SearchBar from '@/Components/Shop/SearchBar';
 import TabBar from '@/Components/Shop/TabBar';
-import { filterCategories, shopProducts } from '@/Components/Shop/data';
+import { useShopCatalog } from '@/Components/Shop/data';
 
 /**
  * Seed the field from `?q=` so a search can be linked to and survives a reload.
@@ -23,6 +23,7 @@ function initialQuery(url) {
 }
 
 export default function Shop() {
+    const { filterCategories, shopProducts } = useShopCatalog();
     const { url } = usePage();
     const [query, setQuery] = useState(() => initialQuery(url));
     const [category, setCategory] = useState('Semua');
@@ -39,7 +40,7 @@ export default function Shop() {
 
             return matchesCategory && matchesQuery;
         });
-    }, [query, category]);
+    }, [query, category, shopProducts]);
 
     const searching = query.trim().length > 0 || category !== 'Semua';
 

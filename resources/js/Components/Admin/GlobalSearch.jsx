@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { router } from '@inertiajs/react';
 import Icon from './Icon';
+import { useCatalog } from '@/lib/catalog';
 import { searchAdmin } from './search';
 
 /**
@@ -17,7 +18,8 @@ export default function GlobalSearch() {
     const holder = useRef(null);
     const field = useRef(null);
 
-    const results = useMemo(() => searchAdmin(query), [query]);
+    const catalog = useCatalog();
+    const results = useMemo(() => searchAdmin(query, catalog), [query, catalog]);
 
     // Reset the highlight whenever the result set changes under it.
     useEffect(() => setActive(0), [query]);

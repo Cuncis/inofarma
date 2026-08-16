@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { router } from '@inertiajs/react';
 import Icon from './Icon';
-import { shopProducts } from './data';
+import { useShopCatalog } from './data';
 
 /**
  * Full-frame search.
@@ -13,6 +13,7 @@ import { shopProducts } from './data';
  * @param {{ open: boolean, onClose: () => void }} props
  */
 export default function SearchOverlay({ open, onClose }) {
+    const { shopProducts } = useShopCatalog();
     const [query, setQuery] = useState('');
     const field = useRef(null);
 
@@ -53,7 +54,7 @@ export default function SearchOverlay({ open, onClose }) {
                 product.name.toLowerCase().includes(needle) ||
                 product.category.toLowerCase().includes(needle),
         );
-    }, [query]);
+    }, [query, shopProducts]);
 
     if (! open) {
         return null;
