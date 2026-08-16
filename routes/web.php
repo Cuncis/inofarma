@@ -1,12 +1,18 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\BranchController as AdminBranchController;
+use App\Http\Controllers\Admin\BranchStockController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SellerController;
+use App\Http\Controllers\Admin\StockMatrixController;
+use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Shop\BranchController as ShopBranchController;
+use App\Http\Controllers\Shop\LocationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -30,9 +36,6 @@ $adminScreens = [
     'atribut' => 'AttributeList',
     'atribut/tambah' => 'AttributeAdd',
     'atribut/ubah' => 'AttributeEdit',
-
-    'inventaris/gudang' => 'InventoryWarehouse',
-    'inventaris/pesanan-masuk' => 'InventoryReceivedOrders',
 
     'pembelian' => 'PurchaseList',
     'pembelian/order' => 'PurchaseOrder',
@@ -149,6 +152,46 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
             Route::delete('{product}', 'destroy')->name('destroy');
         });
 
+        /**
+         * Branch CRUD. A branch with stock on its shelves or orders in its
+         * history cannot be deleted, only closed.
+         */
+        Route::prefix('cabang')->name('cabang.')->controller(AdminBranchController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::post('reset', 'reset')->name('reset');
+            Route::get('{branch}', 'show')->name('show');
+            Route::get('{branch}/ubah', 'edit')->name('edit');
+            Route::put('{branch}', 'update')->name('update');
+            Route::delete('{branch}', 'destroy')->name('destroy');
+        });
+
+        /**
+         * Inventory across branches: per-branch stock (view/adjust/receive), the
+         * product × branch matrix, and stock transfers between branches.
+         */
+        Route::prefix('inventaris')->name('inventaris.')->group(function () {
+            Route::prefix('stok')->name('stok.')->controller(BranchStockController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('{branch}', 'show')->name('show');
+                Route::post('{branch}/{product}/sesuaikan', 'adjust')->name('adjust');
+                Route::post('{branch}/{product}/terima', 'receive')->name('receive');
+            });
+
+            Route::get('matriks', [StockMatrixController::class, 'index'])->name('matriks');
+
+            Route::prefix('transfer')->name('transfer.')->controller(StockTransferController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('tambah', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('{transfer}', 'show')->name('show');
+                Route::post('{transfer}/kirim', 'ship')->name('ship');
+                Route::post('{transfer}/terima', 'receive')->name('receive');
+                Route::post('{transfer}/batalkan', 'cancel')->name('cancel');
+            });
+        });
+
         foreach ($adminScreens as $slug => $component) {
             $path = $slug === '/' ? '/' : $slug;
             $name = $slug === '/' ? 'dashboard' : str_replace('/', '.', $slug);
@@ -242,6 +285,17 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
 
         return redirect()->route('ui.signin');
     })->name('signout');
+
+    /**
+     * "Cabang Kami" — every branch, nearest first once we know where the
+     * shopper is. The location itself is saved through `LocationController`,
+     * not through this page, so it can be set from anywhere (the geolocation
+     * prompt, the product page's branch picker) and not just from here.
+     */
+    Route::get('cabang-kami', [ShopBranchController::class, 'index'])->name('cabang-kami');
+
+    Route::post('lokasi', [LocationController::class, 'store'])->name('lokasi.store');
+    Route::delete('lokasi', [LocationController::class, 'destroy'])->name('lokasi.destroy');
 });
 
 Route::middleware('auth')->group(function () {

@@ -65,7 +65,9 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Single pharmacy chain, Indonesia only — every branch, order deadline and
+    // "buka sekarang?" check reads clock time against this zone.
+    'timezone' => 'Asia/Jakarta',
 
     /*
     |--------------------------------------------------------------------------

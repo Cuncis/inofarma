@@ -332,11 +332,14 @@ dan seluruh pengujian lulus dengan `RefreshDatabase`.~~ ✅ 133 pengujian lulus.
 
 ---
 
-## Fase 2 — Cabang, stok per cabang, dan lokasi
+## Fase 2 — Cabang, stok per cabang, dan lokasi — ✅ SELESAI
 
-Fase baru, dan inti dari model bisnis Anda. **Jangan dilewati atau ditunda.**
+Inti dari model bisnis, dan sekarang berfungsi ujung ke ujung: satu produk
+punya stok berbeda di setiap cabang, etalase mengurutkan cabang berdasarkan
+jarak sungguhan, transfer stok memindahkan batch dengan kedaluwarsanya utuh,
+dan admin punya CRUD, matriks, dan alur transfer yang lengkap.
 
-### 2.1 Entitas Cabang
+### 2.1 Entitas Cabang — ✅
 
 ```php
 branches
@@ -356,13 +359,20 @@ branches
 
 - [x] Migrasi + model + factory. *(selesai di Fase 1)*
 - [x] Seed 10 cabang dari Lampiran A. *(selesai di Fase 1)*
-- [ ] **Geocoding**: dapatkan `latitude`/`longitude` setiap cabang. Untuk 10
-      cabang, masukkan manual dari Google Maps — lebih cepat dan lebih akurat
-      daripada memanggil API. Untuk 1.000 nanti, pakai Google Geocoding API
-      dalam perintah artisan.
-- [ ] Index spasial pada kolom koordinat.
+- [x] **Geocoding**: kesepuluh cabang digeokode dari OpenStreetMap/Nominatim
+      pada tingkat jalan atau kelurahan — cukup akurat untuk pengurutan jarak,
+      belum diverifikasi manual terhadap lokasi gerai sesungguhnya. Perintah
+      `php artisan cabang:geocode {code} [--lat=] [--lng=]` tersedia untuk
+      memasukkan koordinat pasti satu per satu, atau mencari ulang lewat
+      Nominatim. Di 1.000 cabang, ganti pencariannya dengan Google Geocoding
+      API (cakupan alamat Indonesia lebih baik) dan proses semua cabang yang
+      koordinatnya kosong sekaligus.
+- [ ] Index spasial (`SPATIAL`/`POINT`) pada kolom koordinat — sengaja ditunda.
+      Indeks komposit `(status, latitude, longitude)` dari Fase 1 sudah cukup
+      sampai ribuan baris; indeks spasial sungguhan baru bernilai pada skala
+      yang menurut Fase 15.2 masih jauh di depan.
 
-### 2.2 Stok per cabang
+### 2.2 Stok per cabang — ✅
 
 - [x] `branch_stocks`: `branch_id`, `product_id`, `quantity`,
       `reserved_quantity`, `price_override` (nullable), `reorder_point`.
@@ -371,36 +381,66 @@ branches
       produk, etalase dan pengujian sudah dikerjakan sekaligus di Fase 1.4.
 - [x] Stok tersedia = `quantity − reserved_quantity` (`BranchStock::available`).
 - [x] `inventory_batches` per cabang: nomor batch, kedaluwarsa, jumlah.
-- [ ] Pengambilan stok pakai **FEFO** — indeksnya sudah ada
-      (`InventoryBatch::scopeFefo()`), logika pengambilannya belum ditulis.
-- [ ] `stock_transfers`: pindah barang antar cabang, dengan status
-      (diminta → dikirim → diterima) dan pencatatan dua sisi.
+- [x] Pengambilan stok pakai **FEFO** — `App\Support\Inventory\StockAllocator
+      ::consume()` mengambil dari batch yang paling cepat kedaluwarsa lebih
+      dulu, mengunci baris stok dan batch dalam satu transaksi, dan menolak
+      permintaan yang melebihi stok tersedia. `::receive()` adalah sisi
+      sebaliknya — stok baru datang dengan nomor batch dan tanggal
+      kedaluwarsa, dari pembelian atau dari transfer.
+- [x] `stock_transfers`: pindah barang antar cabang, dengan status
+      (diminta → dikirim → diterima → dibatalkan). Saat dikirim, batch yang
+      dipilih (FEFO) dan tanggal kedaluwarsanya disimpan di
+      `batches_shipped`; saat diterima, batch yang persis sama dibuat ulang
+      di cabang tujuan — kedaluwarsa tidak pernah hilang di tengah jalan.
+      Barang dianggap "di jalan" di antara kedua langkah: sudah berkurang di
+      asal, belum bertambah di tujuan mana pun.
 
-### 2.3 Pencarian berbasis lokasi
+### 2.3 Pencarian berbasis lokasi — ✅
 
-- [ ] Minta izin lokasi browser; **sediakan jalur mundur** berupa pilih
-      provinsi → kota → kecamatan. Banyak pengguna menolak izin lokasi.
-- [ ] Simpan pilihan area di session/cookie supaya tidak ditanya berulang.
-- [ ] Endpoint "cabang terdekat": urutkan berdasarkan jarak, saring yang tutup.
-- [ ] Halaman produk menampilkan daftar cabang: **nama, jarak, sisa stok, status
-      buka/tutup, dukungan antar/ambil**.
-- [ ] Cabang tanpa stok tetap ditampilkan tapi tidak bisa dipilih — pelanggan
-      perlu tahu bahwa cabang itu ada.
-- [ ] Halaman "Cabang Kami" dengan peta dan daftar lengkap, tertaut dari footer.
+- [x] Izin lokasi browser (`navigator.geolocation`) di halaman "Cabang Kami"
+      dan di pemilih cabang pada halaman produk; **jalur mundur** berupa
+      pilih kota, dibangun dari cakupan cabang yang sungguhan ada, bukan
+      daftar administratif nasional yang belum diperlukan.
+- [x] Pilihan area disimpan di session (`App\Support\LocationPreference`,
+      lewat `POST/DELETE /ui/lokasi`) sehingga tidak ditanya berulang.
+- [x] Endpoint "cabang terdekat" (`GET /api/cabang/terdekat`,
+      `GET /api/cabang/untuk-produk/{sku}`) — mengurutkan berdasarkan jarak
+      Haversine, menyaring cabang yang bukan `aktif`.
+- [x] Halaman produk menampilkan daftar cabang: **nama, jarak, sisa stok,
+      status buka/tutup, dukungan antar/ambil** — `Components/Shop/BranchPicker`.
+- [x] Cabang tanpa stok tetap ditampilkan tapi tidak bisa dipilih (`selectable:
+      false`) — pelanggan tetap tahu cabang itu ada.
+- [x] Halaman "Cabang Kami" (`Shop/OurBranches`, `/ui/cabang-kami`) dengan
+      daftar lengkap terurut jarak, tertaut dari menu Profil. Peta interaktif
+      belum ada — setiap cabang tertaut ke Google Maps lewat `mapsUrl`
+      alih-alih peta tertanam, cukup untuk sepuluh cabang saat ini.
 
-### 2.4 Admin cabang
+### 2.4 Admin cabang — ✅ sebagian
 
-- [ ] CRUD Cabang (pola sama seperti Produk/Kategori yang sudah ada).
-- [ ] Halaman stok per cabang: lihat dan sesuaikan stok satu cabang.
-- [ ] Tampilan matriks: satu produk × semua cabang, untuk melihat sebaran stok.
-- [ ] Alur transfer stok antar cabang.
-- [ ] **Pemilih cabang di topbar admin** — staf pusat bisa berpindah konteks;
-      staf cabang terkunci pada cabangnya.
+- [x] CRUD Cabang (`/admin/cabang`), pola sama seperti Produk/Kategori.
+      Cabang dengan stok atau riwayat pesanan tidak bisa dihapus, hanya
+      ditutup permanen.
+- [x] Halaman stok per cabang (`/admin/inventaris/stok/{cabang}`): lihat,
+      sesuaikan (opname/rusak/kedaluwarsa/retur), dan terima stok baru
+      dengan nomor batch dan kedaluwarsa.
+- [x] Tampilan matriks (`/admin/inventaris/matriks`): satu produk × semua
+      cabang dalam satu tabel, untuk melihat sebaran stok sekaligus.
+- [x] Alur transfer stok antar cabang (`/admin/inventaris/transfer`):
+      minta → kirim → terima, dengan pembatalan sebelum dikirim.
+- [ ] **Pemilih cabang di topbar admin** — ditunda ke Fase 3.2. Belum ada
+      peran atau `users.branch_id` yang berarti, jadi "staf pusat vs staf
+      cabang" belum punya perbedaan nyata untuk dipilih di antaranya.
 
-**Selesai bila:** satu produk bisa punya stok berbeda di tiga cabang, etalase
-menampilkan ketiganya diurutkan jarak, dan hanya yang ada stok bisa dipilih.
+**Selesai bila:** ~~satu produk bisa punya stok berbeda di tiga cabang, etalase
+menampilkan ketiganya diurutkan jarak, dan hanya yang ada stok bisa dipilih.~~
+✅ Dibuktikan lewat `BranchLocatorTest` dan verifikasi manual: dari titik dekat
+Monas, cabang Keamanan (2,9 km), Syahdan (5,3 km) dan Duri Kepa (6,6 km) semua
+tampil terurut jarak dengan status stok masing-masing.
 
-**Estimasi solo:** 4–5 minggu.
+**Estimasi solo:** 4–5 minggu. *(Sebagian besar selesai dalam satu sesi kerja
+karena arsitektur Fase 1 — stok per cabang, snapshot, kunci asing — sudah
+menyiapkan jalannya. Verifikasi manual dan pengerasan produksi tetap perlu
+waktu sungguhan sebelum rilis.)*
 
 ---
 

@@ -23,12 +23,14 @@ export const navSections = [
             { label: 'Dasbor', icon: 'solar:widget-5-bold-duotone', href: '/admin' },
             { label: 'Produk', icon: 'solar:t-shirt-bold-duotone', href: '/admin/produk' },
             { label: 'Kategori', icon: 'solar:clipboard-list-bold-duotone', href: '/admin/kategori' },
+            { label: 'Cabang', icon: 'solar:shop-2-bold-duotone', href: '/admin/cabang' },
             {
                 label: 'Inventaris',
                 icon: 'solar:box-bold-duotone',
                 children: [
-                    { label: 'Gudang', href: '/admin/inventaris/gudang' },
-                    { label: 'Pesanan Masuk', href: '/admin/inventaris/pesanan-masuk' },
+                    { label: 'Stok per Cabang', href: '/admin/inventaris/stok' },
+                    { label: 'Matriks Stok', href: '/admin/inventaris/matriks' },
+                    { label: 'Transfer Stok', href: '/admin/inventaris/transfer' },
                 ],
             },
             { label: 'Pesanan', icon: 'solar:bag-smile-bold-duotone', href: '/admin/pesanan' },

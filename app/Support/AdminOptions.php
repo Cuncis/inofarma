@@ -53,6 +53,28 @@ class AdminOptions
         'Ambil' => 'ambil',
     ];
 
+    public const BRANCH_STATUSES = [
+        'Aktif' => 'aktif',
+        'Tutup Sementara' => 'tutup sementara',
+        'Tutup Permanen' => 'tutup permanen',
+    ];
+
+    public const STOCK_TRANSFER_STATUSES = [
+        'Diminta' => 'diminta',
+        'Dikirim' => 'dikirim',
+        'Diterima' => 'diterima',
+        'Dibatalkan' => 'dibatalkan',
+    ];
+
+    /** Reasons a manual stock adjustment can give, mapped onto a movement type. */
+    public const ADJUSTMENT_REASONS = [
+        'Penyesuaian (stok opname)' => 'penyesuaian',
+        'Rusak' => 'rusak',
+        'Kedaluwarsa' => 'kedaluwarsa',
+        'Retur dari pelanggan' => 'retur masuk',
+        'Retur ke pemasok' => 'retur keluar',
+    ];
+
     /**
      * Sale units. Not an enum in the database — a pharmacy adds units over time,
      * so this is a suggestion list, validated but cheap to extend.

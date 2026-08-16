@@ -12,6 +12,8 @@ Icons are baked in, not fetched. `Components/Admin/iconData.js` holds SVG bodies
 
 Colours come from `admin.*` tokens with `dark:admin-dark-*` counterparts; every surface needs both. Bright `success`/`warning` are fills only — use `-deep` shades for text and `text-ink` on solid green/orange.
 
-Routes live in the `$adminScreens` map in `routes/web.php` and must stay in sync with `Components/Admin/nav.js`. Paths are Indonesian slugs (`/admin/produk/ubah`).
+Routes live in the `$adminScreens` map in `routes/web.php` for the remaining static-content screens; real entities (Produk, Kategori, Cabang, Penjual, Pelanggan, Pesanan, and the Inventaris group) have their own controllers and route groups instead — both must stay in sync with `Components/Admin/nav.js`. Paths are Indonesian slugs (`/admin/produk/ubah`).
 
-Interactivity is prototype-level: local `useState`, `router.visit()` on submit, no persistence.
+Since Fase 1.4, list/detail/form screens for real entities read and write the database through Inertia — not local `useState` fixtures. `Components/Admin/data.js` still holds fixtures, but only for screens whose feature doesn't exist yet (invoices, purchasing, coupons, chat); don't add a real entity's data there.
+
+`Components/Admin/Modal.jsx` is the shell for a dialog that holds a form (as opposed to `ConfirmDialog`, which is yes/no only) — see `BranchStockDetail.jsx`'s adjust/receive dialogs for the pattern.

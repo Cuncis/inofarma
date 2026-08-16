@@ -196,6 +196,25 @@ export const sellers = [
     { id: 'SEL-005', name: 'Apotek Melati', owner: 'Anisa Rahmawati', logo: img.seller('zara'), city: 'Medan', status: 'Nonaktif' },
 ];
 
+/**
+ * Branch fixtures kept in step with `Database\Seeders\BranchSeeder`.
+ *
+ * The branch screens read the database; this list only feeds the global
+ * search index, so the ids must match or search would link nowhere.
+ */
+export const branches = [
+    { id: 'CB-001', name: 'Apotek Inofarma Kapten Yusuf', kota: 'Kota Bogor' },
+    { id: 'CB-002', name: 'Apotek Inofarma Otista', kota: 'Kota Tangerang Selatan' },
+    { id: 'CB-003', name: 'Apotek Inofarma Darul Fallah', kota: 'Jakarta Selatan' },
+    { id: 'CB-004', name: 'Apotek Inofarma Parakan', kota: 'Kota Tangerang Selatan' },
+    { id: 'CB-005', name: 'Apotek Inofarma Syahdan', kota: 'Jakarta Barat' },
+    { id: 'CB-006', name: 'Apotek Inofarma Taruna Jaya', kota: 'Jakarta Timur' },
+    { id: 'CB-007', name: 'Apotek Inofarma Keamanan', kota: 'Jakarta Barat' },
+    { id: 'CB-008', name: 'Apotek Inofarma Pulo Gebang', kota: 'Jakarta Timur' },
+    { id: 'CB-009', name: 'Apotek Inofarma Duri Kepa', kota: 'Jakarta Barat' },
+    { id: 'CB-010', name: 'Apotek Inofarma Kebagusan', kota: 'Jakarta Selatan' },
+];
+
 
 /**
  * Map a fixture status word onto a Badge tone.
@@ -289,19 +308,6 @@ export const purchaseReturns = [
     { number: 'RTN-0231', supplier: 'PT Kimia Farma', date: '13 Agu 2025', items: 3, total: 640000, reason: 'Kemasan rusak', status: 'Disetujui' },
     { number: 'RTN-0230', supplier: 'PT Kalbe Farma', date: '10 Agu 2025', items: 1, total: 125000, reason: 'Mendekati kedaluwarsa', status: 'Diproses' },
     { number: 'RTN-0229', supplier: 'PT Dexa Medica', date: '06 Agu 2025', items: 6, total: 1830000, reason: 'Salah kirim', status: 'Disetujui' },
-];
-
-export const warehouses = [
-    { name: 'Gudang Jakarta', city: 'Jakarta Barat', manager: 'Kirana Wijaya', capacity: 82, items: 4820, status: 'Aktif' },
-    { name: 'Gudang Bandung', city: 'Bandung', manager: 'Rizky Ananda', capacity: 61, items: 2140, status: 'Aktif' },
-    { name: 'Gudang Surabaya', city: 'Surabaya', manager: 'Dinda Puspita', capacity: 94, items: 7630, status: 'Hampir Penuh' },
-    { name: 'Gudang Medan', city: 'Medan', manager: 'Bagas Saputra', capacity: 24, items: 980, status: 'Aktif' },
-];
-
-export const receivedOrders = [
-    { number: 'PO-1043', supplier: 'PT Kimia Farma', received: '14 Agu 2025', items: 12, warehouse: 'Gudang Jakarta', status: 'Selesai' },
-    { number: 'PO-1042', supplier: 'PT Kalbe Farma', received: '11 Agu 2025', items: 8, warehouse: 'Gudang Bandung', status: 'Sebagian' },
-    { number: 'PO-1039', supplier: 'PT Sanbe Farma', received: '05 Agu 2025', items: 15, warehouse: 'Gudang Surabaya', status: 'Selesai' },
 ];
 
 export const productReviews = [

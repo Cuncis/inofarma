@@ -118,6 +118,36 @@ const paths = {
             <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="1.5" />
         </>
     ),
+    clock: (
+        <>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+            <polyline
+                points="12 6 12 12 16.5 14.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </>
+    ),
+    phone: (
+        <path
+            d="M6.6 10.8c1.3 2.6 3.4 4.7 6 6l2-2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .5 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.9c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1l-2.1 2z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    ),
+    navigation: (
+        <path
+            d="M3 11l18-8-8 18-2.5-7.5L3 11z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    ),
     promo: (
         <>
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />

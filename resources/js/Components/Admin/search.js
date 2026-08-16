@@ -1,4 +1,4 @@
-import { customers, invoices, orders, sellers } from './data';
+import { branches, customers, invoices, orders, sellers } from './data';
 import { allNavLinks } from './nav';
 
 /**
@@ -11,6 +11,9 @@ import { allNavLinks } from './nav';
 const actionPages = [
     { label: 'Tambah Produk', href: '/admin/produk/tambah' },
     { label: 'Tambah Kategori', href: '/admin/kategori/tambah' },
+    { label: 'Tambah Cabang', href: '/admin/cabang/tambah' },
+    { label: 'Buat Transfer Stok', href: '/admin/inventaris/transfer/tambah' },
+    { label: 'Matriks Stok', href: '/admin/inventaris/matriks' },
     { label: 'Tambah Atribut', href: '/admin/atribut/tambah' },
     { label: 'Ubah Atribut', href: '/admin/atribut/ubah' },
     { label: 'Buat Faktur', href: '/admin/faktur/tambah' },
@@ -57,6 +60,14 @@ export function buildSearchIndex(catalog) {
         meta: `${category.products} produk`,
         href: `/admin/kategori/${category.slug}`,
         icon: 'solar:clipboard-list-bold-duotone',
+    })),
+
+    ...branches.map((branch) => ({
+        group: 'Cabang',
+        label: branch.name,
+        meta: `${branch.id} · ${branch.kota}`,
+        href: `/admin/cabang/${branch.id}`,
+        icon: 'solar:shop-2-bold-duotone',
     })),
 
     ...orders.map((order) => ({

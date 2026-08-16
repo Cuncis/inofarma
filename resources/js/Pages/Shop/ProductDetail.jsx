@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import Button from '@/Components/Shop/Button';
 import Icon from '@/Components/Shop/Icon';
+import BranchPicker from '@/Components/Shop/BranchPicker';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
 import { findProduct, money, reviews, useShopCatalog } from '@/Components/Shop/data';
@@ -111,18 +112,7 @@ export default function ProductDetail() {
                     </div>
                 </div>
 
-                <div className="mb-3.5 flex items-center gap-2 border border-line bg-lilac px-3 py-2.5">
-                    <Icon
-                        name="check"
-                        size={16}
-                        className={product.stock > 0 ? 'text-success-deep' : 'text-brand'}
-                    />
-                    <span className="text-[11px] text-muted">
-                        {product.stock > 0
-                            ? `Stok tersedia — ${product.stock} ${product.unit.toLowerCase()}`
-                            : 'Stok sedang kosong'}
-                    </span>
-                </div>
+                <BranchPicker productId={product.id} />
 
                 <Button href="/ui/cart" className="mb-2">
                     Masukkan ke Keranjang

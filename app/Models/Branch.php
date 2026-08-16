@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Satu apotek fisik dengan izin dan apoteker penanggung jawab sendiri.
@@ -91,5 +93,36 @@ class Branch extends Model
             $this->provinsi,
             $this->postal_code,
         ])->filter()->implode(', ');
+    }
+
+    /** Indonesian day key for each ISO weekday, matching `operating_hours`. */
+    private const DAY_KEYS = [
+        0 => 'minggu', 1 => 'senin', 2 => 'selasa', 3 => 'rabu',
+        4 => 'kamis', 5 => 'jumat', 6 => 'sabtu',
+    ];
+
+    /**
+     * Whether the branch's posted hours cover a given moment.
+     *
+     * Only the hours are checked here — `status` (tutup sementara/permanen)
+     * is a separate fact, checked by {@see getIsOpenNowAttribute()}.
+     */
+    public function isOpenAt(CarbonInterface $at): bool
+    {
+        $hours = $this->operating_hours[self::DAY_KEYS[$at->dayOfWeek]] ?? null;
+
+        if (! $hours) {
+            return false;
+        }
+
+        $open = Carbon::parse($at->toDateString().' '.$hours['open'], $at->timezone);
+        $close = Carbon::parse($at->toDateString().' '.$hours['close'], $at->timezone);
+
+        return $at->between($open, $close);
+    }
+
+    public function getIsOpenNowAttribute(): bool
+    {
+        return $this->status === 'aktif' && $this->isOpenAt(now());
     }
 }

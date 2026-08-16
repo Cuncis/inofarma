@@ -9,9 +9,12 @@ use Illuminate\Support\Str;
 /**
  * Sepuluh cabang Jabodetabek yang beroperasi saat ini.
  *
- * KOORDINAT MASIH KOSONG. Seluruh fitur "cabang terdekat" bergantung padanya,
- * jadi isi manual dari Google Maps sebelum Fase 2.3 — satu koordinat salah
- * berarti pelanggan diarahkan ke cabang yang jauh.
+ * Koordinat diisi dari pencarian OpenStreetMap/Nominatim pada tingkat
+ * jalan atau kelurahan — cukup akurat untuk mengurutkan "cabang terdekat" dan
+ * menghitung radius pengantaran, tapi belum diverifikasi manual terhadap lokasi
+ * gerai yang sesungguhnya. Perbaiki lewat `php artisan cabang:geocode --code=
+ * CB-00X --lat=... --lng=...` begitu koordinat pasti tersedia (mis. dari plus
+ * code Google Maps gerai), atau langsung lewat halaman Ubah Cabang di admin.
  */
 class BranchSeeder extends Seeder
 {
@@ -27,12 +30,13 @@ class BranchSeeder extends Seeder
             'minggu' => ['open' => '09:00', 'close' => '20:00'],
         ];
 
-        foreach ($this->branches() as $index => $branch) {
+        foreach ($this->branches() as $branch) {
             Branch::updateOrCreate(
                 ['code' => $branch['code']],
                 [
                     ...$branch,
                     'slug' => Str::slug(Str::after($branch['name'], 'Apotek Inofarma ')),
+                    'maps_url' => "https://www.google.com/maps?q={$branch['latitude']},{$branch['longitude']}",
                     'operating_hours' => $hours,
                     'supports_delivery' => true,
                     'supports_pickup' => true,
@@ -58,6 +62,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Kota Bogor',
                 'provinsi' => 'Jawa Barat',
                 'postal_code' => null,
+                'latitude' => -6.6140010,
+                'longitude' => 106.7881897,
             ],
             [
                 'code' => 'CB-002',
@@ -68,6 +74,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Kota Tangerang Selatan',
                 'provinsi' => 'Banten',
                 'postal_code' => '15411',
+                'latitude' => -6.3253490,
+                'longitude' => 106.7424423,
             ],
             [
                 'code' => 'CB-003',
@@ -78,6 +86,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Selatan',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '12260',
+                'latitude' => -6.2300814,
+                'longitude' => 106.7530005,
             ],
             [
                 'code' => 'CB-004',
@@ -88,6 +98,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Kota Tangerang Selatan',
                 'provinsi' => 'Banten',
                 'postal_code' => '15416',
+                'latitude' => -6.3405289,
+                'longitude' => 106.7100816,
             ],
             [
                 'code' => 'CB-005',
@@ -98,6 +110,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Barat',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '11480',
+                'latitude' => -6.2005849,
+                'longitude' => 106.7861345,
             ],
             [
                 'code' => 'CB-006',
@@ -108,6 +122,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Timur',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '13720',
+                'latitude' => -6.3611927,
+                'longitude' => 106.8846432,
             ],
             [
                 'code' => 'CB-007',
@@ -118,6 +134,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Barat',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '11130',
+                'latitude' => -6.1517789,
+                'longitude' => 106.8157163,
             ],
             [
                 'code' => 'CB-008',
@@ -128,6 +146,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Timur',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '13950',
+                'latitude' => -6.1994676,
+                'longitude' => 106.9547933,
             ],
             [
                 'code' => 'CB-009',
@@ -138,6 +158,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Barat',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '11510',
+                'latitude' => -6.1662147,
+                'longitude' => 106.7678455,
             ],
             [
                 'code' => 'CB-010',
@@ -148,6 +170,8 @@ class BranchSeeder extends Seeder
                 'kota' => 'Jakarta Selatan',
                 'provinsi' => 'DKI Jakarta',
                 'postal_code' => '12520',
+                'latitude' => -6.3113488,
+                'longitude' => 106.8261007,
             ],
         ];
     }
