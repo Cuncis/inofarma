@@ -63,9 +63,18 @@ class Customer extends Authenticatable
         return $query->where('status', 'aktif');
     }
 
-    /** Total belanja seumur hidup, dihitung dari pesanan yang benar-benar selesai. */
+    /**
+     * Total belanja seumur hidup.
+     *
+     * Menghitung setiap pesanan yang masih berlaku, termasuk yang belum dibayar
+     * atau masih diproses — angka ini dipakai untuk menilai nilai pelanggan,
+     * jadi pesanan yang sedang berjalan tetap dihitung. Yang dibatalkan dan yang
+     * kedaluwarsa tidak, karena uangnya memang tidak pernah berpindah.
+     */
     public function getLifetimeSpendAttribute(): int
     {
-        return (int) $this->orders()->where('status', 'selesai')->sum('grand_total');
+        return (int) $this->orders()
+            ->whereNotIn('status', ['dibatalkan', 'kedaluwarsa'])
+            ->sum('grand_total');
     }
 }

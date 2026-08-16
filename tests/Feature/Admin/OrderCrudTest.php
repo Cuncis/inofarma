@@ -2,19 +2,21 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Support\Catalog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class OrderCrudTest extends TestCase
 {
-    use SignsInAsAdmin;
+    use RefreshDatabase, SeedsDemoCatalogue, SignsInAsAdmin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->seed();
         $this->signInAsAdmin();
     }
 
@@ -25,6 +27,8 @@ class OrderCrudTest extends TestCase
     {
         return array_merge([
             'customerEmail' => 'anisa.rahmawati@mail.com',
+            'branch' => 'CB-001',
+            'fulfilment' => 'Antar',
             'payment' => 'GoPay',
             'status' => 'Diproses',
             'shipping' => 20000,
@@ -42,13 +46,23 @@ class OrderCrudTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/OrderList')
-                ->has('orders', count(Catalog::orders()))
+                ->has('orders', self::ORDER_COUNT)
                 ->where('orders.0.id', 'INO-2451')
                 ->where('orders.0.customerName', 'Kirana Wijaya')
                 // 12*12500 + 6*45000 + 2*18500 = 457000, plus 25000 shipping
                 ->where('orders.0.subtotal', 457000)
                 ->where('orders.0.total', 482000)
                 ->where('orders.0.itemCount', 20)
+            );
+    }
+
+    public function test_every_order_names_the_branch_it_came_from(): void
+    {
+        $this->get('/admin/pesanan')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('orders.0.branch')
+                ->has('orders.0.branchName')
+                ->where('orders.0.fulfilment', 'Antar')
             );
     }
 
@@ -65,7 +79,28 @@ class OrderCrudTest extends TestCase
                 ->where('order.customerEmail', 'anisa.rahmawati@mail.com')
                 ->where('order.subtotal', 175000)
                 ->where('order.total', 195000)
+                ->where('order.branch', 'CB-001')
             );
+    }
+
+    public function test_an_order_can_be_collected_at_the_branch(): void
+    {
+        $this->post('/admin/pesanan', $this->validPayload([
+            'fulfilment' => 'Ambil',
+            'shipping' => 0,
+        ]))->assertSessionHasNoErrors();
+
+        $this->get('/admin/pesanan/INO-2452')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('order.fulfilment', 'Ambil')
+                ->where('order.total', 175000)
+            );
+    }
+
+    public function test_an_order_must_name_a_real_branch(): void
+    {
+        $this->post('/admin/pesanan', $this->validPayload(['branch' => 'CB-999']))
+            ->assertSessionHasErrors(['branch' => 'Cabang ini tidak terdaftar.']);
     }
 
     public function test_line_items_snapshot_the_product_name_and_price(): void
@@ -87,7 +122,6 @@ class OrderCrudTest extends TestCase
             'status' => 'Aktif',
             'price' => 99000,
             'oldPrice' => null,
-            'stock' => 480,
             'prescription' => false,
             'blurb' => '',
         ])->assertSessionHasNoErrors();
@@ -146,7 +180,7 @@ class OrderCrudTest extends TestCase
 
         $this->get('/admin/pesanan')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('orders', count(Catalog::orders()))
+                ->has('orders', self::ORDER_COUNT)
             );
     }
 
@@ -163,11 +197,15 @@ class OrderCrudTest extends TestCase
     {
         $this->post('/admin/pesanan', [
             'customerEmail' => 'tidak.terdaftar@mail.com',
+            'branch' => '',
+            'fulfilment' => 'Kirim Burung',
             'payment' => 'Barter',
             'status' => 'Entah',
             'shipping' => -1,
             'items' => [],
-        ])->assertSessionHasErrors(['customerEmail', 'payment', 'status', 'shipping', 'items']);
+        ])->assertSessionHasErrors([
+            'customerEmail', 'branch', 'fulfilment', 'payment', 'status', 'shipping', 'items',
+        ]);
     }
 
     public function test_an_order_must_have_at_least_one_item(): void
@@ -226,7 +264,7 @@ class OrderCrudTest extends TestCase
 
         $this->get('/admin/pesanan')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('orders', count(Catalog::orders()))
+                ->has('orders', self::ORDER_COUNT)
             );
     }
 }

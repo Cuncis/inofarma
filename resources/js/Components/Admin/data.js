@@ -1,12 +1,15 @@
 import { money } from '@/lib/format';
-import { catalogProducts, categoriesWithCounts, media } from '@/lib/catalog';
+import { media } from '@/lib/media';
 
 /**
  * Admin demo fixtures.
  *
- * Static stand-ins so every screen renders with believable content. Products and
- * categories come from `@/lib/catalog`, the same source the storefront sells
- * from, so the two areas never drift apart.
+ * Static stand-ins so every screen renders with believable content, for the
+ * screens whose feature does not exist yet (invoices, purchasing, coupons).
+ *
+ * Products and categories are NOT here any more — they come from the database
+ * through the shared `catalog` prop. Anything below that duplicates a real
+ * table is a drift risk and should go the same way as its screen gets built.
  */
 
 export const img = media;
@@ -155,14 +158,12 @@ export function revenueTotal(period) {
     return revenueByPeriod[period].series.reduce((sum, point) => sum + point.value, 0);
 }
 
-export const products = catalogProducts;
-
 /**
- * Order fixtures kept in step with the PHP seed in `App\Support\Catalog`.
+ * Order fixtures kept in step with `Database\Seeders\OrderSeeder`.
  *
- * The order screens read from the server store; this list only feeds the global
- * search index and the dashboard tables, so ids must match (no `#` prefix — the
- * hash is added at render time, it is not part of the identifier).
+ * The order screens read the database; this list only feeds the global search
+ * index and the dashboard tables, so ids must match (no `#` prefix — the hash
+ * is added at render time, it is not part of the identifier).
  */
 export const orders = [
     { id: 'INO-2451', customer: 'Kirana Wijaya', avatar: img.user(1), date: '14 Agu 2025', total: 482000, payment: 'Transfer Bank', status: 'Selesai' },
@@ -182,20 +183,18 @@ export const customers = [
 ];
 
 /**
- * Seller fixtures kept in step with the PHP seed in `App\Support\Catalog`.
+ * Seller fixtures kept in step with `Database\Seeders\CatalogSeeder`.
  *
- * The seller screens read from the server store; this list only feeds the
- * global search index, so the ids must match or search would link nowhere.
+ * The seller screens read the database; this list only feeds the global search
+ * index, so the ids must match or search would link nowhere.
  */
 export const sellers = [
-    { id: 'SEL-001', name: 'Apotek Sehat Bersama', owner: 'Kirana Wijaya', logo: img.seller('nike'), city: 'Jakarta Selatan', status: 'Terverifikasi' },
-    { id: 'SEL-002', name: 'Toko Obat Mandiri', owner: 'Rizky Ananda', logo: img.seller('dyson'), city: 'Bandung', status: 'Terverifikasi' },
-    { id: 'SEL-003', name: 'Farmasi Nusantara', owner: 'Dinda Puspita', logo: img.seller('huawei'), city: 'Surabaya', status: 'Terverifikasi' },
-    { id: 'SEL-004', name: 'Griya Farma', owner: 'Bagas Saputra', logo: img.seller('gopro'), city: 'Yogyakarta', status: 'Menunggu' },
-    { id: 'SEL-005', name: 'Apotek Melati', owner: 'Anisa Rahmawati', logo: img.seller('zara'), city: 'Medan', status: 'Menunggu' },
+    { id: 'SEL-001', name: 'Apotek Sehat Bersama', owner: 'Kirana Wijaya', logo: img.seller('nike'), city: 'Jakarta Selatan', status: 'Aktif' },
+    { id: 'SEL-002', name: 'Toko Obat Mandiri', owner: 'Rizky Ananda', logo: img.seller('dyson'), city: 'Bandung', status: 'Aktif' },
+    { id: 'SEL-003', name: 'Farmasi Nusantara', owner: 'Dinda Puspita', logo: img.seller('huawei'), city: 'Surabaya', status: 'Aktif' },
+    { id: 'SEL-004', name: 'Griya Farma', owner: 'Bagas Saputra', logo: img.seller('gopro'), city: 'Yogyakarta', status: 'Aktif' },
+    { id: 'SEL-005', name: 'Apotek Melati', owner: 'Anisa Rahmawati', logo: img.seller('zara'), city: 'Medan', status: 'Nonaktif' },
 ];
-
-export const categories = categoriesWithCounts;
 
 
 /**
@@ -212,10 +211,14 @@ export function statusTone(status) {
         Diproses: 'warning',
         Menunggu: 'warning',
         'Stok Menipis': 'warning',
+        Tersedia: 'success',
         Dikirim: 'info',
+        'Siap Diambil': 'info',
         Dibatalkan: 'danger',
+        Kedaluwarsa: 'danger',
         Habis: 'danger',
         Nonaktif: 'neutral',
+        Arsip: 'neutral',
         Lunas: 'success',
         Diterima: 'success',
         Disetujui: 'success',

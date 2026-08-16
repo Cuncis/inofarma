@@ -2,11 +2,16 @@
 
 namespace Tests\Feature\Admin;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class AdminAuthTest extends TestCase
 {
+    // The guarded screens query the database now, so the schema has to exist —
+    // the tables can stay empty, this suite is only about who gets through.
+    use RefreshDatabase;
+
     /**
      * Sign in as anyone — the prototype accepts any credentials.
      */

@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
-use App\Support\Catalog;
-use App\Support\CategoryStore;
-use App\Support\ProductStore;
-use App\Support\SellerStore;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Supplier;
+use App\Support\AdminOptions;
+use App\Support\CodeSequence;
+use App\Support\Presenters\ProductPresenter;
+use App\Support\Slug;
+use Database\Seeders\DemoDataSeeder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,23 +19,22 @@ use Inertia\Response;
 /**
  * Product CRUD for the admin.
  *
- * Backed by `ProductStore` (session), not a database — the shape of the actions
- * is the same one an Eloquent-backed controller would have, so wiring a real
- * table later is a change of store, not of flow.
+ * Products are addressed by SKU, not by primary key, so `/admin/produk/PRD-001`
+ * stays meaningful and survives a reseed.
  */
 class ProductController extends Controller
 {
-    public function __construct(
-        private readonly ProductStore $products,
-        private readonly CategoryStore $categories,
-        private readonly SellerStore $sellers,
-    ) {}
-
     public function index(): Response
     {
+        $products = Product::query()
+            ->with(['category', 'supplier', 'images'])
+            ->withSum('stocks', 'quantity')
+            ->orderBy('id')
+            ->get();
+
         return Inertia::render('Admin/ProductList', [
-            'products' => $this->products->all(),
-            'categories' => $this->categories->names(),
+            'products' => ProductPresenter::collection($products),
+            'categories' => Category::orderBy('position')->pluck('name')->all(),
         ]);
     }
 
@@ -42,17 +45,21 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request): RedirectResponse
     {
-        $product = $this->products->create($request->validated());
+        $product = Product::create($this->attributes($request->validated()) + [
+            'sku' => CodeSequence::next(Product::withTrashed(), 'sku', 'PRD-'),
+        ]);
 
         return redirect()
             ->route('admin.produk.index')
-            ->with('success', "Produk \"{$product['name']}\" berhasil ditambahkan.");
+            ->with('success', "Produk \"{$product->name}\" berhasil ditambahkan.");
     }
 
     public function show(string $product): Response
     {
+        $record = $this->find($product, ['stocks.branch']);
+
         return Inertia::render('Admin/ProductDetail', [
-            'product' => $this->products->findOrFail($product),
+            'product' => ProductPresenter::withBranches($record),
         ]);
     }
 
@@ -60,39 +67,80 @@ class ProductController extends Controller
     {
         return Inertia::render('Admin/ProductEdit', [
             ...$this->formOptions(),
-            'product' => $this->products->findOrFail($product),
+            'product' => ProductPresenter::toArray($this->find($product)),
         ]);
     }
 
     public function update(ProductRequest $request, string $product): RedirectResponse
     {
-        $updated = $this->products->update($product, $request->validated());
+        $record = $this->find($product);
+        $record->update($this->attributes($request->validated(), $record));
 
         return redirect()
             ->route('admin.produk.index')
-            ->with('success', "Produk \"{$updated['name']}\" berhasil diperbarui.");
+            ->with('success', "Produk \"{$record->name}\" berhasil diperbarui.");
     }
 
     public function destroy(string $product): RedirectResponse
     {
-        $target = $this->products->findOrFail($product);
-        $this->products->delete($product);
+        $record = $this->find($product);
+        $name = $record->name;
+
+        // Soft delete: order history points at this row, and an old order has to
+        // keep reading back the way it was placed.
+        $record->delete();
 
         return redirect()
             ->route('admin.produk.index')
-            ->with('success', "Produk \"{$target['name']}\" berhasil dihapus.");
+            ->with('success', "Produk \"{$name}\" berhasil dihapus.");
     }
 
     /**
-     * Restore the seed catalogue — the prototype's way back from a mess.
+     * Restore the demo catalogue — a development affordance, not a production one.
      */
     public function reset(): RedirectResponse
     {
-        $this->products->reset();
+        abort_unless(app()->environment(['local', 'testing']), 403);
+
+        (new DemoDataSeeder)->run();
 
         return redirect()
             ->route('admin.produk.index')
             ->with('success', 'Katalog dikembalikan ke data awal.');
+    }
+
+    /**
+     * @param  list<string>  $with
+     */
+    private function find(string $sku, array $with = []): Product
+    {
+        return Product::query()
+            ->with(['category', 'supplier', 'images', ...$with])
+            ->withSum('stocks', 'quantity')
+            ->where('sku', $sku)
+            ->firstOr(fn () => abort(404, 'Produk tidak ditemukan.'));
+    }
+
+    /**
+     * Translate the form's names and labels into columns.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function attributes(array $data, ?Product $editing = null): array
+    {
+        return [
+            'name' => $data['name'],
+            'slug' => Slug::unique(Product::withTrashed(), $data['name'], 'slug', $editing?->id),
+            'category_id' => Category::where('name', $data['category'])->value('id'),
+            'supplier_id' => Supplier::where('name', $data['seller'])->value('id'),
+            'unit' => $data['unit'],
+            'status' => AdminOptions::toValue(AdminOptions::PRODUCT_STATUSES, $data['status']),
+            'price' => $data['price'],
+            'old_price' => $data['oldPrice'] ?? null,
+            'requires_prescription' => $data['prescription'],
+            'blurb' => $data['blurb'] ?? null,
+        ];
     }
 
     /**
@@ -101,10 +149,10 @@ class ProductController extends Controller
     private function formOptions(): array
     {
         return [
-            'categories' => $this->categories->names(),
-            'sellers' => $this->sellers->names(),
-            'units' => Catalog::units(),
-            'statuses' => Catalog::statuses(),
+            'categories' => Category::orderBy('position')->pluck('name')->all(),
+            'sellers' => Supplier::orderBy('id')->pluck('name')->all(),
+            'units' => AdminOptions::units(),
+            'statuses' => AdminOptions::labels(AdminOptions::PRODUCT_STATUSES),
         ];
     }
 }

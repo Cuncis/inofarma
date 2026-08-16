@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Support\Catalog;
-use App\Support\SellerStore;
+use App\Models\Supplier;
+use App\Support\AdminOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,19 +14,21 @@ class SellerRequest extends FormRequest
      */
     public function rules(): array
     {
-        $editing = $this->route('seller');
-        $others = collect(app(SellerStore::class)->all())
-            ->reject(fn (array $seller) => $seller['id'] === $editing);
+        $editing = Supplier::where('code', $this->route('seller'))->value('id');
+
+        $unique = fn (string $column) => Rule::unique(Supplier::class, $column)
+            ->ignore($editing)
+            ->whereNull('deleted_at');
 
         return [
-            'name' => ['required', 'string', 'max:80', Rule::notIn($others->pluck('name')->all())],
+            'name' => ['required', 'string', 'max:80', $unique('name')],
             'owner' => ['required', 'string', 'max:80'],
-            'email' => ['required', 'email', 'max:120', Rule::notIn($others->pluck('email')->all())],
+            'email' => ['required', 'email', 'max:120', $unique('email')],
             'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s()]+$/'],
-            'license' => ['required', 'string', 'max:40', Rule::notIn($others->pluck('license')->all())],
+            'license' => ['required', 'string', 'max:40', $unique('license_number')],
             'city' => ['required', 'string', 'max:60'],
             'address' => ['nullable', 'string', 'max:255'],
-            'status' => ['required', Rule::in(Catalog::sellerStatuses())],
+            'status' => ['required', Rule::in(AdminOptions::labels(AdminOptions::SUPPLIER_STATUSES))],
         ];
     }
 
@@ -53,9 +55,9 @@ class SellerRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.not_in' => 'Nama toko ini sudah terdaftar.',
-            'email.not_in' => 'Email ini sudah dipakai penjual lain.',
-            'license.not_in' => 'Nomor izin apotek ini sudah terdaftar.',
+            'name.unique' => 'Nama toko ini sudah terdaftar.',
+            'email.unique' => 'Email ini sudah dipakai penjual lain.',
+            'license.unique' => 'Nomor izin apotek ini sudah terdaftar.',
             'phone.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).',
         ];
     }

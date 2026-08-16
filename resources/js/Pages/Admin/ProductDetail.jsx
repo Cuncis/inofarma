@@ -3,19 +3,12 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
-import Icon from '@/Components/Admin/Icon';
 import Table from '@/Components/Admin/Table';
 import { money, statusTone } from '@/Components/Admin/data';
 
-const movements = [
-    { date: '14 Agu 2025', type: 'Masuk', qty: '+120', note: 'Pembelian PO-1043' },
-    { date: '12 Agu 2025', type: 'Keluar', qty: '-45', note: 'Pesanan #INO-2451' },
-    { date: '09 Agu 2025', type: 'Keluar', qty: '-18', note: 'Pesanan #INO-2440' },
-    { date: '05 Agu 2025', type: 'Masuk', qty: '+200', note: 'Pembelian PO-1039' },
-];
-
 export default function ProductDetail({ product }) {
     const [tab, setTab] = useState('spesifikasi');
+    const branches = product.branches ?? [];
 
     const specs = [
         { label: 'SKU', value: product.id },
@@ -57,7 +50,10 @@ export default function ProductDetail({ product }) {
                     </div>
 
                     <div className="mt-5">
-                        <Badge tone={statusTone(product.status)}>{product.status}</Badge>
+                        <div className="flex flex-wrap gap-1.5">
+                            <Badge tone={statusTone(product.status)}>{product.status}</Badge>
+                            <Badge tone={statusTone(product.stockStatus)}>{product.stockStatus}</Badge>
+                        </div>
 
                         <h2 className="mt-2 text-lg font-semibold text-admin-heading dark:text-admin-dark-heading">
                             {product.name}
@@ -67,7 +63,9 @@ export default function ProductDetail({ product }) {
 
                         <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-admin-border pt-4 dark:border-admin-dark-border">
                             <div>
-                                <dt className="text-xs text-admin-muted dark:text-admin-dark-muted">Stok</dt>
+                                <dt className="text-xs text-admin-muted dark:text-admin-dark-muted">
+                                    Stok ({branches.length} cabang)
+                                </dt>
                                 <dd className="text-[15px] font-semibold text-admin-heading dark:text-admin-dark-heading">
                                     {product.stock}
                                 </dd>
@@ -85,7 +83,7 @@ export default function ProductDetail({ product }) {
                 <div className="lg:col-span-2">
                     <Card bodyClassName="p-0">
                         <div className="flex border-b border-admin-border dark:border-admin-dark-border">
-                            {['spesifikasi', 'pergerakan'].map((name) => (
+                            {['spesifikasi', 'stok cabang'].map((name) => (
                                 <button
                                     key={name}
                                     type="button"
@@ -115,42 +113,35 @@ export default function ProductDetail({ product }) {
                                 ))}
                             </dl>
                         ) : (
+                            /*
+                                Sebaran stok yang sesungguhnya, satu baris per
+                                cabang. Baca saja di sini — penyesuaian jumlah
+                                dilakukan dari layar cabang, supaya setiap
+                                perubahan stok punya cabang dan alasan yang jelas.
+                            */
                             <Table
                                 columns={[
-                                    { key: 'date', label: 'Tanggal' },
-                                    { key: 'type', label: 'Jenis' },
-                                    { key: 'qty', label: 'Jumlah', align: 'right' },
-                                    { key: 'note', label: 'Keterangan' },
+                                    { key: 'name', label: 'Cabang' },
+                                    { key: 'kota', label: 'Kota' },
+                                    { key: 'quantity', label: 'Fisik', align: 'right' },
+                                    { key: 'reserved', label: 'Dipesan', align: 'right' },
+                                    { key: 'available', label: 'Tersedia', align: 'right' },
                                 ]}
-                                rows={movements}
-                                rowKey={(row) => `${row.date}-${row.note}`}
+                                rows={branches}
+                                rowKey={(row) => row.id}
                                 renderCell={(row, key) => {
-                                    if (key === 'type') {
-                                        return (
-                                            <Badge tone={row.type === 'Masuk' ? 'success' : 'warning'}>
-                                                {row.type}
-                                            </Badge>
-                                        );
-                                    }
-
-                                    if (key === 'qty') {
+                                    if (key === 'available') {
                                         return (
                                             <span
-                                                className={`inline-flex items-center gap-1 font-semibold ${
-                                                    row.qty.startsWith('+')
-                                                        ? 'text-success-deep'
-                                                        : 'text-danger'
+                                                className={`font-semibold ${
+                                                    row.available === 0
+                                                        ? 'text-danger'
+                                                        : row.isLow
+                                                          ? 'text-warning-deep'
+                                                          : 'text-success-deep'
                                                 }`}
                                             >
-                                                <Icon
-                                                    name={
-                                                        row.qty.startsWith('+')
-                                                            ? 'solar:arrow-up-bold-duotone'
-                                                            : 'solar:arrow-down-bold-duotone'
-                                                    }
-                                                    size={13}
-                                                />
-                                                {row.qty}
+                                                {row.available}
                                             </span>
                                         );
                                     }

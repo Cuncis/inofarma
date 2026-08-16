@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import OrderForm from '@/Components/Admin/OrderForm';
 
-export default function OrderAdd({ customers, products, statuses, payments }) {
+export default function OrderAdd({ customers, products, branches, statuses, payments, fulfilments }) {
     return (
         <AdminLayout
             title="Buat Pesanan"
@@ -15,8 +15,10 @@ export default function OrderAdd({ customers, products, statuses, payments }) {
             <OrderForm
                 customers={customers}
                 products={products}
+                branches={branches}
                 statuses={statuses}
                 payments={payments}
+                fulfilments={fulfilments}
                 submitLabel="Simpan Pesanan"
             />
         </AdminLayout>

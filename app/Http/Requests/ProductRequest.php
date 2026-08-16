@@ -2,12 +2,20 @@
 
 namespace App\Http\Requests;
 
-use App\Support\Catalog;
-use App\Support\CategoryStore;
-use App\Support\SellerStore;
+use App\Models\Category;
+use App\Models\Supplier;
+use App\Support\AdminOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Category and seller arrive as names rather than ids because that is what the
+ * form's dropdowns carry. They are checked against the live tables, so a
+ * category created a moment ago is immediately selectable.
+ *
+ * There is deliberately no `stock` field: stock belongs to a product at a
+ * branch, and one number on this form cannot say which of ten branches it means.
+ */
 class ProductRequest extends FormRequest
 {
     /**
@@ -17,13 +25,12 @@ class ProductRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'category' => ['required', Rule::in(app(CategoryStore::class)->names())],
-            'seller' => ['required', Rule::in(app(SellerStore::class)->names())],
-            'unit' => ['required', Rule::in(Catalog::units())],
-            'status' => ['required', Rule::in(Catalog::statuses())],
+            'category' => ['required', Rule::exists(Category::class, 'name')->whereNull('deleted_at')],
+            'seller' => ['required', Rule::exists(Supplier::class, 'name')->whereNull('deleted_at')],
+            'unit' => ['required', Rule::in(AdminOptions::units())],
+            'status' => ['required', Rule::in(AdminOptions::labels(AdminOptions::PRODUCT_STATUSES))],
             'price' => ['required', 'integer', 'min:0', 'max:1000000000'],
             'oldPrice' => ['nullable', 'integer', 'min:0', 'max:1000000000', 'gt:price'],
-            'stock' => ['required', 'integer', 'min:0', 'max:1000000'],
             'prescription' => ['required', 'boolean'],
             'blurb' => ['nullable', 'string', 'max:500'],
         ];
@@ -42,7 +49,6 @@ class ProductRequest extends FormRequest
             'status' => 'status',
             'price' => 'harga jual',
             'oldPrice' => 'harga coret',
-            'stock' => 'stok',
             'prescription' => 'status resep',
             'blurb' => 'deskripsi',
         ];
@@ -55,6 +61,8 @@ class ProductRequest extends FormRequest
     {
         return [
             'oldPrice.gt' => 'Harga coret harus lebih besar dari harga jual.',
+            'category.exists' => 'Kategori ini tidak terdaftar.',
+            'seller.exists' => 'Penjual ini tidak terdaftar.',
         ];
     }
 }

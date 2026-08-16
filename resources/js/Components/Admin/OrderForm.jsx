@@ -16,8 +16,10 @@ import { money } from './data';
  *   order?: object,
  *   customers: { email: string, name: string }[],
  *   products: { id: string, name: string, price: number }[],
+ *   branches: { id: string, name: string }[],
  *   statuses: string[],
  *   payments: string[],
+ *   fulfilments: string[],
  *   submitLabel: string,
  * }} props
  */
@@ -25,14 +27,18 @@ export default function OrderForm({
     order,
     customers,
     products,
+    branches,
     statuses,
     payments,
+    fulfilments,
     submitLabel,
 }) {
     const editing = Boolean(order);
 
     const { data, setData, post, put, processing, errors } = useForm({
         customerEmail: order?.customerEmail ?? customers[0]?.email ?? '',
+        branch: order?.branch ?? branches[0]?.id ?? '',
+        fulfilment: order?.fulfilment ?? fulfilments[0],
         payment: order?.payment ?? payments[0],
         status: order?.status ?? statuses[0],
         shipping: order?.shipping ?? 0,
@@ -212,6 +218,36 @@ export default function OrderForm({
                                     value: customer.email,
                                     label: `${customer.name} — ${customer.email}`,
                                 }))}
+                            />
+                        </Field>
+
+                        {/*
+                            Cabang dan cara terima wajib: keduanya menentukan
+                            stok mana yang dipakai, dan itu tidak bisa ditentukan
+                            belakangan.
+                        */}
+                        <Field label="Cabang" htmlFor="branch" hint={errors.branch}>
+                            <Select
+                                id="branch"
+                                value={data.branch}
+                                onChange={(event) => setData('branch', event.target.value)}
+                                options={branches.map((branch) => ({
+                                    value: branch.id,
+                                    label: branch.name,
+                                }))}
+                            />
+                        </Field>
+
+                        <Field
+                            label="Cara Terima"
+                            htmlFor="fulfilment"
+                            hint={errors.fulfilment ?? 'Ambil di cabang tidak dikenai ongkos kirim.'}
+                        >
+                            <Select
+                                id="fulfilment"
+                                value={data.fulfilment}
+                                onChange={(event) => setData('fulfilment', event.target.value)}
+                                options={fulfilments}
                             />
                         </Field>
 

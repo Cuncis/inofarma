@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Presenters\ShopCatalogPresenter;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -40,6 +41,13 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            /*
+             * The catalogue, shared rather than passed per screen: the search
+             * overlay sits in the storefront layout and can be opened from any
+             * page, so it has to be available everywhere. The admin builds its
+             * own props per screen and gets this only for the global search.
+             */
+            'catalog' => fn () => ShopCatalogPresenter::forStorefront(),
         ];
     }
 }

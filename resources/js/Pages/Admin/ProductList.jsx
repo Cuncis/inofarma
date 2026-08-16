@@ -20,6 +20,7 @@ const columns = [
     { key: 'price', label: 'Harga', align: 'right' },
     { key: 'stock', label: 'Stok', align: 'right' },
     { key: 'sold', label: 'Terjual', align: 'right' },
+    { key: 'stockStatus', label: 'Ketersediaan' },
     { key: 'status', label: 'Status' },
     { key: 'actions', label: '', align: 'right' },
 ];
@@ -144,6 +145,15 @@ export default function ProductList({ products, categories }) {
 
                             if (key === 'status') {
                                 return <Badge tone={statusTone(row.status)}>{row.status}</Badge>;
+                            }
+
+                            // Ketersediaan diturunkan dari stok seluruh cabang,
+                            // terpisah dari status produk: produk boleh Aktif dan
+                            // tetap habis di mana-mana.
+                            if (key === 'stockStatus') {
+                                return (
+                                    <Badge tone={statusTone(row.stockStatus)}>{row.stockStatus}</Badge>
+                                );
                             }
 
                             if (key === 'actions') {

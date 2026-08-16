@@ -2,19 +2,21 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Support\Catalog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class CustomerCrudTest extends TestCase
 {
-    use SignsInAsAdmin;
+    use RefreshDatabase, SeedsDemoCatalogue, SignsInAsAdmin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->seed();
         $this->signInAsAdmin();
     }
 
@@ -39,7 +41,7 @@ class CustomerCrudTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/CustomerList')
-                ->has('customers', count(Catalog::customers()))
+                ->has('customers', self::CUSTOMER_COUNT)
                 ->where('customers.0.name', 'Kirana Wijaya')
                 // two seed orders belong to her, totalling 482000 + 308000
                 ->where('customers.0.orders', 2)
@@ -57,6 +59,17 @@ class CustomerCrudTest extends TestCase
             );
     }
 
+    public function test_a_cancelled_order_does_not_count_towards_spend(): void
+    {
+        // Bagas has exactly one order and it was cancelled, so it shows in the
+        // count but not in the money — no cash ever moved.
+        $this->get('/admin/pelanggan/CUS-004')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('customer.orders', 1)
+                ->where('customer.spent', 0)
+            );
+    }
+
     public function test_a_customer_can_be_created(): void
     {
         $this->post('/admin/pelanggan', $this->validPayload())
@@ -65,10 +78,11 @@ class CustomerCrudTest extends TestCase
 
         $this->get('/admin/pelanggan')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('customers', count(Catalog::customers()) + 1)
+                ->has('customers', self::CUSTOMER_COUNT + 1)
                 ->where('customers.6.name', 'Putri Maharani')
                 ->where('customers.6.id', 'CUS-007')
                 ->where('customers.6.orders', 0)
+                ->where('customers.6.city', 'Denpasar')
             );
     }
 
@@ -106,7 +120,6 @@ class CustomerCrudTest extends TestCase
                 ->where('customer.name', 'Rizky Ananda Putra')
                 ->where('customer.city', 'Bekasi')
                 ->where('customer.status', 'Nonaktif')
-                // keeping the email keeps the order history attached
                 ->has('orders', 1)
             );
     }
@@ -119,7 +132,7 @@ class CustomerCrudTest extends TestCase
 
         $this->get('/admin/pelanggan')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('customers', count(Catalog::customers()))
+                ->has('customers', self::CUSTOMER_COUNT)
             );
     }
 
@@ -144,7 +157,7 @@ class CustomerCrudTest extends TestCase
 
         $this->get('/admin/pelanggan')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('customers', count(Catalog::customers()))
+                ->has('customers', self::CUSTOMER_COUNT)
             );
     }
 
@@ -162,18 +175,21 @@ class CustomerCrudTest extends TestCase
         ]))->assertSessionHasNoErrors();
     }
 
-    public function test_changing_the_email_detaches_the_order_history(): void
+    public function test_changing_the_email_keeps_the_order_history(): void
     {
+        // This used to detach the history, because orders were keyed to the
+        // customer's email address. They hold a foreign key now, so a customer
+        // who changes their email keeps everything they ever bought.
         $this->put('/admin/pelanggan/CUS-001', $this->validPayload([
             'name' => 'Kirana Wijaya',
             'email' => 'kirana.baru@mail.com',
         ]))->assertSessionHasNoErrors();
 
-        // Orders key off the email, so they no longer follow the record.
         $this->get('/admin/pelanggan/CUS-001')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('customer.email', 'kirana.baru@mail.com')
-                ->has('orders', 0)
+                ->has('orders', 2)
+                ->where('customer.spent', 790000)
             );
     }
 
@@ -184,7 +200,7 @@ class CustomerCrudTest extends TestCase
 
         $this->get('/admin/pelanggan')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('customers', count(Catalog::customers()))
+                ->has('customers', self::CUSTOMER_COUNT)
             );
     }
 }

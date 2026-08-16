@@ -2,12 +2,18 @@
 
 namespace App\Http\Requests;
 
-use App\Support\Catalog;
-use App\Support\CustomerStore;
-use App\Support\ProductStore;
+use App\Models\Branch;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Support\AdminOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * An order belongs to exactly one branch and is either delivered or collected.
+ * Both are required by the schema, because "which shelf does this come off" is
+ * not answerable later — it decides which stock gets reserved.
+ */
 class OrderRequest extends FormRequest
 {
     /**
@@ -15,18 +21,23 @@ class OrderRequest extends FormRequest
      */
     public function rules(): array
     {
-        $emails = collect(app(CustomerStore::class)->all())->pluck('email')->all();
-        $productIds = collect(app(ProductStore::class)->all())->pluck('id')->all();
-
         return [
-            'customerEmail' => ['required', 'email', Rule::in($emails)],
-            'payment' => ['required', Rule::in(Catalog::paymentMethods())],
-            'status' => ['required', Rule::in(Catalog::orderStatuses())],
+            'customerEmail' => [
+                'required', 'email',
+                Rule::exists(Customer::class, 'email')->whereNull('deleted_at'),
+            ],
+            'branch' => ['required', Rule::exists(Branch::class, 'code')->whereNull('deleted_at')],
+            'fulfilment' => ['required', Rule::in(AdminOptions::labels(AdminOptions::FULFILMENTS))],
+            'payment' => ['required', Rule::in(AdminOptions::paymentMethods())],
+            'status' => ['required', Rule::in(AdminOptions::labels(AdminOptions::ORDER_STATUSES))],
             'shipping' => ['required', 'integer', 'min:0', 'max:10000000'],
             'note' => ['nullable', 'string', 'max:500'],
 
             'items' => ['required', 'array', 'min:1'],
-            'items.*.productId' => ['required', Rule::in($productIds)],
+            'items.*.productId' => [
+                'required',
+                Rule::exists(Product::class, 'sku')->whereNull('deleted_at'),
+            ],
             'items.*.qty' => ['required', 'integer', 'min:1', 'max:10000'],
         ];
     }
@@ -38,6 +49,8 @@ class OrderRequest extends FormRequest
     {
         return [
             'customerEmail' => 'pelanggan',
+            'branch' => 'cabang',
+            'fulfilment' => 'cara terima',
             'payment' => 'metode pembayaran',
             'status' => 'status',
             'shipping' => 'ongkos kirim',
@@ -52,10 +65,11 @@ class OrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'customerEmail.in' => 'Pelanggan ini tidak terdaftar.',
+            'customerEmail.exists' => 'Pelanggan ini tidak terdaftar.',
+            'branch.exists' => 'Cabang ini tidak terdaftar.',
             'items.required' => 'Pesanan harus memiliki minimal satu item.',
             'items.min' => 'Pesanan harus memiliki minimal satu item.',
-            'items.*.productId.in' => 'Salah satu produk pada pesanan tidak dikenali.',
+            'items.*.productId.exists' => 'Salah satu produk pada pesanan tidak dikenali.',
             'items.*.qty.min' => 'Jumlah setiap item minimal 1.',
         ];
     }

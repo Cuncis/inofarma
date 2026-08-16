@@ -37,7 +37,6 @@ export default function ProductForm({
         status: product?.status ?? statuses[0],
         price: product?.price ?? '',
         oldPrice: product?.oldPrice ?? '',
-        stock: product?.stock ?? '',
         prescription: product?.prescription ?? false,
         blurb: product?.blurb ?? '',
     });
@@ -125,7 +124,7 @@ export default function ProductForm({
                     </div>
                 </Card>
 
-                <Card title="Harga & Stok">
+                <Card title="Harga">
                     <div className="grid gap-4 sm:grid-cols-2">
                         <Field
                             label="Harga Jual (Rp)"
@@ -162,29 +161,41 @@ export default function ProductForm({
                             />
                         </Field>
 
-                        <Field label="Stok" htmlFor="stock" hint={errors.stock}>
-                            <Input
-                                id="stock"
-                                type="number"
-                                min="0"
-                                value={data.stock}
-                                onChange={(event) => setData('stock', event.target.value)}
-                                placeholder="100"
-                                className={errors.stock ? 'border-danger' : ''}
-                            />
-                        </Field>
-
                         <Field label="SKU" htmlFor="sku" hint="Dibuat otomatis">
                             <Input id="sku" value={product?.id ?? 'Otomatis'} disabled readOnly />
                         </Field>
+
+                        <Field label="Satuan Jual" htmlFor="unit-echo" hint="Sama dengan pilihan di atas">
+                            <Input id="unit-echo" value={data.unit} disabled readOnly />
+                        </Field>
                     </div>
+
+                    {/*
+                        Stok tidak ada di sini dengan sengaja: satu produk punya
+                        stok berbeda di setiap cabang, jadi satu kotak isian tidak
+                        bisa menjawab "stok di cabang yang mana".
+                    */}
+                    <p className="mt-4 rounded-lg bg-admin-hover px-3 py-2.5 text-xs leading-relaxed text-admin-body dark:bg-admin-dark-hover dark:text-admin-dark-body">
+                        Stok diatur per cabang, bukan di sini.{' '}
+                        {editing ? (
+                            <>
+                                Lihat sebarannya di{' '}
+                                <a href={`/admin/produk/${product.id}`} className="font-semibold underline">
+                                    detail produk
+                                </a>
+                                .
+                            </>
+                        ) : (
+                            'Setelah produk dibuat, atur stok awal dari halaman cabang.'
+                        )}
+                    </p>
                 </Card>
             </div>
 
             <div className="space-y-5">
                 <Card title="Publikasi">
                     <div className="space-y-4">
-                        <Field label="Status Stok" htmlFor="status" hint={errors.status}>
+                        <Field label="Status Produk" htmlFor="status" hint={errors.status}>
                             <Select
                                 id="status"
                                 value={data.status}

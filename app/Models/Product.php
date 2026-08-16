@@ -98,4 +98,27 @@ class Product extends Model
     {
         return $this->drug_class === 'bebas terbatas';
     }
+
+    /**
+     * Total stok di seluruh cabang.
+     *
+     * Angka gabungan untuk ditampilkan, bukan untuk memutuskan apakah suatu
+     * pesanan bisa dipenuhi — keputusan itu selalu berdasarkan stok satu cabang.
+     * Memakai hasil `withSum('stocks', 'quantity')` bila sudah dimuat, supaya
+     * daftar produk tidak memicu satu query per baris.
+     */
+    public function getTotalStockAttribute(): int
+    {
+        if (array_key_exists('stocks_sum_quantity', $this->attributes)) {
+            return (int) $this->attributes['stocks_sum_quantity'];
+        }
+
+        return (int) $this->stocks()->sum('quantity');
+    }
+
+    /** Gambar utama, dengan cadangan supaya kartu produk tidak pernah kosong. */
+    public function getImagePathAttribute(): string
+    {
+        return $this->images->first()?->path ?? '/media/images/product/p-1.png';
+    }
 }

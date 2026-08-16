@@ -2,19 +2,21 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Support\Catalog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class SellerCrudTest extends TestCase
 {
-    use SignsInAsAdmin;
+    use RefreshDatabase, SeedsDemoCatalogue, SignsInAsAdmin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->seed();
         $this->signInAsAdmin();
     }
 
@@ -31,7 +33,7 @@ class SellerCrudTest extends TestCase
             'license' => 'SIA/2025/00399',
             'city' => 'Denpasar',
             'address' => 'Jl. Sunset Road No. 12',
-            'status' => 'Menunggu',
+            'status' => 'Aktif',
         ], $overrides);
     }
 
@@ -41,7 +43,7 @@ class SellerCrudTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/SellerList')
-                ->has('sellers', count(Catalog::sellers()))
+                ->has('sellers', self::SUPPLIER_COUNT)
                 ->where('sellers.0.name', 'Apotek Sehat Bersama')
                 ->where('sellers.0.products', 4)
                 // 12500*1240 + 38000*860 + 24000*1580 + 29500*940
@@ -67,7 +69,7 @@ class SellerCrudTest extends TestCase
 
         $this->get('/admin/penjual')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', count(Catalog::sellers()) + 1)
+                ->has('sellers', self::SUPPLIER_COUNT + 1)
                 ->where('sellers.5.name', 'Apotek Cendana')
                 ->where('sellers.5.id', 'SEL-006')
                 ->where('sellers.5.products', 0)
@@ -99,7 +101,7 @@ class SellerCrudTest extends TestCase
             'email' => 'griyafarma@mail.com',
             'license' => 'SIA/2025/00077',
             'city' => 'Sleman',
-            'status' => 'Terverifikasi',
+            'status' => 'Nonaktif',
         ]))
             ->assertRedirect(route('admin.penjual.index'))
             ->assertSessionHas('success');
@@ -107,13 +109,14 @@ class SellerCrudTest extends TestCase
         $this->get('/admin/penjual/SEL-004')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('seller.city', 'Sleman')
-                ->where('seller.status', 'Terverifikasi')
+                ->where('seller.status', 'Nonaktif')
                 ->has('products', 3)
             );
     }
 
     public function test_renaming_a_seller_carries_through_to_their_products(): void
     {
+        // Products hold a foreign key, so the rename needs no cascade.
         $this->put('/admin/penjual/SEL-002', $this->validPayload([
             'name' => 'Toko Obat Mandiri Jaya',
             'email' => 'obatmandiri@mail.com',
@@ -125,7 +128,6 @@ class SellerCrudTest extends TestCase
                 ->where('product.seller', 'Toko Obat Mandiri Jaya')
             );
 
-        // The seller keeps its products, and the count follows the rename.
         $this->get('/admin/penjual/SEL-002')
             ->assertInertia(fn (AssertableInertia $page) => $page->has('products', 2));
     }
@@ -138,7 +140,7 @@ class SellerCrudTest extends TestCase
 
         $this->get('/admin/penjual')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', count(Catalog::sellers()))
+                ->has('sellers', self::SUPPLIER_COUNT)
             );
     }
 
@@ -182,7 +184,7 @@ class SellerCrudTest extends TestCase
 
         $this->get('/admin/produk/tambah')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', count(Catalog::sellers()) + 1)
+                ->has('sellers', self::SUPPLIER_COUNT + 1)
             );
 
         $this->post('/admin/produk', [
@@ -193,7 +195,6 @@ class SellerCrudTest extends TestCase
             'status' => 'Aktif',
             'price' => 28000,
             'oldPrice' => null,
-            'stock' => 120,
             'prescription' => false,
             'blurb' => 'Antiseptik untuk luka luar.',
         ])->assertSessionHasNoErrors();
@@ -212,7 +213,6 @@ class SellerCrudTest extends TestCase
             'status' => 'Aktif',
             'price' => 10000,
             'oldPrice' => null,
-            'stock' => 10,
             'prescription' => false,
             'blurb' => '',
         ])->assertSessionHasErrors('seller');
@@ -225,7 +225,7 @@ class SellerCrudTest extends TestCase
 
         $this->get('/admin/penjual')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', count(Catalog::sellers()))
+                ->has('sellers', self::SUPPLIER_COUNT)
             );
     }
 }

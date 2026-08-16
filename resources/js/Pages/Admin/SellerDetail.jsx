@@ -46,9 +46,9 @@ export default function SellerDetail({ seller, products }) {
                     </div>
 
                     <span className="flex items-center gap-1.5 rounded-lg bg-admin-hover px-3 py-2 dark:bg-admin-dark-hover">
-                        <Icon name="solar:star-bold" size={16} className="text-warning" />
+                        <Icon name="solar:document-text-bold" size={16} className="text-brand" />
                         <span className="text-[13px] font-bold text-admin-heading dark:text-admin-dark-heading">
-                            {seller.rating}
+                            {seller.license}
                         </span>
                     </span>
                 </div>
@@ -66,9 +66,9 @@ export default function SellerDetail({ seller, products }) {
                     icon="solar:wallet-money-bold-duotone"
                 />
                 <StatCard
-                    label="Rating Rata-rata"
-                    value={seller.rating}
-                    icon="solar:chat-square-like-bold-duotone"
+                    label="Bergabung"
+                    value={seller.joined}
+                    icon="solar:calendar-bold-duotone"
                 />
             </div>
 

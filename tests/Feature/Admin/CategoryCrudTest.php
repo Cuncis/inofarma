@@ -2,19 +2,21 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Support\Catalog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class CategoryCrudTest extends TestCase
 {
-    use SignsInAsAdmin;
+    use RefreshDatabase, SeedsDemoCatalogue, SignsInAsAdmin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->seed();
         $this->signInAsAdmin();
     }
 
@@ -37,7 +39,7 @@ class CategoryCrudTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/CategoryList')
-                ->has('categories', count(Catalog::categories()))
+                ->has('categories', self::CATEGORY_COUNT)
                 ->where('categories.0.name', 'Obat Bebas')
                 // three seed products sit in Obat Bebas
                 ->where('categories.0.products', 3)
@@ -52,7 +54,7 @@ class CategoryCrudTest extends TestCase
 
         $this->get('/admin/kategori')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('categories', count(Catalog::categories()) + 1)
+                ->has('categories', self::CATEGORY_COUNT + 1)
                 ->where('categories.6.name', 'Perawatan Bayi')
                 ->where('categories.6.slug', 'perawatan-bayi')
                 ->where('categories.6.products', 0)
@@ -121,12 +123,13 @@ class CategoryCrudTest extends TestCase
 
     public function test_renaming_a_category_carries_through_to_its_products(): void
     {
+        // No cascade to run any more — products hold a foreign key, so the new
+        // name is simply what the relation reads back.
         $this->put('/admin/kategori/antiseptik', $this->validPayload([
             'name' => 'Antiseptik & Desinfektan',
             'slug' => 'antiseptik',
         ]));
 
-        // Both products that were in Antiseptik now report the new name.
         $this->get('/admin/produk/PRD-005')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('product.category', 'Antiseptik & Desinfektan')
@@ -144,7 +147,7 @@ class CategoryCrudTest extends TestCase
 
         $this->get('/admin/kategori')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('categories', count(Catalog::categories()))
+                ->has('categories', self::CATEGORY_COUNT)
             );
     }
 
@@ -169,7 +172,7 @@ class CategoryCrudTest extends TestCase
 
         $this->get('/admin/kategori')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('categories', count(Catalog::categories()))
+                ->has('categories', self::CATEGORY_COUNT)
             );
     }
 
@@ -194,7 +197,7 @@ class CategoryCrudTest extends TestCase
 
         $this->get('/admin/produk/tambah')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('categories', count(Catalog::categories()) + 1)
+                ->has('categories', self::CATEGORY_COUNT + 1)
             );
 
         // …and a product may then be assigned to it.
@@ -206,7 +209,6 @@ class CategoryCrudTest extends TestCase
             'status' => 'Aktif',
             'price' => 27000,
             'oldPrice' => null,
-            'stock' => 90,
             'prescription' => false,
             'blurb' => 'Sabun cair lembut untuk kulit bayi.',
         ])->assertSessionHasNoErrors();
@@ -219,7 +221,7 @@ class CategoryCrudTest extends TestCase
 
         $this->get('/admin/kategori')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('categories', count(Catalog::categories()))
+                ->has('categories', self::CATEGORY_COUNT)
             );
     }
 }

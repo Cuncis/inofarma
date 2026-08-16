@@ -4,34 +4,39 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
-use App\Support\Catalog;
-use App\Support\CustomerStore;
-use App\Support\OrderStore;
-use App\Support\ProductStore;
+use App\Models\Branch;
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\Product;
+use App\Support\AdminOptions;
+use App\Support\CodeSequence;
+use App\Support\Presenters\CustomerPresenter;
+use App\Support\Presenters\OrderPresenter;
+use App\Support\Presenters\ProductPresenter;
+use Database\Seeders\DemoDataSeeder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
  * Order CRUD for the admin.
  *
- * Line items are snapshotted from the catalogue at write time, so the order
- * keeps the name and price it was placed at. A completed order cannot be
- * deleted — set it to Dibatalkan instead.
+ * Line items are snapshotted from the catalogue at write time — name, SKU and
+ * unit price are copied onto the row, so repricing or deleting a product later
+ * cannot rewrite what somebody was charged. The totals are stored for the same
+ * reason rather than recomputed on read.
+ *
+ * A completed order cannot be deleted; set it to Dibatalkan instead.
  */
 class OrderController extends Controller
 {
-    public function __construct(
-        private readonly OrderStore $orders,
-        private readonly CustomerStore $customers,
-        private readonly ProductStore $products,
-    ) {}
-
     public function index(): Response
     {
         return Inertia::render('Admin/OrderList', [
-            'orders' => $this->withCustomers($this->orders->all()),
-            'statuses' => Catalog::orderStatuses(),
+            'orders' => OrderPresenter::collection($this->query()->get()),
+            'statuses' => AdminOptions::labels(AdminOptions::ORDER_STATUSES),
         ]);
     }
 
@@ -42,20 +47,24 @@ class OrderController extends Controller
 
     public function store(OrderRequest $request): RedirectResponse
     {
-        $order = $this->orders->create($this->prepare($request->validated()));
+        $order = DB::transaction(function () use ($request) {
+            $order = Order::create($this->attributes($request->validated()) + [
+                'number' => CodeSequence::next(Order::withTrashed(), 'number', 'INO-', 0, 2450),
+            ]);
+
+            return $this->syncItems($order, $request->validated()['items']);
+        });
 
         return redirect()
             ->route('admin.pesanan.index')
-            ->with('success', "Pesanan #{$order['id']} berhasil dibuat.");
+            ->with('success', "Pesanan #{$order->number} berhasil dibuat.");
     }
 
     public function show(string $order): Response
     {
-        $record = $this->orders->findOrFail($order);
-
         return Inertia::render('Admin/OrderDetail', [
-            'order' => $this->attachCustomer($record),
-            'statuses' => Catalog::orderStatuses(),
+            'order' => OrderPresenter::toArray($this->find($order)),
+            'statuses' => AdminOptions::labels(AdminOptions::ORDER_STATUSES),
         ]);
     }
 
@@ -63,37 +72,47 @@ class OrderController extends Controller
     {
         return Inertia::render('Admin/OrderEdit', [
             ...$this->formOptions(),
-            'order' => $this->orders->findOrFail($order),
+            'order' => OrderPresenter::toArray($this->find($order)),
         ]);
     }
 
     public function update(OrderRequest $request, string $order): RedirectResponse
     {
-        $updated = $this->orders->update($order, $this->prepare($request->validated()));
+        $record = $this->find($order);
+
+        DB::transaction(function () use ($record, $request) {
+            $record->update($this->attributes($request->validated()));
+            $this->syncItems($record, $request->validated()['items']);
+        });
 
         return redirect()
             ->route('admin.pesanan.index')
-            ->with('success', "Pesanan #{$updated['id']} berhasil diperbarui.");
+            ->with('success', "Pesanan #{$record->number} berhasil diperbarui.");
     }
 
     public function destroy(string $order): RedirectResponse
     {
-        $record = $this->orders->findOrFail($order);
+        $record = $this->find($order);
 
-        if (! $this->orders->delete($order)) {
+        if (! $record->is_deletable) {
             return redirect()
                 ->route('admin.pesanan.index')
-                ->with('error', "Pesanan #{$record['id']} sudah selesai dan tidak bisa dihapus. Ubah statusnya menjadi Dibatalkan bila perlu.");
+                ->with('error', "Pesanan #{$record->number} sudah selesai dan tidak bisa dihapus. Ubah statusnya menjadi Dibatalkan bila perlu.");
         }
+
+        $number = $record->number;
+        $record->delete();
 
         return redirect()
             ->route('admin.pesanan.index')
-            ->with('success', "Pesanan #{$record['id']} berhasil dihapus.");
+            ->with('success', "Pesanan #{$number} berhasil dihapus.");
     }
 
     public function reset(): RedirectResponse
     {
-        $this->orders->reset();
+        abort_unless(app()->environment(['local', 'testing']), 403);
+
+        (new DemoDataSeeder)->run();
 
         return redirect()
             ->route('admin.pesanan.index')
@@ -101,52 +120,76 @@ class OrderController extends Controller
     }
 
     /**
-     * Snapshot each line's product name and price at write time.
-     *
+     * @return Builder<Order>
+     */
+    private function query(): Builder
+    {
+        return Order::query()
+            ->with(['items', 'customer', 'branch'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+    }
+
+    private function find(string $number): Order
+    {
+        return $this->query()
+            ->where('number', $number)
+            ->firstOr(fn () => abort(404, 'Pesanan tidak ditemukan.'));
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private function prepare(array $data): array
+    private function attributes(array $data): array
     {
-        $catalogue = collect($this->products->all())->keyBy('id');
+        $status = AdminOptions::toValue(AdminOptions::ORDER_STATUSES, $data['status']);
 
-        $data['items'] = array_map(function (array $item) use ($catalogue) {
-            $product = $catalogue->get($item['productId']);
-
-            return [
-                'productId' => $item['productId'],
-                'name' => $product['name'],
-                'price' => $product['price'],
-                'qty' => (int) $item['qty'],
-            ];
-        }, $data['items']);
-
-        return $data;
+        return [
+            'customer_id' => Customer::where('email', $data['customerEmail'])->value('id'),
+            'branch_id' => Branch::where('code', $data['branch'])->value('id'),
+            'fulfilment' => AdminOptions::toValue(AdminOptions::FULFILMENTS, $data['fulfilment']),
+            'status' => $status,
+            'payment_method' => $data['payment'],
+            'payment_status' => $status === 'selesai' ? 'lunas' : 'belum bayar',
+            'shipping_total' => $data['shipping'],
+            'note' => $data['note'] ?? '',
+        ];
     }
 
     /**
-     * @param  list<array<string, mixed>>  $orders
-     * @return list<array<string, mixed>>
+     * Replace the order's lines and recompute its money columns.
+     *
+     * @param  list<array{productId: string, qty: int|string}>  $items
      */
-    private function withCustomers(array $orders): array
+    private function syncItems(Order $order, array $items): Order
     {
-        return array_map(fn (array $order) => $this->attachCustomer($order), $orders);
-    }
+        $products = Product::whereIn('sku', array_column($items, 'productId'))->get()->keyBy('sku');
 
-    /**
-     * @param  array<string, mixed>  $order
-     * @return array<string, mixed>
-     */
-    private function attachCustomer(array $order): array
-    {
-        $customer = collect($this->customers->all())
-            ->firstWhere('email', $order['customerEmail']);
+        $order->items()->delete();
 
-        $order['customerName'] = $customer['name'] ?? $order['customerEmail'];
-        $order['customerId'] = $customer['id'] ?? null;
-        $order['customerAvatar'] = $customer['avatar'] ?? null;
+        foreach ($items as $item) {
+            $product = $products[$item['productId']];
+            $quantity = (int) $item['qty'];
 
-        return $order;
+            $order->items()->create([
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'sku' => $product->sku,
+                'unit_price' => $product->price,
+                'quantity' => $quantity,
+                'line_total' => $product->price * $quantity,
+            ]);
+        }
+
+        $subtotal = (int) $order->items()->sum('line_total');
+
+        $order->update([
+            'subtotal' => $subtotal,
+            'grand_total' => $subtotal + $order->shipping_total,
+        ]);
+
+        return $order->load('items');
     }
 
     /**
@@ -155,20 +198,14 @@ class OrderController extends Controller
     private function formOptions(): array
     {
         return [
-            'customers' => array_map(
-                fn (array $customer) => ['email' => $customer['email'], 'name' => $customer['name']],
-                $this->customers->all(),
-            ),
-            'products' => array_map(
-                fn (array $product) => [
-                    'id' => $product['id'],
-                    'name' => $product['name'],
-                    'price' => $product['price'],
-                ],
-                $this->products->all(),
-            ),
-            'statuses' => Catalog::orderStatuses(),
-            'payments' => Catalog::paymentMethods(),
+            'customers' => CustomerPresenter::options(Customer::orderBy('id')->get()),
+            'products' => ProductPresenter::options(Product::orderBy('id')->get()),
+            'branches' => Branch::orderBy('id')->get()
+                ->map(fn (Branch $branch) => ['id' => $branch->code, 'name' => $branch->name])
+                ->all(),
+            'statuses' => AdminOptions::labels(AdminOptions::ORDER_STATUSES),
+            'payments' => AdminOptions::paymentMethods(),
+            'fulfilments' => AdminOptions::labels(AdminOptions::FULFILMENTS),
         ];
     }
 }

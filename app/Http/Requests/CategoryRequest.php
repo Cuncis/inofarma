@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Support\Catalog;
-use App\Support\CategoryStore;
+use App\Models\Category;
+use App\Support\AdminOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,19 +14,16 @@ class CategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $store = app(CategoryStore::class);
-        $editing = $this->route('category');
-
         // A name has to stay unique, but the record being edited keeps its own.
-        $taken = collect($store->all())
-            ->reject(fn (array $category) => $category['id'] === $editing)
-            ->pluck('name')
-            ->all();
+        $editing = Category::where('slug', $this->route('category'))->value('id');
 
         return [
-            'name' => ['required', 'string', 'max:80', Rule::notIn($taken)],
+            'name' => [
+                'required', 'string', 'max:80',
+                Rule::unique(Category::class, 'name')->ignore($editing)->whereNull('deleted_at'),
+            ],
             'slug' => ['nullable', 'string', 'max:80', 'regex:/^[a-z0-9-]+$/'],
-            'status' => ['required', Rule::in(Catalog::categoryStatuses())],
+            'status' => ['required', Rule::in(AdminOptions::labels(AdminOptions::CATEGORY_STATUSES))],
             'description' => ['nullable', 'string', 'max:500'],
         ];
     }
@@ -50,7 +47,7 @@ class CategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.not_in' => 'Kategori dengan nama ini sudah ada.',
+            'name.unique' => 'Kategori dengan nama ini sudah ada.',
             'slug.regex' => 'Slug hanya boleh berisi huruf kecil, angka, dan tanda hubung.',
         ];
     }

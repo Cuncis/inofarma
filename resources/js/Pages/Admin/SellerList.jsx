@@ -5,7 +5,6 @@ import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
 import ConfirmDialog from '@/Components/Admin/ConfirmDialog';
-import Icon from '@/Components/Admin/Icon';
 import RowActions from '@/Components/Admin/RowActions';
 import Table from '@/Components/Admin/Table';
 import TableToolbar from '@/Components/Admin/TableToolbar';
@@ -17,7 +16,7 @@ const columns = [
     { key: 'city', label: 'Kota' },
     { key: 'products', label: 'Produk', align: 'right' },
     { key: 'revenue', label: 'Pendapatan', align: 'right' },
-    { key: 'rating', label: 'Rating', align: 'right' },
+    { key: 'joined', label: 'Bergabung' },
     { key: 'status', label: 'Status' },
     { key: 'actions', label: '', align: 'right' },
 ];
@@ -107,15 +106,6 @@ export default function SellerList({ sellers }) {
                             return (
                                 <span className="font-semibold text-admin-heading dark:text-admin-dark-heading">
                                     {money(row.revenue)}
-                                </span>
-                            );
-                        }
-
-                        if (key === 'rating') {
-                            return (
-                                <span className="inline-flex items-center justify-end gap-1">
-                                    <Icon name="solar:star-bold" size={14} className="text-warning" />
-                                    {row.rating}
                                 </span>
                             );
                         }

@@ -2,23 +2,28 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Support\Catalog;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
 class ProductCrudTest extends TestCase
 {
-    use SignsInAsAdmin;
+    use RefreshDatabase, SeedsDemoCatalogue, SignsInAsAdmin;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->seed();
         $this->signInAsAdmin();
     }
 
     /**
+     * There is deliberately no `stock` key: stock belongs to a product at a
+     * branch, so the product form has no field for it.
+     *
      * @return array<string, mixed>
      */
     private function validPayload(array $overrides = []): array
@@ -31,7 +36,6 @@ class ProductCrudTest extends TestCase
             'status' => 'Aktif',
             'price' => 17500,
             'oldPrice' => null,
-            'stock' => 240,
             'prescription' => false,
             'blurb' => 'Meredakan nyeri dan peradangan ringan.',
         ], $overrides);
@@ -43,9 +47,18 @@ class ProductCrudTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/ProductList')
-                ->has('products', count(Catalog::products()))
-                ->has('categories', count(Catalog::categories()))
+                ->has('products', self::PRODUCT_COUNT)
+                ->has('categories', self::CATEGORY_COUNT)
                 ->where('products.0.name', 'Paracetamol 500mg')
+            );
+    }
+
+    public function test_the_listed_stock_is_the_sum_across_every_branch(): void
+    {
+        $this->get('/admin/produk')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('products.0.stock', 482)
+                ->where('products.0.stockStatus', 'Tersedia')
             );
     }
 
@@ -57,22 +70,52 @@ class ProductCrudTest extends TestCase
 
         $this->get('/admin/produk')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('products', count(Catalog::products()) + 1)
+                ->has('products', self::PRODUCT_COUNT + 1)
                 ->where('products.12.name', 'Ibuprofen 400mg')
                 ->where('products.12.id', 'PRD-013')
                 ->where('products.12.price', 17500)
+                // Nothing has been put on a shelf yet.
+                ->where('products.12.stock', 0)
+                ->where('products.12.stockStatus', 'Habis')
             );
     }
 
     public function test_a_product_can_be_read_by_id(): void
     {
+        // Vitamin C is out of stock everywhere, but the product itself is still
+        // active — those are two different facts and two different fields.
         $this->get('/admin/produk/PRD-003')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/ProductDetail')
                 ->where('product.name', 'Vitamin C 1000mg')
-                ->where('product.status', 'Habis')
+                ->where('product.status', 'Aktif')
+                ->where('product.stockStatus', 'Habis')
+                ->where('product.stock', 0)
             );
+    }
+
+    public function test_the_detail_screen_breaks_stock_down_by_branch(): void
+    {
+        $this->get('/admin/produk/PRD-001')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('product.branches', self::BRANCH_COUNT)
+                ->has('product.branches.0.available')
+                ->has('product.branches.0.name')
+            );
+    }
+
+    public function test_the_same_product_holds_different_stock_at_different_branches(): void
+    {
+        $response = $this->get('/admin/produk/PRD-001');
+
+        $quantities = collect($response->viewData('page')['props']['product']['branches'])
+            ->pluck('quantity');
+
+        $this->assertGreaterThan(1, $quantities->unique()->count(),
+            'Stok seharusnya berbeda antar cabang, bukan angka yang sama di semua tempat.');
+        $this->assertSame(482, $quantities->sum());
     }
 
     public function test_an_unknown_product_is_a_404(): void
@@ -86,7 +129,6 @@ class ProductCrudTest extends TestCase
         $this->put('/admin/produk/PRD-001', $this->validPayload([
             'name' => 'Paracetamol 650mg',
             'price' => 14000,
-            'stock' => 500,
         ]))
             ->assertRedirect(route('admin.produk.index'))
             ->assertSessionHas('success');
@@ -95,8 +137,8 @@ class ProductCrudTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('product.name', 'Paracetamol 650mg')
                 ->where('product.price', 14000)
-                ->where('product.stock', 500)
-                // untouched fields survive the merge
+                // Editing the product does not disturb what is on the shelves.
+                ->where('product.stock', 482)
                 ->where('product.sold', 1240)
             );
     }
@@ -109,10 +151,25 @@ class ProductCrudTest extends TestCase
 
         $this->get('/admin/produk')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('products', count(Catalog::products()) - 1)
+                ->has('products', self::PRODUCT_COUNT - 1)
             );
 
         $this->get('/admin/produk/PRD-002')->assertNotFound();
+    }
+
+    public function test_deleting_a_product_leaves_past_orders_intact(): void
+    {
+        // PRD-002 was bought on INO-2446. Removing it from the catalogue must
+        // not change what that order says somebody paid.
+        $this->delete('/admin/produk/PRD-002');
+
+        $this->get('/admin/pesanan/INO-2446')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('order.items.0.name', 'Amoxicillin 500mg')
+                ->where('order.items.0.price', 38000)
+                ->where('order.total', 308000)
+            );
     }
 
     public function test_creating_requires_valid_input(): void
@@ -124,15 +181,14 @@ class ProductCrudTest extends TestCase
             'status' => 'Entah',
             'seller' => 'Toko Fiktif',
             'price' => -5,
-            'stock' => 'banyak',
             'prescription' => 'mungkin',
         ])->assertSessionHasErrors([
-            'name', 'category', 'seller', 'unit', 'status', 'price', 'stock', 'prescription',
+            'name', 'category', 'seller', 'unit', 'status', 'price', 'prescription',
         ]);
 
         $this->get('/admin/produk')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('products', count(Catalog::products()))
+                ->has('products', self::PRODUCT_COUNT)
             );
     }
 
@@ -161,7 +217,7 @@ class ProductCrudTest extends TestCase
 
         $this->get('/admin/produk')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('products', count(Catalog::products()))
+                ->has('products', self::PRODUCT_COUNT)
                 ->where('products.0.name', 'Paracetamol 500mg')
             );
     }

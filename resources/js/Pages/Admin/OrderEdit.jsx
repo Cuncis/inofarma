@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import OrderForm from '@/Components/Admin/OrderForm';
 
-export default function OrderEdit({ order, customers, products, statuses, payments }) {
+export default function OrderEdit({ order, customers, products, branches, statuses, payments, fulfilments }) {
     return (
         <AdminLayout
             title={`Ubah Pesanan #${order.id}`}
@@ -16,8 +16,10 @@ export default function OrderEdit({ order, customers, products, statuses, paymen
                 order={order}
                 customers={customers}
                 products={products}
+                branches={branches}
                 statuses={statuses}
                 payments={payments}
+                fulfilments={fulfilments}
                 submitLabel="Simpan Perubahan"
             />
         </AdminLayout>
