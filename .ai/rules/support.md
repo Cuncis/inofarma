@@ -11,7 +11,7 @@ Products hold `category_id` and `supplier_id`. Both are `restrictOnDelete`, so:
 
 - **Renaming needs no cascade.** The screens read the name through the relation, so it follows automatically. Delete any code that rewrites names across rows.
 - **Delete is refused while in use.** The controller counts first and turns a non-zero count into a `flash.error` with a readable message; MySQL would refuse it anyway. Keep both — the constraint is the guarantee, the check is the explanation.
-- **Slugs and codes are the route keys**, not ids. `/admin/produk/{sku}`, `/admin/kategori/{slug}`, `/admin/penjual/{code}`, `/admin/pelanggan/{code}`, `/admin/pesanan/{number}`.
+- **Slugs and codes are the route keys**, not ids. `/admin/produk/{sku}`, `/admin/kategori/{slug}`, `/admin/pemasok/{code}` (renamed from `/admin/penjual` in Fase 4.3 — the `Supplier` model and `supplier_id` foreign key were always the real names; only the screen/route label used to say the marketplace-seller word), `/admin/pelanggan/{code}`, `/admin/pesanan/{number}`.
 
 Orders snapshot their lines (`product_name`, `sku`, `unit_price`) and store their own totals. Never recompute an order's money from today's catalogue.
 

@@ -26,7 +26,38 @@ class AdminOptions
         'Nonaktif' => 'nonaktif',
     ];
 
+    /** `products.drug_class` — golongan obat, dengan warna logo resminya. */
+    public const DRUG_CLASSES = [
+        'Non-Obat' => 'non-obat',
+        'Bebas' => 'bebas',
+        'Bebas Terbatas' => 'bebas terbatas',
+        'Keras' => 'keras',
+    ];
+
+    /** `products.storage` — menentukan cabang mana boleh menjualnya (produk rantai dingin butuh kulkas). */
+    public const STORAGE_CONDITIONS = [
+        'Suhu Ruang' => 'suhu ruang',
+        'Sejuk (15-25°C)' => 'sejuk',
+        'Dingin/Kulkas (2-8°C)' => 'dingin',
+    ];
+
     public const SUPPLIER_STATUSES = [
+        'Aktif' => 'aktif',
+        'Nonaktif' => 'nonaktif',
+    ];
+
+    public const ATTRIBUTE_TYPES = [
+        'Pilihan' => 'pilihan',
+        'Teks' => 'teks',
+    ];
+
+    public const COUPON_TYPES = [
+        'Persentase' => 'persentase',
+        'Nominal' => 'nominal',
+        'Gratis Ongkir' => 'ongkir gratis',
+    ];
+
+    public const COUPON_STATUSES = [
         'Aktif' => 'aktif',
         'Nonaktif' => 'nonaktif',
     ];

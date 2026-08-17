@@ -4,6 +4,7 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import Button from '@/Components/Shop/Button';
 import Icon from '@/Components/Shop/Icon';
 import BranchPicker from '@/Components/Shop/BranchPicker';
+import { DrugInfoSection } from '@/Components/Shop/DrugInfo';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
 import { findProduct, money, reviews, useShopCatalog } from '@/Components/Shop/data';
@@ -111,6 +112,8 @@ export default function ProductDetail() {
                         ))}
                     </div>
                 </div>
+
+                <DrugInfoSection product={product} />
 
                 <BranchPicker productId={product.id} />
 

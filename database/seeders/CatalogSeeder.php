@@ -89,6 +89,31 @@ class CatalogSeeder extends Seeder
             'Tisu alkohol steril sekali pakai untuk membersihkan kulit sebelum penyuntikan.'],
     ];
 
+    /**
+     * Data farmasi (Fase 4.2), keyed by SKU. Not every seeded product needs to
+     * be this complete — one fully-fleshed product is what the "Selesai bila"
+     * criterion actually asks for — but filling in what a real label would say
+     * for each keeps the admin/shop screens from looking half-built during a
+     * demo. PRD-010 is deliberately "bebas terbatas" so a P1–P6 warning shows
+     * somewhere in the seed data, not just in a test fixture.
+     *
+     * @var array<string, array{nie: ?string, composition: ?string, indication: ?string, dosage: ?string, sideEffects: ?string, warning: ?string, manufacturer: string, storage: string, maxQty: ?int, drugClass?: string}>
+     */
+    private const PHARMA = [
+        'PRD-001' => ['nie' => 'DBL7813704133A1', 'composition' => 'Tiap tablet mengandung Paracetamol 500 mg.', 'indication' => 'Meredakan demam dan nyeri ringan hingga sedang seperti sakit kepala dan nyeri otot.', 'dosage' => 'Dewasa: 1 tablet, 3-4 kali sehari setelah makan. Maksimal 8 tablet per hari.', 'sideEffects' => 'Jarang: mual atau ruam kulit. Hindari melebihi dosis anjuran karena berisiko pada fungsi hati.', 'warning' => null, 'manufacturer' => 'PT Kimia Farma Tbk', 'storage' => 'suhu ruang', 'maxQty' => 5],
+        'PRD-002' => ['nie' => 'DKL0332701910A1', 'composition' => 'Tiap kapsul mengandung Amoxicillin trihydrate setara Amoxicillin 500 mg.', 'indication' => 'Infeksi bakteri pada saluran napas, saluran kemih, dan kulit.', 'dosage' => 'Sesuai resep dokter, umumnya 1 kapsul setiap 8 jam selama 5-7 hari.', 'sideEffects' => 'Mual, diare, reaksi alergi pada individu yang sensitif terhadap penisilin.', 'warning' => null, 'manufacturer' => 'PT Sanbe Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-003' => ['nie' => 'SD202312345', 'composition' => 'Tiap tablet effervescent mengandung Vitamin C (Asam Askorbat) 1000 mg.', 'indication' => 'Membantu memenuhi kebutuhan vitamin C harian dan menjaga daya tahan tubuh.', 'dosage' => 'Dewasa: 1 tablet per hari, dilarutkan dalam segelas air.', 'sideEffects' => 'Gangguan pencernaan ringan bila dikonsumsi berlebihan.', 'warning' => null, 'manufacturer' => 'PT Kalbe Farma Tbk', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-004' => ['nie' => null, 'composition' => 'Masker bedah 3 lapis dengan filter tengah.', 'indication' => 'Perlindungan pernapasan sehari-hari dari droplet dan partikel debu.', 'dosage' => 'Sekali pakai, ganti setiap 4-6 jam pemakaian.', 'sideEffects' => null, 'warning' => null, 'manufacturer' => 'PT Selaras Cipta Medika', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-005' => ['nie' => 'NA18211200247', 'composition' => 'Ethyl alcohol 70%, aloe vera extract, glycerin.', 'indication' => 'Membunuh kuman pada tangan tanpa perlu dibilas air.', 'dosage' => 'Tuang secukupnya, ratakan ke seluruh permukaan tangan hingga kering.', 'sideEffects' => 'Kulit kering pada pemakaian berlebihan.', 'warning' => null, 'manufacturer' => 'PT Griya Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-006' => ['nie' => null, 'composition' => 'Termometer digital non-kontak.', 'indication' => 'Mengukur suhu tubuh untuk memantau demam.', 'dosage' => 'Arahkan ke dahi dari jarak 3-5 cm, tekan tombol ukur.', 'sideEffects' => null, 'warning' => null, 'manufacturer' => 'Omron Healthcare', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-007' => ['nie' => 'SD201845678', 'composition' => 'Tiap kapsul lunak mengandung Cholecalciferol (Vitamin D3) 1000 IU.', 'indication' => 'Mendukung kesehatan tulang dan sistem imun.', 'dosage' => 'Dewasa: 1 kapsul per hari, dikonsumsi bersama makanan.', 'sideEffects' => 'Jarang, pada dosis wajar.', 'warning' => null, 'manufacturer' => 'PT Kalbe Farma Tbk', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-008' => ['nie' => 'QL201234561', 'composition' => 'Oleum Cajuputi (minyak kayu putih) 100%.', 'indication' => 'Menghangatkan badan, meredakan perut kembung dan masuk angin.', 'dosage' => 'Oleskan secukupnya pada perut atau punggung, pijat perlahan.', 'sideEffects' => 'Iritasi kulit bila kontak langsung dengan mata.', 'warning' => null, 'manufacturer' => 'PT Sehat Bersama', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-009' => ['nie' => null, 'composition' => 'Plester elastis dengan bantalan kasa steril.', 'indication' => 'Menutup luka kecil dan lecet.', 'dosage' => 'Tempelkan pada luka yang sudah dibersihkan, ganti setiap hari.', 'sideEffects' => null, 'warning' => null, 'manufacturer' => 'PT Farmasi Nusantara', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-010' => ['nie' => 'DTL8912345637A1', 'composition' => 'Tiap 5 ml mengandung Dextromethorphan HBr 15 mg.', 'indication' => 'Meredakan batuk tidak berdahak.', 'dosage' => 'Dewasa: 1 sendok takar (5 ml), 3 kali sehari.', 'sideEffects' => 'Mengantuk, pusing ringan. Hindari mengemudi setelah minum obat ini.', 'warning' => 'Awas! Obat Keras. Bacalah aturan pemakaiannya.', 'manufacturer' => 'PT Sehat Bersama', 'storage' => 'suhu ruang', 'maxQty' => 3, 'drugClass' => 'bebas terbatas'],
+        'PRD-011' => ['nie' => 'NA18211500123', 'composition' => 'Homosalate, Octocrylene, Zinc Oxide, Niacinamide.', 'indication' => 'Melindungi kulit dari paparan sinar UVA dan UVB.', 'dosage' => 'Oleskan merata ke wajah dan leher 15 menit sebelum beraktivitas di luar ruangan, ulangi setiap 3-4 jam.', 'sideEffects' => 'Iritasi ringan pada kulit sensitif.', 'warning' => null, 'manufacturer' => 'PT Griya Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-012' => ['nie' => 'NA18211200089', 'composition' => 'Isopropyl alcohol 70%.', 'indication' => 'Membersihkan dan mendisinfeksi kulit sebelum penyuntikan atau pengambilan darah.', 'dosage' => 'Usap area kulit sekali pakai, biarkan kering sebelum tindakan.', 'sideEffects' => 'Iritasi pada kulit yang sangat sensitif.', 'warning' => null, 'manufacturer' => 'PT Griya Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
+    ];
+
     public function run(): void
     {
         $categories = $this->seedCategories();
@@ -162,6 +187,8 @@ class CatalogSeeder extends Seeder
         $products = [];
 
         foreach (self::PRODUCTS as [$sku, $name, $category, $supplier, $image, $price, $oldPrice, $stock, $sold, $rating, $unit, $prescription, $blurb]) {
+            $pharma = self::PHARMA[$sku];
+
             $product = Product::withTrashed()->updateOrCreate(
                 ['sku' => $sku],
                 [
@@ -173,7 +200,16 @@ class CatalogSeeder extends Seeder
                     'old_price' => $oldPrice,
                     'unit' => $unit,
                     'blurb' => $blurb,
-                    'drug_class' => $this->drugClass($category, $prescription),
+                    'drug_class' => $pharma['drugClass'] ?? $this->drugClass($category, $prescription),
+                    'nie_bpom' => $pharma['nie'],
+                    'composition' => $pharma['composition'],
+                    'indication' => $pharma['indication'],
+                    'dosage' => $pharma['dosage'],
+                    'side_effects' => $pharma['sideEffects'],
+                    'warning' => $pharma['warning'],
+                    'manufacturer' => $pharma['manufacturer'],
+                    'max_qty_per_order' => $pharma['maxQty'],
+                    'storage' => $pharma['storage'],
                     'requires_prescription' => $prescription,
                     'weight_grams' => 150,
                     'sold_count' => $sold,
@@ -191,6 +227,15 @@ class CatalogSeeder extends Seeder
                     'is_primary' => true,
                 ],
             );
+
+            // PRD-001 shows the "several photos, reorderable" side of Fase 4.1
+            // with real seed data rather than only through an admin upload.
+            if ($sku === 'PRD-001') {
+                ProductImage::updateOrCreate(
+                    ['product_id' => $product->id, 'position' => 1],
+                    ['path' => '/media/images/product/p-13.png', 'alt' => $name, 'is_primary' => false],
+                );
+            }
 
             $products[] = ['product' => $product, 'stock' => $stock];
         }

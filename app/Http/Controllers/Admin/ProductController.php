@@ -140,6 +140,19 @@ class ProductController extends Controller
             'old_price' => $data['oldPrice'] ?? null,
             'requires_prescription' => $data['prescription'],
             'blurb' => $data['blurb'] ?? null,
+
+            // --- Data farmasi (Fase 4.2) ---
+            'drug_class' => AdminOptions::toValue(AdminOptions::DRUG_CLASSES, $data['drugClass'] ?? 'Non-Obat'),
+            'nie_bpom' => $data['nie'] ?? null,
+            'composition' => $data['composition'] ?? null,
+            'indication' => $data['indication'] ?? null,
+            'dosage' => $data['dosage'] ?? null,
+            'side_effects' => $data['sideEffects'] ?? null,
+            'warning' => $data['warning'] ?? null,
+            'manufacturer' => $data['manufacturer'] ?? null,
+            'max_qty_per_order' => $data['maxQtyPerOrder'] ?? null,
+            'storage' => AdminOptions::toValue(AdminOptions::STORAGE_CONDITIONS, $data['storage'] ?? 'Suhu Ruang'),
+            'weight_grams' => $data['weightGrams'] ?? 0,
         ];
     }
 
@@ -153,6 +166,8 @@ class ProductController extends Controller
             'sellers' => Supplier::orderBy('id')->pluck('name')->all(),
             'units' => AdminOptions::units(),
             'statuses' => AdminOptions::labels(AdminOptions::PRODUCT_STATUSES),
+            'drugClasses' => AdminOptions::labels(AdminOptions::DRUG_CLASSES),
+            'storageConditions' => AdminOptions::labels(AdminOptions::STORAGE_CONDITIONS),
         ];
     }
 }

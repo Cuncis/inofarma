@@ -7,14 +7,14 @@ use App\Support\AdminOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class SellerRequest extends FormRequest
+class SupplierRequest extends FormRequest
 {
     /**
      * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
-        $editing = Supplier::where('code', $this->route('seller'))->value('id');
+        $editing = Supplier::where('code', $this->route('supplier'))->value('id');
 
         $unique = fn (string $column) => Rule::unique(Supplier::class, $column)
             ->ignore($editing)
@@ -56,7 +56,7 @@ class SellerRequest extends FormRequest
     {
         return [
             'name.unique' => 'Nama toko ini sudah terdaftar.',
-            'email.unique' => 'Email ini sudah dipakai penjual lain.',
+            'email.unique' => 'Email ini sudah dipakai pemasok lain.',
             'license.unique' => 'Nomor izin apotek ini sudah terdaftar.',
             'phone.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).',
         ];

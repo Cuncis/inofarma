@@ -6,12 +6,12 @@ use App\Models\Supplier;
 use App\Support\AdminOptions;
 
 /**
- * Turns a `Supplier` into the shape the admin "Penjual" screens expect.
+ * Turns a `Supplier` into the shape the admin "Pemasok" screens expect.
  *
- * The prop names still say seller because the screens do. In a chain you own,
- * the outside party supplies you rather than sells for you, which is why the
- * table is `suppliers` — renaming the screens is a labelling decision, not a
- * data one, so it is deliberately left alone here.
+ * The screens used to say "Penjual" (seller) — a marketplace word that never
+ * fit a chain sourcing its own stock. Fase 4.3 renamed the label, route
+ * segment and controller; this presenter's prop keys were already generic
+ * (`owner`, `city`, ...), so nothing here needed to change.
  */
 class SupplierPresenter
 {

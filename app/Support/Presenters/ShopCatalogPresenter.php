@@ -74,6 +74,19 @@ class ShopCatalogPresenter
             'variants' => [$product->unit],
             'prescription' => $product->requires_prescription,
             'blurb' => $product->blurb,
+
+            // --- Data farmasi (Fase 4.2), wajib tampil di halaman produk ---
+            'drugClass' => AdminOptions::toLabel(AdminOptions::DRUG_CLASSES, $product->drug_class),
+            'needsWarningLabel' => $product->needs_warning_label,
+            'nie' => $product->nie_bpom,
+            'composition' => $product->composition,
+            'indication' => $product->indication,
+            'dosage' => $product->dosage,
+            'sideEffects' => $product->side_effects,
+            'warning' => $product->warning,
+            'manufacturer' => $product->manufacturer,
+            'maxQtyPerOrder' => $product->max_qty_per_order,
+            'storage' => AdminOptions::toLabel(AdminOptions::STORAGE_CONDITIONS, $product->storage),
         ];
     }
 }

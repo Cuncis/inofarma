@@ -1,4 +1,4 @@
-import { branches, customers, invoices, orders, sellers } from './data';
+import { branches, customers, orders, sellers } from './data';
 import { allNavLinks } from './nav';
 
 /**
@@ -15,14 +15,11 @@ const actionPages = [
     { label: 'Buat Transfer Stok', href: '/admin/inventaris/transfer/tambah' },
     { label: 'Matriks Stok', href: '/admin/inventaris/matriks' },
     { label: 'Tambah Atribut', href: '/admin/atribut/tambah' },
-    { label: 'Ubah Atribut', href: '/admin/atribut/ubah' },
-    { label: 'Buat Faktur', href: '/admin/faktur/tambah' },
-    { label: 'Ubah Faktur', href: '/admin/faktur/ubah' },
     { label: 'Tambah Peran', href: '/admin/peran/tambah' },
     { label: 'Tambah Staf', href: '/admin/staf/tambah' },
     { label: 'Keamanan (2FA)', href: '/admin/keamanan' },
     { label: 'Tambah Pelanggan', href: '/admin/pelanggan/tambah' },
-    { label: 'Tambah Penjual', href: '/admin/penjual/tambah' },
+    { label: 'Tambah Pemasok', href: '/admin/pemasok/tambah' },
     { label: 'Tambah Kupon', href: '/admin/kupon/tambah' },
     { label: 'Buat Pesanan', href: '/admin/pesanan/tambah' },
     { label: 'Lupa Kata Sandi', href: '/admin/lupa-sandi' },
@@ -88,20 +85,15 @@ export function buildSearchIndex(catalog) {
     })),
 
     ...sellers.map((seller) => ({
-        group: 'Penjual',
+        group: 'Pemasok',
         label: seller.name,
         meta: `${seller.owner} · ${seller.city}`,
-        href: `/admin/penjual/${seller.id}`,
+        href: `/admin/pemasok/${seller.id}`,
         icon: 'solar:shop-bold-duotone',
     })),
 
-    ...invoices.map((invoice) => ({
-        group: 'Faktur',
-        label: invoice.number,
-        meta: `${invoice.customer} · ${invoice.status}`,
-        href: '/admin/faktur/detail',
-        icon: 'solar:bill-list-bold-duotone',
-    })),
+    // Faktur is an Order read as an invoice (Fase 4.3) — the `orders` group
+    // above already surfaces every order, so it is not indexed twice here.
 
     ...allNavLinks.map((link) => ({
         group: 'Halaman',

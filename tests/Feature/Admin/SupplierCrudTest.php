@@ -8,7 +8,7 @@ use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
-class SellerCrudTest extends TestCase
+class SupplierCrudTest extends TestCase
 {
     use RefreshDatabase, SeedsDemoCatalogue, SignsInAsAdmin;
 
@@ -39,50 +39,50 @@ class SellerCrudTest extends TestCase
 
     public function test_the_list_derives_product_counts_and_revenue(): void
     {
-        $this->get('/admin/penjual')
+        $this->get('/admin/pemasok')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->component('Admin/SellerList')
-                ->has('sellers', self::SUPPLIER_COUNT)
-                ->where('sellers.0.name', 'Apotek Sehat Bersama')
-                ->where('sellers.0.products', 4)
+                ->component('Admin/SupplierList')
+                ->has('suppliers', self::SUPPLIER_COUNT)
+                ->where('suppliers.0.name', 'Apotek Sehat Bersama')
+                ->where('suppliers.0.products', 4)
                 // 12500*1240 + 38000*860 + 24000*1580 + 29500*940
-                ->where('sellers.0.revenue', 113830000)
+                ->where('suppliers.0.revenue', 113830000)
             );
     }
 
     public function test_a_seller_with_no_products_reports_zero(): void
     {
-        $this->get('/admin/penjual')
+        $this->get('/admin/pemasok')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('sellers.4.name', 'Apotek Melati')
-                ->where('sellers.4.products', 0)
-                ->where('sellers.4.revenue', 0)
+                ->where('suppliers.4.name', 'Apotek Melati')
+                ->where('suppliers.4.products', 0)
+                ->where('suppliers.4.revenue', 0)
             );
     }
 
     public function test_a_seller_can_be_created(): void
     {
-        $this->post('/admin/penjual', $this->validPayload())
-            ->assertRedirect(route('admin.penjual.index'))
+        $this->post('/admin/pemasok', $this->validPayload())
+            ->assertRedirect(route('admin.pemasok.index'))
             ->assertSessionHas('success');
 
-        $this->get('/admin/penjual')
+        $this->get('/admin/pemasok')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', self::SUPPLIER_COUNT + 1)
-                ->where('sellers.5.name', 'Apotek Cendana')
-                ->where('sellers.5.id', 'SEL-006')
-                ->where('sellers.5.products', 0)
+                ->has('suppliers', self::SUPPLIER_COUNT + 1)
+                ->where('suppliers.5.name', 'Apotek Cendana')
+                ->where('suppliers.5.id', 'SEL-006')
+                ->where('suppliers.5.products', 0)
             );
     }
 
     public function test_a_seller_can_be_read_with_only_their_products(): void
     {
-        $this->get('/admin/penjual/SEL-002')
+        $this->get('/admin/pemasok/SEL-002')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->component('Admin/SellerDetail')
-                ->where('seller.name', 'Toko Obat Mandiri')
+                ->component('Admin/SupplierDetail')
+                ->where('supplier.name', 'Toko Obat Mandiri')
                 ->has('products', 2)
                 ->where('products.0.name', 'Vitamin C 1000mg')
             );
@@ -90,26 +90,26 @@ class SellerCrudTest extends TestCase
 
     public function test_an_unknown_seller_is_a_404(): void
     {
-        $this->get('/admin/penjual/SEL-999')->assertNotFound();
-        $this->get('/admin/penjual/SEL-999/ubah')->assertNotFound();
+        $this->get('/admin/pemasok/SEL-999')->assertNotFound();
+        $this->get('/admin/pemasok/SEL-999/ubah')->assertNotFound();
     }
 
     public function test_a_seller_can_be_updated(): void
     {
-        $this->put('/admin/penjual/SEL-004', $this->validPayload([
+        $this->put('/admin/pemasok/SEL-004', $this->validPayload([
             'name' => 'Griya Farma',
             'email' => 'griyafarma@mail.com',
             'license' => 'SIA/2025/00077',
             'city' => 'Sleman',
             'status' => 'Nonaktif',
         ]))
-            ->assertRedirect(route('admin.penjual.index'))
+            ->assertRedirect(route('admin.pemasok.index'))
             ->assertSessionHas('success');
 
-        $this->get('/admin/penjual/SEL-004')
+        $this->get('/admin/pemasok/SEL-004')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('seller.city', 'Sleman')
-                ->where('seller.status', 'Nonaktif')
+                ->where('supplier.city', 'Sleman')
+                ->where('supplier.status', 'Nonaktif')
                 ->has('products', 3)
             );
     }
@@ -117,7 +117,7 @@ class SellerCrudTest extends TestCase
     public function test_renaming_a_seller_carries_through_to_their_products(): void
     {
         // Products hold a foreign key, so the rename needs no cascade.
-        $this->put('/admin/penjual/SEL-002', $this->validPayload([
+        $this->put('/admin/pemasok/SEL-002', $this->validPayload([
             'name' => 'Toko Obat Mandiri Jaya',
             'email' => 'obatmandiri@mail.com',
             'license' => 'SIA/2024/00224',
@@ -128,34 +128,34 @@ class SellerCrudTest extends TestCase
                 ->where('product.seller', 'Toko Obat Mandiri Jaya')
             );
 
-        $this->get('/admin/penjual/SEL-002')
+        $this->get('/admin/pemasok/SEL-002')
             ->assertInertia(fn (AssertableInertia $page) => $page->has('products', 2));
     }
 
     public function test_a_seller_still_stocking_products_cannot_be_deleted(): void
     {
-        $this->delete('/admin/penjual/SEL-001')
-            ->assertRedirect(route('admin.penjual.index'))
+        $this->delete('/admin/pemasok/SEL-001')
+            ->assertRedirect(route('admin.pemasok.index'))
             ->assertSessionHas('error');
 
-        $this->get('/admin/penjual')
+        $this->get('/admin/pemasok')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', self::SUPPLIER_COUNT)
+                ->has('suppliers', self::SUPPLIER_COUNT)
             );
     }
 
     public function test_a_seller_with_no_products_can_be_deleted(): void
     {
-        $this->delete('/admin/penjual/SEL-005')
-            ->assertRedirect(route('admin.penjual.index'))
+        $this->delete('/admin/pemasok/SEL-005')
+            ->assertRedirect(route('admin.pemasok.index'))
             ->assertSessionHas('success');
 
-        $this->get('/admin/penjual/SEL-005')->assertNotFound();
+        $this->get('/admin/pemasok/SEL-005')->assertNotFound();
     }
 
     public function test_creating_requires_valid_input(): void
     {
-        $this->post('/admin/penjual', [
+        $this->post('/admin/pemasok', [
             'name' => '',
             'owner' => '',
             'email' => 'bukan-email',
@@ -168,19 +168,19 @@ class SellerCrudTest extends TestCase
 
     public function test_name_email_and_licence_must_each_be_unique(): void
     {
-        $this->post('/admin/penjual', $this->validPayload(['name' => 'Farmasi Nusantara']))
+        $this->post('/admin/pemasok', $this->validPayload(['name' => 'Farmasi Nusantara']))
             ->assertSessionHasErrors(['name' => 'Nama toko ini sudah terdaftar.']);
 
-        $this->post('/admin/penjual', $this->validPayload(['email' => 'griyafarma@mail.com']))
-            ->assertSessionHasErrors(['email' => 'Email ini sudah dipakai penjual lain.']);
+        $this->post('/admin/pemasok', $this->validPayload(['email' => 'griyafarma@mail.com']))
+            ->assertSessionHasErrors(['email' => 'Email ini sudah dipakai pemasok lain.']);
 
-        $this->post('/admin/penjual', $this->validPayload(['license' => 'SIA/2024/00181']))
+        $this->post('/admin/pemasok', $this->validPayload(['license' => 'SIA/2024/00181']))
             ->assertSessionHasErrors(['license' => 'Nomor izin apotek ini sudah terdaftar.']);
     }
 
     public function test_a_new_seller_becomes_selectable_on_the_product_form(): void
     {
-        $this->post('/admin/penjual', $this->validPayload());
+        $this->post('/admin/pemasok', $this->validPayload());
 
         $this->get('/admin/produk/tambah')
             ->assertInertia(fn (AssertableInertia $page) => $page
@@ -199,7 +199,7 @@ class SellerCrudTest extends TestCase
             'blurb' => 'Antiseptik untuk luka luar.',
         ])->assertSessionHasNoErrors();
 
-        $this->get('/admin/penjual/SEL-006')
+        $this->get('/admin/pemasok/SEL-006')
             ->assertInertia(fn (AssertableInertia $page) => $page->has('products', 1));
     }
 
@@ -220,12 +220,12 @@ class SellerCrudTest extends TestCase
 
     public function test_the_list_can_be_reset(): void
     {
-        $this->post('/admin/penjual', $this->validPayload());
-        $this->post('/admin/penjual/reset')->assertSessionHas('success');
+        $this->post('/admin/pemasok', $this->validPayload());
+        $this->post('/admin/pemasok/reset')->assertSessionHas('success');
 
-        $this->get('/admin/penjual')
+        $this->get('/admin/pemasok')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('sellers', self::SUPPLIER_COUNT)
+                ->has('suppliers', self::SUPPLIER_COUNT)
             );
     }
 }

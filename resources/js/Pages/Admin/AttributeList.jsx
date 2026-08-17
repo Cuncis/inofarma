@@ -1,12 +1,13 @@
 import { useState } from 'react';
+import { router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
+import ConfirmDialog from '@/Components/Admin/ConfirmDialog';
 import RowActions from '@/Components/Admin/RowActions';
 import Table from '@/Components/Admin/Table';
 import TableToolbar from '@/Components/Admin/TableToolbar';
-import { attributes as seed } from '@/Components/Admin/data';
 
 const columns = [
     { key: 'name', label: 'Atribut' },
@@ -16,11 +17,24 @@ const columns = [
     { key: 'actions', label: '', align: 'right' },
 ];
 
-export default function AttributeList() {
-    const [rows, setRows] = useState(seed);
+export default function AttributeList({ attributes }) {
     const [search, setSearch] = useState('');
+    const [pendingDelete, setPendingDelete] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
-    const visible = rows.filter((row) => row.name.toLowerCase().includes(search.toLowerCase()));
+    const visible = attributes.filter((row) => row.name.toLowerCase().includes(search.toLowerCase()));
+
+    const confirmDelete = () => {
+        setDeleting(true);
+
+        router.delete(`/admin/atribut/${pendingDelete.id}`, {
+            preserveScroll: true,
+            onFinish: () => {
+                setDeleting(false);
+                setPendingDelete(null);
+            },
+        });
+    };
 
     return (
         <AdminLayout
@@ -59,12 +73,14 @@ export default function AttributeList() {
                         }
 
                         if (key === 'values') {
-                            return (
+                            return row.values.length ? (
                                 <span className="flex flex-wrap gap-1">
                                     {row.values.map((value) => (
                                         <Badge key={value}>{value}</Badge>
                                     ))}
                                 </span>
+                            ) : (
+                                <span className="text-admin-muted dark:text-admin-dark-muted">—</span>
                             );
                         }
 
@@ -72,12 +88,8 @@ export default function AttributeList() {
                             return (
                                 <RowActions
                                     label={row.name}
-                                    editHref="/admin/atribut/ubah"
-                                    onDelete={() =>
-                                        setRows((current) =>
-                                            current.filter((item) => item.slug !== row.slug),
-                                        )
-                                    }
+                                    editHref={`/admin/atribut/${row.id}/ubah`}
+                                    onDelete={() => setPendingDelete(row)}
                                 />
                             );
                         }
@@ -86,6 +98,16 @@ export default function AttributeList() {
                     }}
                 />
             </Card>
+
+            <ConfirmDialog
+                open={Boolean(pendingDelete)}
+                title="Hapus atribut?"
+                body={pendingDelete ? `"${pendingDelete.name}" akan dihapus. Tindakan ini tidak bisa dibatalkan.` : ''}
+                confirmLabel="Hapus"
+                processing={deleting}
+                onConfirm={confirmDelete}
+                onCancel={() => setPendingDelete(null)}
+            />
         </AdminLayout>
     );
 }

@@ -4,22 +4,22 @@ import Card from './Card';
 import { Field, Input, Select, Textarea } from './Form';
 
 /**
- * Create/update form for a seller, shared by the add and edit screens.
+ * Create/update form for a supplier, shared by the add and edit screens.
  *
- * @param {{ seller?: object, statuses: string[], submitLabel: string }} props
+ * @param {{ supplier?: object, statuses: string[], submitLabel: string }} props
  */
-export default function SellerForm({ seller, statuses, submitLabel }) {
-    const editing = Boolean(seller);
+export default function SupplierForm({ supplier, statuses, submitLabel }) {
+    const editing = Boolean(supplier);
 
     const { data, setData, post, put, processing, errors } = useForm({
-        name: seller?.name ?? '',
-        owner: seller?.owner ?? '',
-        email: seller?.email ?? '',
-        phone: seller?.phone ?? '',
-        license: seller?.license ?? '',
-        city: seller?.city ?? '',
-        address: seller?.address ?? '',
-        status: seller?.status ?? statuses[0],
+        name: supplier?.name ?? '',
+        owner: supplier?.owner ?? '',
+        email: supplier?.email ?? '',
+        phone: supplier?.phone ?? '',
+        license: supplier?.license ?? '',
+        city: supplier?.city ?? '',
+        address: supplier?.address ?? '',
+        status: supplier?.status ?? statuses[0],
     });
 
     const submit = (event) => {
@@ -28,9 +28,9 @@ export default function SellerForm({ seller, statuses, submitLabel }) {
         const options = { preserveScroll: true };
 
         if (editing) {
-            put(`/admin/penjual/${seller.id}`, options);
+            put(`/admin/pemasok/${supplier.id}`, options);
         } else {
-            post('/admin/penjual', options);
+            post('/admin/pemasok', options);
         }
     };
 
@@ -50,7 +50,7 @@ export default function SellerForm({ seller, statuses, submitLabel }) {
 
     return (
         <form onSubmit={submit} className="mx-auto max-w-3xl">
-            <Card title="Data Penjual">
+            <Card title="Data Pemasok">
                 <div className="grid gap-4 sm:grid-cols-2">
                     {field('name', 'Nama Toko', { placeholder: 'Apotek Sehat Bersama' })}
                     {field('owner', 'Nama Pemilik', { placeholder: 'Kirana Wijaya' })}
@@ -58,7 +58,7 @@ export default function SellerForm({ seller, statuses, submitLabel }) {
                     {field('phone', 'Nomor Telepon', { type: 'tel', placeholder: '+62 21 5551 0001' })}
                     {field('license', 'Nomor Izin Apotek', {
                         placeholder: 'SIA/2025/00123',
-                        hint: 'Harus unik untuk setiap penjual.',
+                        hint: 'Harus unik untuk setiap pemasok.',
                     })}
                     {field('city', 'Kota', { placeholder: 'Jakarta Selatan' })}
 
@@ -89,10 +89,10 @@ export default function SellerForm({ seller, statuses, submitLabel }) {
                     </Field>
                 </div>
 
-                {editing && seller.products > 0 ? (
+                {editing && supplier.products > 0 ? (
                     <p className="mt-4 rounded-lg bg-admin-hover px-3 py-2.5 text-xs leading-relaxed text-admin-body dark:bg-admin-dark-hover dark:text-admin-dark-body">
                         Mengubah nama toko akan otomatis memperbarui{' '}
-                        <strong>{seller.products} produk</strong> yang dijualnya.
+                        <strong>{supplier.products} produk</strong> yang dipasoknya.
                     </p>
                 ) : null}
 
@@ -100,7 +100,7 @@ export default function SellerForm({ seller, statuses, submitLabel }) {
                     <Button type="submit" disabled={processing}>
                         {processing ? 'Menyimpan…' : submitLabel}
                     </Button>
-                    <Button href="/admin/penjual" variant="outline">
+                    <Button href="/admin/pemasok" variant="outline">
                         Batal
                     </Button>
                 </div>

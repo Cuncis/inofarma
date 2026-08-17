@@ -33,6 +33,19 @@ class ProductRequest extends FormRequest
             'oldPrice' => ['nullable', 'integer', 'min:0', 'max:1000000000', 'gt:price'],
             'prescription' => ['required', 'boolean'],
             'blurb' => ['nullable', 'string', 'max:500'],
+
+            // --- Data farmasi (Fase 4.2) ---
+            'drugClass' => ['nullable', Rule::in(AdminOptions::labels(AdminOptions::DRUG_CLASSES))],
+            'nie' => ['nullable', 'string', 'max:40'],
+            'composition' => ['nullable', 'string', 'max:255'],
+            'indication' => ['nullable', 'string', 'max:1000'],
+            'dosage' => ['nullable', 'string', 'max:1000'],
+            'sideEffects' => ['nullable', 'string', 'max:1000'],
+            'warning' => ['nullable', 'string', 'max:1000', 'required_if:drugClass,Bebas Terbatas'],
+            'manufacturer' => ['nullable', 'string', 'max:120'],
+            'maxQtyPerOrder' => ['nullable', 'integer', 'min:1', 'max:1000'],
+            'storage' => ['nullable', Rule::in(AdminOptions::labels(AdminOptions::STORAGE_CONDITIONS))],
+            'weightGrams' => ['nullable', 'integer', 'min:0', 'max:100000'],
         ];
     }
 
@@ -51,6 +64,17 @@ class ProductRequest extends FormRequest
             'oldPrice' => 'harga coret',
             'prescription' => 'status resep',
             'blurb' => 'deskripsi',
+            'drugClass' => 'golongan obat',
+            'nie' => 'nomor izin edar',
+            'composition' => 'komposisi',
+            'indication' => 'indikasi',
+            'dosage' => 'aturan pakai',
+            'sideEffects' => 'efek samping',
+            'warning' => 'peringatan',
+            'manufacturer' => 'produsen',
+            'maxQtyPerOrder' => 'batas pembelian',
+            'storage' => 'kondisi penyimpanan',
+            'weightGrams' => 'berat',
         ];
     }
 
@@ -63,6 +87,7 @@ class ProductRequest extends FormRequest
             'oldPrice.gt' => 'Harga coret harus lebih besar dari harga jual.',
             'category.exists' => 'Kategori ini tidak terdaftar.',
             'seller.exists' => 'Penjual ini tidak terdaftar.',
+            'warning.required_if' => 'Obat bebas terbatas wajib menampilkan peringatan P1–P6.',
         ];
     }
 }

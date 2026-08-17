@@ -100,10 +100,10 @@ dan 2 adalah pekerjaan terbesar.
 | --- | --- | --- | --- |
 | 1 | Etalase membaca katalog statis JS, admin membaca *store* server | Perubahan produk di admin **tidak muncul** di etalase | Fase 1 |
 | 2 | **`stock` adalah satu angka pada produk** | Tidak bisa menyatakan "ada 5 di Otista, habis di Parakan" | **Fase 2 — perubahan mendasar** |
-| 3 | Gambar ilustrasi kosong dimuat dari `george-fx.github.io` (host pihak ketiga) | Etalase bergantung pada server orang lain | Fase 4 |
-| 4 | Atribut, Peran, Kupon, Faktur masih data contoh | Belum bisa dipakai | Fase 1 & 4 |
-| 5 | "Penjual" bermakna *marketplace seller* | Tidak cocok untuk jaringan sendiri | Fase 1 — ubah jadi Pemasok |
-| 6 | Gambar produk adalah render generik dari template | Terlihat jelas bukan foto obat asli | Fase 4 |
+| 3 | ~~Gambar ilustrasi kosong dimuat dari `george-fx.github.io` (host pihak ketiga)~~ | ~~Etalase bergantung pada server orang lain~~ | ✅ Fase 4 — di-*self-host* ke `public/media/images/other/` |
+| 4 | ~~Atribut, Peran, Kupon, Faktur masih data contoh~~ | ~~Belum bisa dipakai~~ | ✅ Peran selesai Fase 3, Atribut/Kupon/Faktur selesai Fase 4 |
+| 5 | ~~"Penjual" bermakna *marketplace seller*~~ | ~~Tidak cocok untuk jaringan sendiri~~ | ✅ Fase 4 — layar dan rute jadi "Pemasok" |
+| 6 | Gambar produk adalah render generik dari template | Terlihat jelas bukan foto obat asli | Infrastruktur unggah selesai Fase 4; foto asli menunggu aset — belum ada fase penutup |
 | 7 | Pencarian dijalankan di browser atas seluruh data | Tidak sanggup di atas ~500 produk, apalagi × 1.000 cabang | Fase 11 |
 | 8 | Tidak ada `.env.example` untuk kunci pihak ketiga | Sulit di-*setup* ulang | Fase 13 |
 | 9 | Alamat pelanggan hanya teks bebas | Tidak bisa hitung jarak ke cabang | Fase 2 |
@@ -524,39 +524,109 @@ semua controller, layar profil pelanggan — tetap perlu waktu sungguhan.)*
 
 ---
 
-## Fase 4 — Katalog yang sesungguhnya
+## Fase 4 — Katalog yang sesungguhnya — ✅ SELESAI
 
 ### 4.1 Gambar
 
-- [ ] Unggah ke S3-compatible (AWS S3, atau Biznet/IDCloudHost untuk residensi
-      data).
-- [ ] Varian ukuran otomatis dengan `intervention/image`.
-- [ ] Banyak gambar per produk, bisa diurutkan.
-- [ ] Ganti seluruh gambar template dengan **foto produk asli**.
-- [ ] **Self-host ilustrasi kosong** (utang teknis #3).
+- [x] Unggah ke S3-compatible. — kode selalu menulis lewat
+      `Storage::disk(config('filesystems.uploads'))`; disk itu adalah `public`
+      (lokal) di pengembangan dan berpindah ke `s3` di produksi lewat
+      `UPLOADS_DISK=s3` + kunci `AWS_*` di `.env` — **tanpa ubah kode apa pun**.
+      Belum diuji terhadap bucket S3 sungguhan karena belum ada kredensial;
+      `league/flysystem-aws-s3-v3` sudah terpasang jadi tinggal isi env saat
+      siap.
+- [x] Varian ukuran otomatis dengan `intervention/image` (v4). —
+      `App\Support\ProductImageUploader` membuat dua varian per unggahan: versi
+      tampil (maksimal 1600px, JPEG kualitas 82) dan thumbnail 400×400
+      (`-thumb` sebelum ekstensi, jalur konvensi lewat
+      `ProductImage::getThumbPathAttribute()` — tidak perlu kolom baru).
+      Dibuktikan lewat HTTP sungguhan: unggah → dua berkas nyata di
+      `storage/app/public/products/{id}/`, keduanya bisa diakses lewat symlink
+      `/storage/...`.
+- [x] Banyak gambar per produk, bisa diurutkan. — `ProductImageController`
+      (`store`/`reorder`/`makePrimary`/`destroy`), diatur dari
+      `Components/Admin/ProductImageManager.jsx` di layar Ubah Produk: unggah
+      banyak sekaligus, naik/turunkan urutan, tandai utama, hapus.
+- [ ] Ganti seluruh gambar template dengan **foto produk asli**. — **ditunda,
+      butuh aset asli.** Infrastruktur unggahnya sudah lengkap dan teruji; yang
+      belum ada hanyalah foto produk sungguhan untuk diunggah. PRD-001 diberi
+      gambar kedua dari data seed sebagai contoh "banyak gambar" berfungsi.
+- [x] **Self-host ilustrasi kosong** (utang teknis #3). — kedelapan ilustrasi
+      (`asset.other('01'..'08')`) diunduh dari `george-fx.github.io` ke
+      `public/media/images/other/` dan `Components/Shop/data.js` menunjuk ke
+      sana; etalase tidak lagi bergantung pada host pihak ketiga.
 
 ### 4.2 Data produk untuk apotek
 
-- [ ] **Golongan obat** — bebas (hijau) / bebas terbatas (biru), dengan logonya.
-- [ ] **Nomor izin edar (NIE) BPOM.**
-- [ ] **Komposisi zat aktif.**
-- [ ] **Indikasi, aturan pakai, efek samping, peringatan.** Untuk obat bebas
-      terbatas, peringatan **P1–P6** wajib ditampilkan.
-- [ ] **Produsen / pemegang izin edar.**
-- [ ] **Batas pembelian per transaksi.**
-- [ ] **Kondisi penyimpanan** — penting untuk memutuskan cabang mana boleh
-      menjualnya (produk rantai dingin hanya di cabang berkulkas).
+- [x] **Golongan obat** — kolomnya (`drug_class`) sudah ada sejak Fase 1 tapi
+      tidak pernah disambungkan ke formulir; sekarang bisa diisi lewat
+      `ProductForm`'s kartu "Informasi Farmasi", divalidasi
+      (`ProductRequest`), dan ditampilkan di etalase lewat
+      `Components/Shop/DrugInfo.jsx` (`DrugClassBadge`) — lingkaran hijau
+      untuk Bebas, biru untuk Bebas Terbatas, merah "K" untuk Keras. Digambar
+      sebagai warna + teks, bukan logo BPOM asli, karena tidak ada berkas
+      logo resmi berlisensi di repositori ini untuk di-*self-host*.
+- [x] **Nomor izin edar (NIE) BPOM.** — `nie_bpom`, sekarang di formulir dan
+      halaman detail admin + etalase.
+- [x] **Komposisi zat aktif.**
+- [x] **Indikasi, aturan pakai, efek samping, peringatan.** Untuk obat bebas
+      terbatas, peringatan **P1–P6** wajib ditampilkan. — `warning` wajib
+      diisi di formulir saat Golongan = Bebas Terbatas
+      (`required_if` + pesan Indonesia), dengan enam tombol pilih cepat teks
+      P1–P6 baku (`resources/js/lib/drugWarnings.js`). Etalase menampilkannya
+      dalam kotak peringatan bergaris tebal di halaman produk
+      (`DrugInfoSection`). Dibuktikan dengan data seed sungguhan: PRD-010
+      (Obat Batuk Sirup) golongan Bebas Terbatas dengan peringatan P1.
+- [x] **Produsen / pemegang izin edar.**
+- [x] **Batas pembelian per transaksi.** — `max_qty_per_order`, tersimpan dan
+      ditampilkan; **penegakannya saat checkout menyusul di Fase 5** bersama
+      keranjang sungguhan.
+- [x] **Kondisi penyimpanan** — `storage` (suhu ruang/sejuk/dingin), tersimpan
+      dan ditampilkan sebagai data. Menandai cabang mana yang **punya kulkas**
+      untuk menegakkan ini otomatis belum ada — `branches` tidak punya kolom
+      kapasitas penyimpanan; itu perluasan Fase 2 yang belum diminta di sini.
 
 ### 4.3 Selesaikan CRUD yang tersisa
 
-- [ ] Atribut, Kupon, Faktur — pola sama seperti Produk/Kategori.
-- [ ] Pemasok — ubah dari "Penjual" (utang teknis #5).
-- [ ] Kupon: tambahkan cakupan **berlaku di cabang mana**.
+- [x] **Atribut** — `AttributeController`, tabel `attributes` (nama, tipe
+      pilihan/teks, nilai JSON). Bukan sistem varian produk — tidak ada tabel
+      pivot ke `products` karena tidak ada modul varian di katalog ini; ini
+      kosakata admin-kelola berdiri sendiri, sama levelnya dengan bagaimana
+      Kategori dimulai sebelum terhubung lebih dalam.
+- [x] **Kupon** — `CouponController`, tabel `coupons` + pivot `coupon_branch`.
+      Penerapan kupon saat checkout (satu kali per pelanggan, validasi kuota)
+      adalah pekerjaan Fase 5; di sini hanya aturan kupon dan cakupan
+      cabangnya yang nyata.
+- [x] **Faktur** — **sengaja bukan tabel baru.** `InvoicePresenter` membaca
+      `Order` langsung (`payment_status` + `expires_at` yang sudah ada sejak
+      Fase 1) dan menyajikannya sebagai faktur — hanya `index`/`show`, tidak
+      ada tambah/ubah/hapus, karena sebuah faktur bukan catatan sendiri.
+      Keputusan ini menghindari membuat status "lunas/belum bayar" kedua yang
+      harus disatukan dengan pembayaran sungguhan di Fase 6.
+- [x] Pemasok — ubah dari "Penjual" (utang teknis #5). — `SellerController` →
+      `SupplierController`, rute `/admin/penjual` → `/admin/pemasok`, layar
+      `Seller*.jsx` → `Supplier*.jsx`, nav dan pencarian global ikut berganti.
+      Model `Supplier` dan kolom `supplier_id` sudah benar sejak Fase 1; yang
+      berubah di sini murni label dan rute yang dilihat admin.
+- [x] Kupon: tambahkan cakupan **berlaku di cabang mana**. — pivot
+      `coupon_branch`; kosong berarti berlaku di semua cabang, konvensi yang
+      sama dengan `users.branch_id IS NULL` untuk staf pusat.
 
-**Selesai bila:** satu produk asli bisa dibuat lengkap dengan foto, NIE,
-golongan, dan stok di tiga cabang berbeda.
+**Selesai bila:** ~~satu produk asli bisa dibuat lengkap dengan foto, NIE,
+golongan, dan stok di tiga cabang berbeda.~~ ✅ PRD-001 (Paracetamol 500mg)
+punya NIE (`DBL7813704133A1`), golongan Bebas, komposisi, indikasi, dosis,
+efek samping, produsen, dua gambar (satu diunggah lewat alur nyata saat
+verifikasi manual, teruji lalu dihapus lagi), dan stok tersebar di sepuluh
+cabang sejak Fase 2. PRD-010 membuktikan sisi Bebas Terbatas dengan peringatan
+P1 sungguhan.
 
-**Estimasi solo:** 3 minggu.
+**Yang sengaja ditunda:** foto produk asli (butuh aset, bukan kode), kredensial
+S3 sungguhan (kode sudah siap, tinggal isi `.env` saat ada bucket), dan
+penegakan batas pembelian/kulkas-cabang (menunggu Fase 5's keranjang
+sungguhan).
+
+**Estimasi solo:** 3 minggu. *(Selesai dalam satu sesi kerja; verifikasi
+produksi — foto asli, bucket S3 sungguhan — tetap perlu waktu terpisah.)*
 
 ---
 

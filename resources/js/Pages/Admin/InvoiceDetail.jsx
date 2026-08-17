@@ -3,13 +3,13 @@ import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
 import Table from '@/Components/Admin/Table';
-import { invoiceLines, invoices, money, statusTone } from '@/Components/Admin/data';
+import { money, statusTone } from '@/Components/Admin/data';
 
-const invoice = invoices[0];
-const subtotal = invoiceLines.reduce((total, line) => total + line.qty * line.price, 0);
-const tax = Math.round(subtotal * 0.11);
-
-export default function InvoiceDetail() {
+/**
+ * Read-only, generated from the order's own snapshot totals — nothing here
+ * is recomputed from live prices (see `Order`'s docblock).
+ */
+export default function InvoiceDetail({ invoice }) {
     return (
         <AdminLayout
             title="Detail Faktur"
@@ -17,17 +17,17 @@ export default function InvoiceDetail() {
             breadcrumb={[
                 { label: 'Inofarma', href: '/admin' },
                 { label: 'Faktur', href: '/admin/faktur' },
-                { label: 'Detail' },
+                { label: invoice.number },
             ]}
             actions={
-                <>
-                    <Button variant="outline" size="sm" icon="solar:printer-broken">
-                        Cetak
-                    </Button>
-                    <Button href="/admin/faktur/ubah" size="sm" icon="solar:pen-2-broken">
-                        Ubah
-                    </Button>
-                </>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    icon="solar:printer-broken"
+                    onClick={() => window.print()}
+                >
+                    Cetak
+                </Button>
             }
         >
             <Card className="mx-auto max-w-3xl">
@@ -37,9 +37,7 @@ export default function InvoiceDetail() {
                             Inofarma
                         </p>
                         <p className="mt-1 text-xs leading-relaxed text-admin-muted dark:text-admin-dark-muted">
-                            Jl. Jend. Sudirman Kav. 52-53
-                            <br />
-                            Jakarta Selatan 12190
+                            {invoice.branch}
                         </p>
                     </div>
 
@@ -81,7 +79,7 @@ export default function InvoiceDetail() {
                         { key: 'price', label: 'Harga', align: 'right' },
                         { key: 'sum', label: 'Subtotal', align: 'right' },
                     ]}
-                    rows={invoiceLines}
+                    rows={invoice.items}
                     rowKey={(row) => row.name}
                     renderCell={(row, key) => {
                         if (key === 'price') {
@@ -103,15 +101,25 @@ export default function InvoiceDetail() {
                 <div className="ml-auto mt-5 w-full max-w-xs space-y-2 text-[13px]">
                     <div className="flex justify-between">
                         <span className="text-admin-muted dark:text-admin-dark-muted">Subtotal</span>
-                        <span>{money(subtotal)}</span>
+                        <span>{money(invoice.subtotal)}</span>
+                    </div>
+                    {invoice.discount > 0 ? (
+                        <div className="flex justify-between">
+                            <span className="text-admin-muted dark:text-admin-dark-muted">Diskon</span>
+                            <span>-{money(invoice.discount)}</span>
+                        </div>
+                    ) : null}
+                    <div className="flex justify-between">
+                        <span className="text-admin-muted dark:text-admin-dark-muted">Ongkos Kirim</span>
+                        <span>{money(invoice.shipping)}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-admin-muted dark:text-admin-dark-muted">PPN 11%</span>
-                        <span>{money(tax)}</span>
+                        <span className="text-admin-muted dark:text-admin-dark-muted">PPN</span>
+                        <span>{money(invoice.tax)}</span>
                     </div>
                     <div className="flex justify-between border-t border-admin-border pt-2 text-[15px] font-bold text-admin-heading dark:border-admin-dark-border dark:text-admin-dark-heading">
                         <span>Total</span>
-                        <span>{money(subtotal + tax)}</span>
+                        <span>{money(invoice.total)}</span>
                     </div>
                 </div>
             </Card>

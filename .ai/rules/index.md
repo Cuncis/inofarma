@@ -9,11 +9,13 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Support/Auth/**,app/Http/Controllers/Admin/** | .ai/rules/controllers-admin.md |
 | tests/Feature/** | .ai/rules/feature.md |
 | tailwind.config.js | .ai/rules/general.md |
+| app/Support/Presenters/InvoicePresenter.php,app/Http/Controllers/Admin/InvoiceController.php,app/Models/Coupon.php,app/Http/Controllers/Admin/CouponController.php | .ai/rules/http-controllers-admin.md |
 | app/Models/*.php,app/Http/Middleware/Ensure*IsAuthenticated.php,config/auth.php | .ai/rules/http-middleware.md |
 | app/Support/Inventory/** | .ai/rules/inventory.md |
 | resources/js/lib/catalog.js, resources/js/lib/media.js, resources/js/Components/Shop/data.js | .ai/rules/lib.md |
 | app/Http/Middleware/EnsureAdminIsAuthenticated.php | .ai/rules/middleware.md |
 | database/migrations/** | .ai/rules/migrations.md |
+| app/Support/ProductImageUploader.php,app/Http/Controllers/Admin/ProductImageController.php,app/Models/ProductImage.php | .ai/rules/models.md |
 | resources/js/{Pages,Components,Layouts}/Admin*/** | .ai/rules/pages-components-layouts.md |
 | public/** | .ai/rules/public.md |
 | resources/js/{Pages,Components}/Shop/** | .ai/rules/shop.md |

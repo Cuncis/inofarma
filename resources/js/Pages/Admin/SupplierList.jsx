@@ -11,7 +11,7 @@ import TableToolbar from '@/Components/Admin/TableToolbar';
 import { money, statusTone } from '@/Components/Admin/data';
 
 const columns = [
-    { key: 'name', label: 'Penjual' },
+    { key: 'name', label: 'Pemasok' },
     { key: 'owner', label: 'Pemilik' },
     { key: 'city', label: 'Kota' },
     { key: 'products', label: 'Produk', align: 'right' },
@@ -21,12 +21,12 @@ const columns = [
     { key: 'actions', label: '', align: 'right' },
 ];
 
-export default function SellerList({ sellers }) {
+export default function SupplierList({ suppliers }) {
     const [search, setSearch] = useState('');
     const [pendingDelete, setPendingDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
 
-    const visible = sellers.filter(
+    const visible = suppliers.filter(
         (row) =>
             row.name.toLowerCase().includes(search.toLowerCase()) ||
             row.owner.toLowerCase().includes(search.toLowerCase()),
@@ -35,7 +35,7 @@ export default function SellerList({ sellers }) {
     const confirmDelete = () => {
         setDeleting(true);
 
-        router.delete(`/admin/penjual/${pendingDelete.id}`, {
+        router.delete(`/admin/pemasok/${pendingDelete.id}`, {
             preserveScroll: true,
             onFinish: () => {
                 setDeleting(false);
@@ -44,14 +44,14 @@ export default function SellerList({ sellers }) {
         });
     };
 
-    // Stocked products keep a seller on file; explain before firing the request.
+    // Stocked products keep a supplier on file; explain before firing the request.
     const hasProducts = pendingDelete?.products > 0;
 
     return (
         <AdminLayout
-            title="Daftar Penjual"
-            heading="Penjual"
-            breadcrumb={[{ label: 'Inofarma', href: '/admin' }, { label: 'Penjual' }]}
+            title="Daftar Pemasok"
+            heading="Pemasok"
+            breadcrumb={[{ label: 'Inofarma', href: '/admin' }, { label: 'Pemasok' }]}
             actions={
                 <>
                     <Button
@@ -59,14 +59,14 @@ export default function SellerList({ sellers }) {
                         size="sm"
                         icon="solar:restart-broken"
                         onClick={() =>
-                            router.post('/admin/penjual/reset', {}, { preserveScroll: true })
+                            router.post('/admin/pemasok/reset', {}, { preserveScroll: true })
                         }
                     >
                         Atur Ulang Data
                     </Button>
 
-                    <Button href="/admin/penjual/tambah" icon="solar:add-circle-broken" size="sm">
-                        Tambah Penjual
+                    <Button href="/admin/pemasok/tambah" icon="solar:add-circle-broken" size="sm">
+                        Tambah Pemasok
                     </Button>
                 </>
             }
@@ -82,12 +82,12 @@ export default function SellerList({ sellers }) {
                     columns={columns}
                     rows={visible}
                     rowKey={(row) => row.name}
-                    empty="Penjual tidak ditemukan."
+                    empty="Pemasok tidak ditemukan."
                     renderCell={(row, key) => {
                         if (key === 'name') {
                             return (
                                 <Link
-                                    href={`/admin/penjual/${row.id}`}
+                                    href={`/admin/pemasok/${row.id}`}
                                     className="flex items-center gap-2.5"
                                 >
                                     <img
@@ -118,8 +118,8 @@ export default function SellerList({ sellers }) {
                             return (
                                 <RowActions
                                     label={row.name}
-                                    viewHref={`/admin/penjual/${row.id}`}
-                                    editHref={`/admin/penjual/${row.id}/ubah`}
+                                    viewHref={`/admin/pemasok/${row.id}`}
+                                    editHref={`/admin/pemasok/${row.id}/ubah`}
                                     onDelete={() => setPendingDelete(row)}
                                 />
                             );
@@ -130,17 +130,17 @@ export default function SellerList({ sellers }) {
                 />
 
                 <div className="border-t border-admin-border px-5 py-3 text-xs text-admin-muted dark:border-admin-dark-border dark:text-admin-dark-muted">
-                    Menampilkan {visible.length} dari {sellers.length} penjual
+                    Menampilkan {visible.length} dari {suppliers.length} pemasok
                 </div>
             </Card>
 
             <ConfirmDialog
                 open={Boolean(pendingDelete)}
-                title={hasProducts ? 'Penjual masih menjual produk' : 'Hapus penjual?'}
+                title={hasProducts ? 'Pemasok masih memasok produk' : 'Hapus pemasok?'}
                 body={
                     pendingDelete
                         ? hasProducts
-                            ? `"${pendingDelete.name}" masih menjual ${pendingDelete.products} produk. Pindahkan produk tersebut ke penjual lain sebelum menghapusnya.`
+                            ? `"${pendingDelete.name}" masih memasok ${pendingDelete.products} produk. Pindahkan produk tersebut ke pemasok lain sebelum menghapusnya.`
                             : `"${pendingDelete.name}" akan dihapus. Tindakan ini tidak bisa dibatalkan.`
                         : ''
                 }

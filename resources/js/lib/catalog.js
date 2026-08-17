@@ -26,6 +26,17 @@ import { usePage } from '@inertiajs/react';
  * @property {string[]} variants
  * @property {boolean} prescription
  * @property {string} blurb
+ * @property {string} [drugClass]      Non-Obat | Bebas | Bebas Terbatas | Keras.
+ * @property {boolean} needsWarningLabel  True for Bebas Terbatas — P1-P6 must show.
+ * @property {string} [nie]            NIE BPOM registration number.
+ * @property {string} [composition]
+ * @property {string} [indication]
+ * @property {string} [dosage]
+ * @property {string} [sideEffects]
+ * @property {string} [warning]        P1-P6 warning text for Bebas Terbatas.
+ * @property {string} [manufacturer]
+ * @property {number} [maxQtyPerOrder]
+ * @property {string} [storage]        Suhu Ruang | Sejuk (15-25°C) | Dingin/Kulkas (2-8°C).
  *
  * @typedef {object} CatalogCategory
  * @property {string} name

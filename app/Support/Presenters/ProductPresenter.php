@@ -47,6 +47,27 @@ class ProductPresenter
             'unit' => $product->unit,
             'prescription' => $product->requires_prescription,
             'blurb' => $product->blurb,
+            'images' => $product->images->map(fn ($image) => [
+                'id' => $image->id,
+                'path' => $image->path,
+                'thumb' => $image->thumb_path,
+                'isPrimary' => $image->is_primary,
+                'position' => $image->position,
+            ])->values()->all(),
+
+            // --- Data farmasi (Fase 4.2) ---
+            'drugClass' => AdminOptions::toLabel(AdminOptions::DRUG_CLASSES, $product->drug_class),
+            'needsWarningLabel' => $product->needs_warning_label,
+            'nie' => $product->nie_bpom,
+            'composition' => $product->composition,
+            'indication' => $product->indication,
+            'dosage' => $product->dosage,
+            'sideEffects' => $product->side_effects,
+            'warning' => $product->warning,
+            'manufacturer' => $product->manufacturer,
+            'maxQtyPerOrder' => $product->max_qty_per_order,
+            'storage' => AdminOptions::toLabel(AdminOptions::STORAGE_CONDITIONS, $product->storage),
+            'weightGrams' => $product->weight_grams,
         ];
     }
 

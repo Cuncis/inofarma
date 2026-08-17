@@ -246,6 +246,7 @@ export function statusTone(status) {
         'Hampir Penuh': 'warning',
         'Jatuh Tempo': 'danger',
         'Menunggu Pembayaran': 'warning',
+        Refund: 'info',
     };
 
     return map[status] ?? 'neutral';
@@ -253,20 +254,11 @@ export function statusTone(status) {
 
 export { money };
 
-export const attributes = [
-    { name: 'Dosis', slug: 'dosis', values: ['250mg', '500mg', '1000mg'], type: 'Pilihan' },
-    { name: 'Bentuk Sediaan', slug: 'bentuk-sediaan', values: ['Tablet', 'Kapsul', 'Sirup', 'Salep'], type: 'Pilihan' },
-    { name: 'Kemasan', slug: 'kemasan', values: ['Strip', 'Botol', 'Box'], type: 'Pilihan' },
-    { name: 'Golongan', slug: 'golongan', values: ['Bebas', 'Bebas Terbatas', 'Keras'], type: 'Pilihan' },
-    { name: 'Volume', slug: 'volume', values: ['60ml', '100ml', '500ml'], type: 'Teks' },
-];
-
-export const coupons = [
-    { code: 'HEMAT15', type: 'Persentase', value: '15%', minimum: 100000, used: 214, quota: 500, expires: '31 Des 2025', status: 'Aktif' },
-    { code: 'KILAT25', type: 'Persentase', value: '25%', minimum: 250000, used: 480, quota: 500, expires: '31 Agu 2025', status: 'Aktif' },
-    { code: 'ONGKIR0', type: 'Gratis Ongkir', value: 'Gratis', minimum: 50000, used: 1230, quota: 2000, expires: '30 Sep 2025', status: 'Aktif' },
-    { code: 'VIP40', type: 'Persentase', value: '40%', minimum: 500000, used: 500, quota: 500, expires: '01 Jan 2026', status: 'Habis' },
-];
+// `attributes` and `coupons` fixtures are gone — Atribut and Kupon are real
+// entities as of Fase 4.3, backed by `AttributeController`/`CouponController`.
+// `invoices`/`invoiceLines` stay: the real Faktur screens read `Order` data
+// directly (see `InvoicePresenter`), and only `DashboardFinance`'s decorative
+// summary table still uses this fixture.
 
 export const invoices = [
     { number: 'INV-2025-0451', customer: 'Kirana Wijaya', issued: '14 Agu 2025', due: '21 Agu 2025', total: 486000, status: 'Lunas' },

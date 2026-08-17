@@ -1,17 +1,21 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\BranchStockController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\SellerController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StockMatrixController;
 use App\Http\Controllers\Admin\StockTransferController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\TwoFactorChallengeController;
 use App\Http\Controllers\Admin\TwoFactorController;
 use App\Http\Controllers\Shop\AuthController as ShopAuthController;
@@ -35,21 +39,9 @@ $adminScreens = [
     'dasbor/penjualan' => 'DashboardSales',
     'dasbor/keuangan' => 'DashboardFinance',
 
-    'atribut' => 'AttributeList',
-    'atribut/tambah' => 'AttributeAdd',
-    'atribut/ubah' => 'AttributeEdit',
-
     'pembelian' => 'PurchaseList',
     'pembelian/order' => 'PurchaseOrder',
     'pembelian/retur' => 'PurchaseReturns',
-
-    'faktur' => 'InvoiceList',
-    'faktur/detail' => 'InvoiceDetail',
-    'faktur/tambah' => 'InvoiceAdd',
-    'faktur/ubah' => 'InvoiceEdit',
-
-    'kupon' => 'CouponList',
-    'kupon/tambah' => 'CouponAdd',
 
     'ulasan' => 'Reviews',
     'profil' => 'Profile',
@@ -155,16 +147,46 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
                 Route::delete('{order}', 'destroy')->name('destroy');
             });
 
-        Route::prefix('penjual')->name('penjual.')->controller(SellerController::class)->group(function () {
+        /**
+         * "Pemasok" — distributor/PBF that supplies stock to a branch, not a
+         * marketplace seller (utang teknis #5). The route segment carries the
+         * new name; `{supplier}` route params still bind by `Supplier::code`.
+         */
+        Route::prefix('pemasok')->name('pemasok.')->controller(SupplierController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('tambah', 'create')->name('create');
             Route::post('/', 'store')->name('store');
             Route::post('reset', 'reset')->name('reset');
-            Route::get('{seller}', 'show')->name('show');
-            Route::get('{seller}/ubah', 'edit')->name('edit');
-            Route::put('{seller}', 'update')->name('update');
-            Route::delete('{seller}', 'destroy')->name('destroy');
+            Route::get('{supplier}', 'show')->name('show');
+            Route::get('{supplier}/ubah', 'edit')->name('edit');
+            Route::put('{supplier}', 'update')->name('update');
+            Route::delete('{supplier}', 'destroy')->name('destroy');
         });
+
+        Route::prefix('atribut')->name('atribut.')->controller(AttributeController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{attribute}/ubah', 'edit')->name('edit');
+            Route::put('{attribute}', 'update')->name('update');
+            Route::delete('{attribute}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('kupon')->name('kupon.')->controller(CouponController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('tambah', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{coupon}/ubah', 'edit')->name('edit');
+            Route::put('{coupon}', 'update')->name('update');
+            Route::delete('{coupon}', 'destroy')->name('destroy');
+        });
+
+        Route::prefix('faktur')->name('faktur.')->controller(InvoiceController::class)
+            ->middleware('permission:Pesanan:Lihat')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('{order}', 'show')->name('show');
+            });
 
         Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)
             ->middleware('permission:Pelanggan:Lihat')
@@ -201,6 +223,16 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
                 Route::get('{product}/ubah', 'edit')->name('edit');
                 Route::put('{product}', 'update')->name('update');
                 Route::delete('{product}', 'destroy')->name('destroy');
+            });
+
+        Route::prefix('produk/{product}/gambar')->name('produk.gambar.')
+            ->controller(ProductImageController::class)
+            ->middleware('permission:Produk:Lihat')
+            ->group(function () {
+                Route::post('/', 'store')->name('store');
+                Route::post('urutkan', 'reorder')->name('urutkan');
+                Route::post('{image}/utama', 'makePrimary')->name('utama');
+                Route::delete('{image}', 'destroy')->name('destroy');
             });
 
         /**

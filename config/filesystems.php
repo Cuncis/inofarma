@@ -17,6 +17,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Uploads Disk
+    |--------------------------------------------------------------------------
+    |
+    | Where product photos land. 'public' in development (served through the
+    | storage:link symlink); set UPLOADS_DISK=s3 plus the AWS_* keys below in
+    | production and every upload goes to S3-compatible storage instead — no
+    | code change needed.
+    |
+    */
+
+    'uploads' => env('UPLOADS_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

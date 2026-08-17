@@ -239,6 +239,76 @@ class ProductCrudTest extends TestCase
                 ->has('categories')
                 ->has('units')
                 ->has('statuses')
+                ->has('drugClasses')
+                ->has('storageConditions')
+            );
+    }
+
+    public function test_a_product_can_be_created_with_full_pharmacy_data(): void
+    {
+        $this->post('/admin/produk', $this->validPayload([
+            'name' => 'Loratadine 10mg',
+            'drugClass' => 'Bebas',
+            'nie' => 'DKL1234567890A1',
+            'composition' => 'Loratadine 10 mg per tablet.',
+            'indication' => 'Meredakan gejala alergi.',
+            'dosage' => '1 tablet per hari.',
+            'sideEffects' => 'Mengantuk ringan.',
+            'manufacturer' => 'PT Kalbe Farma Tbk',
+            'maxQtyPerOrder' => 3,
+            'storage' => 'Suhu Ruang',
+            'weightGrams' => 20,
+        ]))->assertSessionHasNoErrors();
+
+        $this->get('/admin/produk/PRD-013')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('product.drugClass', 'Bebas')
+                ->where('product.nie', 'DKL1234567890A1')
+                ->where('product.manufacturer', 'PT Kalbe Farma Tbk')
+                ->where('product.maxQtyPerOrder', 3)
+                ->where('product.storage', 'Suhu Ruang')
+                ->where('product.weightGrams', 20)
+            );
+    }
+
+    public function test_a_product_without_pharmacy_data_gets_safe_defaults(): void
+    {
+        $this->post('/admin/produk', $this->validPayload(['name' => 'Kapas Bulat 50g']))
+            ->assertSessionHasNoErrors();
+
+        $this->get('/admin/produk/PRD-013')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('product.drugClass', 'Non-Obat')
+                ->where('product.storage', 'Suhu Ruang')
+                ->where('product.needsWarningLabel', false)
+            );
+    }
+
+    public function test_bebas_terbatas_requires_a_warning(): void
+    {
+        $this->post('/admin/produk', $this->validPayload([
+            'name' => 'Obat Flu Malam',
+            'drugClass' => 'Bebas Terbatas',
+        ]))->assertSessionHasErrors(['warning' => 'Obat bebas terbatas wajib menampilkan peringatan P1–P6.']);
+    }
+
+    public function test_the_seeded_cough_syrup_carries_its_p1_warning(): void
+    {
+        $this->get('/admin/produk/PRD-010')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('product.drugClass', 'Bebas Terbatas')
+                ->where('product.needsWarningLabel', true)
+                ->where('product.warning', 'Awas! Obat Keras. Bacalah aturan pemakaiannya.')
+            );
+    }
+
+    public function test_the_storefront_catalogue_carries_pharmacy_data(): void
+    {
+        $this->get('/ui/product-detail?id=PRD-010')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('catalog.products.9.drugClass', 'Bebas Terbatas')
+                ->where('catalog.products.9.needsWarningLabel', true)
             );
     }
 }

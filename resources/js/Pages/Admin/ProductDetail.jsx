@@ -19,6 +19,20 @@ export default function ProductDetail({ product }) {
         { label: 'Terjual', value: `${product.sold}` },
     ];
 
+    const pharma = [
+        { label: 'Golongan Obat', value: product.drugClass },
+        { label: 'Nomor Izin Edar (NIE)', value: product.nie },
+        { label: 'Komposisi', value: product.composition },
+        { label: 'Indikasi', value: product.indication },
+        { label: 'Aturan Pakai', value: product.dosage },
+        { label: 'Efek Samping', value: product.sideEffects },
+        { label: 'Peringatan', value: product.warning },
+        { label: 'Produsen', value: product.manufacturer },
+        { label: 'Kondisi Penyimpanan', value: product.storage },
+        { label: 'Batas Pembelian', value: product.maxQtyPerOrder ? `${product.maxQtyPerOrder} per transaksi` : '—' },
+        { label: 'Berat', value: product.weightGrams ? `${product.weightGrams} gram` : '—' },
+    ].map((spec) => ({ ...spec, value: spec.value || '—' }));
+
     return (
         <AdminLayout
             title="Detail Produk"
@@ -48,6 +62,21 @@ export default function ProductDetail({ product }) {
                             className="h-full max-w-full object-contain"
                         />
                     </div>
+
+                    {product.images.length > 1 ? (
+                        <div className="mt-2 flex gap-1.5 overflow-x-auto">
+                            {product.images.map((image) => (
+                                <img
+                                    key={image.id}
+                                    src={image.thumb}
+                                    alt=""
+                                    className={`h-12 w-12 shrink-0 rounded object-cover ${
+                                        image.isPrimary ? 'ring-2 ring-brand' : ''
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                    ) : null}
 
                     <div className="mt-5">
                         <div className="flex flex-wrap gap-1.5">
@@ -83,7 +112,7 @@ export default function ProductDetail({ product }) {
                 <div className="lg:col-span-2">
                     <Card bodyClassName="p-0">
                         <div className="flex border-b border-admin-border dark:border-admin-dark-border">
-                            {['spesifikasi', 'stok cabang'].map((name) => (
+                            {['spesifikasi', 'farmasi', 'stok cabang'].map((name) => (
                                 <button
                                     key={name}
                                     type="button"
@@ -107,6 +136,19 @@ export default function ProductDetail({ product }) {
                                             {spec.label}
                                         </dt>
                                         <dd className="text-[13px] font-medium text-admin-heading dark:text-admin-dark-heading">
+                                            {spec.value}
+                                        </dd>
+                                    </div>
+                                ))}
+                            </dl>
+                        ) : tab === 'farmasi' ? (
+                            <dl className="divide-y divide-admin-border dark:divide-admin-dark-border">
+                                {pharma.map((spec) => (
+                                    <div key={spec.label} className="flex justify-between gap-4 px-5 py-3.5">
+                                        <dt className="shrink-0 text-[13px] text-admin-muted dark:text-admin-dark-muted">
+                                            {spec.label}
+                                        </dt>
+                                        <dd className="text-right text-[13px] font-medium text-admin-heading dark:text-admin-dark-heading">
                                             {spec.value}
                                         </dd>
                                     </div>

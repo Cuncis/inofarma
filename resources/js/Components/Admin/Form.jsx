@@ -103,12 +103,14 @@ export function Switch({ checked, onChange, label }) {
 }
 
 /**
- * Dashed drop zone. Presentational only — the prototype does not upload.
+ * Dashed drop zone. Presentational only when `onFiles` is omitted — that is
+ * how most screens still use it. Pass `onFiles` to turn it into a real
+ * click-or-drag file picker (see `ProductImageManager`).
  *
- * @param {{ hint?: string }} props
+ * @param {{ hint?: string, onFiles?: (files: File[]) => void, multiple?: boolean, accept?: string }} props
  */
-export function DropZone({ hint = 'PNG, JPG atau PDF maksimal 5 MB' }) {
-    return (
+export function DropZone({ hint = 'PNG, JPG atau PDF maksimal 5 MB', onFiles, multiple = false, accept }) {
+    const body = (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-admin-border px-6 py-10 text-center dark:border-admin-dark-border">
             <Icon name="solar:cloud-upload-broken" size={38} className="mb-3 text-admin-muted" />
 
@@ -117,5 +119,40 @@ export function DropZone({ hint = 'PNG, JPG atau PDF maksimal 5 MB' }) {
             </p>
             <p className="mt-1 text-xs text-admin-muted dark:text-admin-dark-muted">{hint}</p>
         </div>
+    );
+
+    if (! onFiles) {
+        return body;
+    }
+
+    const pick = (fileList) => {
+        const files = Array.from(fileList ?? []);
+
+        if (files.length) {
+            onFiles(files);
+        }
+    };
+
+    return (
+        <label
+            className="block cursor-pointer"
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+                event.preventDefault();
+                pick(event.dataTransfer.files);
+            }}
+        >
+            <input
+                type="file"
+                className="sr-only"
+                multiple={multiple}
+                accept={accept}
+                onChange={(event) => {
+                    pick(event.target.files);
+                    event.target.value = '';
+                }}
+            />
+            {body}
+        </label>
     );
 }

@@ -8,18 +8,18 @@ import StatCard from '@/Components/Admin/StatCard';
 import Table from '@/Components/Admin/Table';
 import { money, statusTone } from '@/Components/Admin/data';
 
-export default function SellerDetail({ seller, products }) {
+export default function SupplierDetail({ supplier, products }) {
     return (
         <AdminLayout
-            title="Detail Penjual"
-            heading={seller.name}
+            title="Detail Pemasok"
+            heading={supplier.name}
             breadcrumb={[
                 { label: 'Inofarma', href: '/admin' },
-                { label: 'Penjual', href: '/admin/penjual' },
+                { label: 'Pemasok', href: '/admin/pemasok' },
                 { label: 'Detail' },
             ]}
             actions={
-                <Button href={`/admin/penjual/${seller.id}/ubah`} size="sm" icon="solar:pen-2-broken">
+                <Button href={`/admin/pemasok/${supplier.id}/ubah`} size="sm" icon="solar:pen-2-broken">
                     Ubah
                 </Button>
             }
@@ -27,7 +27,7 @@ export default function SellerDetail({ seller, products }) {
             <Card className="mb-5">
                 <div className="flex flex-wrap items-center gap-4">
                     <img
-                        src={seller.logo}
+                        src={supplier.logo}
                         alt=""
                         className="h-16 w-16 shrink-0 rounded-xl bg-admin-hover object-contain p-3 dark:bg-admin-dark-hover"
                     />
@@ -35,20 +35,20 @@ export default function SellerDetail({ seller, products }) {
                     <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                             <h2 className="text-lg font-semibold text-admin-heading dark:text-admin-dark-heading">
-                                {seller.name}
+                                {supplier.name}
                             </h2>
-                            <Badge tone={statusTone(seller.status)}>{seller.status}</Badge>
+                            <Badge tone={statusTone(supplier.status)}>{supplier.status}</Badge>
                         </div>
 
                         <p className="mt-1 text-[13px] text-admin-muted dark:text-admin-dark-muted">
-                            {seller.owner} · {seller.city}
+                            {supplier.owner} · {supplier.city}
                         </p>
                     </div>
 
                     <span className="flex items-center gap-1.5 rounded-lg bg-admin-hover px-3 py-2 dark:bg-admin-dark-hover">
                         <Icon name="solar:document-text-bold" size={16} className="text-brand" />
                         <span className="text-[13px] font-bold text-admin-heading dark:text-admin-dark-heading">
-                            {seller.license}
+                            {supplier.license}
                         </span>
                     </span>
                 </div>
@@ -57,22 +57,22 @@ export default function SellerDetail({ seller, products }) {
             <div className="mb-5 grid gap-4 sm:grid-cols-3">
                 <StatCard
                     label="Total Produk"
-                    value={String(seller.products)}
+                    value={String(supplier.products)}
                     icon="solar:box-bold-duotone"
                 />
                 <StatCard
                     label="Pendapatan"
-                    value={money(seller.revenue)}
+                    value={money(supplier.revenue)}
                     icon="solar:wallet-money-bold-duotone"
                 />
                 <StatCard
                     label="Bergabung"
-                    value={seller.joined}
+                    value={supplier.joined}
                     icon="solar:calendar-bold-duotone"
                 />
             </div>
 
-            <Card title="Produk Penjual" bodyClassName="p-0">
+            <Card title="Produk dari Pemasok Ini" bodyClassName="p-0">
                 <Table
                     columns={[
                         { key: 'name', label: 'Produk' },
@@ -83,7 +83,7 @@ export default function SellerDetail({ seller, products }) {
                     ]}
                     rows={products}
                     rowKey={(row) => row.id}
-                    empty="Penjual ini belum menjual produk apa pun."
+                    empty="Belum ada produk dari pemasok ini."
 
                     renderCell={(row, key) => {
                         if (key === 'name') {

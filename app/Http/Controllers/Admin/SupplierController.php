@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SellerRequest;
+use App\Http\Requests\SupplierRequest;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Support\AdminOptions;
@@ -17,42 +17,44 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Supplier CRUD, shown to the admin as "Penjual".
+ * Supplier CRUD, shown to the admin as "Pemasok" (Fase 4.3, utang teknis #5 —
+ * this used to read "Penjual", a marketplace-seller word that never fit a
+ * chain sourcing its own stock).
  *
  * Renaming no longer cascades: products hold a foreign key, so the new name is
  * simply what the relation reads back. A supplier that still has products
  * cannot be deleted — `products.supplier_id` is `restrictOnDelete`.
  */
-class SellerController extends Controller
+class SupplierController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Admin/SellerList', [
-            'sellers' => SupplierPresenter::collection($this->withStats()->orderBy('id')->get()),
+        return Inertia::render('Admin/SupplierList', [
+            'suppliers' => SupplierPresenter::collection($this->withStats()->orderBy('id')->get()),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Admin/SellerAdd', [
+        return Inertia::render('Admin/SupplierAdd', [
             'statuses' => AdminOptions::labels(AdminOptions::SUPPLIER_STATUSES),
         ]);
     }
 
-    public function store(SellerRequest $request): RedirectResponse
+    public function store(SupplierRequest $request): RedirectResponse
     {
         $supplier = Supplier::create($this->attributes($request->validated()) + [
             'code' => CodeSequence::next(Supplier::withTrashed(), 'code', 'SEL-'),
         ]);
 
         return redirect()
-            ->route('admin.penjual.index')
-            ->with('success', "Penjual \"{$supplier->name}\" berhasil ditambahkan.");
+            ->route('admin.pemasok.index')
+            ->with('success', "Pemasok \"{$supplier->name}\" berhasil ditambahkan.");
     }
 
-    public function show(string $seller): Response
+    public function show(string $supplier): Response
     {
-        $record = $this->find($seller);
+        $record = $this->find($supplier);
 
         $products = Product::query()
             ->with(['category', 'supplier', 'images'])
@@ -61,47 +63,47 @@ class SellerController extends Controller
             ->orderBy('id')
             ->get();
 
-        return Inertia::render('Admin/SellerDetail', [
-            'seller' => SupplierPresenter::toArray($record),
+        return Inertia::render('Admin/SupplierDetail', [
+            'supplier' => SupplierPresenter::toArray($record),
             'products' => ProductPresenter::collection($products),
         ]);
     }
 
-    public function edit(string $seller): Response
+    public function edit(string $supplier): Response
     {
-        return Inertia::render('Admin/SellerEdit', [
-            'seller' => SupplierPresenter::toArray($this->find($seller)),
+        return Inertia::render('Admin/SupplierEdit', [
+            'supplier' => SupplierPresenter::toArray($this->find($supplier)),
             'statuses' => AdminOptions::labels(AdminOptions::SUPPLIER_STATUSES),
         ]);
     }
 
-    public function update(SellerRequest $request, string $seller): RedirectResponse
+    public function update(SupplierRequest $request, string $supplier): RedirectResponse
     {
-        $record = $this->find($seller);
+        $record = $this->find($supplier);
         $record->update($this->attributes($request->validated()));
 
         return redirect()
-            ->route('admin.penjual.index')
+            ->route('admin.pemasok.index')
             ->with('success', "Data \"{$record->name}\" berhasil diperbarui.");
     }
 
-    public function destroy(string $seller): RedirectResponse
+    public function destroy(string $supplier): RedirectResponse
     {
-        $record = $this->find($seller);
+        $record = $this->find($supplier);
         $count = $record->products()->count();
 
         if ($count > 0) {
             return redirect()
-                ->route('admin.penjual.index')
-                ->with('error', "\"{$record->name}\" masih menjual {$count} produk dan tidak bisa dihapus.");
+                ->route('admin.pemasok.index')
+                ->with('error', "\"{$record->name}\" masih memasok {$count} produk dan tidak bisa dihapus.");
         }
 
         $name = $record->name;
         $record->delete();
 
         return redirect()
-            ->route('admin.penjual.index')
-            ->with('success', "Penjual \"{$name}\" berhasil dihapus.");
+            ->route('admin.pemasok.index')
+            ->with('success', "Pemasok \"{$name}\" berhasil dihapus.");
     }
 
     public function reset(): RedirectResponse
@@ -111,8 +113,8 @@ class SellerController extends Controller
         (new DemoDataSeeder)->run();
 
         return redirect()
-            ->route('admin.penjual.index')
-            ->with('success', 'Daftar penjual dikembalikan ke data awal.');
+            ->route('admin.pemasok.index')
+            ->with('success', 'Daftar pemasok dikembalikan ke data awal.');
     }
 
     /**
@@ -136,7 +138,7 @@ class SellerController extends Controller
     {
         return $this->withStats()
             ->where('code', $code)
-            ->firstOr(fn () => abort(404, 'Penjual tidak ditemukan.'));
+            ->firstOr(fn () => abort(404, 'Pemasok tidak ditemukan.'));
     }
 
     /**

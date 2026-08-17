@@ -64,7 +64,7 @@ export const navSections = [
                 icon: 'solar:users-group-two-rounded-bold-duotone',
                 href: '/admin/pelanggan',
             },
-            { label: 'Penjual', icon: 'solar:shop-bold-duotone', href: '/admin/penjual' },
+            { label: 'Pemasok', icon: 'solar:shop-bold-duotone', href: '/admin/pemasok' },
             { label: 'Kupon', icon: 'solar:leaf-bold-duotone', href: '/admin/kupon' },
             { label: 'Ulasan', icon: 'solar:chat-square-like-bold-duotone', href: '/admin/ulasan' },
         ],

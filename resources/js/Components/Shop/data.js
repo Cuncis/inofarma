@@ -5,18 +5,18 @@ import { media } from '@/lib/media';
 export { money, media, findProduct, useCatalog };
 
 /**
- * Empty-state artwork, still served from the original template author's host.
- * Not an Inofarma domain — worth self-hosting before launch so the storefront
- * does not depend on a third party staying online.
+ * Empty-state artwork, self-hosted under `public/media/images/other` (utang
+ * teknis #3) instead of the original template author's GitHub Pages host —
+ * the storefront no longer depends on a third party staying online.
  */
-const illustrations = 'https://george-fx.github.io/beshop-data/assets';
+const illustrations = '/media/images/other';
 
 /**
  * Decorative artwork for the empty/success screens. Product and people imagery
  * comes from `media` so the storefront and admin show the same pictures.
  */
 export const asset = {
-    other: (n) => `${illustrations}/other/${n}.png`,
+    other: (n) => `${illustrations}/${n}.png`,
     user: (n) => media.user(Number(n)),
 };
 

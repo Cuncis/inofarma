@@ -1,15 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import EntityForm from '@/Components/Admin/EntityForm';
+import AttributeForm from '@/Components/Admin/AttributeForm';
 
-const fields = [
-    { name: 'name', label: 'Nama Atribut', placeholder: 'Dosis' },
-    { name: 'slug', label: 'Slug', placeholder: 'dosis' },
-    { name: 'type', label: 'Tipe', type: 'select', options: ['Pilihan', 'Teks', 'Angka', 'Warna'] },
-    { name: 'group', label: 'Grup', type: 'select', options: ['Umum', 'Farmasi', 'Kemasan'] },
-    { name: 'values', label: 'Nilai', type: 'textarea', placeholder: '250mg, 500mg, 1000mg', hint: 'Pisahkan setiap nilai dengan koma.' },
-];
-
-export default function AttributeAdd() {
+export default function AttributeAdd({ types }) {
     return (
         <AdminLayout
             title="Tambah Atribut"
@@ -20,12 +12,7 @@ export default function AttributeAdd() {
                 { label: 'Tambah' },
             ]}
         >
-            <EntityForm
-                title="Informasi Atribut"
-                fields={fields}
-                submitLabel="Simpan Atribut"
-                backHref="/admin/atribut"
-            />
+            <AttributeForm types={types} submitLabel="Simpan Atribut" />
         </AdminLayout>
     );
 }

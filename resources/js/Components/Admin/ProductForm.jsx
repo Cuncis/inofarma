@@ -1,4 +1,5 @@
 import { useForm } from '@inertiajs/react';
+import { drugWarnings } from '@/lib/drugWarnings';
 import Button from './Button';
 import Card from './Card';
 import { Field, Input, Select, Switch, Textarea } from './Form';
@@ -25,6 +26,8 @@ export default function ProductForm({
     sellers,
     units,
     statuses,
+    drugClasses,
+    storageConditions,
     submitLabel,
 }) {
     const editing = Boolean(product);
@@ -39,7 +42,20 @@ export default function ProductForm({
         oldPrice: product?.oldPrice ?? '',
         prescription: product?.prescription ?? false,
         blurb: product?.blurb ?? '',
+        drugClass: product?.drugClass ?? drugClasses[0],
+        nie: product?.nie ?? '',
+        composition: product?.composition ?? '',
+        indication: product?.indication ?? '',
+        dosage: product?.dosage ?? '',
+        sideEffects: product?.sideEffects ?? '',
+        warning: product?.warning ?? '',
+        manufacturer: product?.manufacturer ?? '',
+        maxQtyPerOrder: product?.maxQtyPerOrder ?? '',
+        storage: product?.storage ?? storageConditions[0],
+        weightGrams: product?.weightGrams ?? '',
     });
+
+    const needsWarning = data.drugClass === 'Bebas Terbatas';
 
     const submit = (event) => {
         event.preventDefault();
@@ -189,6 +205,165 @@ export default function ProductForm({
                             'Setelah produk dibuat, atur stok awal dari halaman cabang.'
                         )}
                     </p>
+                </Card>
+
+                <Card title="Informasi Farmasi">
+                    <div className="space-y-4">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Field label="Golongan Obat" htmlFor="drugClass" hint={errors.drugClass}>
+                                <Select
+                                    id="drugClass"
+                                    value={data.drugClass}
+                                    onChange={(event) => setData('drugClass', event.target.value)}
+                                    options={drugClasses}
+                                />
+                            </Field>
+
+                            <Field
+                                label="Nomor Izin Edar (NIE BPOM)"
+                                htmlFor="nie"
+                                hint={errors.nie}
+                            >
+                                <Input
+                                    id="nie"
+                                    value={data.nie}
+                                    onChange={(event) => setData('nie', event.target.value)}
+                                    placeholder="DBL7812345678A1"
+                                    className={errors.nie ? 'border-danger' : ''}
+                                />
+                            </Field>
+
+                            <Field label="Komposisi" htmlFor="composition" hint={errors.composition} className="sm:col-span-2">
+                                <Input
+                                    id="composition"
+                                    value={data.composition}
+                                    onChange={(event) => setData('composition', event.target.value)}
+                                    placeholder="Tiap tablet mengandung Paracetamol 500 mg"
+                                    className={errors.composition ? 'border-danger' : ''}
+                                />
+                            </Field>
+
+                            <Field label="Produsen" htmlFor="manufacturer" hint={errors.manufacturer}>
+                                <Input
+                                    id="manufacturer"
+                                    value={data.manufacturer}
+                                    onChange={(event) => setData('manufacturer', event.target.value)}
+                                    placeholder="PT Kimia Farma Tbk"
+                                    className={errors.manufacturer ? 'border-danger' : ''}
+                                />
+                            </Field>
+
+                            <Field label="Kondisi Penyimpanan" htmlFor="storage" hint={errors.storage}>
+                                <Select
+                                    id="storage"
+                                    value={data.storage}
+                                    onChange={(event) => setData('storage', event.target.value)}
+                                    options={storageConditions}
+                                />
+                            </Field>
+                        </div>
+
+                        <Field label="Indikasi" htmlFor="indication" hint={errors.indication}>
+                            <Textarea
+                                id="indication"
+                                rows={2}
+                                value={data.indication}
+                                onChange={(event) => setData('indication', event.target.value)}
+                                placeholder="Meredakan demam dan nyeri ringan hingga sedang."
+                                className={errors.indication ? 'border-danger' : ''}
+                            />
+                        </Field>
+
+                        <Field label="Aturan Pakai / Dosis" htmlFor="dosage" hint={errors.dosage}>
+                            <Textarea
+                                id="dosage"
+                                rows={2}
+                                value={data.dosage}
+                                onChange={(event) => setData('dosage', event.target.value)}
+                                placeholder="Dewasa: 1 tablet, 3 kali sehari setelah makan."
+                                className={errors.dosage ? 'border-danger' : ''}
+                            />
+                        </Field>
+
+                        <Field label="Efek Samping" htmlFor="sideEffects" hint={errors.sideEffects}>
+                            <Textarea
+                                id="sideEffects"
+                                rows={2}
+                                value={data.sideEffects}
+                                onChange={(event) => setData('sideEffects', event.target.value)}
+                                placeholder="Jarang: mual, ruam kulit."
+                                className={errors.sideEffects ? 'border-danger' : ''}
+                            />
+                        </Field>
+
+                        <Field
+                            label="Peringatan"
+                            htmlFor="warning"
+                            hint={
+                                errors.warning ??
+                                (needsWarning
+                                    ? 'Wajib diisi untuk obat bebas terbatas — pilih salah satu label P1–P6 di bawah, atau tulis sendiri.'
+                                    : undefined)
+                            }
+                        >
+                            {needsWarning ? (
+                                <div className="mb-2 flex flex-wrap gap-1.5">
+                                    {drugWarnings.map((item) => (
+                                        <button
+                                            key={item.code}
+                                            type="button"
+                                            onClick={() => setData('warning', item.text)}
+                                            className="rounded-full border border-admin-border px-2.5 py-1 text-[11px] font-semibold text-admin-body hover:border-brand hover:text-brand dark:border-admin-dark-border dark:text-admin-dark-body"
+                                        >
+                                            {item.code}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : null}
+                            <Textarea
+                                id="warning"
+                                rows={2}
+                                value={data.warning}
+                                onChange={(event) => setData('warning', event.target.value)}
+                                placeholder="Awas! Obat Keras. Bacalah aturan pemakaiannya."
+                                className={errors.warning ? 'border-danger' : ''}
+                            />
+                        </Field>
+
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Field
+                                label="Batas Pembelian per Transaksi"
+                                htmlFor="maxQtyPerOrder"
+                                hint={errors.maxQtyPerOrder ?? 'Kosongkan bila tidak dibatasi.'}
+                            >
+                                <Input
+                                    id="maxQtyPerOrder"
+                                    type="number"
+                                    min="1"
+                                    value={data.maxQtyPerOrder}
+                                    onChange={(event) => setData('maxQtyPerOrder', event.target.value)}
+                                    placeholder="Kosongkan bila tidak dibatasi"
+                                    className={errors.maxQtyPerOrder ? 'border-danger' : ''}
+                                />
+                            </Field>
+
+                            <Field
+                                label="Berat (gram)"
+                                htmlFor="weightGrams"
+                                hint={errors.weightGrams ?? 'Dibutuhkan untuk menghitung ongkir.'}
+                            >
+                                <Input
+                                    id="weightGrams"
+                                    type="number"
+                                    min="0"
+                                    value={data.weightGrams}
+                                    onChange={(event) => setData('weightGrams', event.target.value)}
+                                    placeholder="150"
+                                    className={errors.weightGrams ? 'border-danger' : ''}
+                                />
+                            </Field>
+                        </div>
+                    </div>
                 </Card>
             </div>
 
