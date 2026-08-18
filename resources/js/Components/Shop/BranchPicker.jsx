@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import Icon from './Icon';
+import Button from './Button';
 
 /**
  * "Which apotek, and how do I get it" — the picker on the product page.
@@ -10,16 +11,22 @@ import Icon from './Icon';
  * prompt resolves, without a full Inertia page visit. A branch with no stock
  * still shows up — a shopper needs to know it exists — but cannot be selected.
  *
- * Selecting a branch and a fulfilment method is UI state only for now; wiring
- * it into an actual cart is Fase 5.
+ * Adding to cart posts straight to `CartManager` (Fase 5.3). A cart is bound
+ * to one branch (ROADMAP.md 3.3); if this cart already holds items from a
+ * different branch, the server refuses with a `branch` error and this asks
+ * whether to empty the cart and switch instead of failing silently.
  *
- * @param {{ productId: string }} props
+ * @param {{ productId: string, productName: string, maxQtyPerOrder: ?number }} props
  */
-export default function BranchPicker({ productId }) {
+export default function BranchPicker({ productId, productName, maxQtyPerOrder }) {
     const [branches, setBranches] = useState(null);
     const [error, setError] = useState('');
     const [selected, setSelected] = useState(null);
     const [fulfilment, setFulfilment] = useState('antar');
+    const [quantity, setQuantity] = useState(1);
+    const [added, setAdded] = useState(false);
+
+    const { transform, post, processing, errors, clearErrors } = useForm({});
 
     useEffect(() => {
         let cancelled = false;
@@ -59,12 +66,30 @@ export default function BranchPicker({ productId }) {
         }
 
         setSelected(branch);
+        setQuantity(1);
+        clearErrors();
 
         if (branch.supportsPickup && ! branch.supportsDelivery) {
             setFulfilment('ambil');
         } else if (branch.supportsDelivery && ! branch.supportsPickup) {
             setFulfilment('antar');
         }
+    };
+
+    const addToCart = (switchBranch = false) => {
+        if (! selected) {
+            return;
+        }
+
+        transform(() => ({ productId, branchId: selected.id, quantity, switchBranch }));
+
+        post('/ui/keranjang', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setAdded(true);
+                window.setTimeout(() => setAdded(false), 1800);
+            },
+        });
     };
 
     if (error) {
@@ -135,37 +160,100 @@ export default function BranchPicker({ productId }) {
             ) : null}
 
             {selected ? (
-                <div className="mt-2.5 flex gap-[7px]">
-                    {selected.supportsDelivery ? (
-                        <button
-                            type="button"
-                            onClick={() => setFulfilment('antar')}
-                            className={`flex flex-1 items-center justify-center gap-1.5 py-2 text-[11px] ${
-                                fulfilment === 'antar'
-                                    ? 'border-2 border-brand font-bold text-brand'
-                                    : 'border border-line text-muted'
-                            }`}
-                        >
-                            <Icon name="bagSimple" size={14} />
-                            Antar
-                        </button>
+                <>
+                    <div className="mt-2.5 flex gap-[7px]">
+                        {selected.supportsDelivery ? (
+                            <button
+                                type="button"
+                                onClick={() => setFulfilment('antar')}
+                                className={`flex flex-1 items-center justify-center gap-1.5 py-2 text-[11px] ${
+                                    fulfilment === 'antar'
+                                        ? 'border-2 border-brand font-bold text-brand'
+                                        : 'border border-line text-muted'
+                                }`}
+                            >
+                                <Icon name="bagSimple" size={14} />
+                                Antar
+                            </button>
+                        ) : null}
+
+                        {selected.supportsPickup ? (
+                            <button
+                                type="button"
+                                onClick={() => setFulfilment('ambil')}
+                                className={`flex flex-1 items-center justify-center gap-1.5 py-2 text-[11px] ${
+                                    fulfilment === 'ambil'
+                                        ? 'border-2 border-brand font-bold text-brand'
+                                        : 'border border-line text-muted'
+                                }`}
+                            >
+                                <Icon name="pin" size={14} />
+                                Ambil di Tempat
+                            </button>
+                        ) : null}
+                    </div>
+
+                    <div className="mt-2.5 flex items-center justify-between">
+                        <span className="text-[11px] text-muted">Jumlah</span>
+
+                        <div className="flex items-center gap-2.5">
+                            <button
+                                type="button"
+                                onClick={() => setQuantity((qty) => Math.max(1, qty - 1))}
+                                aria-label={`Kurangi jumlah ${productName}`}
+                                className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none"
+                            >
+                                −
+                            </button>
+                            <span className="min-w-[16px] text-center text-xs">{quantity}</span>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setQuantity((qty) =>
+                                        maxQtyPerOrder ? Math.min(maxQtyPerOrder, qty + 1) : qty + 1,
+                                    )
+                                }
+                                aria-label={`Tambah jumlah ${productName}`}
+                                className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    {maxQtyPerOrder ? (
+                        <p className="mt-1 text-right text-[10px] text-muted">
+                            Maksimal {maxQtyPerOrder} per transaksi.
+                        </p>
                     ) : null}
 
-                    {selected.supportsPickup ? (
-                        <button
-                            type="button"
-                            onClick={() => setFulfilment('ambil')}
-                            className={`flex flex-1 items-center justify-center gap-1.5 py-2 text-[11px] ${
-                                fulfilment === 'ambil'
-                                    ? 'border-2 border-brand font-bold text-brand'
-                                    : 'border border-line text-muted'
-                            }`}
-                        >
-                            <Icon name="pin" size={14} />
-                            Ambil di Tempat
-                        </button>
+                    {errors.quantity ? (
+                        <p className="mt-1.5 text-[11px] text-danger">{errors.quantity}</p>
                     ) : null}
-                </div>
+
+                    {errors.branch ? (
+                        <div className="mt-1.5 border border-danger bg-danger/5 p-2.5 text-[11px] text-danger-deep">
+                            <p className="mb-1.5">{errors.branch}</p>
+                            <button
+                                type="button"
+                                onClick={() => addToCart(true)}
+                                disabled={processing}
+                                className="font-bold underline"
+                            >
+                                Ya, kosongkan &amp; pindah
+                            </button>
+                        </div>
+                    ) : (
+                        <Button
+                            type="button"
+                            onClick={() => addToCart(false)}
+                            disabled={processing}
+                            className="mt-2.5"
+                        >
+                            {added ? 'Ditambahkan ✓' : 'Masukkan ke Keranjang'}
+                        </Button>
+                    )}
+                </>
             ) : null}
         </div>
     );

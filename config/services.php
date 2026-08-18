@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    /*
+    | DOKU Checkout (Fase 6). `notification_path` must match, byte for byte,
+    | the path portion of whatever Notification URL is configured in the DOKU
+    | Back Office — it is signed as part of the webhook signature, so a
+    | mismatch here fails every notification's signature check.
+    */
+    'doku' => [
+        'client_id' => env('DOKU_CLIENT_ID'),
+        'secret_key' => env('DOKU_SECRET_KEY'),
+        'production' => env('DOKU_PRODUCTION', false),
+        'base_url' => env('DOKU_PRODUCTION', false)
+            ? 'https://api.doku.com'
+            : 'https://api-sandbox.doku.com',
+        'notification_path' => '/doku/notifikasi',
+    ],
+
 ];

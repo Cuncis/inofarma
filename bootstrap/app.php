@@ -24,6 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // DOKU's server-to-server notification can't carry a CSRF token —
+        // `DokuWebhookController` verifies its own HMAC signature instead
+        // (Fase 6), which is what actually proves the request is genuine.
+        $middleware->validateCsrfTokens(except: [
+            'doku/notifikasi',
+        ]);
+
         $middleware->alias([
             'admin' => EnsureAdminIsAuthenticated::class,
             'customer' => EnsureCustomerIsAuthenticated::class,

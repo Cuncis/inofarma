@@ -42,7 +42,6 @@ class StorefrontUiTest extends TestCase
             'sign in' => ['ui/signin', 'Shop/SignIn'],
             'sign up' => ['ui/signup', 'Shop/SignUp'],
             'cart' => ['ui/cart', 'Shop/Cart'],
-            'checkout' => ['ui/checkout', 'Shop/Checkout'],
             'profile' => ['ui/profile', 'Shop/Profile'],
             'leave a review' => ['ui/leave-a-review', 'Shop/LeaveAReview'],
         ];

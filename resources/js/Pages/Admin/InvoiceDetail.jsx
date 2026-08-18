@@ -1,15 +1,36 @@
+import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
 import Card from '@/Components/Admin/Card';
+import { Field, Textarea } from '@/Components/Admin/Form';
+import Modal from '@/Components/Admin/Modal';
 import Table from '@/Components/Admin/Table';
 import { money, statusTone } from '@/Components/Admin/data';
 
 /**
  * Read-only, generated from the order's own snapshot totals — nothing here
- * is recomputed from live prices (see `Order`'s docblock).
+ * is recomputed from live prices (see `Order`'s docblock) — except the
+ * "Catat Refund" action (Fase 6), which only *records* a refund; see
+ * `Admin\InvoiceController::refund()` for why it doesn't call DOKU.
  */
 export default function InvoiceDetail({ invoice }) {
+    const [refunding, setRefunding] = useState(false);
+    const { data, setData, post, processing, errors, reset } = useForm({ note: '' });
+
+    const submitRefund = (event) => {
+        event.preventDefault();
+
+        post(`/admin/faktur/${invoice.number}/refund`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setRefunding(false);
+                reset();
+            },
+        });
+    };
+
     return (
         <AdminLayout
             title="Detail Faktur"
@@ -20,14 +41,27 @@ export default function InvoiceDetail({ invoice }) {
                 { label: invoice.number },
             ]}
             actions={
-                <Button
-                    variant="outline"
-                    size="sm"
-                    icon="solar:printer-broken"
-                    onClick={() => window.print()}
-                >
-                    Cetak
-                </Button>
+                <div className="flex gap-2">
+                    {invoice.isRefundable ? (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            icon="solar:card-recive-broken"
+                            onClick={() => setRefunding(true)}
+                        >
+                            Catat Refund
+                        </Button>
+                    ) : null}
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        icon="solar:printer-broken"
+                        onClick={() => window.print()}
+                    >
+                        Cetak
+                    </Button>
+                </div>
             }
         >
             <Card className="mx-auto max-w-3xl">
@@ -123,6 +157,62 @@ export default function InvoiceDetail({ invoice }) {
                     </div>
                 </div>
             </Card>
+
+            {invoice.payments.length > 0 ? (
+                <Card title="Riwayat Pembayaran" className="mx-auto mt-5 max-w-3xl" bodyClassName="p-0">
+                    <Table
+                        columns={[
+                            { key: 'invoiceNumber', label: 'No. Invoice DOKU' },
+                            { key: 'channel', label: 'Kanal' },
+                            { key: 'amount', label: 'Jumlah', align: 'right' },
+                            { key: 'status', label: 'Status' },
+                            { key: 'createdAt', label: 'Dibuat' },
+                            { key: 'paidAt', label: 'Dibayar' },
+                        ]}
+                        rows={invoice.payments}
+                        rowKey={(row) => row.invoiceNumber}
+                        renderCell={(row, key) => {
+                            if (key === 'amount') {
+                                return money(row.amount);
+                            }
+
+                            if (key === 'status') {
+                                return <Badge tone={statusTone(row.status)}>{row.status}</Badge>;
+                            }
+
+                            return row[key] ?? '—';
+                        }}
+                    />
+                </Card>
+            ) : null}
+
+            <Modal open={refunding} title="Catat Refund" onClose={() => setRefunding(false)}>
+                <form onSubmit={submitRefund} className="space-y-4">
+                    <p className="text-[13px] text-admin-muted dark:text-admin-dark-muted">
+                        DOKU tidak menyediakan refund otomatis untuk semua kanal — catat di
+                        sini setelah dana benar-benar dikembalikan ke pelanggan (transfer
+                        manual, dsb). Status faktur akan berubah menjadi Refund.
+                    </p>
+
+                    <Field label="Catatan" htmlFor="note" hint={errors.note}>
+                        <Textarea
+                            id="note"
+                            value={data.note}
+                            onChange={(event) => setData('note', event.target.value)}
+                            placeholder="Mis. Ditransfer manual ke rekening pelanggan, 20 Agu 2026"
+                        />
+                    </Field>
+
+                    <div className="flex justify-end gap-2 border-t border-admin-border pt-4 dark:border-admin-dark-border">
+                        <Button type="button" variant="outline" size="sm" onClick={() => setRefunding(false)}>
+                            Batal
+                        </Button>
+                        <Button type="submit" size="sm" disabled={processing}>
+                            {processing ? 'Menyimpan…' : 'Catat Refund'}
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
         </AdminLayout>
     );
 }

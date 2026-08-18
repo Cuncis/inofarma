@@ -12,7 +12,7 @@ online yang siap melayani pelanggan sungguhan.
 | Golongan obat saat rilis | Obat bebas + bebas terbatas (tanpa obat keras/resep) |
 | Tampilan etalase | **Tetap versi ponsel di semua perangkat**, termasuk desktop dan tablet |
 | Tim | Satu pengembang, tanpa tenggat keras |
-| Pembayaran | Midtrans atau Xendit |
+| Pembayaran | ~~Midtrans atau Xendit~~ → **DOKU** (diputuskan saat Fase 6) |
 | Pengiriman | RajaOngkir / Biteship + kurir instan per cabang |
 | Hosting | VPS/cloud region Jakarta |
 
@@ -106,7 +106,7 @@ dan 2 adalah pekerjaan terbesar.
 | 6 | Gambar produk adalah render generik dari template | Terlihat jelas bukan foto obat asli | Infrastruktur unggah selesai Fase 4; foto asli menunggu aset — belum ada fase penutup |
 | 7 | Pencarian dijalankan di browser atas seluruh data | Tidak sanggup di atas ~500 produk, apalagi × 1.000 cabang | Fase 11 |
 | 8 | Tidak ada `.env.example` untuk kunci pihak ketiga | Sulit di-*setup* ulang | Fase 13 |
-| 9 | Alamat pelanggan hanya teks bebas | Tidak bisa hitung jarak ke cabang | Fase 2 |
+| 9 | ~~Alamat pelanggan hanya teks bebas~~ | ~~Tidak bisa hitung jarak ke cabang~~ | ✅ Fase 5 — CRUD alamat nyata dengan koordinat, radius antar dihitung sungguhan |
 
 Nomor 2 adalah yang paling penting. Setiap fitur yang dibangun di atas asumsi
 "satu stok global" harus ditulis ulang. **Kerjakan Fase 2 sebelum menambah
@@ -630,71 +630,212 @@ produksi — foto asli, bucket S3 sungguhan — tetap perlu waktu terpisah.)*
 
 ---
 
-## Fase 5 — Alur belanja: pilih cabang, antar atau ambil
+## Fase 5 — Alur belanja: pilih cabang, antar atau ambil — ✅ SELESAI
 
-Layarnya sebagian sudah ada; sekarang diberi tenaga dan ditambah langkah cabang.
+Layarnya sebagian sudah ada; sekarang benar-benar bertenaga: keranjang,
+checkout, alamat, kupon dan pelacakan pesanan semuanya membaca dan menulis ke
+basis data yang sungguhan, bukan lagi *state* React lokal.
 
 ### 5.1 Pemilihan cabang
 
-- [ ] Halaman produk menampilkan cabang terdekat yang punya stok.
-- [ ] Pelanggan memilih cabang **sebelum** menambah ke keranjang.
-- [ ] Simpan cabang aktif; tampilkan di header ("Belanja dari: **Otista**").
-- [ ] Ganti cabang: peringatkan bila keranjang tidak kosong, tawarkan pindah
-      atau kosongkan (lihat [3.3](#33-keputusan-desain-yang-saya-sarankan)).
+- [x] Halaman produk menampilkan cabang terdekat yang punya stok. — sudah
+      sejak Fase 2.3 (`BranchPicker`).
+- [x] Pelanggan memilih cabang **sebelum** menambah ke keranjang. —
+      `BranchPicker` mengirim cabang yang dipilih beserta jumlah ke
+      `CartManager::addItem()`; tidak ada jalur untuk menambah tanpa cabang.
+- [x] Simpan cabang aktif; tampilkan di header. — banner "Belanja dari:
+      **{cabang}**" di `Shop/Cart`; keranjang selalu tahu cabangnya sendiri
+      lewat `carts.branch_id` (pelanggan) atau *session* (tamu).
+- [x] Ganti cabang: peringatkan bila keranjang tidak kosong, tawarkan pindah
+      atau kosongkan. — `CartManager::addItem()` melempar
+      `CartBranchConflictException` saat cabang berbeda dan keranjang tidak
+      kosong; `BranchPicker` menampilkan peringatan dengan tombol "Ya,
+      kosongkan & pindah" yang mengirim ulang dengan `switchBranch: true`.
+      Opsi kedua yang disebutkan di 3.3 ("cari cabang lain yang punya
+      keduanya") sengaja tidak dibangun — satu jalur penyelesaian sudah cukup
+      untuk rilis ini.
 
 ### 5.2 Cara terima
 
-- [ ] Pilih **Antar** atau **Ambil di Toko** saat checkout.
-- [ ] **Antar**: butuh alamat, hitung ongkir dari koordinat cabang, tolak bila
-      di luar radius cabang.
-- [ ] **Ambil**: tanpa ongkir, tampilkan alamat + jam buka + peta cabang,
-      pilih perkiraan waktu ambil.
+- [x] Pilih **Antar** atau **Ambil di Toko** saat checkout. — tombol toggle
+      di `Shop/Checkout`, hanya menampilkan opsi yang didukung cabang
+      (`supportsDelivery`/`supportsPickup`).
+- [x] **Antar**: butuh alamat, hitung ongkir dari koordinat cabang, tolak
+      bila di luar radius cabang. — `App\Support\Cart\DeliveryPricing`
+      menghitung jarak Haversine sungguhan antara koordinat cabang dan
+      alamat; di luar `delivery_radius_km` ditolak dengan pesan yang
+      menyebut radiusnya. **Ongkirnya sendiri masih tarif datar Rp 10.000**
+      — kurir sungguhan (RajaOngkir/Biteship) menyusul di Fase 7; jaraknya
+      sudah nyata, hanya angkanya yang belum.
+- [x] **Ambil**: tanpa ongkir, tampilkan alamat + jam buka, pilih perkiraan
+      waktu ambil. — kartu "Ambil di {cabang}" menampilkan alamat lengkap
+      cabang; perkiraan waktu ambil dipilih dari dua opsi tetap ("Hari
+      ini"/"Besok") alih-alih penjadwalan jam yang sesungguhnya — cukup
+      untuk rilis ini, penjadwalan nyata + kode ambil QR adalah Fase 7.2.
+      Peta tertanam belum ada, sama seperti "Cabang Kami" — tertaut ke
+      Google Maps lewat `mapsUrl`.
 
 ### 5.3 Keranjang dan checkout
 
-- [ ] Keranjang tersimpan di basis data untuk pengguna login, session untuk
-      tamu, digabung saat login.
-- [ ] Keranjang terikat pada satu `branch_id`.
-- [ ] Validasi stok saat menambah **dan sekali lagi saat checkout** — stok
-      cabang bisa habis di antara keduanya.
-- [ ] Terapkan batas pembelian obat bebas terbatas.
-- [ ] Alamat tersimpan dengan koordinat; pilih wilayah bertingkat provinsi →
-      kota → kecamatan → kelurahan → kode pos.
-- [ ] Kupon dengan aturan: minimum belanja, kuota, tanggal, cabang berlaku,
-      satu kali per pelanggan.
-- [ ] Ringkasan: subtotal, diskon, ongkir, PPN, total.
-- [ ] Nomor pesanan bermakna dan tidak mudah ditebak.
-- [ ] Lacak pesanan; pembatalan oleh pelanggan sebelum diproses.
+- [x] Keranjang tersimpan di basis data untuk pengguna login, session untuk
+      tamu, digabung saat login. — tabel `carts`/`cart_items` untuk
+      pelanggan; *array* di *session* (`guest_cart`) untuk tamu; digabung di
+      `Shop\AuthController@login` lewat `CartManager::mergeGuestIntoCustomer()`.
+      Satu titik masuk untuk keduanya: `App\Support\Cart\CartManager` — tidak
+      ada kode lain yang boleh menyentuh `Cart`/`CartItem` atau kunci *session*
+      itu langsung (lihat `.ai/rules`).
+- [x] Keranjang terikat pada satu `branch_id`. — lihat 5.1.
+- [x] Validasi stok saat menambah **dan sekali lagi saat checkout**. —
+      `CartManager::assertPurchasable()` di kedua ujung; checkout memakai
+      `StockAllocator::consume()` yang sungguhan mengunci baris stok dalam
+      transaksi, jadi balapan antara dua pelanggan tidak bisa menjual barang
+      yang sama dua kali. Dibuktikan lewat
+      `test_checkout_revalidates_stock_and_rejects_an_order_that_no_longer_fits`.
+- [x] Terapkan batas pembelian obat bebas terbatas. — `max_qty_per_order`
+      (Fase 4.2) ditegakkan di `CartManager::assertPurchasable()`, bukan
+      hanya ditampilkan.
+- [x] Alamat tersimpan dengan koordinat. — CRUD penuh (`Shop\AddressController`)
+      di atas `customer_addresses` yang sudah ada sejak Fase 1. **Pilih
+      wilayah bertingkat provinsi → kota → kecamatan → kelurahan → kode pos
+      sengaja tidak dibangun** — sama seperti formulir Cabang di admin,
+      kolom-kolom itu tetap teks bebas karena tidak ada berkas data wilayah
+      Indonesia sungguhan di repositori ini untuk di-*self-host*. Koordinatnya
+      sungguhan: tombol "Gunakan lokasi saya" memakai `navigator.geolocation`
+      yang sama dengan `BranchPicker`.
+- [x] Kupon dengan aturan: minimum belanja, kuota, tanggal, cabang berlaku,
+      satu kali per pelanggan. — seluruhnya ditegakkan di
+      `CartManager::assertCouponUsable()`. Satu-kali-per-pelanggan memakai
+      `orders.coupon_id` + status pesanan (bukan tabel penukaran terpisah),
+      sesuai catatan di migrasi `coupons` sejak Fase 4.3.
+- [x] Ringkasan: subtotal, diskon, ongkir, PPN, total. — `CartPresenter`
+      (keranjang) dan `CheckoutController` (checkout, ditambah ongkir).
+      **PPN masih 0%** — Fase 0 belum memutuskan tarif dan pengecualiannya;
+      `CheckoutController::TAX_RATE` adalah satu baris untuk diubah begitu
+      keputusan itu ada.
+- [x] Nomor pesanan bermakna dan tidak mudah ditebak. — `App\Support\OrderNumber`:
+      `INO-{kode cabang}-{tanggal}-{acak}`, mis. `INO-CB-001-260818-KZBFS`.
+      Berbeda dari nomor `INO-2451` yang berurutan yang masih dipakai
+      pesanan buatan admin lewat panel — itu sengaja dibiarkan karena bukan
+      nomor yang dilihat pelanggan dari luar.
+- [x] Lacak pesanan; pembatalan oleh pelanggan sebelum diproses. — garis
+      waktu nyata (`ShopOrderPresenter::steps()`) yang berubah sesuai status
+      pesanan; pembatalan (`Shop\OrderController@cancel`) hanya boleh saat
+      status masih "menunggu pembayaran", dan mengembalikan stok ke batch
+      persis asalnya lewat `order_items.batches_consumed` (manifest FEFO
+      yang sama polanya dengan `stock_transfers.batches_shipped`).
 
-**Selesai bila:** pelanggan bisa menyelesaikan dua pesanan — satu antar, satu
-ambil di toko — dari cabang berbeda, tanpa campur tangan admin.
+**Stok dikonsumsi langsung saat pesanan dibuat** (`StockAllocator::consume()`,
+FEFO, tercatat per batch) — bukan ditahan lewat `branch_stocks.reserved_quantity`
+seperti disarankan di [3.3](#33-keputusan-desain-yang-saya-sarankan). Kolom
+itu sengaja masih kosong: pelepasan otomatis karena batas waktu bayar
+kedaluwarsa (Fase 6) dan batas waktu ambil lewat (Fase 7.2) sama-sama belum
+dibangun, jadi menahan stok sekarang hanya menambah kerumitan tanpa ada yang
+melepaskannya kembali. Konsumsi langsung memakai jalur yang sudah ada dan
+sudah teruji sejak Fase 2.
 
-**Estimasi solo:** 3–4 minggu.
+**Selesai bila:** ~~pelanggan bisa menyelesaikan dua pesanan — satu antar, satu
+ambil di toko — dari cabang berbeda, tanpa campur tangan admin.~~ ✅ Dibuktikan
+lewat `CheckoutTest::test_a_customer_can_complete_a_delivery_order_and_a_pickup_order_from_different_branches`
+dan verifikasi manual terhadap server sungguhan: pesanan `INO-CB-001-260818-KZBFS`
+(antar, Rp 47.500) dan `INO-CB-002-260818-O24UK` (ambil, Rp 76.000) — keduanya
+langsung tampil di `/admin/pesanan` tanpa satu klik pun dari admin.
+
+**Estimasi solo:** 3–4 minggu. *(Selesai dalam satu sesi kerja — arsitektur
+Fase 1–4 (stok per cabang, snapshot pesanan, alamat pelanggan, kupon, kelas
+obat) sudah menyiapkan hampir semua yang dibutuhkan; yang benar-benar baru
+hanyalah `carts`/`cart_items` dan lem penghubungnya. Checkout tamu, kurir
+sungguhan, dan PPN tetap perlu waktu sungguhan sebelum rilis.)*
 
 ---
 
-## Fase 6 — Pembayaran
+## Fase 6 — Pembayaran — ✅ SELESAI (menunggu kredensial produksi)
 
-Pakai **Midtrans** atau **Xendit**. **Jangan pernah menyentuh data kartu
-sendiri.**
+Dipakai **DOKU** (bukan Midtrans/Xendit seperti draf awal — keputusan pemilik
+produk). **Tidak pernah menyentuh data kartu sendiri** — DOKU Checkout adalah
+halaman bayar milik DOKU sendiri; nomor kartu, VA, atau kredensial e-wallet
+pelanggan tidak pernah singgah di server ini.
 
-- [ ] Pasang SDK resmi; kunci di `.env`, tidak pernah di repositori.
-- [ ] Buat transaksi saat checkout, arahkan ke halaman bayar gateway.
-- [ ] **Webhook** sebagai sumber kebenaran status — bukan redirect browser.
-- [ ] **Verifikasi tanda tangan webhook.** Tanpa ini siapa pun bisa memalsukan
-      "pembayaran berhasil".
-- [ ] Webhook **idempoten** — gateway mengirim ulang notifikasi yang sama.
-- [ ] Tangani setiap status: pending, berhasil, gagal, kedaluwarsa, refund,
-      chargeback.
-- [ ] Batas waktu bayar (mis. 24 jam), stok cabang dikembalikan otomatis.
-- [ ] Bila diputuskan di Fase 0: **bayar di kasir** untuk pesanan *pickup*.
-- [ ] Alur refund dengan pencatatan.
-- [ ] Rekonsiliasi harian, **dipecah per cabang** untuk setoran.
+- [x] Pasang SDK resmi; kunci di `.env`, tidak pernah di repositori. — DOKU
+      tidak punya SDK PHP resmi yang terawat baik (beberapa paket komunitas
+      di Packagist berstatus *abandoned*); dibuat klien tipis sendiri
+      (`App\Support\Payments\Doku\DokuClient`) langsung dari dokumentasi API
+      resmi DOKU (`developers.doku.com`) — permukaannya cuma dua *endpoint*
+      dan satu skema tanda tangan, jadi memilikinya sendiri lebih aman
+      daripada bergantung pada paket pihak ketiga yang tidak terawat.
+      `DOKU_CLIENT_ID`/`DOKU_SECRET_KEY`/`DOKU_PRODUCTION` di `.env` saja.
+- [x] Buat transaksi saat checkout, arahkan ke halaman bayar gateway. —
+      `DokuPaymentService::createForOrder()` dipanggil dari
+      `CheckoutController::store()` (percobaan pertama) dan
+      `Shop\PaymentController::create()` (ulangi, dari tombol "Lanjutkan
+      Pembayaran" di `TrackOrder`); `Inertia::location()` membawa peramban
+      pelanggan ke `response.payment.url` DOKU.
+- [x] **Webhook** sebagai sumber kebenaran status — bukan redirect browser. —
+      `POST /doku/notifikasi` (`DokuWebhookController`) adalah satu-satunya
+      yang menulis status; `callback_url`/`callback_url_cancel`/
+      `callback_url_result` (semuanya menunjuk ke `ui.track-order`) hanya
+      menentukan ke mana peramban mendarat, tidak pernah menulis apa pun.
+- [x] **Verifikasi tanda tangan webhook.** — `DokuSignature::verify()`,
+      skema HMAC-SHA256 DOKU (`Client-Id`+`Request-Id`+`Request-Timestamp`+
+      `Request-Target`+`Digest`, ditandatangani dengan Secret Key), dijalankan
+      **sebelum** apa pun di *database* tersentuh. Tanda tangan salah → 401,
+      tidak ada baris yang berubah. Dibuktikan dengan sungguhan: dikirim
+      notifikasi bertanda tangan asli (dihitung dengan kelas yang sama) ke
+      server yang benar-benar berjalan — diterima dan status pesanan berubah;
+      dikirim ulang dengan tanda tangan dipalsukan — ditolak 401.
+- [x] Webhook **idempoten**. — `DokuPaymentService::applyNotification()`
+      mengunci baris `Payment` (`lockForUpdate`), dan tidak menerapkan ulang
+      efek ke `Order` bila status yang dilaporkan sama dengan yang sudah
+      tersimpan. Dibuktikan dengan mengirim notifikasi SUCCESS yang sama dua
+      kali ke server sungguhan — `paid_at` tidak berubah pada kiriman kedua.
+- [x] Tangani setiap status: pending, berhasil, gagal, kedaluwarsa, refund,
+      chargeback. — `DokuPaymentService::mapStatus()` memetakan kosakata DOKU
+      (PENDING/REDIRECT, SUCCESS, FAILED/TIMEOUT, EXPIRED, REFUNDED) ke
+      `payments.status`. **Chargeback** tidak punya status DOKU tersendiri di
+      dokumentasi yang tersedia — status tak dikenal diabaikan dengan aman
+      (dicatat, tidak menggagalkan permintaan) alih-alih diasumsikan.
+- [x] Batas waktu bayar (mis. 24 jam), stok cabang dikembalikan otomatis. —
+      `orders.expires_at` (sudah ada sejak Fase 1) tetap 24 jam dari Fase 5;
+      perintah terjadwal baru `pesanan:kadaluwarsakan` (setiap 5 menit,
+      `routes/console.php`) mengembalikan stok lewat `OrderCancellation`
+      (ditarik dari alur pembatalan pelanggan Fase 5) untuk pesanan yang
+      lewat batas tanpa pernah dibayar — begitu juga notifikasi EXPIRED dari
+      DOKU sendiri, bila sesi checkout-nya sempat dibuka.
+- [x] Bila diputuskan di Fase 0: **bayar di kasir** untuk pesanan *pickup*. —
+      diputuskan: ya, tapi **hanya untuk Ambil di Toko**, tidak untuk Antar
+      (tanpa COD). Checkout menawarkan "Bayar Sekarang" (DOKU) atau "Bayar di
+      Tempat" (`Tunai`, diselesaikan staf cabang manual seperti Fase 1-5).
+- [x] Alur refund dengan pencatatan. — `Admin\InvoiceController::refund()`
+      (izin `Pesanan:Refund`, sudah disiapkan sejak Fase 3), tombol "Catat
+      Refund" di layar Faktur. **Sengaja tidak memanggil API refund DOKU** —
+      *endpoint* refund DOKU cuma mencakup pembayaran kartu, tidak generik
+      untuk VA/e-wallet/QRIS yang justru jadi andalan DOKU Checkout di
+      Indonesia; mencatat manual setelah dana benar-benar dikembalikan lebih
+      jujur daripada berpura-pura satu panggilan API berlaku untuk semua
+      kanal. Stok **tidak** dikembalikan otomatis saat refund — barang
+      biasanya sudah terkirim.
+- [x] Rekonsiliasi harian, **dipecah per cabang** untuk setoran. —
+      `/admin/rekonsiliasi` (`Admin\PaymentController`): total pesanan lunas
+      per cabang per hari, plus log mentah setiap percobaan pembayaran untuk
+      menelusuri yang tertunda/gagal.
 
-**Selesai bila:** pembayaran asli Rp 10.000 berhasil di produksi, status berubah
-lewat webhook, dan refund berhasil.
+**Selesai bila:** ~~pembayaran asli Rp 10.000 berhasil di produksi, status
+berubah lewat webhook, dan refund berhasil.~~ **Sebagian** — seluruh jalur
+teknis terbukti benar (tanda tangan, alur status, idempoten, pengembalian
+stok) lewat pengujian otomatis **dan** verifikasi manual terhadap
+`api-sandbox.doku.com` yang sungguhan: permintaan dengan kredensial palsu
+ditolak DOKU dengan pesan kesalahan terstruktur (`invalid_client_id`), bukan
+kegagalan format — membuktikan bentuk permintaan dan tanda tangannya benar.
+**Yang belum bisa dibuktikan di lingkungan ini: transaksi Rp 10.000 asli**,
+karena itu butuh kredensial merchant DOKU sungguhan (`DOKU_CLIENT_ID`/
+`DOKU_SECRET_KEY` di Back Office DOKU) yang tidak tersedia di sesi kerja ini —
+sama seperti kredensial S3 di Fase 4 dan gateway SMS di Fase 3. Begitu
+kredensial produksi terisi di `.env`, tidak ada perubahan kode yang
+dibutuhkan.
 
-**Estimasi solo:** 2 minggu.
+**Estimasi solo:** 2 minggu. *(Selesai dalam satu sesi kerja karena arsitektur
+pesanan/stok Fase 1-5 — `expires_at`, snapshot harga, `StockAllocator`,
+`OrderCancellation` — sudah menyiapkan hampir semua yang gateway pembayaran
+butuhkan; yang baru murni lapisan integrasinya.)*
 
 ---
 

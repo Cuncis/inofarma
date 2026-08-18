@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Support\Cart\CartManager;
 use App\Support\CodeSequence;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
@@ -48,6 +49,11 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        // A cart built while browsing as a guest (session-backed — see
+        // `CartManager`) folds into the customer's saved cart the moment they
+        // sign in, so adding to cart before signing in isn't wasted effort.
+        (new CartManager($request))->mergeGuestIntoCustomer(Auth::guard('customer')->user());
 
         $intended = $request->session()->pull('customer_intended');
 

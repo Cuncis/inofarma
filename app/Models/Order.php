@@ -27,7 +27,7 @@ class Order extends Model
     }
 
     protected $fillable = [
-        'number', 'branch_id', 'customer_id', 'fulfilment', 'status',
+        'number', 'branch_id', 'customer_id', 'coupon_id', 'fulfilment', 'status',
         'payment_method', 'payment_status', 'subtotal', 'discount_total',
         'shipping_total', 'tax_total', 'grand_total', 'recipient_name',
         'recipient_phone', 'shipping_address', 'shipping_latitude',
@@ -63,9 +63,27 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /** The most recent payment attempt, if the order has any — for "lanjutkan pembayaran". */
+    public function getLatestPaymentAttribute(): ?Payment
+    {
+        return $this->relationLoaded('payments')
+            ? $this->payments->sortByDesc('id')->first()
+            : $this->payments()->latest('id')->first();
     }
 
     public function scopeForBranch(Builder $query, Branch|int $branch): Builder
@@ -87,6 +105,15 @@ class Order extends Model
     public function getIsDeletableAttribute(): bool
     {
         return $this->status !== 'selesai';
+    }
+
+    /**
+     * Pelanggan hanya boleh membatalkan sendiri sebelum apotek mulai
+     * memprosesnya — begitu berstatus "diproses" barang sudah mulai disiapkan.
+     */
+    public function getIsCancellableByCustomerAttribute(): bool
+    {
+        return $this->status === 'menunggu pembayaran';
     }
 
     public function getItemCountAttribute(): int

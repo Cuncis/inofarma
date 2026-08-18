@@ -49,6 +49,11 @@ export const navSections = [
                 href: '/admin/atribut',
             },
             { label: 'Faktur', icon: 'solar:bill-list-bold-duotone', href: '/admin/faktur' },
+            {
+                label: 'Rekonsiliasi',
+                icon: 'solar:card-transfer-bold-duotone',
+                href: '/admin/rekonsiliasi',
+            },
             { label: 'Pengaturan', icon: 'solar:settings-bold-duotone', href: '/admin/pengaturan' },
             { label: 'Profil', icon: 'solar:user-circle-bold-duotone', href: '/admin/profil' },
             { label: 'Staf Admin', icon: 'solar:user-id-bold-duotone', href: '/admin/staf' },

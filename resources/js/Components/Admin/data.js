@@ -247,6 +247,13 @@ export function statusTone(status) {
         'Jatuh Tempo': 'danger',
         'Menunggu Pembayaran': 'warning',
         Refund: 'info',
+
+        // Payment gateway attempt statuses (Fase 6, `payments.status`).
+        Success: 'success',
+        Pending: 'warning',
+        Failed: 'danger',
+        Expired: 'danger',
+        Refunded: 'info',
     };
 
     return map[status] ?? 'neutral';

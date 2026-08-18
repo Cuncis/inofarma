@@ -6,6 +6,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | resources/js/Components/Admin/BarChart.jsx | .ai/rules/admin.md |
 | app/Http/Controllers/Api/**,app/Support/LocationPreference.php,routes/api.php | .ai/rules/api-support.md |
+| app/Support/Payments/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/PaymentController.php,app/Models/Payment.php,app/Console/Commands/ExpireUnpaidOrders.php,app/Support/OrderCancellation.php | .ai/rules/commands-support.md |
 | app/Support/Auth/**,app/Http/Controllers/Admin/** | .ai/rules/controllers-admin.md |
 | tests/Feature/** | .ai/rules/feature.md |
 | tailwind.config.js | .ai/rules/general.md |
@@ -15,6 +16,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/lib/catalog.js, resources/js/lib/media.js, resources/js/Components/Shop/data.js | .ai/rules/lib.md |
 | app/Http/Middleware/EnsureAdminIsAuthenticated.php | .ai/rules/middleware.md |
 | database/migrations/** | .ai/rules/migrations.md |
+| app/Support/Cart/**,app/Http/Controllers/Shop/CartController.php,app/Http/Controllers/Shop/CheckoutController.php,app/Models/Cart.php,app/Models/CartItem.php | .ai/rules/models-models.md |
 | app/Support/ProductImageUploader.php,app/Http/Controllers/Admin/ProductImageController.php,app/Models/ProductImage.php | .ai/rules/models.md |
 | resources/js/{Pages,Components,Layouts}/Admin*/** | .ai/rules/pages-components-layouts.md |
 | public/** | .ai/rules/public.md |

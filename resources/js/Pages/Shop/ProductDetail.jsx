@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
-import Button from '@/Components/Shop/Button';
 import Icon from '@/Components/Shop/Icon';
 import BranchPicker from '@/Components/Shop/BranchPicker';
+import FlashBanner from '@/Components/Shop/FlashBanner';
 import { DrugInfoSection } from '@/Components/Shop/DrugInfo';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
@@ -66,6 +66,8 @@ export default function ProductDetail() {
                 ) : null}
             </div>
 
+            <FlashBanner />
+
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-2 flex justify-between gap-3">
                     <div className="min-w-0">
@@ -115,11 +117,11 @@ export default function ProductDetail() {
 
                 <DrugInfoSection product={product} />
 
-                <BranchPicker productId={product.id} />
-
-                <Button href="/ui/cart" className="mb-2">
-                    Masukkan ke Keranjang
-                </Button>
+                <BranchPicker
+                    productId={product.id}
+                    productName={product.name}
+                    maxQtyPerOrder={product.maxQtyPerOrder}
+                />
 
                 <div className="mb-2.5 mt-4 flex justify-between border-t-2 border-ink pt-2.5">
                     <span className="font-display text-sm">Ulasan</span>

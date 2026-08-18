@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import Icon from './Icon';
 
 const tabs = [
@@ -15,6 +15,8 @@ const tabs = [
  * @param {{ active?: 'home'|'order'|'wishlist'|'profile' }} props
  */
 export default function TabBar({ active }) {
+    const { cartCount } = usePage().props;
+
     return (
         <nav className="flex h-tabbar shrink-0 items-center border-t border-[#f0f0f0] bg-white shadow-[0_-2px_8px_rgba(0,0,0,.04)]">
             {tabs.map((tab) => {
@@ -24,11 +26,19 @@ export default function TabBar({ active }) {
                     <Link
                         key={tab.key}
                         href={tab.route}
-                        className={`flex flex-1 flex-col items-center gap-0.5 ${
+                        className={`relative flex flex-1 flex-col items-center gap-0.5 ${
                             isActive ? 'text-brand' : 'text-[#cccccc]'
                         }`}
                     >
-                        <Icon name={tab.icon} size={21} />
+                        <span className="relative">
+                            <Icon name={tab.icon} size={21} />
+
+                            {tab.key === 'order' && cartCount > 0 ? (
+                                <span className="absolute -right-2 -top-1.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-brand px-[3px] text-[8px] font-bold text-white">
+                                    {cartCount}
+                                </span>
+                            ) : null}
+                        </span>
                         <span
                             className={`text-[9px] ${
                                 isActive ? 'text-brand' : 'text-[#aaaaaa]'

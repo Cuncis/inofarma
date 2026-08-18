@@ -56,7 +56,6 @@ const toTile = (product) => ({
  *   wishlistProducts: object[],
  *   categories: { name: string, image: string }[],
  *   filterCategories: string[],
- *   cartItems: object[],
  * }}
  */
 export function useShopCatalog() {
@@ -73,14 +72,6 @@ export function useShopCatalog() {
             image: category.image,
         })),
         filterCategories: categories.map((category) => category.name),
-        // Stand-in basket until the real cart arrives in Fase 5.3.
-        cartItems: products.slice(0, 2).map((product, index) => ({
-            name: product.name,
-            image: product.image,
-            amount: product.price,
-            quantity: index === 0 ? 2 : 1,
-            onSale: Boolean(product.oldPrice),
-        })),
     };
 }
 
@@ -114,12 +105,6 @@ export const reviews = [
         age: '2 minggu lalu',
         body: 'Produknya bagus, tapi proses verifikasi resep untuk obat keras agak lama.',
     },
-];
-
-export const addresses = [
-    { title: 'Rumah', line: 'Jl. Kebon Jeruk Raya No. 27, Jakarta Barat 11530' },
-    { title: 'Kantor', line: 'Jl. Jend. Sudirman Kav. 52-53, Jakarta Selatan 12190' },
-    { title: 'Rumah Orang Tua', line: 'Jl. Diponegoro No. 108, Bandung 40115' },
 ];
 
 export const cards = ['**** **** **** 6644', '**** **** **** 8821'];

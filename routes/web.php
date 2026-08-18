@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\RoleController;
@@ -18,13 +19,30 @@ use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\TwoFactorChallengeController;
 use App\Http\Controllers\Admin\TwoFactorController;
+use App\Http\Controllers\Shop\AddressController;
 use App\Http\Controllers\Shop\AuthController as ShopAuthController;
 use App\Http\Controllers\Shop\BranchController as ShopBranchController;
+use App\Http\Controllers\Shop\CartController;
+use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\LocationController;
+use App\Http\Controllers\Shop\OrderController as ShopOrderController;
+use App\Http\Controllers\Shop\PaymentController;
+use App\Http\Controllers\Webhooks\DokuWebhookController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', fn () => Inertia::render('Shop/Home'))->name('home');
+
+/**
+ * DOKU's server-to-server notification (Fase 6). Lives outside `ui`/`admin`
+ * on purpose — it isn't a page for either audience, and its path must match
+ * `services.doku.notification_path` exactly, byte for byte, since that path
+ * is itself part of the signature DOKU computes. CSRF is exempted for this
+ * one path in `bootstrap/app.php`; `DokuWebhookController` verifies DOKU's
+ * own HMAC signature instead.
+ */
+Route::post('doku/notifikasi', [DokuWebhookController::class, 'handle'])->name('doku.notifikasi');
 
 /**
  * Admin screens.
@@ -186,7 +204,13 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
             ->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('{order}', 'show')->name('show');
+                Route::post('{order}/refund', 'refund')->name('refund')
+                    ->middleware('permission:Pesanan:Refund');
             });
+
+        Route::get('rekonsiliasi', [AdminPaymentController::class, 'index'])
+            ->name('rekonsiliasi')
+            ->middleware('permission:Pesanan:Lihat');
 
         Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)
             ->middleware('permission:Pelanggan:Lihat')
@@ -306,17 +330,13 @@ $beShopScreens = [
     'email-sent' => 'EmailSent',
     'new-password' => 'NewPassword',
     'home' => 'Home',
-    'cart' => 'Cart',
     'wishlist' => 'Wishlist',
     'profile' => 'Profile',
     'categories' => 'Categories',
     'shop' => 'Shop',
     'product-detail' => 'ProductDetail',
     'filter' => 'Filter',
-    'checkout' => 'Checkout',
-    'shipping-details' => 'ShippingDetails',
     'payment-method' => 'PaymentMethod',
-    'order-successful' => 'OrderSuccessful',
     'order-failed' => 'OrderFailed',
     'cart-empty' => 'CartEmpty',
     'wishlist-empty' => 'WishlistEmpty',
@@ -325,11 +345,7 @@ $beShopScreens = [
     'edit-profile' => 'EditProfile',
     'payment-methods' => 'PaymentMethods',
     'add-new-card' => 'AddNewCard',
-    'my-address' => 'MyAddress',
-    'add-new-address' => 'AddNewAddress',
     'my-promocodes' => 'MyPromocodes',
-    'order-history' => 'OrderHistory',
-    'track-order' => 'TrackOrder',
     'shipping-info' => 'ShippingInfo',
     'faq' => 'Faq',
     'reviews' => 'Reviews',
@@ -377,4 +393,40 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
 
     Route::post('lokasi', [LocationController::class, 'store'])->name('lokasi.store');
     Route::delete('lokasi', [LocationController::class, 'destroy'])->name('lokasi.destroy');
+
+    /**
+     * Cart (Fase 5.3). Guests can add/change/remove items — see
+     * `CartManager` — so only the routes below `customer` actually require
+     * signing in.
+     */
+    Route::get('cart', [CartController::class, 'index'])->name('cart');
+    Route::post('keranjang', [CartController::class, 'store'])->name('keranjang.store');
+    Route::patch('keranjang/{product}', [CartController::class, 'update'])->name('keranjang.update');
+    Route::delete('keranjang/{product}', [CartController::class, 'destroy'])->name('keranjang.destroy');
+
+    Route::get('order-successful', fn (Request $request) => Inertia::render('Shop/OrderSuccessful', [
+        'orderNumber' => $request->query('nomor'),
+    ]))->name('order-successful');
+
+    Route::middleware('customer')->group(function () {
+        Route::post('keranjang/kupon', [CartController::class, 'applyCoupon'])->name('keranjang.kupon.store');
+        Route::delete('keranjang/kupon', [CartController::class, 'removeCoupon'])->name('keranjang.kupon.destroy');
+
+        Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout');
+        Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+        Route::get('shipping-details', [AddressController::class, 'forCheckout'])->name('shipping-details');
+        Route::post('shipping-details', [AddressController::class, 'selectForCheckout'])->name('shipping-details.store');
+
+        Route::get('my-address', [AddressController::class, 'index'])->name('my-address');
+        Route::get('add-new-address', [AddressController::class, 'create'])->name('add-new-address');
+        Route::post('add-new-address', [AddressController::class, 'store'])->name('add-new-address.store');
+        Route::delete('alamat/{address}', [AddressController::class, 'destroy'])->name('alamat.destroy');
+        Route::post('alamat/{address}/utama', [AddressController::class, 'makeDefault'])->name('alamat.utama');
+
+        Route::get('order-history', [ShopOrderController::class, 'index'])->name('order-history');
+        Route::get('track-order/{order}', [ShopOrderController::class, 'show'])->name('track-order');
+        Route::post('pesanan/{order}/batalkan', [ShopOrderController::class, 'cancel'])->name('pesanan.batalkan');
+        Route::post('pesanan/{order}/bayar', [PaymentController::class, 'create'])->name('pesanan.bayar');
+    });
 });

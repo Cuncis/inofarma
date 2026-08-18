@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Cart\CartManager;
 use App\Support\Presenters\ShopCatalogPresenter;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -56,6 +57,10 @@ class HandleInertiaRequests extends Middleware
              * own props per screen and gets this only for the global search.
              */
             'catalog' => fn () => ShopCatalogPresenter::forStorefront(),
+
+            // Badge count on the "Pesanan" tab — cheap for a guest (a session
+            // read) and one query for a signed-in customer.
+            'cartCount' => fn () => (new CartManager($request))->count(),
         ];
     }
 }

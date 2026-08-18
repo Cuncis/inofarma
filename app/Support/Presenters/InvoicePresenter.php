@@ -6,11 +6,10 @@ use App\Models\Order;
 
 /**
  * "Faktur" is not a table of its own — it is an `Order` read as an invoice.
- * Payment status doesn't exist as a separate concept yet (that's Fase 6), so
- * building a standalone `invoices` model now would just invent a second
- * "paid/unpaid" flag Fase 6 would then have to reconcile with the real one.
- * `orders.payment_status` and `orders.expires_at` already say everything a
- * faktur needs to say.
+ * `orders.payment_status` and `orders.expires_at` remain the one thing every
+ * other screen reads for "is this paid" — `payments` (Fase 6) is a gateway
+ * attempt log underneath it, shown here for context, never a second source
+ * of truth this presenter has to reconcile against.
  */
 class InvoicePresenter
 {
@@ -55,6 +54,15 @@ class InvoicePresenter
                 'qty' => $item->quantity,
                 'price' => $item->unit_price,
             ])->all(),
+            'isRefundable' => $order->payment_status === 'lunas',
+            'payments' => $order->payments->map(fn ($payment) => [
+                'invoiceNumber' => $payment->invoice_number,
+                'status' => ucfirst($payment->status),
+                'channel' => $payment->channel,
+                'amount' => $payment->amount,
+                'createdAt' => $payment->created_at?->translatedFormat('d M Y, H:i'),
+                'paidAt' => $payment->paid_at?->translatedFormat('d M Y, H:i'),
+            ])->values()->all(),
         ];
     }
 

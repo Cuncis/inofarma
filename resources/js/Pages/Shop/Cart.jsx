@@ -1,45 +1,75 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
+import FlashBanner from '@/Components/Shop/FlashBanner';
+import Icon from '@/Components/Shop/Icon';
 import IconLink from '@/Components/Shop/IconLink';
 import TabBar from '@/Components/Shop/TabBar';
-import { money, useShopCatalog } from '@/Components/Shop/data';
+import useShopUser from '@/Components/Shop/useShopUser';
+import { money } from '@/Components/Shop/data';
 
-export default function Cart() {
-    const { cartItems } = useShopCatalog();
-    const [items, setItems] = useState(cartItems);
+/**
+ * @param {{ cart: {
+ *   branch: object|null, address: object|null, items: object[], itemCount: number,
+ *   subtotal: number, coupon: object|null, discount: number,
+ * } }} props
+ */
+export default function Cart({ cart }) {
+    const { signedIn } = useShopUser();
     const [promo, setPromo] = useState('');
-    const [applied, setApplied] = useState(false);
+    const [busySku, setBusySku] = useState(null);
+    const [couponError, setCouponError] = useState('');
 
-    /**
-     * Adjust a line quantity. Dropping to zero removes the line, and emptying the
-     * cart entirely sends the shopper to the empty-cart screen.
-     *
-     * @param {string} name
-     * @param {number} delta
-     */
-    const changeQuantity = (name, delta) => {
-        const next = items
-            .map((item) =>
-                item.name === name
-                    ? { ...item, quantity: item.quantity + delta }
-                    : item,
-            )
-            .filter((item) => item.quantity > 0);
-
-        if (next.length === 0) {
+    useEffect(() => {
+        if (cart.itemCount === 0) {
             router.visit('/ui/cart-empty');
+        }
+    }, [cart.itemCount]);
 
+    const changeQuantity = (item, quantity) => {
+        setBusySku(item.sku);
+
+        router.patch(
+            `/ui/keranjang/${item.sku}`,
+            { quantity },
+            { preserveScroll: true, onFinish: () => setBusySku(null) },
+        );
+    };
+
+    const removeItem = (item) => {
+        setBusySku(item.sku);
+
+        router.delete(`/ui/keranjang/${item.sku}`, {
+            preserveScroll: true,
+            onFinish: () => setBusySku(null),
+        });
+    };
+
+    const applyPromo = () => {
+        if (! promo.trim()) {
             return;
         }
 
-        setItems(next);
+        setCouponError('');
+
+        router.post(
+            '/ui/keranjang/kupon',
+            { code: promo.trim() },
+            {
+                preserveScroll: true,
+                onSuccess: () => setPromo(''),
+                onError: (errors) => setCouponError(errors.code ?? ''),
+            },
+        );
     };
 
-    const subtotal = items.reduce((total, item) => total + item.amount * item.quantity, 0);
-    const discount = applied ? subtotal * 0.15 : 0;
+    const removePromo = () => {
+        router.delete('/ui/keranjang/kupon', { preserveScroll: true });
+    };
+
+    const total = Math.max(cart.subtotal - cart.discount, 0);
 
     return (
         <MobileLayout
@@ -61,14 +91,25 @@ export default function Cart() {
             }
             footer={<TabBar active="order" />}
         >
+            <FlashBanner />
+
             <div className="flex-1 overflow-y-auto px-3.5 pt-3.5">
-                {items.map((item) => (
+                {cart.branch ? (
+                    <div className="mb-3 flex items-center gap-2 border border-line bg-lilac p-2.5 text-[11px]">
+                        <Icon name="pin" size={14} className="shrink-0 text-brand" />
+                        <span>
+                            Belanja dari <strong>{cart.branch.name}</strong> ({cart.branch.kota})
+                        </span>
+                    </div>
+                ) : null}
+
+                {cart.items.map((item) => (
                     <div
-                        key={item.name}
-                        className="mb-2 flex h-[88px] gap-2.5 border border-line p-2.5"
+                        key={item.sku}
+                        className="mb-2 flex min-h-[88px] gap-2.5 border border-line p-2.5"
                     >
                         <Link
-                            href="/ui/product-detail"
+                            href={`/ui/product-detail?id=${item.sku}`}
                             className="relative w-[68px] shrink-0"
                         >
                             <img
@@ -76,36 +117,32 @@ export default function Cart() {
                                 alt={item.name}
                                 className="h-full w-[68px] object-cover"
                             />
-
-                            {item.onSale ? (
-                                <div className="absolute right-0 top-0 bg-sale px-1.5 py-0.5 text-[8px] font-bold text-ink">
-                                    DISKON
-                                </div>
-                            ) : null}
                         </Link>
 
                         <Link
-                            href="/ui/product-detail"
+                            href={`/ui/product-detail?id=${item.sku}`}
                             className="flex flex-1 flex-col justify-center"
                         >
                             <div className="mb-1 text-[13px] font-semibold text-ink">
                                 {item.name}
                             </div>
-                            <div
-                                className={`text-xs font-bold ${
-                                    item.onSale ? 'text-brand' : 'text-muted'
-                                }`}
-                            >
-                                {money(item.amount)}
+                            <div className="text-xs font-bold text-muted">
+                                {money(item.unitPrice)}
                             </div>
+                            {item.quantity > item.available ? (
+                                <div className="mt-1 text-[10px] font-semibold text-danger">
+                                    Stok tersisa {item.available}
+                                </div>
+                            ) : null}
                         </Link>
 
                         <div className="flex min-w-[24px] flex-col items-center justify-between py-1">
                             <button
                                 type="button"
-                                onClick={() => changeQuantity(item.name, 1)}
+                                disabled={busySku === item.sku}
+                                onClick={() => changeQuantity(item, item.quantity + 1)}
                                 aria-label={`Tambah jumlah ${item.name}`}
-                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none"
+                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none disabled:opacity-40"
                             >
                                 +
                             </button>
@@ -114,9 +151,14 @@ export default function Cart() {
 
                             <button
                                 type="button"
-                                onClick={() => changeQuantity(item.name, -1)}
+                                disabled={busySku === item.sku}
+                                onClick={() =>
+                                    item.quantity <= 1
+                                        ? removeItem(item)
+                                        : changeQuantity(item, item.quantity - 1)
+                                }
                                 aria-label={`Kurangi jumlah ${item.name}`}
-                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none"
+                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none disabled:opacity-40"
                             >
                                 −
                             </button>
@@ -124,48 +166,72 @@ export default function Cart() {
                     </div>
                 ))}
 
-                <div className="mb-[18px] grid grid-cols-[1.5fr_1fr] gap-2">
-                    <input
-                        value={promo}
-                        onChange={(event) => setPromo(event.target.value)}
-                        placeholder="Masukkan kode promo"
-                        className="h-[50px] border border-blush px-3.5 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
-                    />
+                {signedIn ? (
+                    <div className="mb-[18px]">
+                        {cart.coupon ? (
+                            <div className="flex h-[50px] items-center justify-between border border-brand bg-brand/5 px-3.5 text-xs">
+                                <span className="font-bold text-brand">{cart.coupon.code}</span>
+                                <button
+                                    type="button"
+                                    onClick={removePromo}
+                                    className="text-[11px] font-bold uppercase text-muted"
+                                >
+                                    Hapus
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-[1.5fr_1fr] gap-2">
+                                <input
+                                    value={promo}
+                                    onChange={(event) => setPromo(event.target.value)}
+                                    placeholder="Masukkan kode promo"
+                                    className="h-[50px] border border-blush px-3.5 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                                />
 
-                    <button
-                        type="button"
-                        onClick={() => setApplied(promo.trim().length > 0)}
-                        className={`flex h-[50px] items-center justify-center border text-xs font-bold uppercase ${
-                            applied
-                                ? 'border-brand bg-brand text-white'
-                                : 'border-line bg-lilac'
-                        }`}
-                    >
-                        {applied ? 'Terpakai' : 'Pakai'}
-                    </button>
-                </div>
+                                <button
+                                    type="button"
+                                    onClick={applyPromo}
+                                    className="flex h-[50px] items-center justify-center border border-line bg-lilac text-xs font-bold uppercase"
+                                >
+                                    Pakai
+                                </button>
+                            </div>
+                        )}
+
+                        {couponError ? (
+                            <p className="mt-1 text-[11px] text-danger">{couponError}</p>
+                        ) : null}
+                    </div>
+                ) : (
+                    <p className="mb-[18px] text-[11px] text-muted">
+                        <Link href="/ui/signin" className="text-brand">
+                            Masuk
+                        </Link>{' '}
+                        untuk memakai kode promo.
+                    </p>
+                )}
 
                 <div className="mb-3.5 border border-line bg-lilac p-3.5">
                     <div className="mb-1.5 flex justify-between text-[13px]">
                         <span>Subtotal</span>
-                        <span className="font-bold">{money(subtotal)}</span>
+                        <span className="font-bold">{money(cart.subtotal)}</span>
                     </div>
 
-                    {applied ? (
+                    {cart.discount > 0 ? (
                         <div className="mb-1.5 flex justify-between text-[13px]">
                             <span>Diskon</span>
-                            <span className="text-brand">-{money(discount)}</span>
+                            <span className="text-brand">-{money(cart.discount)}</span>
                         </div>
                     ) : null}
 
-                    <div className="mb-1.5 flex justify-between border-b-2 border-ink pb-1.5 text-[13px]">
-                        <span>Pengiriman</span>
-                        <span className="text-success-deep">Gratis</span>
+                    <div className="mb-1.5 flex justify-between border-b-2 border-ink pb-1.5 text-[13px] text-muted">
+                        <span>Ongkir &amp; pajak</span>
+                        <span>Dihitung saat checkout</span>
                     </div>
 
                     <div className="flex justify-between text-[13px]">
                         <span className="font-bold">Total</span>
-                        <span className="font-bold">{money(subtotal - discount)}</span>
+                        <span className="font-bold">{money(total)}</span>
                     </div>
                 </div>
 

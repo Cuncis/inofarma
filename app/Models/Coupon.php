@@ -70,4 +70,23 @@ class Coupon extends Model
     {
         return $this->expires_at !== null && $this->expires_at->isPast();
     }
+
+    /**
+     * The discount a subtotal earns from this coupon, in rupiah — never more
+     * than the subtotal itself. "Gratis Ongkir" carries no product discount;
+     * it is applied to `shipping_total` by the caller instead.
+     */
+    public function discountFor(int $subtotal): int
+    {
+        return match ($this->type) {
+            'persentase' => (int) min($subtotal, round($subtotal * $this->value / 100)),
+            'nominal' => min($subtotal, $this->value),
+            default => 0,
+        };
+    }
+
+    public function getIsFreeShippingAttribute(): bool
+    {
+        return $this->type === 'ongkir gratis';
+    }
 }
