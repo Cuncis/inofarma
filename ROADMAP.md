@@ -954,24 +954,82 @@ kemasan sungguhan untuk persyaratan segel — tetap perlu waktu terpisah.)*
 
 ---
 
-## Fase 8 — Notifikasi
+## Fase 8 — Notifikasi — ✅ SELESAI (menunggu kredensial produksi)
 
-- [ ] Email transaksional (Postmark / Resend / Amazon SES) — **jangan** SMTP
-      hosting biasa.
-- [ ] Atur SPF, DKIM, DMARC.
-- [ ] Email: verifikasi akun, reset sandi, konfirmasi pesanan, bukti bayar,
-      pesanan dikirim + resi, **siap diambil + kode**, selesai, dibatalkan.
-- [ ] **WhatsApp** untuk "pesanan siap diambil" dan "kurir berangkat" — di
-      Indonesia jauh lebih dibaca daripada email. Pakai penyedia resmi WhatsApp
-      Business API.
-- [ ] Notifikasi ke admin cabang: pesanan baru **di cabangnya**, stok menipis,
-      produk mendekati kedaluwarsa, pesanan belum diambil mendekati batas.
-- [ ] Semua email keluar lewat **queue**.
+- [x] Email transaksional (Postmark / Resend / Amazon SES) — **jangan** SMTP
+      hosting biasa. — dipilih **Amazon SES**: `aws/aws-sdk-php` (transport
+      `ses` bawaan Laravel) sudah terpasang sejak S3 di Fase 4, jadi tidak
+      ada dependensi baru, dan kredensial `AWS_*` yang sama dipakai ulang.
+      `MAIL_MAILER` tetap `log` di lingkungan kerja ini — ganti ke `ses` di
+      produksi setelah domain pengirim diverifikasi di SES.
+- [ ] Atur SPF, DKIM, DMARC. — **murni konfigurasi DNS pada domain produksi
+      sungguhan**, tidak ada yang bisa dikerjakan dari kode di lingkungan
+      ini; dilakukan di SES + panel DNS begitu domain pengirim ditentukan.
+- [x] Email: verifikasi akun, reset sandi (keduanya sudah sejak Fase 3),
+      konfirmasi pesanan, bukti bayar, pesanan dikirim + resi, **siap
+      diambil + kode**, selesai, dibatalkan. — enam `Notification` baru di
+      `App\Notifications` (`OrderConfirmed`, `PaymentReceived`,
+      `OrderShipped`, `OrderReadyForPickup`, `OrderCompleted`,
+      `OrderCancelled`), semuanya `ShouldQueue`.
+- [x] **WhatsApp** untuk "pesanan siap diambil" dan "kurir berangkat". —
+      **WhatsApp Cloud API milik Meta sendiri** dipakai langsung (bukan
+      penyalur pihak ketiga) — sama seperti DOKU dan Biteship, dibuat klien
+      tipis sendiri (`App\Support\Notifications\WhatsAppClient`) langsung
+      dari dokumentasi resmi `developers.facebook.com`, lewat kanal
+      Notification kustom (`App\Notifications\Channels\WhatsAppChannel`).
+      Meta mewajibkan **template pesan yang sudah disetujui** untuk pesan
+      yang dimulai bisnis (bukan balasan dalam jendela 24 jam pelanggan) —
+      nama template dikonfigurasi lewat `WHATSAPP_TEMPLATE_*`, tapi
+      persetujuan templatenya sendiri terjadi di Meta Business Manager,
+      di luar kode ini.
+- [x] Notifikasi ke admin cabang: pesanan baru **di cabangnya**, stok
+      menipis, produk mendekati kedaluwarsa, pesanan belum diambil mendekati
+      batas. — lonceng notifikasi topbar admin (sebelumnya data contoh
+      statis) sekarang nyata: kanal `database` bawaan Laravel, disaring
+      per `branch_id` staf penerima. Pesanan baru dan stok menipis dipicu
+      *event* (lihat di bawah); dua sisanya perintah terjadwal baru,
+      `notifikasi:produk-kedaluwarsa` (harian, jendela peringatan 30 hari)
+      dan `notifikasi:pengambilan-mendekati-batas` (tiap jam, jendela 6
+      jam) — keduanya dijaga kolom "sudah diberitahu" (`expiry_reminder_sent_at`,
+      `pickup_reminder_sent_at`) supaya tidak mengulang notifikasi yang sama
+      setiap kali perintah jalan.
+- [x] Semua email keluar lewat **queue**. — seluruh kelas `Notification`
+      (pelanggan maupun admin) `implements ShouldQueue`; `QUEUE_CONNECTION=database`
+      sudah ada sejak awal proyek.
 
-**Selesai bila:** setiap perubahan status memicu pesan yang benar ke pelanggan
-**dan** ke cabang yang tepat.
+**Arsitektur**: satu `App\Observers\OrderObserver`, dipasang di
+`AppServiceProvider::boot()`, adalah **satu-satunya** tempat notifikasi
+pelanggan dipicu — bereaksi pada `Order::created`/`updated` alih-alih
+menambah pemanggilan `->notify()` tersebar di enam titik berbeda
+(`CheckoutController`, `DokuPaymentService`, `ShipmentService`,
+`PickupCodeService`, `OrderCancellation`, `Admin\OrderController`) yang
+semuanya sudah ada dari Fase 5-7 dan sudah berakhir dengan `Order::create()`/
+`update()`. Tidak satu pun kode Fase 5-7 itu disentuh untuk Fase 8 ini.
+`App\Observers\BranchStockObserver` yang sama untuk stok menipis, memicu
+hanya pada transisi **melewati** `reorder_point`, bukan pada setiap
+penjualan berikutnya saat produk sudah menipis.
 
-**Estimasi solo:** 1–2 minggu.
+**Selesai bila:** ~~setiap perubahan status memicu pesan yang benar ke
+pelanggan dan ke cabang yang tepat.~~ **Sebagian** — seluruh jalur notifikasi
+terbukti benar lewat pengujian otomatis (`Notification::fake()` di setiap
+transisi) **dan** verifikasi manual sungguhan: pesanan nyata dibuat, ditandai
+siap diambil, lima *job* masuk antrean `jobs` sungguhan di MySQL, diproses
+`php artisan queue:work` sungguhan tanpa satu pun gagal — isi email (nama
+pelanggan, nomor pesanan, kode ambil) dan baris log WhatsApp (nomor telepon,
+kode yang sama) terbukti benar, dan notifikasi database untuk staf cabang
+tersimpan dengan `title`/`body`/`link` yang tepat. **Yang belum bisa
+dibuktikan: email sungguhan terkirim lewat SES dan pesan WhatsApp sungguhan
+diterima**, karena keduanya butuh kredensial produksi (domain SES
+terverifikasi, token WhatsApp Business, template disetujui Meta) yang tidak
+tersedia di sesi kerja ini — kategori yang sama dengan kredensial DOKU,
+Biteship, S3, dan gateway SMS di fase-fase sebelumnya.
+
+**Estimasi solo:** 1–2 minggu. *(Selesai dalam satu sesi kerja karena
+arsitektur *observer* memanfaatkan seluruh titik tulis `Order`/`BranchStock`
+yang sudah ada sejak Fase 2 dan 5-7 tanpa mengubahnya; yang baru murni kelas
+notifikasi, dua *observer*, dua perintah terjadwal, dan lonceng admin.
+Verifikasi produksi — SES, SPF/DKIM/DMARC, WhatsApp Business — tetap perlu
+waktu terpisah.)*
 
 ---
 
