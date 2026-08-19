@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -32,7 +33,8 @@ class Order extends Model
         'shipping_total', 'tax_total', 'grand_total', 'recipient_name',
         'recipient_phone', 'shipping_address', 'shipping_latitude',
         'shipping_longitude', 'note', 'paid_at', 'ready_at', 'completed_at',
-        'cancelled_at', 'expires_at',
+        'cancelled_at', 'expires_at', 'pickup_code', 'pickup_code_expires_at',
+        'picked_up_at', 'handed_over_by',
     ];
 
     protected function casts(): array
@@ -48,6 +50,8 @@ class Order extends Model
             'completed_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'expires_at' => 'datetime',
+            'pickup_code_expires_at' => 'datetime',
+            'picked_up_at' => 'datetime',
             'shipping_latitude' => 'decimal:7',
             'shipping_longitude' => 'decimal:7',
         ];
@@ -76,6 +80,16 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function shipment(): HasOne
+    {
+        return $this->hasOne(Shipment::class);
+    }
+
+    public function handedOverBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'handed_over_by');
     }
 
     /** The most recent payment attempt, if the order has any — for "lanjutkan pembayaran". */
@@ -119,5 +133,10 @@ class Order extends Model
     public function getItemCountAttribute(): int
     {
         return (int) $this->items->sum('quantity');
+    }
+
+    public function getIsPickupCodeExpiredAttribute(): bool
+    {
+        return $this->pickup_code_expires_at !== null && $this->pickup_code_expires_at->isPast();
     }
 }

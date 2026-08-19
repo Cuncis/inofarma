@@ -11,6 +11,7 @@ use App\Models\InventoryBatch;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Shipment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia;
@@ -57,6 +58,31 @@ class CheckoutTest extends TestCase
         ]);
     }
 
+    /** Stubs Biteship's courier list + rates call so "antar" checkout never hits the real network. */
+    private function fakeBiteship(int $price = 12000): void
+    {
+        config(['services.biteship.api_key' => 'test-key']);
+
+        Http::fake([
+            'api.biteship.com/v1/couriers' => Http::response([
+                'couriers' => [['courier_code' => 'jne', 'courier_name' => 'JNE']],
+            ], 200),
+            'api.biteship.com/v1/rates/couriers' => Http::response([
+                'pricing' => [[
+                    'company' => 'jne', 'type' => 'reg',
+                    'courier_name' => 'JNE', 'courier_service_name' => 'REG',
+                    'price' => $price, 'duration' => '2-3 hari',
+                ]],
+            ], 200),
+        ]);
+    }
+
+    /** @return array{courierCompany: string, courierType: string} */
+    private function courierChoice(): array
+    {
+        return ['courierCompany' => 'jne', 'courierType' => 'reg'];
+    }
+
     /**
      * The roadmap's "selesai bila": a customer completes two orders — one
      * delivered, one picked up — from different branches, with no admin
@@ -79,6 +105,7 @@ class CheckoutTest extends TestCase
         $this->post('/ui/shipping-details', ['addressId' => $address->id])->assertSessionHasNoErrors();
 
         $this->fakeDoku();
+        $this->fakeBiteship(12000);
 
         // `Inertia::location()` degrades to a plain redirect for a non-Inertia
         // request (exactly what this is) and a 409 + `X-Inertia-Location` for
@@ -86,6 +113,7 @@ class CheckoutTest extends TestCase
         $this->post('/ui/checkout', [
             'fulfilment' => 'antar',
             'paymentMethod' => 'online',
+            'courier' => $this->courierChoice(),
             'note' => 'Titip di pos satpam',
         ])
             ->assertSessionHasNoErrors()
@@ -95,9 +123,15 @@ class CheckoutTest extends TestCase
         $this->assertNotNull($order1);
         $this->assertSame('antar', $order1->fulfilment);
         $this->assertSame(40000, $order1->subtotal);
-        $this->assertSame(10000, $order1->shipping_total);
-        $this->assertSame(50000, $order1->grand_total);
+        $this->assertSame(12000, $order1->shipping_total);
+        $this->assertSame(52000, $order1->grand_total);
         $this->assertSame(8, $product1->stockAt($deliveryBranch)->fresh()->quantity);
+
+        $shipment = Shipment::where('order_id', $order1->id)->first();
+        $this->assertNotNull($shipment);
+        $this->assertSame('jne', $shipment->courier_company);
+        $this->assertSame(12000, $shipment->price);
+        $this->assertFalse($shipment->is_booked);
 
         $payment = Payment::where('order_id', $order1->id)->first();
         $this->assertNotNull($payment);
@@ -226,9 +260,11 @@ class CheckoutTest extends TestCase
         $this->post('/ui/shipping-details', ['addressId' => $address->id]);
 
         $this->fakeDoku();
+        $this->fakeBiteship();
 
-        $this->post('/ui/checkout', ['fulfilment' => 'antar', 'paymentMethod' => 'online'])
-            ->assertSessionHasNoErrors();
+        $this->post('/ui/checkout', [
+            'fulfilment' => 'antar', 'paymentMethod' => 'online', 'courier' => $this->courierChoice(),
+        ])->assertSessionHasNoErrors();
 
         $order = $customer->orders()->first();
         $this->assertSame(0, $order->shipping_total);

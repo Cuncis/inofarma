@@ -10,15 +10,18 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Support\AdminOptions;
 use App\Support\CodeSequence;
+use App\Support\Pickup\PickupCodeService;
 use App\Support\Presenters\CustomerPresenter;
 use App\Support\Presenters\OrderPresenter;
 use App\Support\Presenters\ProductPresenter;
+use App\Support\Shipping\ShipmentService;
 use Database\Seeders\DemoDataSeeder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 /**
  * Order CRUD for the admin.
@@ -106,6 +109,34 @@ class OrderController extends Controller
         return redirect()
             ->route('admin.pesanan.index')
             ->with('success', "Pesanan #{$number} berhasil dihapus.");
+    }
+
+    /** Books the real Biteship waybill for this order's already-quoted courier (Fase 7.1). */
+    public function ship(string $order): RedirectResponse
+    {
+        $record = $this->find($order);
+
+        try {
+            ShipmentService::make()->bookForOrder($record);
+        } catch (RuntimeException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', "Resi untuk pesanan #{$record->number} berhasil dibuat.");
+    }
+
+    /** Issues the pickup code + QR and moves the order to "siap diambil" (Fase 7.2). */
+    public function markReady(string $order): RedirectResponse
+    {
+        $record = $this->find($order);
+
+        if ($record->fulfilment !== 'ambil') {
+            return back()->with('error', 'Hanya pesanan Ambil di Toko yang punya kode ambil.');
+        }
+
+        $record = PickupCodeService::issue($record);
+
+        return back()->with('success', "Pesanan #{$record->number} siap diambil. Kode: {$record->pickup_code}.");
     }
 
     public function reset(): RedirectResponse

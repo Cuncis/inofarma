@@ -27,8 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // DOKU's server-to-server notification can't carry a CSRF token —
         // `DokuWebhookController` verifies its own HMAC signature instead
         // (Fase 6), which is what actually proves the request is genuine.
+        // Biteship's notification (Fase 7) is the same story, but its own
+        // proof of authenticity is the `?token=` query string instead of a
+        // signature — see `BiteshipWebhookController`.
         $middleware->validateCsrfTokens(except: [
             'doku/notifikasi',
+            'biteship/notifikasi',
         ]);
 
         $middleware->alias([

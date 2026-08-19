@@ -16,6 +16,7 @@ use App\Support\Inventory\StockAllocator;
 use App\Support\OrderNumber;
 use App\Support\Payments\DokuPaymentService;
 use App\Support\Presenters\CartPresenter;
+use App\Support\Shipping\ShippingQuoteService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,7 +58,6 @@ class CheckoutController extends Controller
         return Inertia::render('Shop/Checkout', [
             'cart' => CartPresenter::toArray($data),
             'pickupEtaOptions' => self::PICKUP_ETA_OPTIONS,
-            'deliveryFee' => DeliveryPricing::FLAT_FEE,
         ]);
     }
 
@@ -65,18 +65,25 @@ class CheckoutController extends Controller
     {
         $customer = $request->user('customer');
 
-        $validated = $request->validate([
-            'fulfilment' => ['required', 'in:antar,ambil'],
-            'paymentMethod' => ['required', 'in:online,Tunai'],
-            'pickupEta' => ['required_if:fulfilment,ambil', 'nullable', 'in:'.implode(',', self::PICKUP_ETA_OPTIONS)],
-            'note' => ['nullable', 'string', 'max:500'],
-        ]);
-
-        if ($validated['paymentMethod'] === 'Tunai' && $validated['fulfilment'] === 'antar') {
+        // Checked against the raw request, ahead of `$request->validate()` —
+        // Tunai+antar is invalid regardless of whether a courier was ever
+        // picked, and this way it reports as a `paymentMethod` error rather
+        // than colliding with the address/courier checks further down.
+        if ($request->input('fulfilment') === 'antar' && $request->input('paymentMethod') === 'Tunai') {
             throw ValidationException::withMessages([
                 'paymentMethod' => 'Bayar di tempat hanya tersedia untuk pesanan Ambil di Toko.',
             ]);
         }
+
+        $validated = $request->validate([
+            'fulfilment' => ['required', 'in:antar,ambil'],
+            'paymentMethod' => ['required', 'in:online,Tunai'],
+            'pickupEta' => ['required_if:fulfilment,ambil', 'nullable', 'in:'.implode(',', self::PICKUP_ETA_OPTIONS)],
+            'courier' => ['nullable', 'array'],
+            'courier.courierCompany' => ['nullable', 'string'],
+            'courier.courierType' => ['nullable', 'string'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
 
         $data = $cart->current();
         $branch = $data['branch'];
@@ -99,6 +106,34 @@ class CheckoutController extends Controller
                     'address' => "Alamat ini di luar radius antar {$branch->name} ({$branch->delivery_radius_km} km).",
                 ]);
             }
+
+            if (empty($validated['courier']['courierCompany']) || empty($validated['courier']['courierType'])) {
+                throw ValidationException::withMessages(['courier' => 'Pilih kurir terlebih dahulu.']);
+            }
+
+            // Re-quoted here rather than trusted from the client — the same
+            // reason `grand_total` is always computed server-side, never
+            // taken from a form field. A price a customer saw a minute ago
+            // may no longer be the cheapest, or may no longer exist at all.
+            try {
+                $quotes = ShippingQuoteService::make()->quote($branch, $data['address'], $data['lines']);
+            } catch (RuntimeException $exception) {
+                report($exception);
+                $quotes = [];
+            }
+
+            $chosen = collect($quotes)->first(
+                fn (array $quote) => $quote['courierCompany'] === $validated['courier']['courierCompany']
+                    && $quote['courierType'] === $validated['courier']['courierType']
+            );
+
+            if (! $chosen) {
+                throw ValidationException::withMessages([
+                    'courier' => 'Pilihan kurir tidak lagi tersedia — muat ulang halaman checkout.',
+                ]);
+            }
+
+            $validated['courierQuote'] = $chosen;
         } elseif (! $branch->supports_pickup) {
             throw ValidationException::withMessages(['fulfilment' => "{$branch->name} tidak melayani ambil di tempat."]);
         }
@@ -128,7 +163,7 @@ class CheckoutController extends Controller
 
     /**
      * @param  array{branch: Branch, address: ?CustomerAddress, coupon: ?Coupon, lines: list<array{product: Product, quantity: int}>}  $data
-     * @param  array{fulfilment: string, paymentMethod: string, pickupEta: ?string, note: ?string}  $validated
+     * @param  array{fulfilment: string, paymentMethod: string, pickupEta: ?string, note: ?string, courierQuote?: array{courierCompany: string, courierType: string, courierName: string, serviceName: string, price: int}}  $validated
      */
     private function placeOrder(Customer $customer, array $data, Branch $branch, array $validated): Order
     {
@@ -136,7 +171,7 @@ class CheckoutController extends Controller
         $subtotal = CartManager::subtotal($branch, $data['lines']);
         $discount = $coupon ? $coupon->discountFor($subtotal) : 0;
         $freeShipping = $coupon?->is_free_shipping ?? false;
-        $shipping = $validated['fulfilment'] === 'antar' ? DeliveryPricing::fee($freeShipping) : 0;
+        $shipping = $validated['fulfilment'] === 'antar' && ! $freeShipping ? $validated['courierQuote']['price'] : 0;
         $tax = (int) round(($subtotal - $discount) * self::TAX_RATE);
         $grandTotal = max($subtotal - $discount + $shipping + $tax, 0);
 
@@ -165,6 +200,16 @@ class CheckoutController extends Controller
             'note' => $note !== '' ? $note : null,
             'expires_at' => now()->addHours(24),
         ]);
+
+        if ($validated['fulfilment'] === 'antar') {
+            $order->shipment()->create([
+                'courier_company' => $validated['courierQuote']['courierCompany'],
+                'courier_type' => $validated['courierQuote']['courierType'],
+                'courier_name' => $validated['courierQuote']['courierName'],
+                'courier_service_name' => $validated['courierQuote']['serviceName'],
+                'price' => $validated['courierQuote']['price'],
+            ]);
+        }
 
         $allocator = new StockAllocator;
 

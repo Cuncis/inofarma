@@ -46,6 +46,9 @@ class ProductRequest extends FormRequest
             'maxQtyPerOrder' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'storage' => ['nullable', Rule::in(AdminOptions::labels(AdminOptions::STORAGE_CONDITIONS))],
             'weightGrams' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'lengthCm' => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'widthCm' => ['nullable', 'integer', 'min:0', 'max:1000'],
+            'heightCm' => ['nullable', 'integer', 'min:0', 'max:1000'],
         ];
     }
 
@@ -75,6 +78,9 @@ class ProductRequest extends FormRequest
             'maxQtyPerOrder' => 'batas pembelian',
             'storage' => 'kondisi penyimpanan',
             'weightGrams' => 'berat',
+            'lengthCm' => 'panjang',
+            'widthCm' => 'lebar',
+            'heightCm' => 'tinggi',
         ];
     }
 

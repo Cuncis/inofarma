@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Badge from '@/Components/Admin/Badge';
 import Button from '@/Components/Admin/Button';
@@ -13,6 +13,22 @@ export default function OrderDetail({ order, statuses }) {
     const reached = lifecycle.indexOf(order.status);
     const cancelled = order.status === 'Dibatalkan';
 
+    const ship = () => {
+        if (! window.confirm(`Buat resi pengiriman untuk pesanan #${order.id}?`)) {
+            return;
+        }
+
+        router.post(`/admin/pesanan/${order.id}/kirim`, {}, { preserveScroll: true });
+    };
+
+    const markReady = () => {
+        if (! window.confirm(`Tandai pesanan #${order.id} siap diambil? Kode ambil akan dibuat.`)) {
+            return;
+        }
+
+        router.post(`/admin/pesanan/${order.id}/siap`, {}, { preserveScroll: true });
+    };
+
     return (
         <AdminLayout
             title={`Pesanan #${order.id}`}
@@ -23,13 +39,26 @@ export default function OrderDetail({ order, statuses }) {
                 { label: `#${order.id}` },
             ]}
             actions={
-                <Button
-                    href={`/admin/pesanan/${order.id}/ubah`}
-                    size="sm"
-                    icon="solar:pen-2-broken"
-                >
-                    Ubah
-                </Button>
+                <div className="flex gap-2">
+                    {order.canShip ? (
+                        <Button size="sm" icon="solar:delivery-broken" onClick={ship}>
+                            Buat Resi
+                        </Button>
+                    ) : null}
+                    {order.canMarkReady ? (
+                        <Button size="sm" icon="solar:qr-code-broken" onClick={markReady}>
+                            Tandai Siap Diambil
+                        </Button>
+                    ) : null}
+                    <Button
+                        href={`/admin/pesanan/${order.id}/ubah`}
+                        size="sm"
+                        variant="outline"
+                        icon="solar:pen-2-broken"
+                    >
+                        Ubah
+                    </Button>
+                </div>
             }
         >
             <div className="grid gap-5 lg:grid-cols-3">
@@ -159,6 +188,56 @@ export default function OrderDetail({ order, statuses }) {
                             </div>
                         </dl>
                     </Card>
+
+                    {order.shipment ? (
+                        <Card title="Pengiriman">
+                            <dl className="space-y-3 text-[13px]">
+                                <div className="flex justify-between">
+                                    <dt className="text-admin-muted dark:text-admin-dark-muted">Kurir</dt>
+                                    <dd className="font-medium text-admin-heading dark:text-admin-dark-heading">
+                                        {order.shipment.courierName} {order.shipment.serviceName}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-admin-muted dark:text-admin-dark-muted">Status resi</dt>
+                                    <dd className="font-medium text-admin-heading dark:text-admin-dark-heading">
+                                        {order.shipment.status ?? 'Belum dibuat'}
+                                    </dd>
+                                </div>
+                                {order.shipment.waybillId ? (
+                                    <div className="flex justify-between">
+                                        <dt className="text-admin-muted dark:text-admin-dark-muted">No. Resi</dt>
+                                        <dd className="font-medium text-admin-heading dark:text-admin-dark-heading">
+                                            {order.shipment.waybillId}
+                                        </dd>
+                                    </div>
+                                ) : null}
+                                {order.shipment.trackingLink ? (
+                                    <a
+                                        href={order.shipment.trackingLink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="block text-xs text-brand underline"
+                                    >
+                                        Lacak di Biteship →
+                                    </a>
+                                ) : null}
+                            </dl>
+                        </Card>
+                    ) : null}
+
+                    {order.pickupCode ? (
+                        <Card title="Kode Ambil">
+                            <p className="mb-2 text-center text-2xl font-bold tracking-[6px] text-admin-heading dark:text-admin-dark-heading">
+                                {order.pickupCode}
+                            </p>
+                            <p className="text-center text-xs text-admin-muted dark:text-admin-dark-muted">
+                                {order.pickedUpAt
+                                    ? `Diambil pada ${order.pickedUpAt}`
+                                    : `Berlaku sampai ${order.pickupCodeExpiresAt}`}
+                            </p>
+                        </Card>
+                    ) : null}
 
                     <Card title="Pelanggan">
                         <div className="flex items-center gap-3">

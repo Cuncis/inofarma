@@ -34,6 +34,7 @@ export const navSections = [
                 ],
             },
             { label: 'Pesanan', icon: 'solar:bag-smile-bold-duotone', href: '/admin/pesanan' },
+            { label: 'Pengambilan', icon: 'solar:qr-code-bold-duotone', href: '/admin/pengambilan' },
             {
                 label: 'Pembelian',
                 icon: 'solar:card-send-bold-duotone',

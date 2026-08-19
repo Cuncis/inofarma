@@ -4,6 +4,7 @@ namespace App\Support\Presenters;
 
 use App\Models\Order;
 use App\Support\AdminOptions;
+use App\Support\Pickup\PickupCodeService;
 
 /**
  * A customer's own view of their order — history list and the tracking
@@ -70,6 +71,61 @@ class ShopOrderPresenter
                 'lineTotal' => $item->line_total,
             ])->values()->all(),
             'steps' => self::steps($order),
+            'shipment' => self::shipment($order),
+            'pickup' => self::pickup($order),
+        ];
+    }
+
+    /** @return ?array<string, mixed> */
+    private static function shipment(Order $order): ?array
+    {
+        $shipment = $order->relationLoaded('shipment') ? $order->shipment : $order->shipment()->first();
+
+        if (! $shipment) {
+            return null;
+        }
+
+        return [
+            'courierName' => $shipment->courier_name,
+            'serviceName' => $shipment->courier_service_name,
+            'waybillId' => $shipment->waybill_id,
+            'trackingLink' => $shipment->courier_link,
+            'statusLabel' => self::shipmentStatusLabel($shipment->status),
+        ];
+    }
+
+    /** Biteship's own status vocabulary, in Indonesian, for a customer who has never heard the English word "droppingOff". */
+    private static function shipmentStatusLabel(?string $status): ?string
+    {
+        return match ($status) {
+            'confirmed' => 'Pesanan dikonfirmasi, mencari kurir',
+            'allocated' => 'Kurir ditugaskan',
+            'pickingUp' => 'Kurir menuju cabang',
+            'picked' => 'Barang diambil kurir',
+            'inTransit' => 'Dalam perjalanan',
+            'droppingOff' => 'Menuju alamat Anda',
+            'delivered' => 'Terkirim',
+            'onHold' => 'Tertahan sementara',
+            'returnInTransit', 'returned' => 'Dikembalikan ke cabang',
+            'rejected' => 'Ditolak kurir',
+            'courierNotFound' => 'Kurir tidak tersedia',
+            'cancelled' => 'Dibatalkan',
+            'disposed' => 'Dimusnahkan',
+            default => null,
+        };
+    }
+
+    /** @return ?array<string, mixed> */
+    private static function pickup(Order $order): ?array
+    {
+        if (! $order->pickup_code || $order->status !== 'siap diambil') {
+            return null;
+        }
+
+        return [
+            'code' => $order->pickup_code,
+            'qrSvg' => PickupCodeService::qrSvgDataUri($order),
+            'expiresAt' => $order->pickup_code_expires_at?->translatedFormat('d M Y, H:i'),
         ];
     }
 

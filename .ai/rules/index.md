@@ -4,6 +4,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 
 | Applies to | Rule file |
 | --- | --- |
+| app/Support/Shipping/**,app/Support/Pickup/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/ShippingController.php,app/Http/Controllers/Admin/OrderController.php,app/Http/Controllers/Admin/PickupController.php,app/Models/Shipment.php | .ai/rules/admin-models.md |
 | resources/js/Components/Admin/BarChart.jsx | .ai/rules/admin.md |
 | app/Http/Controllers/Api/**,app/Support/LocationPreference.php,routes/api.php | .ai/rules/api-support.md |
 | app/Support/Payments/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/PaymentController.php,app/Models/Payment.php,app/Console/Commands/ExpireUnpaidOrders.php,app/Support/OrderCancellation.php | .ai/rules/commands-support.md |

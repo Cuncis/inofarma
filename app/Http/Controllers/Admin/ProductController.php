@@ -153,6 +153,9 @@ class ProductController extends Controller
             'max_qty_per_order' => $data['maxQtyPerOrder'] ?? null,
             'storage' => AdminOptions::toValue(AdminOptions::STORAGE_CONDITIONS, $data['storage'] ?? 'Suhu Ruang'),
             'weight_grams' => $data['weightGrams'] ?? 0,
+            'length_cm' => $data['lengthCm'] ?? 0,
+            'width_cm' => $data['widthCm'] ?? 0,
+            'height_cm' => $data['heightCm'] ?? 0,
         ];
     }
 

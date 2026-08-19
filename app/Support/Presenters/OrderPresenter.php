@@ -36,6 +36,8 @@ class OrderPresenter
             'qty' => $item->quantity,
         ])->values()->all();
 
+        $shipment = $order->relationLoaded('shipment') ? $order->shipment : $order->shipment()->first();
+
         return [
             'id' => $order->number,
             'customerId' => $order->customer?->code,
@@ -54,6 +56,22 @@ class OrderPresenter
             'subtotal' => $order->subtotal,
             'total' => $order->grand_total,
             'itemCount' => array_sum(array_column($items, 'qty')),
+
+            // --- Fase 7: pengiriman & pengambilan ---
+            'shipment' => $shipment ? [
+                'courierName' => $shipment->courier_name,
+                'serviceName' => $shipment->courier_service_name,
+                'price' => $shipment->price,
+                'waybillId' => $shipment->waybill_id,
+                'trackingLink' => $shipment->courier_link,
+                'status' => $shipment->status,
+                'isBooked' => $shipment->is_booked,
+            ] : null,
+            'pickupCode' => $order->pickup_code,
+            'pickupCodeExpiresAt' => $order->pickup_code_expires_at?->translatedFormat('d M Y, H:i'),
+            'pickedUpAt' => $order->picked_up_at?->translatedFormat('d M Y, H:i'),
+            'canShip' => $order->fulfilment === 'antar' && $shipment && ! $shipment->is_booked && $order->status === 'diproses',
+            'canMarkReady' => $order->fulfilment === 'ambil' && $order->status === 'diproses',
         ];
     }
 }

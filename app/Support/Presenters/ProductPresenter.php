@@ -68,6 +68,9 @@ class ProductPresenter
             'maxQtyPerOrder' => $product->max_qty_per_order,
             'storage' => AdminOptions::toLabel(AdminOptions::STORAGE_CONDITIONS, $product->storage),
             'weightGrams' => $product->weight_grams,
+            'lengthCm' => $product->length_cm,
+            'widthCm' => $product->width_cm,
+            'heightCm' => $product->height_cm,
         ];
     }
 

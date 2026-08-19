@@ -13,3 +13,7 @@ Artisan::command('inspire', function () {
 // an order rarely sits expired-but-unprocessed for long, without hammering
 // the database on a busy storefront.
 Schedule::command('pesanan:kadaluwarsakan')->everyFiveMinutes();
+
+// Fase 7.2: same idea for the 48-hour pickup window — an item staged at the
+// counter that nobody collects goes back on the shelf automatically.
+Schedule::command('pesanan:kadaluwarsakan-pengambilan')->everyFiveMinutes();

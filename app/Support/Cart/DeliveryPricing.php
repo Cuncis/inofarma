@@ -6,17 +6,16 @@ use App\Models\Branch;
 use App\Models\CustomerAddress;
 
 /**
- * A stand-in for real courier pricing until Fase 7 wires up RajaOngkir/Biteship
- * with each branch's own origin coordinates. Distance is still computed for
- * real — Haversine between the branch and the delivery address, same formula
- * `Branch::scopeNearest()` runs in SQL — so the radius check is genuine even
- * though the fee itself is a flat placeholder.
+ * The branch's own delivery-radius policy check — distinct from, and
+ * checked before, whatever couriers Biteship's `rates()` actually returns
+ * (Fase 7, `App\Support\Shipping\ShippingQuoteService`). A cabang may simply
+ * not want to deliver past a certain distance even if a courier technically
+ * could reach further; this is that business rule, not a pricing engine.
+ * Distance is a real Haversine calculation between the branch and the
+ * delivery address, same formula `Branch::scopeNearest()` runs in SQL.
  */
 class DeliveryPricing
 {
-    /** Rupiah, regardless of distance, until Fase 7 replaces this with a real courier quote. */
-    public const FLAT_FEE = 10000;
-
     public static function distanceKm(Branch $branch, CustomerAddress $address): ?float
     {
         if ($branch->latitude === null || $branch->longitude === null
@@ -45,10 +44,5 @@ class DeliveryPricing
         }
 
         return $distance <= $branch->delivery_radius_km;
-    }
-
-    public static function fee(bool $freeShipping): int
-    {
-        return $freeShipping ? 0 : self::FLAT_FEE;
     }
 }

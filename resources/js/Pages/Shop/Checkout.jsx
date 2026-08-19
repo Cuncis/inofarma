@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
@@ -11,10 +11,9 @@ import { money } from '@/Components/Shop/data';
  * @param {{
  *   cart: { branch: object, address: object|null, items: object[], subtotal: number, coupon: object|null, discount: number },
  *   pickupEtaOptions: string[],
- *   deliveryFee: number,
  * }} props
  */
-export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
+export default function Checkout({ cart, pickupEtaOptions }) {
     const { branch } = cart;
 
     const [fulfilment, setFulfilment] = useState(
@@ -25,6 +24,7 @@ export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
         fulfilment,
         paymentMethod: 'online',
         pickupEta: pickupEtaOptions[0],
+        courier: null,
         note: '',
     });
 
@@ -38,8 +38,46 @@ export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
         }));
     };
 
+    // Live courier quotes (Fase 7) — refetched whenever the branch or
+    // delivery address changes, never a static number, since `origin` is
+    // this specific branch's own coordinates.
+    const [courierOptions, setCourierOptions] = useState([]);
+    const [courierLoading, setCourierLoading] = useState(false);
+
+    useEffect(() => {
+        if (fulfilment !== 'antar' || ! cart.address) {
+            return;
+        }
+
+        let cancelled = false;
+        setCourierLoading(true);
+
+        fetch('/ui/checkout/ongkir', { headers: { Accept: 'application/json' } })
+            .then((response) => response.json())
+            .then((body) => {
+                if (cancelled) {
+                    return;
+                }
+
+                const options = body.options ?? [];
+                setCourierOptions(options);
+                setData('courier', options[0] ?? null);
+            })
+            .finally(() => {
+                if (! cancelled) {
+                    setCourierLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fulfilment, cart.address?.id, branch.id]);
+
     const freeShipping = Boolean(cart.coupon?.freeShipping);
-    const shipping = fulfilment === 'antar' ? (freeShipping ? 0 : deliveryFee) : 0;
+    const shippingQuote = fulfilment === 'antar' ? data.courier?.price ?? 0 : 0;
+    const shipping = freeShipping ? 0 : shippingQuote;
     const total = Math.max(cart.subtotal - cart.discount, 0) + shipping;
 
     const lines = cart.items.map((item) => ({
@@ -87,7 +125,11 @@ export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
                     <div className="flex justify-between text-xs text-muted">
                         <span>Pengiriman</span>
                         <span className={shipping === 0 ? 'text-success-deep' : ''}>
-                            {shipping === 0 ? 'Gratis' : money(shipping)}
+                            {fulfilment === 'ambil' || freeShipping
+                                ? 'Gratis'
+                                : data.courier
+                                  ? money(shipping)
+                                  : '—'}
                         </span>
                     </div>
                 </div>
@@ -128,21 +170,70 @@ export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
                 ) : null}
 
                 {fulfilment === 'antar' ? (
-                    <Link
-                        href="/ui/shipping-details"
-                        className="mb-2 block border border-line bg-lilac p-3.5"
-                    >
-                        <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
-                            <span>Detail pengiriman</span>
-                            <Icon name="edit" size={15} className="text-ink" />
-                        </div>
+                    <>
+                        <Link
+                            href="/ui/shipping-details"
+                            className="mb-2 block border border-line bg-lilac p-3.5"
+                        >
+                            <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
+                                <span>Detail pengiriman</span>
+                                <Icon name="edit" size={15} className="text-ink" />
+                            </div>
+
+                            {cart.address ? (
+                                <span className="text-xs text-muted">{cart.address.fullAddress}</span>
+                            ) : (
+                                <span className="text-xs text-brand">Pilih alamat pengiriman →</span>
+                            )}
+                        </Link>
 
                         {cart.address ? (
-                            <span className="text-xs text-muted">{cart.address.fullAddress}</span>
-                        ) : (
-                            <span className="text-xs text-brand">Pilih alamat pengiriman →</span>
-                        )}
-                    </Link>
+                            <div className="mb-2 border border-line bg-lilac p-3.5">
+                                <div className="mb-2 border-b-2 border-ink pb-2 font-display text-[13px]">
+                                    Pilih kurir
+                                </div>
+
+                                {courierLoading ? (
+                                    <p className="text-xs text-muted">Memuat pilihan kurir…</p>
+                                ) : courierOptions.length === 0 ? (
+                                    <p className="text-xs text-danger">
+                                        Tidak ada kurir yang menjangkau alamat ini. Coba alamat lain.
+                                    </p>
+                                ) : (
+                                    <div className="space-y-1.5">
+                                        {courierOptions.map((option) => {
+                                            const selected = data.courier
+                                                && data.courier.courierCompany === option.courierCompany
+                                                && data.courier.courierType === option.courierType;
+
+                                            return (
+                                                <button
+                                                    key={`${option.courierCompany}-${option.courierType}`}
+                                                    type="button"
+                                                    onClick={() => setData('courier', option)}
+                                                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-[11px] ${
+                                                        selected
+                                                            ? 'border-2 border-brand font-bold text-brand'
+                                                            : 'border border-line text-muted'
+                                                    }`}
+                                                >
+                                                    <span>
+                                                        {option.courierName} {option.serviceName}
+                                                        {option.duration ? (
+                                                            <span className="block text-[10px] font-normal text-muted">
+                                                                {option.duration}
+                                                            </span>
+                                                        ) : null}
+                                                    </span>
+                                                    <span>{money(option.price)}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
+                    </>
                 ) : (
                     <div className="mb-2 border border-line bg-lilac p-3.5">
                         <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
@@ -171,6 +262,9 @@ export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
                 )}
                 {errors.address ? (
                     <p className="mb-2 text-[11px] text-danger">{errors.address}</p>
+                ) : null}
+                {errors.courier ? (
+                    <p className="mb-2 text-[11px] text-danger">{errors.courier}</p>
                 ) : null}
 
                 <div className="mb-2 border border-line bg-lilac p-3.5">
@@ -227,7 +321,11 @@ export default function Checkout({ cart, pickupEtaOptions, deliveryFee }) {
                     <p className="mb-2 text-[11px] text-danger">{errors.quantity}</p>
                 ) : null}
 
-                <Button type="submit" disabled={processing} className="mb-2">
+                <Button
+                    type="submit"
+                    disabled={processing || (fulfilment === 'antar' && (! cart.address || ! data.courier))}
+                    className="mb-2"
+                >
                     {processing
                         ? 'Memproses pesanan…'
                         : data.paymentMethod === 'online'

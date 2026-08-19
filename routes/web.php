@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\PickupController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\RoleController;
@@ -27,6 +28,8 @@ use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\LocationController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController;
+use App\Http\Controllers\Shop\ShippingController;
+use App\Http\Controllers\Webhooks\BiteshipWebhookController;
 use App\Http\Controllers\Webhooks\DokuWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +46,13 @@ Route::get('/', fn () => Inertia::render('Shop/Home'))->name('home');
  * own HMAC signature instead.
  */
 Route::post('doku/notifikasi', [DokuWebhookController::class, 'handle'])->name('doku.notifikasi');
+
+/**
+ * Biteship's server-to-server notification (Fase 7) — see
+ * `BiteshipWebhookController` for why `?token=` rather than a signature is
+ * what proves this actually came from Biteship.
+ */
+Route::post('biteship/notifikasi', [BiteshipWebhookController::class, 'handle'])->name('biteship.notifikasi');
 
 /**
  * Admin screens.
@@ -163,6 +173,27 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
                 Route::get('{order}/ubah', 'edit')->name('edit');
                 Route::put('{order}', 'update')->name('update');
                 Route::delete('{order}', 'destroy')->name('destroy');
+
+                /**
+                 * Fase 7 fulfilment actions, triggered from `Admin/OrderDetail.jsx`
+                 * rather than the generic status-dropdown edit form: booking a real
+                 * Biteship waybill, and issuing a pickup code + QR.
+                 */
+                Route::post('{order}/kirim', 'ship')->name('kirim')
+                    ->middleware('permission:Pesanan:Proses');
+                Route::post('{order}/siap', 'markReady')->name('siap')
+                    ->middleware('permission:Pesanan:Proses');
+            });
+
+        /**
+         * The branch counter's own screen: everything currently
+         * `siap diambil`, and the code-entry form that hands one over.
+         */
+        Route::prefix('pengambilan')->name('pengambilan.')->controller(PickupController::class)
+            ->middleware('permission:Pesanan:Proses')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('{order}/serahkan', 'handOver')->name('serahkan');
             });
 
         /**
@@ -414,6 +445,7 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
 
         Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout');
         Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+        Route::get('checkout/ongkir', [ShippingController::class, 'rates'])->name('checkout.ongkir');
 
         Route::get('shipping-details', [AddressController::class, 'forCheckout'])->name('shipping-details');
         Route::post('shipping-details', [AddressController::class, 'selectForCheckout'])->name('shipping-details.store');

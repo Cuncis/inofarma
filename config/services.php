@@ -51,4 +51,18 @@ return [
         'notification_path' => '/doku/notifikasi',
     ],
 
+    /*
+    | Biteship (Fase 7). Unlike DOKU, Biteship's webhook carries no signature
+    | at all (confirmed against their own docs) — `webhook_token` is a secret
+    | *this app* generates and appends to the Notification URL entered in the
+    | Biteship dashboard (`?token=...`), which is the authentication mechanism
+    | their own docs point integrators toward providing themselves. See
+    | `Webhooks\BiteshipWebhookController`.
+    */
+    'biteship' => [
+        'api_key' => env('BITESHIP_API_KEY'),
+        'base_url' => 'https://api.biteship.com/v1',
+        'webhook_token' => env('BITESHIP_WEBHOOK_TOKEN'),
+    ],
+
 ];

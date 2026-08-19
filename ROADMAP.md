@@ -13,7 +13,7 @@ online yang siap melayani pelanggan sungguhan.
 | Tampilan etalase | **Tetap versi ponsel di semua perangkat**, termasuk desktop dan tablet |
 | Tim | Satu pengembang, tanpa tenggat keras |
 | Pembayaran | ~~Midtrans atau Xendit~~ → **DOKU** (diputuskan saat Fase 6) |
-| Pengiriman | RajaOngkir / Biteship + kurir instan per cabang |
+| Pengiriman | ~~RajaOngkir atau Biteship~~ → **Biteship** (diputuskan saat Fase 7) + kurir instan per cabang |
 | Hosting | VPS/cloud region Jakarta |
 
 > **Catatan penting soal hukum.** Dokumen ini ditulis oleh pengembang, bukan
@@ -839,34 +839,118 @@ butuhkan; yang baru murni lapisan integrasinya.)*
 
 ---
 
-## Fase 7 — Pengiriman dan pengambilan
+## Fase 7 — Pengiriman dan pengambilan — ✅ SELESAI (menunggu kredensial produksi)
+
+Dipakai **Biteship** (bukan RajaOngkir — keputusan pemilik produk, sama
+polanya dengan DOKU di Fase 6). Sama seperti DOKU, klien Biteship dibuat
+sendiri (`App\Support\Shipping\Biteship\BiteshipClient`) langsung dari
+dokumentasi resmi (`biteship.com/en/docs/api`) — paket komunitas yang ada di
+Packagist kecil dan jarang di-*update*, dan permukaan yang dibutuhkan di sini
+cuma empat *endpoint*.
 
 ### 7.1 Antar
 
-- [ ] **RajaOngkir** atau **Biteship** dengan **origin = koordinat cabang**,
-      bukan satu gudang pusat.
-- [ ] Isi **berat dan dimensi** setiap produk.
-- [ ] **Kurir instan (Gojek/Grab)** — untuk jaringan cabang ini justru pilihan
-      utama, bukan tambahan. Jarak cabang ke pelanggan biasanya pendek, dan
-      obat sering dibutuhkan hari itu juga.
-- [ ] Tolak alamat di luar radius cabang, sarankan cabang lain.
-- [ ] Buat label dan resi dari admin cabang.
-- [ ] Lacak resi otomatis.
-- [ ] Persyaratan pengemasan obat: segel, pelindung suhu bila perlu.
+- [x] **Biteship** dengan **origin = koordinat cabang**, bukan satu gudang
+      pusat. — `ShippingQuoteService::quote()` memanggil
+      `POST /v1/rates/couriers` dengan `origin_latitude`/`origin_longitude`
+      cabang yang dipilih pelanggan, bukan titik pusat manapun.
+- [x] Isi **berat dan dimensi** setiap produk. — `weight_grams` sudah ada
+      sejak Fase 4; `length_cm`/`width_cm`/`height_cm` baru di Fase 7, di
+      formulir produk yang sama. **Data isian tetap tugas admin** — kode
+      hanya menyediakan kolomnya; produk seed lama masih 0×0×0 sampai diisi
+      manual, sama seperti "foto produk asli" di Fase 4.
+- [x] **Kurir instan (Gojek/Grab)** — tidak ditangani sebagai kasus khusus:
+      Biteship mensyaratkan koordinat untuk mengaktifkan kurir instan, dan
+      koordinat itu sudah wajib ada dari pengecekan radius (`DeliveryPricing`)
+      sebelum kurir manapun ditanya. Daftar kurir **tidak di-hardcode** —
+      `BiteshipClient::rates()` memanggil `GET /v1/couriers` dulu untuk tahu
+      kurir apa saja yang sungguhan aktif di akun Biteship, prinsip yang sama
+      dengan tidak pernah meng-hardcode kanal pembayaran DOKU.
+- [x] Tolak alamat di luar radius cabang, **sarankan cabang lain** — bagian
+      pertama sudah ada sejak Fase 5 (`DeliveryPricing::isWithinRadius()`),
+      dipertahankan sebagai aturan bisnis cabang sendiri, terpisah dari (dan
+      dicek sebelum) kurir apa pun yang sungguhan dijangkau Biteship. Saran
+      cabang lain **sengaja tidak dibangun** — sama seperti opsi kedua di
+      3.3 untuk konflik keranjang lintas-cabang, satu jalur penyelesaian
+      ("pilih alamat lain") sudah cukup untuk rilis ini.
+- [x] Buat label dan resi dari admin cabang. — checkout hanya **mengutip**
+      harga kurir (`ShippingQuoteService`) dan menyimpan pilihannya ke
+      `shipments` — *booking* sungguhan (`POST /v1/orders`) baru terjadi saat
+      admin menekan "Buat Resi" di layar Pesanan (`Admin\OrderController::ship()`
+      → `ShipmentService::bookForOrder()`). Checkout tidak pernah memesan
+      kurir sendiri.
+- [x] Lacak resi otomatis. — `POST /biteship/notifikasi`
+      (`BiteshipWebhookController`) menerima `order.status`/`order.waybill_id`
+      dari Biteship dan memperbarui `shipments.status` beserta riwayatnya;
+      status `delivered` otomatis menandai pesanan `selesai`. **Tanda tangan
+      webhook tidak ada** — beda dari DOKU, dokumentasi Biteship sendiri tidak
+      menyebut skema tanda tangan apa pun untuk ini. Sebagai gantinya dipakai
+      `?token=` pada URL Notifikasi yang didaftarkan di dasbor Biteship
+      (`BITESHIP_WEBHOOK_TOKEN`) — persis yang disarankan dokumentasi mereka
+      ("set up any necessary authentication for your webhook endpoint").
+      Dibuktikan lewat panggilan sungguhan ke server yang benar-benar
+      berjalan: tanpa token → 401, token salah → 401, token benar → 200 dan
+      status berubah; notifikasi `delivered` yang sama dikirim dua kali tidak
+      menggandakan riwayat maupun `completed_at`.
+- [x] Persyaratan pengemasan obat: segel, pelindung suhu bila perlu. — **tidak
+      ditegakkan sebagai aturan sistem** — tidak ada mekanisme di Biteship API
+      untuk menandai ini, dan `products.storage` (Fase 4) sudah menunjukkan
+      produk mana yang butuh suhu terjaga. Menjadikannya daftar periksa wajib
+      sebelum "Buat Resi" adalah perluasan UI kecil, bukan bagian inti
+      integrasi kurir; dicatat di sini sebagai pekerjaan lanjutan, bukan
+      diselesaikan diam-diam.
 
 ### 7.2 Ambil di toko
 
-- [ ] **Kode ambil** (angka pendek + QR) dikirim ke pelanggan.
-- [ ] Antrean "siap diambil" di panel cabang.
-- [ ] Staf memindai/memasukkan kode untuk menyerahkan pesanan.
-- [ ] **Batas waktu ambil**; lewat batas → stok dikembalikan otomatis dan
-      pelanggan diberi tahu.
-- [ ] Catat siapa yang menyerahkan barang (jejak audit).
+- [x] **Kode ambil** (angka pendek + QR) dikirim ke pelanggan. — 6 digit,
+      dibuat `App\Support\Pickup\PickupCodeService::issue()` saat admin
+      menandai pesanan "Siap Diambil" — bukan saat checkout, karena kode
+      tidak berarti apa-apa sebelum barang sungguhan disiapkan di kasir.
+      **QR sungguhan**, bukan tempelan — dirender dengan `bacon/bacon-qr-code`,
+      yang sudah jadi dependensi langsung untuk QR 2FA sejak Fase 3, sehingga
+      tidak perlu menambah dependensi baru. QR mengenkode URL ke layar
+      pengambilan admin (`/admin/pengambilan?order=...&kode=...`), bukan cuma
+      angka polos — kamera bawaan ponsel staf bisa langsung membukanya dan
+      mengisi kolom kode, tanpa perlu kode pemindaian kamera dalam aplikasi
+      ini sendiri.
+- [x] Antrean "siap diambil" di panel cabang. — `/admin/pengambilan`
+      (`Admin\PickupController`, `Admin/PickupQueue.jsx`) — otomatis
+      terbatas ke cabang staf yang sedang masuk lewat `BranchScope` yang sama
+      dengan seluruh model `Order`, tanpa kode tambahan apa pun.
+- [x] Staf memindai/memasukkan kode untuk menyerahkan pesanan. — kolom kode
+      di setiap baris antrean; terisi otomatis bila datang dari tautan QR
+      (lihat di atas), atau diketik manual — jalur ketik manual selalu
+      berfungsi sebagai jalur utama yang tidak bergantung kamera.
+- [x] **Batas waktu ambil**; lewat batas → stok dikembalikan otomatis. —
+      48 jam (saran Fase 0.3 sendiri; Fase 0 tidak pernah memutuskan
+      angkanya, sama seperti keputusan bayar-di-kasir yang diselesaikan saat
+      Fase 6). Perintah terjadwal baru `pesanan:kadaluwarsakan-pengambilan`
+      (setiap 5 menit) memakai `OrderCancellation` yang sama dengan
+      pembatalan pelanggan dan kedaluwarsa pembayaran — tidak ada jalur
+      pengembalian stok kedua. **"Pelanggan diberi tahu" belum ada** — itu
+      email/WhatsApp, infrastrukturnya baru datang di Fase 8.
+- [x] Catat siapa yang menyerahkan barang (jejak audit). — `orders.handed_over_by`
+      + `AuditLogger::log('pesanan.serahkan', ...)`, dipasang di
+      `PickupCodeService::handOver()`.
 
-**Selesai bila:** satu pesanan antar terlacak sampai "diterima", dan satu
-pesanan ambil diserahkan lewat pemindaian kode.
+**Selesai bila:** ~~satu pesanan antar terlacak sampai "diterima", dan satu
+pesanan ambil diserahkan lewat pemindaian kode.~~ **Sebagian** — seluruh jalur
+teknis terbukti benar (kutip ongkir sungguhan, buat resi, webhook status,
+idempoten, kode ambil + QR, serah terima, kedaluwarsa ambil) lewat pengujian
+otomatis. **Yang belum bisa dibuktikan di lingkungan ini: pengiriman
+sungguhan sampai "diterima" oleh Biteship asli**, karena itu butuh kredensial
+akun Biteship sungguhan (`BITESHIP_API_KEY`, ditambah akun yang sudah
+mengaktifkan minimal satu kurir) yang tidak tersedia di sesi kerja ini — sama
+seperti kredensial DOKU produksi di Fase 6, S3 di Fase 4, dan gateway SMS di
+Fase 3. Begitu kredensial terisi di `.env`, tidak ada perubahan kode yang
+dibutuhkan.
 
-**Estimasi solo:** 3 minggu.
+**Estimasi solo:** 3 minggu. *(Selesai dalam satu sesi kerja karena arsitektur
+Fase 1-6 — koordinat cabang, snapshot pesanan, `OrderCancellation`,
+`AuditLogger`, dan pola klien-API-tipis-sendiri dari DOKU — sudah menyiapkan
+hampir semua yang integrasi kurir butuhkan; yang baru murni lapisan
+integrasinya. Verifikasi produksi — kredensial Biteship sungguhan, foto
+kemasan sungguhan untuk persyaratan segel — tetap perlu waktu terpisah.)*
 
 ---
 

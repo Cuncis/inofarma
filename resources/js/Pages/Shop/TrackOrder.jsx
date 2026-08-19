@@ -10,6 +10,8 @@ import { asset, money } from '@/Components/Shop/data';
  * @param {{ order: {
  *   number: string, status: string, fulfilment: string, isCancellable: boolean, canPay: boolean,
  *   total: number, items: object[], steps: { label: string, state: string, at: ?string }[],
+ *   shipment: ?{ courierName: string, serviceName: string, waybillId: ?string, trackingLink: ?string, statusLabel: ?string },
+ *   pickup: ?{ code: string, qrSvg: ?string, expiresAt: string },
  * } }} props
  */
 export default function TrackOrder({ order }) {
@@ -95,6 +97,47 @@ export default function TrackOrder({ order }) {
                         ))}
                     </div>
                 )}
+
+                {order.pickup ? (
+                    <div className="mt-4 border border-line bg-white p-3.5 text-center">
+                        <p className="mb-2 text-[13px] font-display">Tunjukkan kode ini di kasir</p>
+                        {order.pickup.qrSvg ? (
+                            <img
+                                src={order.pickup.qrSvg}
+                                alt={`Kode QR ambil pesanan ${order.number}`}
+                                className="mx-auto mb-2 h-32 w-32"
+                            />
+                        ) : null}
+                        <p className="mb-1 text-2xl font-bold tracking-[6px] text-brand">
+                            {order.pickup.code}
+                        </p>
+                        <p className="text-[11px] text-muted">Berlaku sampai {order.pickup.expiresAt}</p>
+                    </div>
+                ) : null}
+
+                {order.shipment ? (
+                    <div className="mt-4 border border-line bg-white p-3.5">
+                        <p className="mb-1.5 text-[13px] font-display">
+                            {order.shipment.courierName} {order.shipment.serviceName}
+                        </p>
+                        {order.shipment.statusLabel ? (
+                            <p className="mb-1 text-xs text-muted">{order.shipment.statusLabel}</p>
+                        ) : null}
+                        {order.shipment.waybillId ? (
+                            <p className="text-[11px] text-muted">No. Resi: {order.shipment.waybillId}</p>
+                        ) : null}
+                        {order.shipment.trackingLink ? (
+                            <a
+                                href={order.shipment.trackingLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-1.5 inline-block text-[11px] text-brand underline"
+                            >
+                                Lacak di Biteship →
+                            </a>
+                        ) : null}
+                    </div>
+                ) : null}
 
                 <div className="mt-4 border border-line bg-white p-3.5">
                     {order.items.map((item) => (

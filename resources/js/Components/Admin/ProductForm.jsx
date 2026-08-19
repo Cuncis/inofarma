@@ -53,6 +53,9 @@ export default function ProductForm({
         maxQtyPerOrder: product?.maxQtyPerOrder ?? '',
         storage: product?.storage ?? storageConditions[0],
         weightGrams: product?.weightGrams ?? '',
+        lengthCm: product?.lengthCm ?? '',
+        widthCm: product?.widthCm ?? '',
+        heightCm: product?.heightCm ?? '',
     });
 
     const needsWarning = data.drugClass === 'Bebas Terbatas';
@@ -360,6 +363,48 @@ export default function ProductForm({
                                     onChange={(event) => setData('weightGrams', event.target.value)}
                                     placeholder="150"
                                     className={errors.weightGrams ? 'border-danger' : ''}
+                                />
+                            </Field>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            <Field
+                                label="Panjang (cm)"
+                                htmlFor="lengthCm"
+                                hint={errors.lengthCm ?? 'Dibutuhkan untuk menghitung ongkir.'}
+                            >
+                                <Input
+                                    id="lengthCm"
+                                    type="number"
+                                    min="0"
+                                    value={data.lengthCm}
+                                    onChange={(event) => setData('lengthCm', event.target.value)}
+                                    placeholder="10"
+                                    className={errors.lengthCm ? 'border-danger' : ''}
+                                />
+                            </Field>
+
+                            <Field label="Lebar (cm)" htmlFor="widthCm" hint={errors.widthCm}>
+                                <Input
+                                    id="widthCm"
+                                    type="number"
+                                    min="0"
+                                    value={data.widthCm}
+                                    onChange={(event) => setData('widthCm', event.target.value)}
+                                    placeholder="5"
+                                    className={errors.widthCm ? 'border-danger' : ''}
+                                />
+                            </Field>
+
+                            <Field label="Tinggi (cm)" htmlFor="heightCm" hint={errors.heightCm}>
+                                <Input
+                                    id="heightCm"
+                                    type="number"
+                                    min="0"
+                                    value={data.heightCm}
+                                    onChange={(event) => setData('heightCm', event.target.value)}
+                                    placeholder="5"
+                                    className={errors.heightCm ? 'border-danger' : ''}
                                 />
                             </Field>
                         </div>

@@ -31,6 +31,12 @@ export default function ProductDetail({ product }) {
         { label: 'Kondisi Penyimpanan', value: product.storage },
         { label: 'Batas Pembelian', value: product.maxQtyPerOrder ? `${product.maxQtyPerOrder} per transaksi` : '—' },
         { label: 'Berat', value: product.weightGrams ? `${product.weightGrams} gram` : '—' },
+        {
+            label: 'Dimensi (P×L×T)',
+            value: product.lengthCm || product.widthCm || product.heightCm
+                ? `${product.lengthCm}×${product.widthCm}×${product.heightCm} cm`
+                : '—',
+        },
     ].map((spec) => ({ ...spec, value: spec.value || '—' }));
 
     return (
