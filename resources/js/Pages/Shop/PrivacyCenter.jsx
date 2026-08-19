@@ -25,7 +25,7 @@ export default function PrivacyCenter() {
     return (
         <MobileLayout
             title="Privasi Saya"
-            header={<AppBar title="Privasi Saya" back="/ui/profile" />}
+            header={<AppBar title="Privasi Saya" back="/ui/profile" tone="brand" />}
         >
             <FlashBanner />
 

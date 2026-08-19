@@ -7,7 +7,7 @@ export default function Faq() {
     const [open, setOpen] = useState(faqs[0].question);
 
     return (
-        <MobileLayout title="FAQ" header={<AppBar title="FAQ" back="/ui/profile" />}>
+        <MobileLayout title="FAQ" header={<AppBar title="FAQ" back="/ui/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto p-3.5">
                 {faqs.map((faq) => {
                     const expanded = open === faq.question;

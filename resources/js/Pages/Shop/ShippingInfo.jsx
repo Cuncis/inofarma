@@ -39,7 +39,7 @@ export default function ShippingInfo() {
     return (
         <MobileLayout
             title="Kebijakan Pengiriman"
-            header={<AppBar title="Kebijakan Pengiriman" back="/ui/profile" />}
+            header={<AppBar title="Kebijakan Pengiriman" back="/ui/profile" tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto p-4">
                 {sections.map((section) => (

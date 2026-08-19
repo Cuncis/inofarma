@@ -89,7 +89,7 @@ export default function Cart({ cart }) {
 
             <div className="flex-1 overflow-y-auto px-3.5 pt-3.5">
                 {cart.branch ? (
-                    <div className="mb-3 border border-line bg-lilac p-2.5 text-[11px]">
+                    <div className="mb-3 rounded-lg border border-line bg-white p-2.5 text-[11px]">
                         <div className="flex items-center gap-2">
                             <Icon name="pin" size={14} className="shrink-0 text-brand" />
                             <span>
@@ -114,7 +114,7 @@ export default function Cart({ cart }) {
                 {cart.items.map((item) => (
                     <div
                         key={item.sku}
-                        className="mb-2 flex min-h-[88px] gap-2.5 border border-line p-2.5"
+                        className="mb-2 flex min-h-[88px] gap-2.5 overflow-hidden rounded-lg border border-line bg-white p-2.5"
                     >
                         <Link
                             href={`/ui/product-detail?id=${item.sku}`}
@@ -219,7 +219,7 @@ export default function Cart({ cart }) {
                     </p>
                 )}
 
-                <div className="mb-3.5 border border-line bg-lilac p-3.5">
+                <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
                     <div className="mb-1.5 flex justify-between text-[13px]">
                         <span>Subtotal</span>
                         <span className="font-bold">{money(cart.subtotal)}</span>

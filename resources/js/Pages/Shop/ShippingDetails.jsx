@@ -31,7 +31,7 @@ export default function ShippingDetails({ addresses }) {
     return (
         <MobileLayout
             title="Pengiriman"
-            header={<AppBar title="Detail Pengiriman" back="/ui/checkout" />}
+            header={<AppBar title="Detail Pengiriman" back="/ui/checkout" tone="brand" />}
             footer={
                 <div className="border-t border-line p-3.5">
                     <Button onClick={submit} disabled={! selected || submitting}>

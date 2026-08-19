@@ -18,7 +18,7 @@ export default function TabBar({ active }) {
     const { cartCount } = usePage().props;
 
     return (
-        <nav className="flex h-tabbar shrink-0 items-center border-t border-[#f0f0f0] bg-white shadow-[0_-2px_8px_rgba(0,0,0,.04)]">
+        <nav className="flex h-tabbar shrink-0 items-center bg-brand shadow-[0_-2px_8px_rgba(0,0,0,.12)]">
             {tabs.map((tab) => {
                 const isActive = tab.key === active;
 
@@ -26,24 +26,25 @@ export default function TabBar({ active }) {
                     <Link
                         key={tab.key}
                         href={tab.route}
-                        className={`relative flex flex-1 flex-col items-center gap-0.5 ${
-                            isActive ? 'text-brand' : 'text-[#cccccc]'
-                        }`}
+                        className="flex flex-1 flex-col items-center justify-center gap-1 py-1.5"
                     >
                         <span className="relative">
-                            <Icon name={tab.icon} size={21} />
+                            <span
+                                className={`flex h-8 min-w-8 items-center justify-center rounded-full px-3 transition-colors ${
+                                    isActive ? 'bg-white text-brand' : 'text-white/55'
+                                }`}
+                            >
+                                <Icon name={tab.icon} size={20} />
+                            </span>
 
                             {tab.key === 'order' && cartCount > 0 ? (
-                                <span className="absolute -right-2 -top-1.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-brand px-[3px] text-[8px] font-bold text-white">
+                                <span className="absolute -right-1 -top-1 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-danger px-[3px] text-[8px] font-bold text-white">
                                     {cartCount}
                                 </span>
                             ) : null}
                         </span>
-                        <span
-                            className={`text-[9px] ${
-                                isActive ? 'text-brand' : 'text-[#aaaaaa]'
-                            }`}
-                        >
+
+                        <span className={`text-[9px] ${isActive ? 'font-bold text-white' : 'text-white/55'}`}>
                             {tab.label}
                         </span>
                     </Link>

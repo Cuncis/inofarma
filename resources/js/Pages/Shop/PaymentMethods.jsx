@@ -11,7 +11,7 @@ export default function PaymentMethods() {
     return (
         <MobileLayout
             title="Metode Pembayaran"
-            header={<AppBar title="Metode Pembayaran" back="/ui/profile" />}
+            header={<AppBar title="Metode Pembayaran" back="/ui/profile" tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 {saved.map((card) => (

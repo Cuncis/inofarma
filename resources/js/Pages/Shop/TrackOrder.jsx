@@ -33,7 +33,7 @@ export default function TrackOrder({ order }) {
         <MobileLayout
             title="Lacak Pesanan"
             background="bg-blush"
-            header={<AppBar title="Lacak Pesanan" back="/ui/order-history" />}
+            header={<AppBar title="Lacak Pesanan" back="/ui/order-history" tone="brand" />}
         >
             <FlashBanner />
 

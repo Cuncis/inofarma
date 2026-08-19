@@ -20,7 +20,7 @@ export default function MyAddress({ addresses }) {
     return (
         <MobileLayout
             title="Alamat Saya"
-            header={<AppBar title="Alamat Saya" back="/ui/profile" />}
+            header={<AppBar title="Alamat Saya" back="/ui/profile" tone="brand" />}
         >
             <FlashBanner />
 

@@ -25,7 +25,7 @@ export default function MyPromocodes() {
     return (
         <MobileLayout
             title="Kode Promo Saya"
-            header={<AppBar title="Kode Promo Saya" back="/ui/profile" />}
+            header={<AppBar title="Kode Promo Saya" back="/ui/profile" tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 <div className="mb-3.5 flex border-b border-line">

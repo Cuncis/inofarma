@@ -12,7 +12,7 @@ import AppBar from '@/Components/Shop/AppBar';
  */
 export default function AboutUs() {
     return (
-        <MobileLayout title="Tentang Kami" header={<AppBar title="Tentang Kami" back="/ui/profile" />}>
+        <MobileLayout title="Tentang Kami" header={<AppBar title="Tentang Kami" back="/ui/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto p-4">
                 <div className="mb-5">
                     <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[15px]">

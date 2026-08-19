@@ -12,7 +12,9 @@ import Icon from './Icon';
  */
 
 /**
- * Portrait product tile used by the grids on Home, Shop and Wishlist.
+ * Portrait product card used by the grids on Shop and Wishlist — same card
+ * treatment (white background, rounded corners, light border) as Home's
+ * `ProductStrip` tiles, so a product looks the same wherever it shows up.
  *
  * The tile opens the product detail screen; the heart toggles locally and the
  * bag sends the shopper to the cart.
@@ -33,7 +35,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }) {
     };
 
     return (
-        <div>
+        <div className="overflow-hidden rounded-lg border border-line bg-white">
             <div className="relative aspect-[3/4] overflow-hidden bg-white">
                 <Link href="/ui/product-detail" className="block h-full w-full">
                     <img
@@ -56,7 +58,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }) {
                         liked ? 'text-brand' : 'text-faint'
                     }`}
                 >
-                    <Icon name="heart" size={18} />
+                    <Icon name={liked ? 'heartFilled' : 'heart'} size={18} />
                 </button>
 
                 <button
@@ -69,8 +71,8 @@ export default function ProductCard({ product, wishlisted = false, onRemove }) {
                 </button>
             </div>
 
-            <Link href="/ui/product-detail" className="block">
-                <div className="mb-[3px] mt-1.5 truncate text-xs text-[#333333]">
+            <Link href="/ui/product-detail" className="block px-2 py-2">
+                <div className="mb-[3px] truncate text-xs text-[#333333]">
                     {product.name}
                 </div>
 

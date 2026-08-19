@@ -49,7 +49,7 @@ export default function Terms() {
     return (
         <MobileLayout
             title="Syarat & Ketentuan"
-            header={<AppBar title="Syarat & Ketentuan" back="/ui/profile" />}
+            header={<AppBar title="Syarat & Ketentuan" back="/ui/profile" tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto p-4">
                 {sections.map((section) => (

@@ -57,7 +57,7 @@ export default function OurBranches({ branches, areas, hasLocation }) {
     };
 
     return (
-        <MobileLayout title="Cabang Kami" header={<AppBar title="Cabang Kami" back="/ui/profile" />}>
+        <MobileLayout title="Cabang Kami" header={<AppBar title="Cabang Kami" back="/ui/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 {! hasLocation ? (
                     <div className="mb-3.5 border border-line bg-blush p-3.5">

@@ -14,7 +14,7 @@ export default function PaymentMethod() {
     return (
         <MobileLayout
             title="Pembayaran"
-            header={<AppBar title="Metode Pembayaran" back="/ui/checkout" />}
+            header={<AppBar title="Metode Pembayaran" back="/ui/checkout" tone="brand" />}
             footer={
                 <div className="border-t border-line p-3.5">
                     <Button href="/ui/checkout">Gunakan Metode Ini</Button>

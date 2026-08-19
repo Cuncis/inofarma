@@ -35,7 +35,7 @@ export default function RefundPolicy() {
     return (
         <MobileLayout
             title="Kebijakan Pengembalian Dana"
-            header={<AppBar title="Pengembalian Dana" back="/ui/profile" />}
+            header={<AppBar title="Pengembalian Dana" back="/ui/profile" tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto p-4">
                 {sections.map((section) => (

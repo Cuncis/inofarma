@@ -56,7 +56,7 @@ export default function Profile() {
                     <Link
                         key={item.label}
                         href={item.href}
-                        className="mb-[7px] flex items-center gap-3 border border-line px-3.5 py-[13px]"
+                        className="mb-[7px] flex items-center gap-3 border border-line bg-white px-3.5 py-[13px]"
                     >
                         <span className="text-ink">
                             <Icon name={item.icon} size={19} />
@@ -72,7 +72,7 @@ export default function Profile() {
                     href="/ui/signout"
                     method="post"
                     as="button"
-                    className="mb-[7px] flex w-full items-center gap-3 border border-line px-3.5 py-[13px] text-left"
+                    className="mb-[7px] flex w-full items-center gap-3 border border-line bg-white px-3.5 py-[13px] text-left"
                 >
                     <span className="text-brand">
                         <Icon name="logout" size={19} />

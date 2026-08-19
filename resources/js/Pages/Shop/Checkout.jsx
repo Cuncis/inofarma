@@ -94,7 +94,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
     return (
         <MobileLayout
             title="Checkout"
-            header={<AppBar title="Checkout" back="/ui/cart" />}
+            header={<AppBar title="Checkout" back="/ui/cart" tone="brand" />}
         >
             <FlashBanner />
 
