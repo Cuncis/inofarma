@@ -45,7 +45,7 @@ export default function Home() {
 
                 <CategoryShortcuts />
 
-                <div className="mt-3.5">
+                <div>
                     <SectionHeading
                         title="Rekomendasi Untukmu"
                         action="Lihat semua"
@@ -55,7 +55,7 @@ export default function Home() {
                     <ProductStrip products={recommended} />
                 </div>
 
-                <div className="mt-3.5">
+                <div>
                     <SectionHeading
                         title="Produk Kesehatan Terbaru"
                         action="Lihat semua"
@@ -65,7 +65,7 @@ export default function Home() {
                     <ProductStrip products={newArrivals} />
                 </div>
 
-                <div className="mt-3.5">
+                <div>
                     <SectionHeading
                         title="Produk Terlaris Kami"
                         action="Lihat semua"
@@ -83,15 +83,15 @@ export default function Home() {
                     cta="Belanja sekarang"
                     icon="promo"
                     tone="success"
-                    className="mt-3.5"
+                    className="mt-6"
                 />
 
-                <div className="mt-3.5">
+                <div>
                     <SectionHeading title="Brand Terlaris" className="px-3.5" />
                     <BrandStrip brands={topBrands} />
                 </div>
 
-                <div className="mt-3.5">
+                <div>
                     <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
                     <BenefitsGrid />
                 </div>

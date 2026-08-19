@@ -8,6 +8,10 @@ import { Link } from '@inertiajs/react';
  * never depend on a third-party host staying online for storefront
  * artwork). The badges already render their own circular background, so
  * they're placed directly with no extra wrapper shape behind them.
+ *
+ * Laid out as a table: only `border-r`/`border-b` on each cell plus
+ * `border-l`/`border-t` on the grid itself, so shared edges between cells
+ * never double up into a thicker line the way `border` on every cell would.
  */
 const CATEGORIES = [
     { label: 'Kesehatan', image: '/media/images/categories/kesehatan.png', href: '/ui/shop' },
@@ -22,17 +26,17 @@ const CATEGORIES = [
 
 export default function CategoryShortcuts() {
     return (
-        <div className="grid grid-cols-4 gap-y-3.5 px-3.5 py-3.5">
+        <div className="mx-3.5 my-3.5 grid grid-cols-4 border-l border-t border-line bg-white">
             {CATEGORIES.map((category) => (
                 <Link
                     key={category.label}
                     href={category.href}
-                    className="flex flex-col items-center gap-1.5 text-center"
+                    className="flex flex-col items-center justify-center gap-1.5 border-b border-r border-line px-1.5 py-3.5 text-center"
                 >
                     <img
                         src={category.image}
                         alt={category.label}
-                        className="h-12 w-12 object-contain"
+                        className="h-11 w-11 object-contain"
                     />
 
                     <span className="text-[10px] leading-tight text-ink">{category.label}</span>

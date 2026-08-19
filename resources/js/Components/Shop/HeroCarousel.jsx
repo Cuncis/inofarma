@@ -67,7 +67,7 @@ export default function HeroCarousel() {
     };
 
     return (
-        <div className="relative w-full overflow-hidden">
+        <div className="relative mx-3.5 mt-3.5 overflow-hidden rounded-lg border border-line">
             <div
                 className="flex transition-transform duration-500 ease-out"
                 style={{ transform: `translateX(-${index * 100}%)` }}
