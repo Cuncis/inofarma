@@ -8,7 +8,7 @@ export default function Index() {
     return (
         <MobileLayout
             title="Daftar Halaman"
-            header={<AppBar brand title="Halaman" />}
+            header={<AppBar title="Halaman" />}
         >
             <div className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-4 bg-blush p-4 text-center">

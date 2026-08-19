@@ -1,19 +1,23 @@
 import { useState } from 'react';
-import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
-import Icon from '@/Components/Shop/Icon';
+import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
+import BrandStrip from '@/Components/Shop/BrandStrip';
+import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
+import HeroCarousel from '@/Components/Shop/HeroCarousel';
 import IconButton from '@/Components/Shop/IconButton';
 import IconLink from '@/Components/Shop/IconLink';
-import ProductCard from '@/Components/Shop/ProductCard';
+import ProductStrip from '@/Components/Shop/ProductStrip';
 import PromoBanner from '@/Components/Shop/PromoBanner';
 import SectionHeading from '@/Components/Shop/SectionHeading';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
+import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Home() {
-    const { newArrivals, trendingProducts } = useShopCatalog();
+    const { recommended, newArrivals, trendingProducts, topBrands } = useShopCatalog();
+    const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
 
     return (
@@ -22,6 +26,7 @@ export default function Home() {
             header={
                 <AppBar
                     brand
+                    tone="brand"
                     actions={
                         <>
                             <IconButton
@@ -29,62 +34,46 @@ export default function Home() {
                                 onClick={() => setSearching(true)}
                                 label="Cari"
                             />
-                            <IconLink name="bag" href="/ui/cart" label="Keranjang" />
+                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
                         </>
                     }
                 />
             }
             footer={<TabBar active="home" />}
         >
-            <div className="flex-1 overflow-y-auto">
-                <PromoBanner
-                    href="/ui/categories"
-                    eyebrow="Apotek online"
-                    title={'Obat & vitamin\nsampai hari ini'}
-                    caption="Gratis ongkir untuk pembelian di atas Rp 750.000"
-                    cta="Lihat kategori"
-                    icon="bag"
-                />
+            <div className="flex-1 overflow-y-auto pb-[70px]">
+                <HeroCarousel />
+
+                <CategoryShortcuts />
 
                 <div className="mt-3.5">
                     <SectionHeading
-                        title="Produk Terlaris"
+                        title="Rekomendasi Untukmu"
                         action="Lihat semua"
                         actionHref="/ui/shop"
                         className="px-3.5"
                     />
+                    <ProductStrip products={recommended} />
+                </div>
 
-                    <div className="flex gap-2.5 overflow-x-auto px-3.5 scrollbar-none">
-                        {trendingProducts.map((product) => (
-                            <Link
-                                key={product.name}
-                                href="/ui/product-detail"
-                                className="w-[115px] shrink-0"
-                            >
-                                <div className="relative h-[145px] w-[115px] overflow-hidden bg-[#f5f5f5]">
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="h-full w-full object-cover"
-                                    />
+                <div className="mt-3.5">
+                    <SectionHeading
+                        title="Produk Kesehatan Terbaru"
+                        action="Lihat semua"
+                        actionHref="/ui/shop"
+                        className="px-3.5"
+                    />
+                    <ProductStrip products={newArrivals} />
+                </div>
 
-                                    <div className="absolute left-[5px] top-[5px] flex items-center gap-0.5 bg-white/90 px-1.5 py-0.5">
-                                        <Icon name="star" size={11} className="text-star" />
-                                        <span className="text-[9px] font-bold">
-                                            {product.rating}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="mt-[5px] text-[11px] text-[#333333]">
-                                    {product.name}
-                                </div>
-                                <div className="text-[11px] font-bold text-brand">
-                                    {product.price}
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                <div className="mt-3.5">
+                    <SectionHeading
+                        title="Produk Terlaris Kami"
+                        action="Lihat semua"
+                        actionHref="/ui/shop"
+                        className="px-3.5"
+                    />
+                    <ProductStrip products={trendingProducts} />
                 </div>
 
                 <PromoBanner
@@ -95,21 +84,17 @@ export default function Home() {
                     cta="Belanja sekarang"
                     icon="promo"
                     tone="success"
-                    className="mt-3"
+                    className="mt-3.5"
                 />
 
-                <div className="mt-3 px-3.5 pb-[70px]">
-                    <SectionHeading
-                        title="Produk Terbaru"
-                        action="Lihat semua"
-                        actionHref="/ui/shop"
-                    />
+                <div className="mt-3.5">
+                    <SectionHeading title="Brand Terlaris" className="px-3.5" />
+                    <BrandStrip brands={topBrands} />
+                </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        {newArrivals.map((product) => (
-                            <ProductCard key={product.name} product={product} />
-                        ))}
-                    </div>
+                <div className="mt-3.5">
+                    <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
+                    <BenefitsGrid />
                 </div>
             </div>
 

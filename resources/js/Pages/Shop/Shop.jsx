@@ -8,6 +8,7 @@ import IconLink from '@/Components/Shop/IconLink';
 import ProductCard from '@/Components/Shop/ProductCard';
 import SearchBar from '@/Components/Shop/SearchBar';
 import TabBar from '@/Components/Shop/TabBar';
+import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 /**
@@ -25,6 +26,7 @@ function initialQuery(url) {
 export default function Shop() {
     const { filterCategories, shopProducts } = useShopCatalog();
     const { url } = usePage();
+    const cartCount = useCartCount();
     const [query, setQuery] = useState(() => initialQuery(url));
     const [category, setCategory] = useState('Semua');
 
@@ -50,10 +52,11 @@ export default function Shop() {
             header={
                 <AppBar
                     brand
+                    tone="brand"
                     actions={
                         <>
                             <IconLink name="tag" href="/ui/filter" label="Filter" />
-                            <IconLink name="bag" href="/ui/cart" label="Keranjang" />
+                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
                         </>
                     }
                 />

@@ -11,7 +11,7 @@ import Icon from './Icon';
  *   back?: string|boolean,
  *   brand?: boolean,
  *   actions?: import('react').ReactNode,
- *   tone?: 'blush'|'white'|'ink',
+ *   tone?: 'blush'|'white'|'ink'|'brand',
  * }} props
  */
 export default function AppBar({ title, back, brand = false, actions, tone = 'blush' }) {
@@ -19,7 +19,12 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
         blush: 'bg-blush text-ink',
         white: 'bg-white text-ink',
         ink: 'bg-ink text-white',
+        brand: 'bg-brand text-white',
     };
+
+    // The blue-background artwork only reads on a dark/blue bar — everything
+    // else (blush, white) gets the dark-on-light variant. See `asset.logo()`.
+    const logoTone = tone === 'ink' || tone === 'brand' ? 'blue' : 'white';
 
     return (
         <header
@@ -30,15 +35,9 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
                     <Link href={typeof back === 'string' ? back : '#'} aria-label="Kembali">
                         <Icon name="back" size={20} />
                     </Link>
-                ) : null}
-
-                {brand ? (
-                    <Link href="/" aria-label="Inofarma">
-                        <img
-                            src={asset.logo(tone === 'ink' ? 'blue' : 'white')}
-                            alt="Inofarma"
-                            className="h-6 w-auto"
-                        />
+                ) : brand ? (
+                    <Link href="/" aria-label="Inofarma" className="flex items-center">
+                        <img src={asset.logo(logoTone)} alt="Inofarma" className="h-6 w-auto" />
                     </Link>
                 ) : null}
             </div>
@@ -51,7 +50,7 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
                 ) : null}
             </div>
 
-            <div className="flex min-w-[40px] items-center justify-end gap-2">
+            <div className="flex min-w-[40px] items-center justify-end gap-3">
                 {actions}
             </div>
         </header>

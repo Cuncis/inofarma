@@ -57,10 +57,12 @@ const toTile = (product) => ({
  *
  * @returns {{
  *   products: import('@/lib/catalog').CatalogProduct[],
+ *   recommended: object[],
  *   trendingProducts: object[],
  *   newArrivals: object[],
  *   shopProducts: object[],
  *   wishlistProducts: object[],
+ *   topBrands: string[],
  *   categories: { name: string, image: string }[],
  *   filterCategories: string[],
  * }}
@@ -70,10 +72,20 @@ export function useShopCatalog() {
 
     return {
         products,
+        // "Rekomendasi Untukmu" — highest-rated first. A real recommendation
+        // engine (purchase history, collaborative filtering) is out of scope
+        // here; this is an honest, simple heuristic, not a placeholder pretending to be one.
+        recommended: [...products]
+            .sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating))
+            .slice(0, 6)
+            .map(toTile),
         trendingProducts: bestSellers(products).slice(0, 6).map(toTile),
-        newArrivals: products.slice(-4).map(toTile),
+        newArrivals: products.slice(-6).map(toTile),
         shopProducts: products.map(toTile),
         wishlistProducts: discounted(products).slice(0, 4).map(toTile),
+        // "Brand Terlaris" — real manufacturer names already on the product
+        // record (Fase 4.2), deduplicated; no fixture brand list.
+        topBrands: [...new Set(products.map((product) => product.manufacturer).filter(Boolean))].slice(0, 8),
         categories: categories.map((category) => ({
             name: category.name,
             image: category.image,

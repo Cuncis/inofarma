@@ -47,6 +47,20 @@ const paths = {
             <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="1.5" />
         </>
     ),
+    /** A real shopping-cart/trolley silhouette — `bag` reads as a tote, not a cart. */
+    cart: (
+        <>
+            <circle cx="9" cy="21" r="1.4" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="18" cy="21" r="1.4" stroke="currentColor" strokeWidth="1.5" />
+            <path
+                d="M1.5 1.5h2.4l2.6 13.2a2 2 0 0 0 2 1.6h9.4a2 2 0 0 0 2-1.6L22 6H5.4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </>
+    ),
     user: (
         <>
             <path

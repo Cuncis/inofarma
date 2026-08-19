@@ -6,10 +6,12 @@ import IconButton from '@/Components/Shop/IconButton';
 import IconLink from '@/Components/Shop/IconLink';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
+import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Categories() {
     const { categories } = useShopCatalog();
+    const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
 
     return (
@@ -18,6 +20,7 @@ export default function Categories() {
             header={
                 <AppBar
                     brand
+                    tone="brand"
                     actions={
                         <>
                             <IconButton
@@ -25,7 +28,7 @@ export default function Categories() {
                                 onClick={() => setSearching(true)}
                                 label="Cari"
                             />
-                            <IconLink name="bag" href="/ui/cart" label="Keranjang" />
+                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
                         </>
                     }
                 />
