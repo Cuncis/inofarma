@@ -65,4 +65,23 @@ return [
         'webhook_token' => env('BITESHIP_WEBHOOK_TOKEN'),
     ],
 
+    /*
+    | WhatsApp Cloud API (Fase 8) — Meta's own official Business API, not a
+    | reseller, so this satisfies ROADMAP.md 8's "pakai penyedia resmi
+    | WhatsApp Business API" directly. Sending a business-initiated message
+    | (as opposed to replying inside a customer-opened 24-hour window)
+    | requires a pre-approved message *template* per Meta's own rules —
+    | `template` below names the ones this app expects to exist in the
+    | connected WhatsApp Business Account. See `App\Support\Notifications\WhatsAppClient`.
+    */
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'base_url' => 'https://graph.facebook.com/v21.0',
+        'templates' => [
+            'order_shipped' => env('WHATSAPP_TEMPLATE_ORDER_SHIPPED', 'pesanan_dikirim'),
+            'order_ready_for_pickup' => env('WHATSAPP_TEMPLATE_ORDER_READY', 'pesanan_siap_diambil'),
+        ],
+    ],
+
 ];

@@ -34,7 +34,7 @@ class Order extends Model
         'recipient_phone', 'shipping_address', 'shipping_latitude',
         'shipping_longitude', 'note', 'paid_at', 'ready_at', 'completed_at',
         'cancelled_at', 'expires_at', 'pickup_code', 'pickup_code_expires_at',
-        'picked_up_at', 'handed_over_by',
+        'picked_up_at', 'handed_over_by', 'pickup_reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -52,6 +52,7 @@ class Order extends Model
             'expires_at' => 'datetime',
             'pickup_code_expires_at' => 'datetime',
             'picked_up_at' => 'datetime',
+            'pickup_reminder_sent_at' => 'datetime',
             'shipping_latitude' => 'decimal:7',
             'shipping_longitude' => 'decimal:7',
         ];

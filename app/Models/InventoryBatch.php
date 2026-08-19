@@ -22,7 +22,7 @@ class InventoryBatch extends Model
 
     protected $fillable = [
         'branch_id', 'product_id', 'batch_number', 'expires_at',
-        'quantity', 'cost_price', 'received_at',
+        'quantity', 'cost_price', 'received_at', 'expiry_reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -32,6 +32,7 @@ class InventoryBatch extends Model
             'received_at' => 'date',
             'quantity' => 'integer',
             'cost_price' => 'integer',
+            'expiry_reminder_sent_at' => 'datetime',
         ];
     }
 

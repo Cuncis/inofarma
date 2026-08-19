@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\BranchStock;
+use App\Models\Order;
 use App\Models\User;
+use App\Observers\BranchStockObserver;
+use App\Observers\OrderObserver;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -28,5 +32,10 @@ class AppServiceProvider extends ServiceProvider
         // registers a Gate for each permission name, so `$user->can('Produk:Ubah')`
         // works directly without a Policy class per model. See .ai/rules/support.md.
         Gate::before(fn ($user, string $ability) => $user instanceof User && $user->hasRole('Super Admin') ? true : null);
+
+        // Fase 8: every order status/payment transition and every low-stock
+        // crossing notifies through here — see the observers themselves.
+        Order::observe(OrderObserver::class);
+        BranchStock::observe(BranchStockObserver::class);
     }
 }

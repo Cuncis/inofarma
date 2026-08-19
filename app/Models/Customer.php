@@ -66,6 +66,12 @@ class Customer extends Authenticatable
         $this->notify(new CustomerResetPassword($token));
     }
 
+    /** Where `App\Notifications\Channels\WhatsAppChannel` sends a WhatsApp notification — same phone the OTP flow already texts (Fase 3). */
+    public function routeNotificationForWhatsapp(): ?string
+    {
+        return $this->phone;
+    }
+
     public function hasVerifiedEmail(): bool
     {
         return ! is_null($this->email_verified_at);

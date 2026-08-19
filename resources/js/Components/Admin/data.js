@@ -14,29 +14,6 @@ import { media } from '@/lib/media';
 
 export const img = media;
 
-export const notifications = [
-    {
-        name: 'Josephine Thompson',
-        avatar: img.user(1),
-        body: 'Mengomentari panel admin: "Tampilannya bagus sekali!"',
-    },
-    {
-        name: 'Donoghue Susan',
-        avatar: img.user(2),
-        body: 'Hai, bagaimana kabar rapat kita berikutnya?',
-    },
-    {
-        name: 'Jacob Gines',
-        avatar: img.user(3),
-        body: 'Membalas komentar Anda pada grafik arus kas.',
-    },
-    {
-        name: 'Shawn Bunch',
-        avatar: img.user(5),
-        body: 'Menambahkan 3 berkas ke tugas Laporan Bulanan.',
-    },
-];
-
 /** Dashboard summary tiles. */
 export const dashboardStats = [
     {

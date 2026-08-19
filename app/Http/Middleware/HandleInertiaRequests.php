@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Cart\CartManager;
+use App\Support\Presenters\AdminNotificationPresenter;
 use App\Support\Presenters\ShopCatalogPresenter;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -45,6 +46,23 @@ class HandleInertiaRequests extends Middleware
                 $user = $request->user('web');
 
                 return $user ? ['name' => $user->name, 'email' => $user->email] : null;
+            },
+
+            // The admin topbar's bell (Fase 8) — null for the storefront and
+            // for a guest, so the closure never queries for either.
+            'adminNotifications' => function () use ($request) {
+                $user = $request->user('web');
+
+                if (! $user) {
+                    return null;
+                }
+
+                return [
+                    'unreadCount' => $user->unreadNotifications()->count(),
+                    'items' => AdminNotificationPresenter::collection(
+                        $user->notifications()->latest()->limit(10)->get()
+                    ),
+                ];
             },
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PickupController;
@@ -105,6 +106,11 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
 
     Route::middleware('admin')->group(function () use ($adminScreens) {
         Route::post('keluar', [AdminAuthController::class, 'logout'])->name('keluar');
+
+        Route::prefix('notifikasi')->name('notifikasi.')->controller(NotificationController::class)->group(function () {
+            Route::post('{notification}/baca', 'markRead')->name('baca');
+            Route::post('baca-semua', 'markAllRead')->name('baca-semua');
+        });
 
         Route::prefix('keamanan')->name('keamanan.')->controller(TwoFactorController::class)->group(function () {
             Route::get('/', 'show')->name('index');
