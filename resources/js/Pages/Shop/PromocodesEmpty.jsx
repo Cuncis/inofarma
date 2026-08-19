@@ -8,7 +8,7 @@ export default function PromocodesEmpty() {
     return (
         <MobileLayout
             title="Kode Promo Kosong"
-            header={<AppBar title="Tambah Kode Promo" back="/ui/profile" tone="white" />}
+            header={<AppBar title="Tambah Kode Promo" back="/ui/profile" tone="brand" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6 text-center">
                 <img

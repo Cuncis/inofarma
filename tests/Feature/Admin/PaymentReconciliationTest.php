@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Support\Inventory\StockAllocator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
@@ -121,6 +122,89 @@ class PaymentReconciliationTest extends TestCase
         ]);
 
         $this->post("/admin/faktur/{$order->number}/refund", ['note' => 'Coba refund'])
+            ->assertSessionHas('error');
+
+        $this->assertSame('belum bayar', $order->fresh()->payment_status);
+    }
+
+    private function makePendingOrder(): Order
+    {
+        $branch = Branch::factory()->create(['supports_pickup' => true]);
+        $customer = Customer::factory()->create();
+        $product = Product::factory()->create();
+        BranchStock::factory()->for($branch)->for($product)->create(['quantity' => 10]);
+        InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 10, 'expires_at' => now()->addYear()]);
+
+        $order = Order::factory()->create([
+            'branch_id' => $branch->id, 'customer_id' => $customer->id, 'fulfilment' => 'ambil',
+            'status' => 'menunggu pembayaran', 'payment_status' => 'belum bayar',
+            'payment_method' => 'online', 'grand_total' => 30000, 'expires_at' => now()->addDay(),
+        ]);
+
+        $manifest = (new StockAllocator)->consume($branch, $product, 1, 'penjualan', $order);
+        $order->items()->create([
+            'product_id' => $product->id, 'product_name' => $product->name, 'sku' => $product->sku,
+            'unit_price' => 30000, 'quantity' => 1, 'line_total' => 30000, 'batches_consumed' => $manifest,
+        ]);
+
+        Payment::factory()->for($order)->create(['invoice_number' => $order->number, 'amount' => 30000]);
+
+        return $order;
+    }
+
+    /**
+     * A stuck payment's webhook never arriving (lost, or — in local
+     * development — DOKU's sandbox unable to reach `localhost` at all) is
+     * exactly what "Cek Status" is for: pull DOKU's own record and apply it
+     * the same way the webhook would.
+     */
+    public function test_checking_status_applies_a_now_successful_payment(): void
+    {
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'test-secret']);
+        $order = $this->makePendingOrder();
+
+        Http::fake(['api-sandbox.doku.com/*' => Http::response([
+            'order' => ['invoice_number' => $order->number, 'amount' => '30000'],
+            'transaction' => ['status' => 'SUCCESS'],
+            'channel' => ['id' => 'VIRTUAL_ACCOUNT_BCA'],
+        ], 200)]);
+
+        $this->post("/admin/rekonsiliasi/{$order->number}/cek-status")
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertSame('lunas', $order->payment_status);
+        $this->assertSame('VIRTUAL_ACCOUNT_BCA', $order->payment_method);
+        $this->assertSame('success', Payment::where('order_id', $order->id)->first()->status);
+    }
+
+    public function test_checking_status_reports_when_doku_has_nothing_new(): void
+    {
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'test-secret']);
+        $order = $this->makePendingOrder();
+
+        Http::fake(['api-sandbox.doku.com/*' => Http::response([
+            'order' => ['invoice_number' => $order->number, 'amount' => '30000'],
+            'transaction' => ['status' => 'PENDING'],
+        ], 200)]);
+
+        $this->post("/admin/rekonsiliasi/{$order->number}/cek-status")
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertSame('belum bayar', $order->fresh()->payment_status);
+    }
+
+    public function test_checking_status_reports_a_doku_failure_without_changing_anything(): void
+    {
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'test-secret']);
+        $order = $this->makePendingOrder();
+
+        Http::fake(['api-sandbox.doku.com/*' => Http::response(['error_messages' => ['Not found']], 404)]);
+
+        $this->post("/admin/rekonsiliasi/{$order->number}/cek-status")
+            ->assertRedirect()
             ->assertSessionHas('error');
 
         $this->assertSame('belum bayar', $order->fresh()->payment_status);

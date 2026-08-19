@@ -28,7 +28,7 @@ export default function MyAddress({ addresses }) {
                 {addresses.map((address) => (
                     <div
                         key={address.id}
-                        className={`mb-2 flex items-start gap-2.5 border p-3.5 ${
+                        className={`mb-2 flex items-start gap-2.5 rounded-lg border bg-white p-3.5 ${
                             address.isDefault ? 'border-brand' : 'border-line'
                         }`}
                     >

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
@@ -21,12 +21,6 @@ export default function Cart({ cart }) {
     const [promo, setPromo] = useState('');
     const [busySku, setBusySku] = useState(null);
     const [couponError, setCouponError] = useState('');
-
-    useEffect(() => {
-        if (cart.itemCount === 0) {
-            router.visit('/ui/cart-empty');
-        }
-    }, [cart.itemCount]);
 
     const changeQuantity = (item, quantity) => {
         setBusySku(item.sku);

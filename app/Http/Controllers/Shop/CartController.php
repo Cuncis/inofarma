@@ -22,10 +22,19 @@ use Inertia\Response;
  */
 class CartController extends Controller
 {
-    public function index(CartManager $cart): Response
+    public function index(CartManager $cart): Response|RedirectResponse
     {
+        $data = $cart->current();
+
+        // Checked here rather than left to the page's own client-side effect
+        // — that redirect always painted the (empty-looking) cart for one
+        // frame first, an avoidable flash. Deciding before render never does.
+        if (count($data['lines']) === 0) {
+            return redirect()->route('ui.cart-empty');
+        }
+
         return Inertia::render('Shop/Cart', [
-            'cart' => CartPresenter::toArray($cart->current()),
+            'cart' => CartPresenter::toArray($data),
         ]);
     }
 

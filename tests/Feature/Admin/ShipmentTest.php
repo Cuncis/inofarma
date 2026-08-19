@@ -110,4 +110,59 @@ class ShipmentTest extends TestCase
         $this->post("/admin/pesanan/{$order->number}/kirim")
             ->assertSessionHas('error');
     }
+
+    /**
+     * "Cek Status Kirim" — the shipment side's equivalent of the payment
+     * side's "Cek Status" (`PaymentReconciliationTest`): a manual nudge for
+     * a webhook that's late, lost, or (in local development, where Biteship
+     * can't reach `localhost`) was never going to arrive at all.
+     */
+    public function test_checking_shipment_status_applies_a_delivered_update_and_completes_the_order(): void
+    {
+        $order = $this->makeOrderWithQuotedShipment();
+        $order->shipment->update(Shipment::factory()->booked()->make()->only([
+            'biteship_order_id', 'tracking_id', 'waybill_id', 'courier_link', 'status', 'shipped_at',
+        ]));
+        $order->update(['status' => 'dikirim']);
+
+        Http::fake(['api.biteship.com/v1/trackings/*' => Http::response([
+            'status' => 'delivered',
+            'waybill_id' => 'JNE999',
+        ], 200)]);
+
+        $this->post("/admin/pesanan/{$order->number}/cek-status-kirim")
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $shipment = $order->shipment->fresh();
+        $this->assertSame('delivered', $shipment->status);
+        $this->assertSame('JNE999', $shipment->waybill_id);
+        $this->assertNotNull($shipment->delivered_at);
+        $this->assertSame('selesai', $order->fresh()->status);
+    }
+
+    public function test_checking_shipment_status_is_refused_when_nothing_has_been_booked_yet(): void
+    {
+        $order = $this->makeOrderWithQuotedShipment();
+
+        $this->post("/admin/pesanan/{$order->number}/cek-status-kirim")
+            ->assertSessionHas('error');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_checking_shipment_status_reports_a_biteship_failure_without_changing_anything(): void
+    {
+        $order = $this->makeOrderWithQuotedShipment();
+        $order->shipment->update(Shipment::factory()->booked()->make()->only([
+            'biteship_order_id', 'tracking_id', 'waybill_id', 'courier_link', 'status', 'shipped_at',
+        ]));
+
+        Http::fake(['api.biteship.com/v1/trackings/*' => Http::response(['error' => 'not found'], 404)]);
+
+        $this->post("/admin/pesanan/{$order->number}/cek-status-kirim")
+            ->assertSessionHas('error');
+
+        $this->assertSame('confirmed', $order->shipment->fresh()->status);
+    }
 }

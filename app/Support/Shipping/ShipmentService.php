@@ -116,9 +116,54 @@ class ShipmentService
             return null;
         }
 
-        return DB::transaction(function () use ($shipment, $payload) {
+        return self::applyStatus(
+            $shipment,
+            $payload['status'] ?? $shipment->status,
+            $payload['courier_waybill_id'] ?? null,
+            $payload['courier_tracking_id'] ?? null,
+            $payload,
+        );
+    }
+
+    /**
+     * Manually pull Biteship's own tracking record for one shipment and fold
+     * it in the same way a webhook event would — for a shipment whose
+     * webhook is late, was lost, or (in local development, where Biteship
+     * can't reach `localhost`) was never going to arrive at all. Unlike
+     * `applyWebhookEvent()` this is handed the `Shipment` directly rather
+     * than needing to look one up by `order_id` out of a payload, so it goes
+     * straight to `applyStatus()`.
+     *
+     * @throws RuntimeException on a Biteship-side failure, or if this
+     *                          shipment was never actually booked yet
+     */
+    public function reconcile(Shipment $shipment): Shipment
+    {
+        if (! $shipment->tracking_id) {
+            throw new RuntimeException("Pesanan #{$shipment->order?->number} belum punya resi untuk dilacak.");
+        }
+
+        $response = $this->client->track($shipment->tracking_id);
+
+        return self::applyStatus(
+            $shipment,
+            $response['status'] ?? $shipment->status,
+            $response['waybill_id'] ?? $response['courier']['waybill_id'] ?? null,
+            $response['tracking_id'] ?? $response['courier']['tracking_id'] ?? null,
+            $response,
+        );
+    }
+
+    /** Shared by both the webhook and the manual `reconcile()` — same state transition either way. */
+    private static function applyStatus(
+        Shipment $shipment,
+        string $status,
+        ?string $waybillId,
+        ?string $trackingId,
+        array $raw,
+    ): Shipment {
+        return DB::transaction(function () use ($shipment, $status, $waybillId, $trackingId, $raw) {
             $shipment = Shipment::whereKey($shipment->id)->lockForUpdate()->first();
-            $status = $payload['status'] ?? $shipment->status;
             $changed = $status !== $shipment->status;
 
             $history = $shipment->history ?? [];
@@ -128,10 +173,10 @@ class ShipmentService
 
             $shipment->update([
                 'status' => $status,
-                'waybill_id' => $payload['courier_waybill_id'] ?? $shipment->waybill_id,
-                'tracking_id' => $payload['courier_tracking_id'] ?? $shipment->tracking_id,
+                'waybill_id' => $waybillId ?? $shipment->waybill_id,
+                'tracking_id' => $trackingId ?? $shipment->tracking_id,
                 'history' => $history,
-                'raw_response' => $payload,
+                'raw_response' => $raw,
                 'delivered_at' => $status === 'delivered' ? ($shipment->delivered_at ?? now()) : $shipment->delivered_at,
             ]);
 

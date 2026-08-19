@@ -298,10 +298,20 @@ export default function Checkout({ cart, pickupEtaOptions }) {
                             </button>
                         </div>
                     ) : (
-                        <p className="text-xs text-muted">
-                            Anda akan diarahkan ke halaman pembayaran DOKU — pilih transfer
-                            bank, e-wallet, QRIS atau kartu di sana.
-                        </p>
+                        <>
+                            <div className="flex flex-wrap gap-[7px]">
+                                <span className="flex h-8 items-center gap-1.5 border-2 border-brand px-3 text-[11px] font-bold text-brand">
+                                    <Icon name="check" size={12} />
+                                    Bayar Online (DOKU)
+                                </span>
+                            </div>
+
+                            <p className="mt-1.5 text-xs text-muted">
+                                Satu-satunya metode untuk pesanan Antar. Anda akan diarahkan ke
+                                halaman pembayaran DOKU — pilih transfer bank, e-wallet, atau
+                                QRIS di sana.
+                            </p>
+                        </>
                     )}
 
                     {errors.paymentMethod ? (

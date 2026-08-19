@@ -9,7 +9,6 @@ import { asset } from '@/Components/Shop/data';
 
 const menu = [
     { label: 'Ubah profil', icon: 'user', href: '/ui/edit-profile' },
-    { label: 'Metode pembayaran', icon: 'card', href: '/ui/payment-methods' },
     { label: 'Alamat saya', icon: 'pin', href: '/ui/my-address' },
     { label: 'Cabang kami', icon: 'pin', href: '/ui/cabang-kami' },
     { label: 'Kode promo saya', icon: 'promo', href: '/ui/my-promocodes' },

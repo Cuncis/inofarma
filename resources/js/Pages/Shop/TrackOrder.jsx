@@ -1,15 +1,17 @@
-import { router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
-import Button from '@/Components/Shop/Button';
 import FlashBanner from '@/Components/Shop/FlashBanner';
 import Icon from '@/Components/Shop/Icon';
-import { asset, money } from '@/Components/Shop/data';
+import { asset } from '@/Components/Shop/data';
 
 /**
+ * Read-only shipment/pickup timeline — no actions here. "Lanjutkan
+ * Pembayaran"/"Batalkan Pesanan" live on the order's detail page
+ * (`OrderDetail.jsx`), which is what this is reached from.
+ *
  * @param {{ order: {
- *   number: string, status: string, fulfilment: string, isCancellable: boolean, canPay: boolean,
- *   total: number, items: object[], steps: { label: string, state: string, at: ?string }[],
+ *   number: string, status: string,
+ *   steps: { label: string, state: string, at: ?string }[],
  *   shipment: ?{ courierName: string, serviceName: string, waybillId: ?string, trackingLink: ?string, statusLabel: ?string },
  *   pickup: ?{ code: string, qrSvg: ?string, expiresAt: string },
  * } }} props
@@ -17,23 +19,11 @@ import { asset, money } from '@/Components/Shop/data';
 export default function TrackOrder({ order }) {
     const cancelled = order.steps.length === 0;
 
-    const cancel = () => {
-        if (! window.confirm(`Batalkan pesanan #${order.number}?`)) {
-            return;
-        }
-
-        router.post(`/ui/pesanan/${order.number}/batalkan`);
-    };
-
-    const pay = () => {
-        router.post(`/ui/pesanan/${order.number}/bayar`);
-    };
-
     return (
         <MobileLayout
             title="Lacak Pesanan"
             background="bg-blush"
-            header={<AppBar title="Lacak Pesanan" back="/ui/order-history" tone="brand" />}
+            header={<AppBar title="Lacak Pesanan" back={`/ui/pesanan/${order.number}`} tone="brand" />}
         >
             <FlashBanner />
 
@@ -137,37 +127,6 @@ export default function TrackOrder({ order }) {
                             </a>
                         ) : null}
                     </div>
-                ) : null}
-
-                <div className="mt-4 border border-line bg-white p-3.5">
-                    {order.items.map((item) => (
-                        <div
-                            key={item.sku}
-                            className="mb-1.5 flex justify-between text-xs text-muted"
-                        >
-                            <span>{item.name}</span>
-                            <span>
-                                {item.quantity} x {money(item.unitPrice)}
-                            </span>
-                        </div>
-                    ))}
-
-                    <div className="mt-1.5 flex justify-between border-t border-line pt-1.5 text-xs font-bold">
-                        <span>Total</span>
-                        <span>{money(order.total)}</span>
-                    </div>
-                </div>
-
-                {order.canPay ? (
-                    <Button onClick={pay} className="mt-3.5">
-                        Lanjutkan Pembayaran
-                    </Button>
-                ) : null}
-
-                {order.isCancellable ? (
-                    <Button variant="outline" onClick={cancel} className="mt-3.5">
-                        Batalkan Pesanan
-                    </Button>
                 ) : null}
             </div>
         </MobileLayout>

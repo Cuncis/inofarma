@@ -71,6 +71,29 @@ class PaymentRetryTest extends TestCase
         $this->assertSame(1, Payment::where('order_id', $order->id)->count());
     }
 
+    /**
+     * `Inertia::location()` returns a plain `Symfony\...\Response` (409 +
+     * `X-Inertia-Location`) for a real Inertia XHR, not the `RedirectResponse`
+     * a bare `$this->post()` gets back — a controller declaring its return
+     * type as `RedirectResponse` throws a `TypeError` the moment a real
+     * browser (which always sends `X-Inertia: true`) hits this. The plain
+     * request in the test above never exercises that branch, so this one
+     * pins it down explicitly.
+     */
+    public function test_reopening_a_payment_session_works_for_a_real_inertia_request(): void
+    {
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makeUnpaidOrder($customer);
+        $this->fakeDoku();
+
+        $this->actingAs($customer, 'customer');
+
+        $this->withHeaders(['X-Inertia' => 'true'])
+            ->post("/ui/pesanan/{$order->number}/bayar")
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', 'https://sandbox.doku.com/checkout-link-v2/tok_retry');
+    }
+
     public function test_a_second_attempt_gets_its_own_invoice_number(): void
     {
         $customer = Customer::factory()->create(['status' => 'aktif']);

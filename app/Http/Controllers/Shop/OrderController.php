@@ -32,7 +32,16 @@ class OrderController extends Controller
         ]);
     }
 
+    /** Items, total, and the Bayar/Batalkan actions — the page an order's own row (or a payment redirect) lands on. */
     public function show(Request $request, string $order): Response
+    {
+        return Inertia::render('Shop/OrderDetail', [
+            'order' => ShopOrderPresenter::toArray($this->find($request, $order)),
+        ]);
+    }
+
+    /** The shipment/pickup timeline — read-only, no actions, reached from `show()` via "Lacak Pesanan". */
+    public function track(Request $request, string $order): Response
     {
         return Inertia::render('Shop/TrackOrder', [
             'order' => ShopOrderPresenter::toArray($this->find($request, $order)),

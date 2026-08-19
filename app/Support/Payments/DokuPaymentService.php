@@ -4,6 +4,7 @@ namespace App\Support\Payments;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Support\Notifications\WhatsAppClient;
 use App\Support\OrderCancellation;
 use App\Support\Payments\Doku\DokuClient;
 use Illuminate\Support\Facades\DB;
@@ -50,9 +51,9 @@ class DokuPaymentService
                 'amount' => $order->grand_total,
                 'invoice_number' => $invoiceNumber,
                 'currency' => 'IDR',
-                'callback_url' => route('ui.track-order', $order->number),
-                'callback_url_cancel' => route('ui.track-order', $order->number),
-                'callback_url_result' => route('ui.track-order', $order->number),
+                'callback_url' => route('ui.pesanan.show', $order->number),
+                'callback_url_cancel' => route('ui.pesanan.show', $order->number),
+                'callback_url_result' => route('ui.pesanan.show', $order->number),
                 'line_items' => $order->items->map(fn ($item) => [
                     'id' => (string) $item->id,
                     'name' => $item->product_name,
@@ -67,7 +68,10 @@ class DokuPaymentService
             'customer' => [
                 'id' => $order->customer->code,
                 'name' => $order->recipient_name ?? $order->customer->name,
-                'phone' => $order->recipient_phone ?? $order->customer->phone,
+                // Stored numbers are Indonesian local format (0812...); DOKU
+                // rejects that outright and wants digits-only international
+                // (62812...) — the same conversion WhatsApp's Cloud API needs.
+                'phone' => WhatsAppClient::normalizePhone($order->recipient_phone ?? $order->customer->phone),
                 'email' => $order->customer->email,
             ],
         ];
@@ -86,6 +90,26 @@ class DokuPaymentService
             'expires_at' => $order->expires_at,
             'raw_response' => $response,
         ]);
+    }
+
+    /**
+     * Manually pull DOKU's own record of one payment attempt and fold it in
+     * exactly like a webhook notification would — for a payment whose
+     * webhook is late, was lost, or (in local development, where DOKU's
+     * sandbox can't reach `localhost`) was never going to arrive at all.
+     *
+     * Read-only against DOKU (`GET /orders/v1/status`); the actual state
+     * change still goes through `applyNotification()`, so this can never
+     * apply anything the webhook path itself wouldn't also accept — if
+     * DOKU's response doesn't carry a recognizable invoice number/status,
+     * `applyNotification()` returns null and nothing changes.
+     *
+     * @throws RuntimeException on a DOKU-side failure — the payment stands
+     *                          as it was, so the caller can offer to retry.
+     */
+    public function reconcile(Payment $payment): ?Payment
+    {
+        return self::applyNotification($this->client->checkStatus($payment->invoice_number));
     }
 
     /**

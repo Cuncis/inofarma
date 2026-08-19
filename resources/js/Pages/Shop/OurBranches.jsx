@@ -107,7 +107,7 @@ export default function OurBranches({ branches, areas, hasLocation }) {
                 ) : null}
 
                 {branches.map((branch) => (
-                    <div key={branch.id} className="mb-2.5 border border-line p-3.5">
+                    <div key={branch.id} className="mb-2.5 rounded-lg border border-line bg-white p-3.5">
                         <div className="mb-1.5 flex items-start justify-between gap-2">
                             <div>
                                 <div className="text-sm font-bold">{branch.name}</div>

@@ -125,6 +125,30 @@ class OrderController extends Controller
         return back()->with('success', "Resi untuk pesanan #{$record->number} berhasil dibuat.");
     }
 
+    /**
+     * Manually pulls Biteship's own tracking record for this order's
+     * shipment — the same nudge as the DOKU payment side's "Cek Status",
+     * for when the webhook is late, lost, or (in local development)
+     * unreachable at all.
+     */
+    public function checkShipmentStatus(string $order): RedirectResponse
+    {
+        $record = $this->find($order);
+        $shipment = $record->shipment;
+
+        if (! $shipment) {
+            return back()->with('error', "Pesanan #{$record->number} belum punya kurir yang dipesan.");
+        }
+
+        try {
+            $result = ShipmentService::make()->reconcile($shipment);
+        } catch (RuntimeException $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        return back()->with('success', "Status pengiriman #{$record->number} diperbarui: {$result->status}.");
+    }
+
     /** Issues the pickup code + QR and moves the order to "siap diambil" (Fase 7.2). */
     public function markReady(string $order): RedirectResponse
     {

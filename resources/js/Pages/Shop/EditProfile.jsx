@@ -18,7 +18,7 @@ export default function EditProfile() {
     return (
         <MobileLayout
             title="Ubah Profil"
-            header={<AppBar title="Ubah Profil" back="/ui/profile" tone="white" />}
+            header={<AppBar title="Ubah Profil" back="/ui/profile" tone="brand" />}
         >
             <form
                 onSubmit={submit}

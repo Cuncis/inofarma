@@ -31,7 +31,7 @@ export default function OrderHistory({ orders }) {
                 {orders.map((order) => (
                     <Link
                         key={order.number}
-                        href={`/ui/track-order/${order.number}`}
+                        href={`/ui/pesanan/${order.number}`}
                         className="mb-2 block rounded-lg border border-line bg-white p-3.5"
                     >
                         <div className="mb-[5px] flex justify-between">

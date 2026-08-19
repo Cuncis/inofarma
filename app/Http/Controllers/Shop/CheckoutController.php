@@ -24,6 +24,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Turns a cart into an `Order`. Stock is consumed immediately through
@@ -61,7 +62,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request, CartManager $cart): RedirectResponse
+    public function store(Request $request, CartManager $cart): RedirectResponse|SymfonyResponse
     {
         $customer = $request->user('customer');
 
@@ -154,7 +155,7 @@ class CheckoutController extends Controller
             report($exception);
 
             return redirect()
-                ->route('ui.track-order', $order->number)
+                ->route('ui.pesanan.show', $order->number)
                 ->with('error', "Pesanan #{$order->number} berhasil dibuat, tapi gagal membuka halaman pembayaran. Coba lagi dari halaman ini.");
         }
 

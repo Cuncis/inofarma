@@ -191,6 +191,8 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
                     ->middleware('permission:Pesanan:Proses');
                 Route::post('{order}/siap', 'markReady')->name('siap')
                     ->middleware('permission:Pesanan:Proses');
+                Route::post('{order}/cek-status-kirim', 'checkShipmentStatus')->name('cek-status-kirim')
+                    ->middleware('permission:Pesanan:Proses');
             });
 
         /**
@@ -250,6 +252,10 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
         Route::get('rekonsiliasi', [AdminPaymentController::class, 'index'])
             ->name('rekonsiliasi')
             ->middleware('permission:Pesanan:Lihat');
+
+        Route::post('rekonsiliasi/{payment:invoice_number}/cek-status', [AdminPaymentController::class, 'checkStatus'])
+            ->name('rekonsiliasi.cek-status')
+            ->middleware('permission:Pesanan:Proses');
 
         Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)
             ->middleware('permission:Pelanggan:Lihat')
@@ -377,15 +383,12 @@ $beShopScreens = [
     'shop' => 'Shop',
     'product-detail' => 'ProductDetail',
     'filter' => 'Filter',
-    'payment-method' => 'PaymentMethod',
     'order-failed' => 'OrderFailed',
     'cart-empty' => 'CartEmpty',
     'wishlist-empty' => 'WishlistEmpty',
     'promocodes-empty' => 'PromocodesEmpty',
     'order-history-empty' => 'OrderHistoryEmpty',
     'edit-profile' => 'EditProfile',
-    'payment-methods' => 'PaymentMethods',
-    'add-new-card' => 'AddNewCard',
     'my-promocodes' => 'MyPromocodes',
     'shipping-info' => 'ShippingInfo',
     'faq' => 'Faq',
@@ -479,7 +482,8 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
         });
 
         Route::get('order-history', [ShopOrderController::class, 'index'])->name('order-history');
-        Route::get('track-order/{order}', [ShopOrderController::class, 'show'])->name('track-order');
+        Route::get('pesanan/{order}', [ShopOrderController::class, 'show'])->name('pesanan.show');
+        Route::get('track-order/{order}', [ShopOrderController::class, 'track'])->name('track-order');
         Route::post('pesanan/{order}/batalkan', [ShopOrderController::class, 'cancel'])->name('pesanan.batalkan');
         Route::post('pesanan/{order}/bayar', [PaymentController::class, 'create'])->name('pesanan.bayar');
     });

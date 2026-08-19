@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
  * DOKU's server-to-server notification — the *only* source of truth for
  * payment status (ROADMAP.md Fase 6: "bukan redirect browser"). The browser
  * redirect after checkout (`callback_url_result`, pointed at
- * `ui.track-order`) is just where the customer ends up looking; it never
+ * `ui.pesanan.show`) is just where the customer ends up looking; it never
  * writes anything.
  *
  * Registered outside the `web` middleware group's CSRF check

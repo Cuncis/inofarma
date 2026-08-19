@@ -47,7 +47,7 @@ export default function MyPromocodes() {
 
                 {tab === 'current' ? (
                     promocodes.map((promo) => (
-                        <div key={promo.code} className="mb-2.5 border border-line p-3.5">
+                        <div key={promo.code} className="mb-2.5 rounded-lg border border-line bg-white p-3.5">
                             <div className="mb-1.5 flex items-center gap-2">
                                 <Icon name="tag" size={18} className="text-ink" />
                                 <span className="flex-1 font-display text-sm">

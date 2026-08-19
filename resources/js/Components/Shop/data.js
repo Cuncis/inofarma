@@ -126,8 +126,6 @@ export const reviews = [
     },
 ];
 
-export const cards = ['**** **** **** 6644', '**** **** **** 8821'];
-
 export const promocodes = [
     {
         name: 'Diskon Awal Bulan',

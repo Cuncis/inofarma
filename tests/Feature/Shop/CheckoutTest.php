@@ -14,7 +14,6 @@ use App\Models\Product;
 use App\Models\Shipment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
-use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class CheckoutTest extends TestCase
@@ -138,8 +137,14 @@ class CheckoutTest extends TestCase
         $this->assertSame('pending', $payment->status);
         $this->assertSame($order1->number, $payment->invoice_number);
 
+        // The factory's phone (`+62 81-2345-6789`) is exactly the shape DOKU
+        // rejects with "Invalid format phone number" — it wants digits-only
+        // international (628123456789), same as WhatsApp's Cloud API.
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'api-sandbox.doku.com')
+            && (bool) preg_match('/^62\d+$/', $request['customer']['phone'] ?? ''));
+
         // Cart is empty again, ready for a second order from a different branch.
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page->has('cart.items', 0));
+        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
 
         // Order 2: ambil, from a different branch entirely.
         $pickupBranch = Branch::factory()->create(['supports_delivery' => false, 'supports_pickup' => true]);
@@ -168,6 +173,35 @@ class CheckoutTest extends TestCase
         $this->assertNotSame($order1->number, $order2->number);
         $this->assertStringContainsString($deliveryBranch->code, $order1->number);
         $this->assertStringContainsString($pickupBranch->code, $order2->number);
+    }
+
+    /**
+     * `Inertia::location()` returns a plain `Symfony\...\Response` (409 +
+     * `X-Inertia-Location`) for a real Inertia XHR, not the `RedirectResponse`
+     * a bare `$this->post()` gets back — a controller declaring its return
+     * type as `RedirectResponse` throws a `TypeError` the moment a real
+     * browser (which always sends `X-Inertia: true`) submits checkout. Every
+     * other test here posts without that header, so it never exercises this
+     * branch; this one pins it down explicitly.
+     */
+    public function test_checking_out_online_works_for_a_real_inertia_request(): void
+    {
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $this->actingAs($customer, 'customer');
+
+        $branch = Branch::factory()->create(['supports_pickup' => true]);
+        $product = Product::factory()->create();
+        $this->stock($branch, $product, 10);
+        $this->addToCart($product, $branch);
+
+        $this->fakeDoku();
+
+        $this->withHeaders(['X-Inertia' => 'true'])
+            ->post('/ui/checkout', [
+                'fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini',
+            ])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', 'https://sandbox.doku.com/checkout-link-v2/tok_123');
     }
 
     public function test_checkout_requires_an_address_for_delivery(): void

@@ -29,6 +29,10 @@ export default function OrderDetail({ order, statuses }) {
         router.post(`/admin/pesanan/${order.id}/siap`, {}, { preserveScroll: true });
     };
 
+    const checkShipmentStatus = () => {
+        router.post(`/admin/pesanan/${order.id}/cek-status-kirim`, {}, { preserveScroll: true });
+    };
+
     return (
         <AdminLayout
             title={`Pesanan #${order.id}`}
@@ -48,6 +52,16 @@ export default function OrderDetail({ order, statuses }) {
                     {order.canMarkReady ? (
                         <Button size="sm" icon="solar:qr-code-broken" onClick={markReady}>
                             Tandai Siap Diambil
+                        </Button>
+                    ) : null}
+                    {order.shipment?.isBooked ? (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            icon="solar:restart-broken"
+                            onClick={checkShipmentStatus}
+                        >
+                            Cek Status Kirim
                         </Button>
                     ) : null}
                     <Button

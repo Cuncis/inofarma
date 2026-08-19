@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Support\Payments\DokuPaymentService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Opens (or re-opens) a DOKU Checkout session for one of the signed-in
@@ -18,7 +18,7 @@ use RuntimeException;
  */
 class PaymentController extends Controller
 {
-    public function create(Request $request, string $order): RedirectResponse
+    public function create(Request $request, string $order): Response
     {
         $record = $request->user('customer')->orders()
             ->where('number', $order)

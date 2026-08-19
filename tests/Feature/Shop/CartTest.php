@@ -127,9 +127,7 @@ class CartTest extends TestCase
         );
 
         $this->patch("/ui/keranjang/{$product->sku}", ['quantity' => 0]);
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
-            ->has('cart.items', 0)
-        );
+        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
     }
 
     public function test_an_item_can_be_removed_directly(): void
@@ -141,9 +139,17 @@ class CartTest extends TestCase
         $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
         $this->delete("/ui/keranjang/{$product->sku}")->assertSessionHasNoErrors();
 
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
-            ->has('cart.items', 0)
-        );
+        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
+    }
+
+    /**
+     * `CartController::index()` decides this before ever rendering the page
+     * — a client-side redirect from an already-mounted `Shop/Cart` would
+     * flash the (empty-looking) cart for one frame first.
+     */
+    public function test_visiting_the_cart_with_nothing_in_it_redirects_straight_to_cart_empty(): void
+    {
+        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
     }
 
     public function test_a_guest_cart_merges_into_the_customers_cart_on_sign_in(): void

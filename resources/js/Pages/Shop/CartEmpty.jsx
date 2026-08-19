@@ -11,8 +11,8 @@ export default function CartEmpty() {
             title="Keranjang Kosong"
             header={
                 <AppBar
-                    tone="white"
-                    actions={<IconLink name="user" href="/ui/profile" label="Profil" />}
+                    tone="brand"
+                    actions={<IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />}
                 />
             }
             footer={<TabBar active="order" />}

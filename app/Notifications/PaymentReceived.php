@@ -36,7 +36,7 @@ class PaymentReceived extends Notification implements ShouldQueue
             ->line("Pembayaran untuk pesanan #{$order->number} sudah kami terima.")
             ->line('Jumlah: '.Money::rupiah($order->grand_total))
             ->line('Metode: '.($order->payment_method ?? '—'))
-            ->action('Lihat Pesanan', route('ui.track-order', $order->number))
+            ->action('Lihat Pesanan', route('ui.pesanan.show', $order->number))
             ->line('Pesanan Anda sekarang sedang diproses.');
     }
 }

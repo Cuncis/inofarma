@@ -34,6 +34,11 @@ class StorefrontUiTest extends TestCase
     }
 
     /**
+     * `ui/cart` isn't here — with nothing in it (the state a fresh test
+     * starts in) it now redirects to `ui/cart-empty` rather than rendering
+     * `Shop/Cart`, so it doesn't fit this "always 200 with this component"
+     * shape. See `CartTest` for both cases.
+     *
      * @return array<string, array{0: string, 1: string}>
      */
     public static function screenProvider(): array
@@ -41,7 +46,6 @@ class StorefrontUiTest extends TestCase
         return [
             'sign in' => ['ui/signin', 'Shop/SignIn'],
             'sign up' => ['ui/signup', 'Shop/SignUp'],
-            'cart' => ['ui/cart', 'Shop/Cart'],
             'profile' => ['ui/profile', 'Shop/Profile'],
             'leave a review' => ['ui/leave-a-review', 'Shop/LeaveAReview'],
         ];

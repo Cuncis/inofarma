@@ -113,6 +113,7 @@ export default function PaymentReconciliation({ daily, log, grandTotal, from, to
                         { key: 'amount', label: 'Jumlah', align: 'right' },
                         { key: 'status', label: 'Status' },
                         { key: 'createdAt', label: 'Waktu' },
+                        { key: 'actions', label: '', align: 'right' },
                     ]}
                     rows={log}
                     rowKey={(row) => row.invoiceNumber}
@@ -123,6 +124,28 @@ export default function PaymentReconciliation({ daily, log, grandTotal, from, to
 
                         if (key === 'status') {
                             return <Badge tone={statusTone(row.status)}>{row.status}</Badge>;
+                        }
+
+                        if (key === 'actions') {
+                            // Only a still-open attempt has anything to learn from
+                            // DOKU — success/expired/refunded are already final.
+                            if (row.status !== 'Pending') {
+                                return null;
+                            }
+
+                            return (
+                                <button
+                                    type="button"
+                                    onClick={() => router.post(
+                                        `/admin/rekonsiliasi/${row.invoiceNumber}/cek-status`,
+                                        {},
+                                        { preserveScroll: true },
+                                    )}
+                                    className="text-xs font-medium text-brand hover:underline"
+                                >
+                                    Cek Status
+                                </button>
+                            );
                         }
 
                         return row[key] ?? '—';

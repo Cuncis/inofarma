@@ -48,7 +48,6 @@ export const screenGroups = [
         screens: [
             { number: 17, name: 'Checkout', slug: 'checkout' },
             { number: 18, name: 'Detail Pengiriman', slug: 'shipping-details' },
-            { number: 19, name: 'Metode Pembayaran', slug: 'payment-method' },
             { number: 20, name: 'Pesanan Berhasil', slug: 'order-successful' },
             { number: 21, name: 'Pesanan Gagal', slug: 'order-failed' },
         ],
@@ -66,8 +65,6 @@ export const screenGroups = [
         group: 'Halaman Profil',
         screens: [
             { number: 26, name: 'Ubah Profil', slug: 'edit-profile' },
-            { number: 27, name: 'Metode Pembayaran Saya', slug: 'payment-methods' },
-            { number: 28, name: 'Tambah Kartu Baru', slug: 'add-new-card' },
             { number: 29, name: 'Alamat Saya', slug: 'my-address' },
             { number: 30, name: 'Tambah Alamat Baru', slug: 'add-new-address' },
             { number: 31, name: 'Kode Promo Saya', slug: 'my-promocodes' },
