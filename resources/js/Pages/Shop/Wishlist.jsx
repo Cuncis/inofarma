@@ -5,12 +5,10 @@ import AppBar from '@/Components/Shop/AppBar';
 import IconLink from '@/Components/Shop/IconLink';
 import ProductCard from '@/Components/Shop/ProductCard';
 import TabBar from '@/Components/Shop/TabBar';
-import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Wishlist() {
     const { wishlistProducts } = useShopCatalog();
-    const cartCount = useCartCount();
     const [products, setProducts] = useState(wishlistProducts);
 
     /**
@@ -36,7 +34,8 @@ export default function Wishlist() {
             header={
                 <AppBar
                     title="Favorit"
-                    actions={<IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />}
+                    tone="brand"
+                    actions={<IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />}
                 />
             }
             footer={<TabBar active="wishlist" />}

@@ -77,15 +77,9 @@ export default function Cart({ cart }) {
             header={
                 <AppBar
                     title="Pesanan"
+                    tone="brand"
                     actions={
-                        <>
-                            <IconLink
-                                name="bag"
-                                href="/ui/order-history"
-                                label="Riwayat pesanan"
-                            />
-                            <IconLink name="user" href="/ui/profile" label="Profil" />
-                        </>
+                        <IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />
                     }
                 />
             }

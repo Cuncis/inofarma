@@ -144,6 +144,31 @@ const paths = {
             />
         </>
     ),
+    /** Clock with a rewind arrow — transaction/order history, distinct from a plain `clock`. */
+    history: (
+        <>
+            <path
+                d="M3 12a9 9 0 1 0 3-6.7"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+            />
+            <polyline
+                points="3 4 3 9 8 9"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <polyline
+                points="12 7 12 12 15.5 15.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </>
+    ),
     phone: (
         <path
             d="M6.6 10.8c1.3 2.6 3.4 4.7 6 6l2-2c.3-.3.7-.4 1.1-.3 1.2.4 2.5.6 3.8.6.6 0 1 .5 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.9c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1l-2.1 2z"

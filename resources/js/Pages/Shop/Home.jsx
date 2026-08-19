@@ -5,10 +5,10 @@ import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
 import BrandStrip from '@/Components/Shop/BrandStrip';
 import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
 import HeroCarousel from '@/Components/Shop/HeroCarousel';
-import IconButton from '@/Components/Shop/IconButton';
 import IconLink from '@/Components/Shop/IconLink';
 import ProductStrip from '@/Components/Shop/ProductStrip';
 import PromoBanner from '@/Components/Shop/PromoBanner';
+import SearchBarTrigger from '@/Components/Shop/SearchBarTrigger';
 import SectionHeading from '@/Components/Shop/SectionHeading';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
@@ -24,20 +24,19 @@ export default function Home() {
         <MobileLayout
             title="Beranda"
             header={
-                <AppBar
-                    brand
-                    tone="brand"
-                    actions={
-                        <>
-                            <IconButton
-                                name="search"
-                                onClick={() => setSearching(true)}
-                                label="Cari"
-                            />
+                <div className="bg-brand">
+                    <AppBar
+                        brand
+                        tone="brand"
+                        actions={
                             <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
-                        </>
-                    }
-                />
+                        }
+                    />
+
+                    <div className="px-3.5 pb-3">
+                        <SearchBarTrigger onOpen={() => setSearching(true)} />
+                    </div>
+                </div>
             }
             footer={<TabBar active="home" />}
         >

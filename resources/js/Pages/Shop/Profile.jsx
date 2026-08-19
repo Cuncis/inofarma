@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
+import AppBar from '@/Components/Shop/AppBar';
 import Icon from '@/Components/Shop/Icon';
+import IconLink from '@/Components/Shop/IconLink';
 import TabBar from '@/Components/Shop/TabBar';
 import useShopUser from '@/Components/Shop/useShopUser';
 import { asset } from '@/Components/Shop/data';
@@ -25,7 +27,17 @@ export default function Profile() {
     const user = useShopUser();
 
     return (
-        <MobileLayout title="Profil" footer={<TabBar active="profile" />}>
+        <MobileLayout
+            title="Profil"
+            header={
+                <AppBar
+                    title="Profil"
+                    tone="brand"
+                    actions={<IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />}
+                />
+            }
+            footer={<TabBar active="profile" />}
+        >
             <div className="flex-1 overflow-y-auto p-4 pb-[70px]">
                 <div className="flex flex-col items-center pb-[18px] pt-5">
                     <div className="mb-3 h-[88px] w-[88px] overflow-hidden rounded-full border-4 border-brand">
