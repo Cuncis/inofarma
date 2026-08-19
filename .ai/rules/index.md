@@ -24,4 +24,5 @@ Before planning or editing, find the row whose globs match the file's path and r
 | public/** | .ai/rules/public.md |
 | app/Http/Controllers/Shop/PrivacyController.php,app/Http/Controllers/Shop/AuthController.php,app/Support/Money.php,resources/js/Components/Shop/useLocationConsent.js,resources/js/Pages/Shop/Terms.jsx,resources/js/Pages/Shop/PrivacyPolicy.jsx,resources/js/Pages/Shop/RefundPolicy.jsx,resources/js/Pages/Shop/AboutUs.jsx,resources/js/Pages/Shop/ShippingInfo.jsx,app/Http/Controllers/Admin/ProductController.php | .ai/rules/shop-http-controllers-admin.md |
 | resources/js/{Pages,Components}/Shop/** | .ai/rules/shop.md |
+| app/Support/ProductCsvImporter.php,app/Http/Controllers/Admin/ProductImportController.php | .ai/rules/support-http-controllers-admin.md |
 | app/Support/**, app/Http/Controllers/Admin/** | .ai/rules/support.md |

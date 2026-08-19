@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PickupController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
+use App\Http\Controllers\Admin\ProductImportController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StockMatrixController;
@@ -281,6 +282,8 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
                 Route::get('tambah', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
                 Route::post('reset', 'reset')->name('reset');
+                Route::get('impor', [ProductImportController::class, 'create'])->name('impor.create');
+                Route::post('impor', [ProductImportController::class, 'store'])->name('impor.store');
                 Route::get('{product}', 'show')->name('show');
                 Route::get('{product}/ubah', 'edit')->name('edit');
                 Route::put('{product}', 'update')->name('update');

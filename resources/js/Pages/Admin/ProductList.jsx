@@ -80,6 +80,10 @@ export default function ProductList({ products, categories }) {
                         Atur Ulang Data
                     </Button>
 
+                    <Button href="/admin/produk/impor" variant="outline" size="sm" icon="solar:file-broken">
+                        Impor CSV
+                    </Button>
+
                     <Button href="/admin/produk/tambah" icon="solar:add-circle-broken" size="sm">
                         Tambah Produk
                     </Button>

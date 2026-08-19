@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import Icon from './Icon';
 import Button from './Button';
+import useDragScroll from './useDragScroll';
 
 /**
  * "Which apotek, and how do I get it" — the picker on the product page.
@@ -25,6 +26,7 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder })
     const [fulfilment, setFulfilment] = useState('antar');
     const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
+    const branchDrag = useDragScroll();
 
     const { transform, post, processing, errors, clearErrors } = useForm({});
 
@@ -111,7 +113,10 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder })
                 </Link>
             </div>
 
-            <div className="-mx-3.5 flex gap-2.5 overflow-x-auto px-3.5 pb-1">
+            <div
+                {...branchDrag}
+                className={`-mx-3.5 flex gap-2.5 overflow-x-auto px-3.5 pb-1 ${branchDrag.className}`}
+            >
                 {branches.map((branch) => (
                     <button
                         key={branch.id}

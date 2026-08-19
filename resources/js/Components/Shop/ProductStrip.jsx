@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import Icon from './Icon';
+import useDragScroll from './useDragScroll';
 
 /**
  * A horizontal-scrolling row of product cards — the shape Home's
@@ -11,8 +12,13 @@ import Icon from './Icon';
  * @param {{ products: { id: string, name: string, image: string, price: string, rating: string }[] }} props
  */
 export default function ProductStrip({ products }) {
+    const drag = useDragScroll();
+
     return (
-        <div className="flex gap-3 overflow-x-auto px-3.5 pb-1 scrollbar-none">
+        <div
+            {...drag}
+            className={`flex gap-3 overflow-x-auto px-3.5 pb-1 scrollbar-none ${drag.className}`}
+        >
             {products.map((product) => (
                 <Link
                     key={product.id}

@@ -9,6 +9,7 @@ import ProductCard from '@/Components/Shop/ProductCard';
 import SearchBar from '@/Components/Shop/SearchBar';
 import TabBar from '@/Components/Shop/TabBar';
 import useCartCount from '@/Components/Shop/useCartCount';
+import useDragScroll from '@/Components/Shop/useDragScroll';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 /**
@@ -29,6 +30,7 @@ export default function Shop() {
     const cartCount = useCartCount();
     const [query, setQuery] = useState(() => initialQuery(url));
     const [category, setCategory] = useState('Semua');
+    const categoryDrag = useDragScroll();
 
     const results = useMemo(() => {
         const needle = query.trim().toLowerCase();
@@ -67,7 +69,10 @@ export default function Shop() {
                 <div className="sticky top-0 z-10 border-b border-line bg-white px-3 pb-2.5 pt-3">
                     <SearchBar value={query} onChange={setQuery} />
 
-                    <div className="mt-2.5 flex gap-1.5 overflow-x-auto scrollbar-none">
+                    <div
+                        {...categoryDrag}
+                        className={`mt-2.5 flex gap-1.5 overflow-x-auto scrollbar-none ${categoryDrag.className}`}
+                    >
                         {['Semua', ...filterCategories].map((name) => (
                             <button
                                 key={name}

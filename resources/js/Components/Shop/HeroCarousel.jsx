@@ -24,6 +24,7 @@ const AUTO_ADVANCE_MS = 5000;
 export default function HeroCarousel() {
     const [index, setIndex] = useState(0);
     const touchStartX = useRef(null);
+    const drag = useRef({ active: false, startX: 0, moved: false });
     const timerRef = useRef(null);
 
     const restartTimer = () => {
@@ -66,13 +67,87 @@ export default function HeroCarousel() {
             : (index - 1 + SLIDES.length) % SLIDES.length);
     };
 
+    // Touch already swipes natively through onTouchStart/onTouchEnd above —
+    // this is the desktop counterpart, a held mouse cursor dragged sideways.
+    // Tracked with window-level mousemove/mouseup (not pointer capture) so a
+    // release outside the carousel still ends the drag cleanly instead of
+    // leaving the "just dragged" flag stuck and silently blocking every
+    // click afterwards.
+    useEffect(() => {
+        const onMouseMove = (event) => {
+            if (! drag.current.active) {
+                return;
+            }
+
+            // Below this, a plain click's natural mousedown-to-mouseup drift
+            // (a trackpad especially) would otherwise register as a drag and
+            // swallow the click that opens the slide's link.
+            if (Math.abs(event.clientX - drag.current.startX) > 8) {
+                drag.current.moved = true;
+            }
+        };
+
+        const onMouseUp = (event) => {
+            if (! drag.current.active) {
+                return;
+            }
+
+            const delta = event.clientX - drag.current.startX;
+            drag.current.active = false;
+
+            if (Math.abs(delta) >= 40) {
+                goTo(delta < 0
+                    ? (index + 1) % SLIDES.length
+                    : (index - 1 + SLIDES.length) % SLIDES.length);
+            }
+
+            // See useDragScroll.js for why this is deferred a tick: it lets
+            // the click that immediately follows (when the drag ended back
+            // over the carousel) still see `moved` true and get suppressed,
+            // while still clearing it for the next interaction either way.
+            setTimeout(() => {
+                drag.current.moved = false;
+            }, 0);
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [index]);
+
+    const onMouseDown = (event) => {
+        if (event.button !== 0) {
+            return;
+        }
+
+        drag.current = { active: true, startX: event.clientX, moved: false };
+    };
+
+    // A mouse drag ends with the cursor over a slide, so the browser follows
+    // it with a click — swallow that click when it was really a drag, or the
+    // Link underneath would navigate away instead of just changing slides.
+    const onClickCapture = (event) => {
+        if (drag.current.moved) {
+            event.preventDefault();
+            event.stopPropagation();
+            drag.current.moved = false;
+        }
+    };
+
     return (
         <div className="relative mx-3.5 mt-3.5 overflow-hidden rounded-lg border border-line">
             <div
-                className="flex transition-transform duration-500 ease-out"
+                className="flex cursor-grab select-none transition-transform duration-500 ease-out active:cursor-grabbing"
                 style={{ transform: `translateX(-${index * 100}%)` }}
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
+                onMouseDown={onMouseDown}
+                onClickCapture={onClickCapture}
             >
                 {SLIDES.map((slide) => (
                     <Link
