@@ -23,3 +23,31 @@
         display: none;
     }
 }
+
+@layer base {
+    /**
+     * Chrome/Safari paint an autofilled field's own background (usually a
+     * light blue or yellow) instead of whatever the input's `background`
+     * utility says, and it ignores `background-color` entirely — the only
+     * override that actually works is a huge inset `box-shadow` in the color
+     * we want, painted over the browser's own fill. Admin forms get their
+     * dark-mode card color instead of white, so an autofilled field doesn't
+     * suddenly look like a light-mode hole in a dark screen.
+     */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-text-fill-color: #222222;
+        box-shadow: 0 0 0 1000px #ffffff inset;
+        transition: background-color 9999s ease-in-out 0s;
+    }
+
+    .dark input:-webkit-autofill,
+    .dark input:-webkit-autofill:hover,
+    .dark input:-webkit-autofill:focus,
+    .dark input:-webkit-autofill:active {
+        -webkit-text-fill-color: #e6e9f0;
+        box-shadow: 0 0 0 1000px #1d2231 inset;
+    }
+}

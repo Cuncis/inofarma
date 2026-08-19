@@ -3,8 +3,8 @@ import Icon from './Icon';
 
 /** @type {Record<string, string>} */
 const variants = {
-    primary: 'bg-brand text-white hover:bg-brand/90',
-    success: 'bg-success text-ink hover:bg-success/90',
+    primary: 'bg-success text-cream hover:bg-success/90',
+    success: 'bg-success text-cream hover:bg-success/90',
     warning: 'bg-warning text-ink hover:bg-warning/90',
     danger: 'bg-danger text-white hover:bg-danger/90',
     outline:

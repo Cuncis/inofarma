@@ -1,11 +1,11 @@
 import { router } from '@inertiajs/react';
-import Icon from './Icon';
 
 /**
- * Social sign-in circles.
+ * Social sign-in circle.
  *
- * Each provider signs the shopper in through the same prototype endpoint as the
- * email form, using a stand-in address for that provider.
+ * Signs the shopper in through the same prototype endpoint as the email
+ * form, using a stand-in address for the provider. Google is the only
+ * provider offered — Facebook and Twitter were removed on request.
  */
 export default function SocialButtons() {
     const signInWith = (provider) =>
@@ -16,24 +16,6 @@ export default function SocialButtons() {
 
     return (
         <div className="mb-5 flex justify-center gap-3">
-            <button
-                type="button"
-                onClick={() => signInWith('facebook')}
-                aria-label="Lanjutkan dengan Facebook"
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-[#3b5998] text-white"
-            >
-                <Icon name="facebook" size={18} />
-            </button>
-
-            <button
-                type="button"
-                onClick={() => signInWith('twitter')}
-                aria-label="Lanjutkan dengan Twitter"
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1da1f2] text-white"
-            >
-                <Icon name="twitter" size={18} />
-            </button>
-
             <button
                 type="button"
                 onClick={() => signInWith('google')}

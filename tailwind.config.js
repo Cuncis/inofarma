@@ -56,6 +56,10 @@ export default {
                     DEFAULT: '#FE7900',
                     deep: '#B35400',
                 },
+                /** Button text color, sitting on the `success` green button background. */
+                cream: '#FFEFE9',
+                /** The app's default page background, everywhere neither the storefront nor a screen picks something else on purpose. */
+                canvas: '#F3F5F6',
 
                 /**
                  * Admin surfaces and text, carried over from the source theme's
@@ -64,7 +68,7 @@ export default {
                  * still need a red that reads as "stop".
                  */
                 admin: {
-                    bg: '#f7f7fb',
+                    bg: '#F3F5F6',
                     nav: '#ffffff',
                     card: '#ffffff',
                     heading: '#313b5e',

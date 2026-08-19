@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 
 const variants = {
-    primary: 'bg-ink text-white',
+    primary: 'bg-success text-cream',
     outline: 'border-2 border-ink bg-transparent text-ink',
 };
 

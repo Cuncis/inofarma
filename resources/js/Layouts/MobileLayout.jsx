@@ -21,7 +21,7 @@ export default function MobileLayout({
     children,
     header = null,
     footer = null,
-    background = 'bg-white',
+    background = 'bg-canvas',
 }) {
     return (
         <>
