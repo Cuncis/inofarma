@@ -25,6 +25,9 @@ use Illuminate\Validation\ValidationException;
  */
 class AuthController extends Controller
 {
+    /** Bumped whenever `Shop/PrivacyPolicy.jsx`'s substance changes materially (Fase 9.2). */
+    private const CONSENT_VERSION = '1.0';
+
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -74,6 +77,12 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:customers,email'],
             'password' => ['required', 'confirmed', PasswordRule::defaults()],
+            // PDP (UU 27/2022) requires an explicit, affirmative action — a
+            // pre-ticked or implied checkbox doesn't count as consent. See
+            // `Shop/SignUp.jsx` and `Shop/PrivacyPolicy.jsx`.
+            'consent' => ['accepted'],
+        ], [
+            'consent.accepted' => 'Anda harus menyetujui Kebijakan Privasi untuk mendaftar.',
         ]);
 
         $customer = Customer::create([
@@ -83,7 +92,7 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'status' => 'aktif',
             'consent_at' => now(),
-            'consent_version' => '1.0',
+            'consent_version' => self::CONSENT_VERSION,
         ]);
 
         Auth::guard('customer')->login($customer);

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Branch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\Concerns\SeedsDemoCatalogue;
@@ -30,6 +31,27 @@ class BranchLocatorTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Shop/OurBranches')
                 ->has('branches', self::BRANCH_COUNT)
+            );
+    }
+
+    /** ROADMAP.md Fase 9.1: "Halaman Cabang" must show SIA and the APJ's name + SIPA number per branch. */
+    public function test_our_branches_page_shows_sia_and_apj_details(): void
+    {
+        $branch = Branch::where('sia_number', '!=', null)->first()
+            ?? Branch::first();
+        $branch->update([
+            'sia_number' => 'SIA-TEST-001',
+            'apj_name' => 'apt. Siti Aminah, S.Farm.',
+            'apj_sipa_number' => 'SIPA-TEST-001',
+        ]);
+
+        $this->get('/ui/cabang-kami')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('branches', fn ($branches) => collect($branches)->contains(
+                    fn ($row) => $row['siaNumber'] === 'SIA-TEST-001'
+                        && $row['apjName'] === 'apt. Siti Aminah, S.Farm.'
+                        && $row['apjSipaNumber'] === 'SIPA-TEST-001'
+                ))
             );
     }
 

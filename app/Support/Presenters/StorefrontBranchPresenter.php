@@ -26,6 +26,13 @@ class StorefrontBranchPresenter
             'fullAddress' => $branch->full_address,
             'phone' => $branch->phone,
             'whatsapp' => $branch->whatsapp,
+            'todaysHours' => $branch->todays_hours,
+            // Fase 9.1: "Halaman Cabang" must show, per branch, its SIA and
+            // its APJ's name + SIPA number — a compliance/trust requirement,
+            // not just contact info.
+            'siaNumber' => $branch->sia_number,
+            'apjName' => $branch->apj_name,
+            'apjSipaNumber' => $branch->apj_sipa_number,
         ])->values()->all();
     }
 

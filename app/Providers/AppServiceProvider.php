@@ -35,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Fase 8: every order status/payment transition and every low-stock
         // crossing notifies through here — see the observers themselves.
+        // Fase 8: every order status/payment transition and every low-stock
+        // crossing notifies through here — see the observers themselves.
         Order::observe(OrderObserver::class);
         BranchStock::observe(BranchStockObserver::class);
     }

@@ -125,4 +125,12 @@ class Branch extends Model
     {
         return $this->status === 'aktif' && $this->isOpenAt(now());
     }
+
+    /** "08:00 - 21:00" for today, or null if the branch has no posted hours today — for "Halaman Cabang" (Fase 9.1). */
+    public function getTodaysHoursAttribute(): ?string
+    {
+        $hours = $this->operating_hours[self::DAY_KEYS[now()->dayOfWeek]] ?? null;
+
+        return $hours ? "{$hours['open']} - {$hours['close']}" : null;
+    }
 }

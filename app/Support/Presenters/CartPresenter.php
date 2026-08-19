@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\CustomerAddress;
 use App\Models\Product;
 use App\Support\AdminOptions;
+use App\Support\Notifications\WhatsAppClient;
 
 /**
  * Turns `CartManager::current()`'s array into what the Cart and Checkout
@@ -86,6 +87,14 @@ class CartPresenter
             'deliveryRadiusKm' => $branch->delivery_radius_km,
             'isOpenNow' => $branch->is_open_now,
             'operatingHours' => $branch->operating_hours,
+            // Fase 9.3: "cara menghubungi apoteker, arahkan ke APJ cabang
+            // yang dipilih" — this is the one place a shopper has already
+            // committed to a specific branch, so the APJ shown is theirs,
+            // not a generic head-office contact.
+            'apjName' => $branch->apj_name,
+            'apjWhatsappUrl' => $branch->whatsapp
+                ? 'https://wa.me/'.WhatsAppClient::normalizePhone($branch->whatsapp)
+                : null,
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Support\AdminOptions;
+use App\Support\AuditLogger;
 use App\Support\CodeSequence;
 use App\Support\Presenters\ProductPresenter;
 use App\Support\Slug;
@@ -49,6 +50,10 @@ class ProductController extends Controller
             'sku' => CodeSequence::next(Product::withTrashed(), 'sku', 'PRD-'),
         ]);
 
+        AuditLogger::log('produk_ditambahkan', $product, [], $product->only([
+            'name', 'price', 'drug_class', 'status',
+        ]));
+
         return redirect()
             ->route('admin.produk.index')
             ->with('success', "Produk \"{$product->name}\" berhasil ditambahkan.");
@@ -71,10 +76,20 @@ class ProductController extends Controller
         ]);
     }
 
+    /** Fase 9.3's "jejak audit untuk setiap perubahan data obat" — the fields that actually matter for pharmacy safety/compliance, not cosmetic ones like `blurb`. */
+    private const AUDITED_FIELDS = [
+        'name', 'price', 'drug_class', 'nie_bpom', 'composition', 'dosage',
+        'side_effects', 'warning', 'manufacturer', 'storage', 'status',
+    ];
+
     public function update(ProductRequest $request, string $product): RedirectResponse
     {
         $record = $this->find($product);
+        $old = $record->only(self::AUDITED_FIELDS);
+
         $record->update($this->attributes($request->validated(), $record));
+
+        AuditLogger::log('produk_diubah', $record, $old, $record->only(self::AUDITED_FIELDS));
 
         return redirect()
             ->route('admin.produk.index')
@@ -89,6 +104,8 @@ class ProductController extends Controller
         // Soft delete: order history points at this row, and an old order has to
         // keep reading back the way it was placed.
         $record->delete();
+
+        AuditLogger::log('produk_dihapus', null, ['name' => $name, 'sku' => $record->sku]);
 
         return redirect()
             ->route('admin.produk.index')

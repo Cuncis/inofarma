@@ -1033,43 +1033,131 @@ waktu terpisah.)*
 
 ---
 
-## Fase 9 — Kepatuhan dan halaman legal
+## Fase 9 — Kepatuhan dan halaman legal — ✅ SELESAI (menunggu identitas badan usaha)
 
 ### 9.1 Halaman wajib
 
-- [ ] **Syarat & Ketentuan**, termasuk kebijakan retur obat.
-- [ ] **Kebijakan Privasi** sesuai **UU 27/2022 (PDP)**.
-- [ ] **Kebijakan Pengiriman**, **Kebijakan Pengembalian Dana**.
-- [ ] **Tentang Kami** dengan nama badan usaha dan kontak resmi.
-- [ ] **Halaman Cabang** yang menampilkan, untuk setiap cabang: alamat, peta,
-      jam buka, **nomor SIA**, **nama APJ dan nomor SIPA**. Ini membangun
-      kepercayaan sekaligus umumnya diwajibkan.
+- [x] **Syarat & Ketentuan**, termasuk kebijakan retur obat. — `Shop/Terms.jsx`
+      (`/ui/syarat-ketentuan`), sembilan bagian mengikuti mekanisme
+      sungguhan aplikasi ini (DOKU, Biteship, jendela 24/48 jam), bukan teks
+      generik. §7 secara spesifik memisahkan retur **obat** (tukar/klaim
+      barang) dari pengembalian **dana** (lihat 9.1 berikutnya).
+- [x] **Kebijakan Privasi** sesuai **UU 27/2022 (PDP)**. — `Shop/PrivacyPolicy.jsx`
+      (`/ui/kebijakan-privasi`), sepuluh bagian: data yang dikumpulkan,
+      tujuan, dasar pemrosesan, pihak ketiga (DOKU/Biteship/SES/Meta),
+      persetujuan lokasi terpisah, retensi, hak pelanggan (tertaut langsung
+      ke Privasi Saya), keamanan data, **rencana penanganan kebocoran data**,
+      kontak. Versi `1.0` disinkronkan manual dengan
+      `AuthController::CONSENT_VERSION`.
+- [x] **Kebijakan Pengiriman**, **Kebijakan Pengembalian Dana**. —
+      `Shop/ShippingInfo.jsx` ditulis ulang total (sebelumnya prototipe
+      generik "gratis ongkir di atas Rp750rb", "retur 30 hari", "Visa/
+      Mastercard" — tidak sesuai aplikasi ini sama sekali) jadi kebijakan
+      ongkir/radius/DOKU sungguhan. `Shop/RefundPolicy.jsx` baru
+      (`/ui/kebijakan-pengembalian-dana`) — proses **uang** kembali,
+      mengikuti mekanisme Fase 6 (dicatat manual admin, bukan API refund
+      DOKU otomatis).
+- [x] **Tentang Kami** dengan nama badan usaha dan kontak resmi. —
+      `Shop/AboutUs.jsx` (`/ui/tentang-kami`). **Nama PT/NIB/NPWP/alamat
+      kantor sengaja diisi placeholder berkurung siku**, bukan dikarang —
+      Fase 0.1 sendiri mencatat ini sebagai keputusan bisnis yang belum
+      diambil, bukan pekerjaan kode. Mengarang nomor yang terlihat asli
+      lebih berbahaya daripada placeholder jujur.
+- [x] **Halaman Cabang**: alamat, peta, jam buka, **SIA**, **APJ + SIPA**. —
+      `Shop/OurBranches.jsx` (sudah ada sejak Fase 2.3) diperluas dengan
+      blok legal per cabang; `Branch::getTodaysHoursAttribute()` baru
+      menghitung jam buka hari itu dari `operating_hours`.
 
 ### 9.2 Perlindungan data (UU PDP)
 
-- [ ] Persetujuan eksplisit saat pendaftaran, tercatat dengan stempel waktu.
-- [ ] **Persetujuan terpisah untuk data lokasi** — koordinat pelanggan adalah
-      data pribadi, dan model ini mengumpulkannya sejak halaman pertama.
-- [ ] Halaman privasi: unduh data saya, hapus akun saya.
-- [ ] Kebijakan retensi.
-- [ ] Enkripsi data sensitif saat disimpan.
-- [ ] Rencana penanganan kebocoran data.
-- [ ] Perjanjian pemrosesan data dengan setiap pihak ketiga.
+- [x] Persetujuan eksplisit saat pendaftaran, tercatat dengan stempel waktu. —
+      **sebelumnya sudah "tercatat" tapi tidak pernah sungguhan diminta** —
+      `consent_at`/`consent_version` diisi otomatis tanpa kotak centang.
+      Sekarang `Shop/SignUp.jsx` punya kotak centang wajib bertaut ke Syarat
+      & Ketentuan dan Kebijakan Privasi; `AuthController::register()`
+      menolak pendaftaran tanpa `consent: true` (`'accepted'` rule).
+- [x] **Persetujuan terpisah untuk data lokasi.** — `useLocationConsent`
+      (localStorage, dipakai bersama oleh `OurBranches.jsx` dan
+      `AddNewAddress.jsx`, dua-duanya satu-satunya pemanggil
+      `navigator.geolocation`): tombol "Gunakan Lokasi Saya" nonaktif
+      sampai kotak centang persetujuan lokasi dicentang — terpisah dari
+      persetujuan akun di atas, sesuai permintaan roadmap secara harfiah.
+- [x] Halaman privasi: unduh data saya, hapus akun saya. — `/ui/privasi-saya`
+      (`Shop\PrivacyController`): `export()` mengunduh JSON profil + alamat
+      + riwayat pesanan; `destroyAccount()` (butuh kata sandi) menghapus
+      alamat dan keranjang, menyamarkan nama/email/telepon, lalu
+      soft-delete akun. **Riwayat pesanan tetap ada** — kewajiban
+      pembukuan, sama seperti alasan Fase 1 memaksa harga menjadi snapshot.
+- [x] Kebijakan retensi. — didokumentasikan di Kebijakan Privasi §6.
+      **Penegakan otomatis (purge terjadwal) sengaja tidak dibangun** —
+      kebijakan tertulis dulu, baru penegakan; membangun penghapusan
+      otomatis tanpa kebijakan yang jelas berisiko menghapus data yang
+      masih dibutuhkan.
+- [x] Enkripsi data sensitif saat disimpan. — **kredensial 2FA staf sudah
+      dienkripsi sejak Fase 3** (`users.two_factor_secret`/
+      `two_factor_recovery_codes`, cast `encrypted`/`encrypted:array`) —
+      diverifikasi ulang di sini, bukan pekerjaan baru. Mengenkripsi
+      `customer_addresses` (alamat/telepon/nama penerima) **sengaja tidak
+      dikerjakan di fase ini**: kolomnya `VARCHAR(255)` dan payload
+      terenkripsi Laravel bisa melebihi itu, jadi butuh migrasi ubah tipe
+      kolom ke TEXT *plus* migrasi data yang meng-enkripsi ulang baris yang
+      sudah ada — kombinasi keduanya pada data seed yang sudah berjalan
+      punya risiko nyata salah jalan tanpa `doctrine/dbal` (belum
+      terpasang, butuh persetujuan menambah dependensi). Dicatat sebagai
+      pekerjaan lanjutan yang jelas, bukan diselesaikan asal-asalan.
+- [x] Rencana penanganan kebocoran data. — bagian §9 Kebijakan Privasi
+      (isolasi 24 jam, penilaian dampak, pemberitahuan sesuai UU PDP,
+      ringkasan pasca-investigasi). Bukan berkas markdown terpisah —
+      halaman aplikasi yang sungguhan dilihat pengguna, bukan dokumentasi
+      internal.
+- [ ] Perjanjian pemrosesan data dengan setiap pihak ketiga. — **murni
+      kontrak bisnis**, di luar jangkauan kode: DOKU, Biteship, Amazon SES,
+      dan Meta (WhatsApp Business Platform) masing-masing perlu DPA
+      tersendiri sebelum data pelanggan sungguhan mengalir ke sana.
 
 ### 9.3 Khusus farmasi
 
-- [ ] Tampilkan **golongan obat** dan logonya di setiap halaman produk.
-- [ ] Tampilkan **peringatan P1–P6** untuk obat bebas terbatas.
-- [ ] Tampilkan **NIE BPOM** per produk.
-- [ ] Cara menghubungi apoteker — **arahkan ke APJ cabang yang dipilih**.
-- [ ] Sangkalan: informasi di situs bukan pengganti nasihat medis.
-- [ ] Jejak audit untuk setiap perubahan data obat dan setiap penjualan,
-      per cabang.
+- [x] Golongan obat + logo di setiap halaman produk — ✅ sudah sejak Fase 4.2
+      (`DrugClassBadge`), diverifikasi masih berfungsi, bukan pekerjaan baru.
+- [x] Peringatan P1–P6 — ✅ sudah sejak Fase 4.2 (`DrugInfoSection`), sama.
+- [x] NIE BPOM per produk — ✅ sudah sejak Fase 4.2, sama.
+- [x] Cara menghubungi apoteker, arahkan ke APJ cabang yang dipilih. —
+      **baru**: `CartPresenter::branch()` menyertakan `apjName` +
+      `apjWhatsappUrl` (dibangun dari `WhatsAppClient::normalizePhone()`,
+      Fase 8, dipakai ulang); banner cabang di `Shop/Cart.jsx` menampilkan
+      tautan WhatsApp langsung ke APJ cabang **yang sudah dipilih
+      pelanggan** — bukan kontak generik pusat, dan bukan di halaman produk
+      (di sana belum ada cabang yang dikonfirmasi, jadi "APJ mana" masih
+      ambigu di titik itu).
+- [x] Sangkalan bukan pengganti nasihat medis — ✅ sudah sejak Fase 4.2
+      (baris terakhir `DrugInfoSection`), diverifikasi masih ada.
+- [x] Jejak audit untuk setiap perubahan data obat dan setiap penjualan,
+      per cabang. — **gap yang secara eksplisit ditunda Fase 3** ("Belum
+      dipasang di CRUD Produk/.../Pesanan"), ditutup di sini:
+      `Admin\ProductController::store()/update()/destroy()` mencatat
+      `produk_ditambahkan`/`produk_diubah` (dengan nilai lama **dan** baru
+      untuk field farmasi — harga, golongan, NIE, komposisi, dosis, efek
+      samping, peringatan, produsen, penyimpanan, status) /`produk_dihapus`.
+      `App\Observers\OrderObserver::created()` mencatat `pesanan_dibuat`
+      untuk **setiap** pesanan, checkout pelanggan maupun entri admin,
+      dengan `branch_id` pesanan itu sendiri — bukan cabang staf yang
+      sedang login (yang `null` untuk checkout pelanggan).
 
-**Selesai bila:** konsultan perizinan meninjau situs dan tidak menemukan
-penghalang.
+**Selesai bila:** ~~konsultan perizinan meninjau situs dan tidak menemukan
+penghalang.~~ **Sebagian** — seluruh halaman, alur persetujuan, swalayan
+PDP, dan jejak audit terbukti benar lewat pengujian otomatis dan verifikasi
+manual terhadap server yang sungguhan berjalan (keenam halaman legal
+memuat 200, data SIA/APJ/jam-buka cabang terbaca benar dari respons Inertia
+sungguhan). **Yang belum bisa dibuktikan: tinjauan sungguhan oleh konsultan
+perizinan**, dan identitas badan usaha (nama PT, NIB, NPWP) di halaman
+Tentang Kami masih placeholder — keduanya butuh keputusan dan dokumen di
+luar kode, kategori yang sama dengan kredensial produksi di fase-fase
+sebelumnya.
 
-**Estimasi solo:** 1–2 minggu teknis, plus waktu tunggu tinjauan.
+**Estimasi solo:** 1–2 minggu teknis, plus waktu tunggu tinjauan. *(Bagian
+teknis selesai dalam satu sesi kerja; enkripsi alamat pelanggan dan DPA
+pihak ketiga tetap perlu waktu terpisah, dan tinjauan konsultan tidak bisa
+dipercepat oleh kode.)*
 
 ---
 

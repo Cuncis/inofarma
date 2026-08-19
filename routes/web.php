@@ -29,6 +29,7 @@ use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\LocationController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController;
+use App\Http\Controllers\Shop\PrivacyController;
 use App\Http\Controllers\Shop\ShippingController;
 use App\Http\Controllers\Webhooks\BiteshipWebhookController;
 use App\Http\Controllers\Webhooks\DokuWebhookController;
@@ -387,6 +388,12 @@ $beShopScreens = [
     'faq' => 'Faq',
     'reviews' => 'Reviews',
     'leave-a-review' => 'LeaveAReview',
+
+    // Fase 9.1 — legal pages, public (a visitor reads these before signing up).
+    'syarat-ketentuan' => 'Terms',
+    'kebijakan-privasi' => 'PrivacyPolicy',
+    'kebijakan-pengembalian-dana' => 'RefundPolicy',
+    'tentang-kami' => 'AboutUs',
 ];
 
 Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
@@ -461,6 +468,12 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
         Route::post('add-new-address', [AddressController::class, 'store'])->name('add-new-address.store');
         Route::delete('alamat/{address}', [AddressController::class, 'destroy'])->name('alamat.destroy');
         Route::post('alamat/{address}/utama', [AddressController::class, 'makeDefault'])->name('alamat.utama');
+
+        Route::prefix('privasi-saya')->name('privasi-saya.')->controller(PrivacyController::class)->group(function () {
+            Route::get('/', 'show')->name('index');
+            Route::get('unduh', 'export')->name('unduh');
+            Route::delete('/', 'destroyAccount')->name('hapus');
+        });
 
         Route::get('order-history', [ShopOrderController::class, 'index'])->name('order-history');
         Route::get('track-order/{order}', [ShopOrderController::class, 'show'])->name('track-order');

@@ -95,11 +95,25 @@ export default function Cart({ cart }) {
 
             <div className="flex-1 overflow-y-auto px-3.5 pt-3.5">
                 {cart.branch ? (
-                    <div className="mb-3 flex items-center gap-2 border border-line bg-lilac p-2.5 text-[11px]">
-                        <Icon name="pin" size={14} className="shrink-0 text-brand" />
-                        <span>
-                            Belanja dari <strong>{cart.branch.name}</strong> ({cart.branch.kota})
-                        </span>
+                    <div className="mb-3 border border-line bg-lilac p-2.5 text-[11px]">
+                        <div className="flex items-center gap-2">
+                            <Icon name="pin" size={14} className="shrink-0 text-brand" />
+                            <span>
+                                Belanja dari <strong>{cart.branch.name}</strong> ({cart.branch.kota})
+                            </span>
+                        </div>
+
+                        {cart.branch.apjName && cart.branch.apjWhatsappUrl ? (
+                            <a
+                                href={cart.branch.apjWhatsappUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-1.5 flex items-center gap-2 text-brand"
+                            >
+                                <Icon name="phone" size={14} className="shrink-0" />
+                                Tanya Apoteker {cart.branch.apjName} di WhatsApp
+                            </a>
+                        ) : null}
                     </div>
                 ) : null}
 

@@ -13,6 +13,11 @@ const menu = [
     { label: 'Kode promo saya', icon: 'promo', href: '/ui/my-promocodes' },
     { label: 'Riwayat pesanan', icon: 'file', href: '/ui/order-history' },
     { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/ui/shipping-info' },
+    { label: 'Kebijakan pengembalian dana', icon: 'info', href: '/ui/kebijakan-pengembalian-dana' },
+    { label: 'Syarat & ketentuan', icon: 'info', href: '/ui/syarat-ketentuan' },
+    { label: 'Kebijakan privasi', icon: 'info', href: '/ui/kebijakan-privasi' },
+    { label: 'Privasi saya', icon: 'user', href: '/ui/privasi-saya' },
+    { label: 'Tentang kami', icon: 'info', href: '/ui/tentang-kami' },
     { label: 'FAQ', icon: 'help', href: '/ui/faq' },
 ];
 

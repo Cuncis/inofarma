@@ -11,6 +11,7 @@ use App\Notifications\OrderConfirmed;
 use App\Notifications\OrderReadyForPickup;
 use App\Notifications\OrderShipped;
 use App\Notifications\PaymentReceived;
+use App\Support\AuditLogger;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -22,6 +23,13 @@ use Illuminate\Support\Facades\Notification;
  * `Admin\OrderController` — every one of those already exists from Fase
  * 5-7 and already ends in an `Order::create()`/`update()`; this reacts to
  * that write instead of asking six call sites to each remember to notify.
+ *
+ * Also where "jejak audit ... setiap penjualan, per cabang" (Fase 9.3) is
+ * satisfied — `AuditLogger::log()` here runs for a checkout-placed order
+ * (no signed-in staff, `AuditLogger` defaults the actor to null) exactly the
+ * same as an admin-entered one (actor resolves to whoever is signed in),
+ * with `branch_id` passed explicitly so it's always the order's own branch
+ * rather than the acting staff member's (which is null for a customer).
  */
 class OrderObserver
 {
@@ -30,6 +38,10 @@ class OrderObserver
         $order->customer?->notify(new OrderConfirmed($order));
 
         $this->notifyBranchStaff($order, new NewOrderAtBranch($order));
+
+        AuditLogger::log('pesanan_dibuat', $order, [], [
+            'number' => $order->number, 'grand_total' => $order->grand_total, 'fulfilment' => $order->fulfilment,
+        ], branchId: $order->branch_id);
     }
 
     public function updated(Order $order): void

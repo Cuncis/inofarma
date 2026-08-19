@@ -134,15 +134,28 @@ class StorefrontUiTest extends TestCase
             'email' => 'baru@example.test',
             'password' => 'kata-sandi-baru',
             'password_confirmation' => 'kata-sandi-baru',
+            'consent' => true,
         ])->assertRedirect(route('ui.verify-phone'));
 
         $this->assertTrue(Auth::guard('customer')->check());
+        $customer = Customer::where('email', 'baru@example.test')->first();
         $this->assertDatabaseHas('customers', ['email' => 'baru@example.test', 'email_verified_at' => null]);
+        $this->assertNotNull($customer->consent_at);
 
-        Notification::assertSentTo(
-            Customer::where('email', 'baru@example.test')->first(),
-            CustomerVerifyEmail::class,
-        );
+        Notification::assertSentTo($customer, CustomerVerifyEmail::class);
+    }
+
+    /** PDP (UU 27/2022) requires an explicit affirmative action — ROADMAP.md Fase 9.2. */
+    public function test_registering_without_consent_is_refused(): void
+    {
+        $this->post('/ui/daftar', [
+            'name' => 'Pelanggan Baru',
+            'email' => 'tanpa-consent@example.test',
+            'password' => 'kata-sandi-baru',
+            'password_confirmation' => 'kata-sandi-baru',
+        ])->assertSessionHasErrors('consent');
+
+        $this->assertDatabaseMissing('customers', ['email' => 'tanpa-consent@example.test']);
     }
 
     public function test_a_phone_otp_can_be_issued_and_verified(): void

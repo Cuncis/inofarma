@@ -4,6 +4,7 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
+import useLocationConsent from '@/Components/Shop/useLocationConsent';
 
 export default function AddNewAddress() {
     const { data, setData, post, processing, errors } = useForm({
@@ -23,6 +24,7 @@ export default function AddNewAddress() {
 
     const [locating, setLocating] = useState(false);
     const [locationError, setLocationError] = useState('');
+    const { consented, consent } = useLocationConsent();
 
     /**
      * Fills the coordinates from the browser's own location, same API
@@ -31,6 +33,10 @@ export default function AddNewAddress() {
      * (there is no real provinsi → kota → kecamatan dataset in this repo yet).
      */
     const useMyLocation = () => {
+        if (! consented) {
+            return;
+        }
+
         if (! navigator.geolocation) {
             setLocationError('Perangkat ini tidak mendukung deteksi lokasi.');
 
@@ -149,11 +155,23 @@ export default function AddNewAddress() {
                     className="mb-2.5"
                 />
 
+                {! consented ? (
+                    <label className="mb-2 flex items-start gap-2 text-[11px] leading-relaxed text-muted">
+                        <input
+                            type="checkbox"
+                            checked={consented}
+                            onChange={(event) => (event.target.checked ? consent() : null)}
+                            className="mt-0.5"
+                        />
+                        <span>Saya setuju berbagi lokasi perangkat saya untuk mengisi alamat ini.</span>
+                    </label>
+                ) : null}
+
                 <button
                     type="button"
                     onClick={useMyLocation}
-                    disabled={locating}
-                    className="mb-1 text-xs font-semibold text-brand"
+                    disabled={locating || ! consented}
+                    className="mb-1 text-xs font-semibold text-brand disabled:opacity-60"
                 >
                     {locating
                         ? 'Mengambil lokasi…'

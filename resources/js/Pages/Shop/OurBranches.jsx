@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Icon from '@/Components/Shop/Icon';
+import useLocationConsent from '@/Components/Shop/useLocationConsent';
 
 /**
  * "Cabang Kami" — every branch, nearest first once we know where the shopper
@@ -14,8 +15,13 @@ import Icon from '@/Components/Shop/Icon';
 export default function OurBranches({ branches, areas, hasLocation }) {
     const [locating, setLocating] = useState(false);
     const [locationError, setLocationError] = useState('');
+    const { consented, consent } = useLocationConsent();
 
     const useMyLocation = () => {
+        if (! consented) {
+            return;
+        }
+
         if (! navigator.geolocation) {
             setLocationError('Perangkat ini tidak mendukung layanan lokasi.');
 
@@ -59,10 +65,20 @@ export default function OurBranches({ branches, areas, hasLocation }) {
                             Urutkan berdasarkan jarak dari lokasi Anda.
                         </p>
 
+                        <label className="mb-2.5 flex items-start gap-2 text-[11px] leading-relaxed text-muted">
+                            <input
+                                type="checkbox"
+                                checked={consented}
+                                onChange={(event) => (event.target.checked ? consent() : null)}
+                                className="mt-0.5"
+                            />
+                            <span>Saya setuju berbagi lokasi perangkat saya untuk menemukan cabang terdekat.</span>
+                        </label>
+
                         <button
                             type="button"
                             onClick={useMyLocation}
-                            disabled={locating}
+                            disabled={locating || ! consented}
                             className="mb-2.5 flex w-full items-center justify-center gap-2 bg-ink py-2.5 text-[13px] font-bold text-white disabled:opacity-60"
                         >
                             <Icon name="navigation" size={16} className="text-white" />
@@ -118,6 +134,7 @@ export default function OurBranches({ branches, areas, hasLocation }) {
                             >
                                 <Icon name="clock" size={13} />
                                 {branch.isOpenNow ? 'Buka sekarang' : 'Tutup'}
+                                {branch.todaysHours ? ` (${branch.todaysHours})` : ''}
                             </span>
 
                             {branch.supportsDelivery ? (
@@ -127,6 +144,18 @@ export default function OurBranches({ branches, areas, hasLocation }) {
                                 <span className="border border-line px-2 py-0.5 text-muted">Ambil di Tempat</span>
                             ) : null}
                         </div>
+
+                        {branch.siaNumber || branch.apjName ? (
+                            <div className="mt-2.5 border-t border-line pt-2.5 text-[11px] leading-relaxed text-muted">
+                                {branch.siaNumber ? <div>SIA: {branch.siaNumber}</div> : null}
+                                {branch.apjName ? (
+                                    <div>
+                                        APJ: {branch.apjName}
+                                        {branch.apjSipaNumber ? ` (SIPA ${branch.apjSipaNumber})` : ''}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : null}
 
                         <div className="mt-2.5 flex gap-3.5 border-t border-line pt-2.5">
                             {branch.phone ? (

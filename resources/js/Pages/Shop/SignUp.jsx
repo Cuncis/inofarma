@@ -11,6 +11,7 @@ export default function SignUp() {
         email: '',
         password: '',
         password_confirmation: '',
+        consent: false,
     });
 
     const submit = (event) => {
@@ -71,7 +72,30 @@ export default function SignUp() {
                     className="mb-2.5"
                 />
 
-                <Button type="submit" disabled={processing}>
+                <label className="mb-3.5 flex items-start gap-2 text-[11px] leading-relaxed text-muted">
+                    <input
+                        type="checkbox"
+                        checked={data.consent}
+                        onChange={(event) => setData('consent', event.target.checked)}
+                        className="mt-0.5"
+                    />
+                    <span>
+                        Saya sudah membaca dan menyetujui{' '}
+                        <Link href="/ui/syarat-ketentuan" className="text-brand underline">
+                            Syarat &amp; Ketentuan
+                        </Link>{' '}
+                        dan{' '}
+                        <Link href="/ui/kebijakan-privasi" className="text-brand underline">
+                            Kebijakan Privasi
+                        </Link>{' '}
+                        Inofarma.
+                    </span>
+                </label>
+                {errors.consent ? (
+                    <p className="-mt-2.5 mb-2.5 text-[11px] text-danger">{errors.consent}</p>
+                ) : null}
+
+                <Button type="submit" disabled={processing || ! data.consent}>
                     {processing ? 'Memproses…' : 'Daftar'}
                 </Button>
 
