@@ -27,9 +27,9 @@ export default function SignUp() {
         >
             <form
                 onSubmit={submit}
-                className="flex-1 overflow-y-auto bg-blush px-[22px] py-[18px]"
+                className="flex-1 overflow-y-auto bg-canvas px-[22px] py-[18px]"
             >
-                <h1 className="mb-2 text-center font-display text-[22px]">Daftar</h1>
+                <h1 className="mb-2 text-center font-display text-[22px] text-brand">Daftar</h1>
 
                 <p className="mb-[18px] text-center text-[13px] text-muted">
                     Gunakan media sosial atau email Anda

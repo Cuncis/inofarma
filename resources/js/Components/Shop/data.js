@@ -18,6 +18,13 @@ const illustrations = '/media/images/other';
 export const asset = {
     other: (n) => `${illustrations}/${n}.png`,
     user: (n) => media.user(Number(n)),
+    /**
+     * The Inofarma wordmark, in the variant that reads on the background
+     * it's placed on — dark navy/green artwork for a light background,
+     * white artwork for a dark/blue one. Never use the light-background
+     * file on a colored background or vice versa; the logo goes invisible.
+     */
+    logo: (tone) => `/media/images/logo-with-bg-${tone === 'blue' ? 'blue' : 'white'}.png`,
 };
 
 /**

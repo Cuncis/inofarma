@@ -6,7 +6,7 @@ export default function AccountCreated() {
     return (
         <MobileLayout title="Akun Berhasil Dibuat" background="bg-blush">
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">
-                <div className="mb-[18px] font-display text-xl tracking-[2px]">INOFARMA</div>
+                <img src={asset.logo('white')} alt="Inofarma" className="mb-[18px] h-8 w-auto" />
 
                 <img
                     src={asset.other('01')}

@@ -16,8 +16,18 @@ export default {
     theme: {
         extend: {
             fontFamily: {
+                // Admin keeps the original theme's font — unchanged.
                 sans: ['Lato', 'Figtree', ...defaultTheme.fontFamily.sans],
-                display: ['"Tenor Sans"', ...defaultTheme.fontFamily.serif],
+                /**
+                 * Storefront-only, Barlow: `font-shop` (body, weight 400) on
+                 * `MobileLayout`'s root so every ecommerce screen gets it
+                 * without touching Admin's shared `font-sans` on `<body>`;
+                 * `font-display` (headings, weight 500 — see app.css) already
+                 * marks every heading across the storefront, so repointing it
+                 * here is enough on its own, no per-heading class changes.
+                 */
+                shop: ['Barlow', ...defaultTheme.fontFamily.sans],
+                display: ['Barlow', ...defaultTheme.fontFamily.sans],
             },
 
             /**

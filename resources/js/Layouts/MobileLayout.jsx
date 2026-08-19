@@ -29,7 +29,7 @@ export default function MobileLayout({
 
             <div className="flex h-screen [height:100dvh] justify-center bg-shell">
                 <div
-                    className={`relative flex h-full w-full max-w-app flex-col overflow-hidden text-ink ${background}`}
+                    className={`relative flex h-full w-full max-w-app flex-col overflow-hidden font-shop text-ink ${background}`}
                 >
                     {header}
                     {children}

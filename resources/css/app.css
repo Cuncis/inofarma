@@ -13,6 +13,23 @@
     }
 }
 
+@layer base {
+    /**
+     * Barlow, the storefront's typeface (`tailwind.config.js`): headings
+     * (`font-display`) at Medium, body copy (`font-shop`, applied once on
+     * `MobileLayout`'s root) at Regular. A plain weight utility placed
+     * alongside either class — `font-display font-bold`, say — still wins,
+     * since Tailwind's own utilities layer is emitted after this one.
+     */
+    .font-display {
+        font-weight: 500;
+    }
+
+    .font-shop {
+        font-weight: 400;
+    }
+}
+
 @layer utilities {
     .scrollbar-none {
         -ms-overflow-style: none;

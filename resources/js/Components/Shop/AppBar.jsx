@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { asset } from './data';
 import Icon from './Icon';
 
 /**
@@ -32,8 +33,12 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
                 ) : null}
 
                 {brand ? (
-                    <Link href="/" className="font-display text-base tracking-[2px]">
-                        INOFARMA
+                    <Link href="/" aria-label="Inofarma">
+                        <img
+                            src={asset.logo(tone === 'ink' ? 'blue' : 'white')}
+                            alt="Inofarma"
+                            className="h-6 w-auto"
+                        />
                     </Link>
                 ) : null}
             </div>

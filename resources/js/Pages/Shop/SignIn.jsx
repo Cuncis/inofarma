@@ -2,6 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import Button from '@/Components/Shop/Button';
 import Checkbox from '@/Components/Shop/Checkbox';
+import { asset } from '@/Components/Shop/data';
 import Field from '@/Components/Shop/Field';
 import SocialButtons from '@/Components/Shop/SocialButtons';
 
@@ -19,14 +20,14 @@ export default function SignIn() {
     };
 
     return (
-        <MobileLayout title="Masuk" background="bg-blush">
+        <MobileLayout title="Masuk" background="bg-canvas">
             <form
                 onSubmit={submit}
                 className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-[22px] py-6"
             >
-                <div className="mb-6 font-display text-[22px] tracking-[2px]">INOFARMA</div>
+                <img src={asset.logo('white')} alt="Inofarma" className="mb-6 h-10 w-auto" />
 
-                <h1 className="mb-2 font-display text-2xl">Masuk</h1>
+                <h1 className="mb-2 font-display text-2xl text-brand">Masuk</h1>
 
                 <p className="mb-5 text-center text-[13px] text-muted">
                     Gunakan media sosial atau email Anda
