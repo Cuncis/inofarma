@@ -15,7 +15,7 @@ export default function AboutUs() {
         <MobileLayout title="Tentang Kami" header={<AppBar title="Tentang Kami" back="/ui/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto p-4">
                 <div className="mb-5">
-                    <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[15px]">
+                    <div className="mb-2.5 border-b border-line pb-2 font-display text-[15px]">
                         Inofarma
                     </div>
                     <p className="text-xs leading-[1.7] text-muted">
@@ -27,7 +27,7 @@ export default function AboutUs() {
                 </div>
 
                 <div className="mb-5">
-                    <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[15px]">
+                    <div className="mb-2.5 border-b border-line pb-2 font-display text-[15px]">
                         Badan Usaha
                     </div>
                     <p className="text-xs leading-[1.7] text-muted">
@@ -41,7 +41,7 @@ export default function AboutUs() {
                 </div>
 
                 <div className="mb-5">
-                    <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[15px]">
+                    <div className="mb-2.5 border-b border-line pb-2 font-display text-[15px]">
                         Kontak Resmi
                     </div>
                     <p className="text-xs leading-[1.7] text-muted">
@@ -54,7 +54,7 @@ export default function AboutUs() {
                 </div>
 
                 <div>
-                    <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[15px]">
+                    <div className="mb-2.5 border-b border-line pb-2 font-display text-[15px]">
                         Perizinan
                     </div>
                     <p className="text-xs leading-[1.7] text-muted">

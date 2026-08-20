@@ -126,7 +126,7 @@ export default function ProductDetail() {
                     maxQtyPerOrder={product.maxQtyPerOrder}
                 />
 
-                <div className="mb-2.5 mt-4 flex justify-between border-t-2 border-ink pt-2.5">
+                <div className="mb-2.5 mt-4 flex justify-between border-t border-line pt-2.5">
                     <span className="font-display text-sm">Ulasan</span>
                     <Link href="/ui/reviews" className="text-xs text-brand">
                         Lihat semua

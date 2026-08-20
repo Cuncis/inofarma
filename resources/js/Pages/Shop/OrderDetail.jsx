@@ -75,7 +75,7 @@ export default function OrderDetail({ order }) {
                 ) : null}
 
                 <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
-                    <div className="mb-2 border-b-2 border-ink pb-2 font-display text-[13px]">
+                    <div className="mb-2 border-b border-line pb-2 font-display text-[13px]">
                         Produk
                     </div>
 
@@ -105,7 +105,7 @@ export default function OrderDetail({ order }) {
                         <span>{order.shipping > 0 ? money(order.shipping) : 'Gratis'}</span>
                     </div>
 
-                    <div className="mb-1.5 flex justify-between border-b-2 border-ink pb-1.5 text-[13px] text-muted">
+                    <div className="mb-1.5 flex justify-between border-b border-line pb-1.5 text-[13px] text-muted">
                         <span>Metode pembayaran</span>
                         <span>{order.paymentMethod === 'online' ? 'Online (DOKU)' : order.paymentMethod}</span>
                     </div>

@@ -74,7 +74,7 @@ export default function SearchOverlay({ open, onClose }) {
 
     return (
         <div className="absolute inset-0 z-40 flex flex-col bg-white">
-            <div className="flex h-appbar shrink-0 items-center gap-2 border-b border-line px-3">
+            <div className="flex h-appbar shrink-0 items-center gap-2 bg-brand px-3">
                 <div className="relative flex-1">
                     <Icon
                         name="search"
@@ -94,7 +94,7 @@ export default function SearchOverlay({ open, onClose }) {
                         }}
                         placeholder="Cari obat, vitamin, alat kesehatan..."
                         aria-label="Cari produk"
-                        className="h-9 w-full border-0 bg-lilac pl-8 pr-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
+                        className="h-9 w-full border-0 bg-white pl-8 pr-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
                     />
                 </div>
 
@@ -102,7 +102,7 @@ export default function SearchOverlay({ open, onClose }) {
                     type="button"
                     onClick={onClose}
                     aria-label="Tutup pencarian"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center text-ink"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center text-white"
                 >
                     <Icon name="close" size={20} />
                 </button>

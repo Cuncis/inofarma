@@ -226,7 +226,7 @@ export default function Cart({ cart }) {
                         </div>
                     ) : null}
 
-                    <div className="mb-1.5 flex justify-between border-b-2 border-ink pb-1.5 text-[13px] text-muted">
+                    <div className="mb-1.5 flex justify-between border-b border-line pb-1.5 text-[13px] text-muted">
                         <span>Ongkir &amp; pajak</span>
                         <span>Dihitung saat checkout</span>
                     </div>

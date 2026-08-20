@@ -7,10 +7,9 @@ import IconLink from '@/Components/Shop/IconLink';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
 import useCartCount from '@/Components/Shop/useCartCount';
-import { useShopCatalog } from '@/Components/Shop/data';
+import { shopCategories } from '@/Components/Shop/data';
 
 export default function Categories() {
-    const { categories } = useShopCatalog();
     const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
 
@@ -37,23 +36,21 @@ export default function Categories() {
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[70px] pt-3.5">
                 <div className="grid grid-cols-2 gap-3">
-                    {categories.map((category) => (
+                    {shopCategories.map((category) => (
                         <Link
                             key={category.name}
                             href="/ui/shop"
-                            className="relative block h-[130px] overflow-hidden"
+                            className="flex h-[130px] flex-col items-center justify-center gap-2.5 rounded-lg border border-line bg-white p-3 text-center"
                         >
                             <img
                                 src={category.image}
                                 alt={category.name}
-                                className="absolute inset-0 h-full w-full object-cover"
+                                className="h-16 w-16 object-contain"
                             />
 
-                            <div className="absolute inset-x-0 bottom-0 flex justify-center pb-2.5">
-                                <span className="bg-white px-4 py-1 text-[11px] font-bold uppercase tracking-[0.5px]">
-                                    {category.name}
-                                </span>
-                            </div>
+                            <span className="text-[11px] font-bold uppercase tracking-[0.5px] text-ink">
+                                {category.name}
+                            </span>
                         </Link>
                     ))}
                 </div>

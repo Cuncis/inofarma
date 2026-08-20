@@ -100,7 +100,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
 
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-3.5">
                 <div className="mb-2 border border-line bg-lilac p-3.5">
-                    <div className="mb-2.5 flex justify-between border-b-2 border-ink pb-2 font-display text-sm">
+                    <div className="mb-2.5 flex justify-between border-b border-line pb-2 font-display text-sm">
                         <span>Pesanan saya</span>
                         <span>{money(total)}</span>
                     </div>
@@ -175,7 +175,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
                             href="/ui/shipping-details"
                             className="mb-2 block border border-line bg-lilac p-3.5"
                         >
-                            <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
+                            <div className="mb-2 flex items-center justify-between border-b border-line pb-2 font-display text-[13px]">
                                 <span>Detail pengiriman</span>
                                 <Icon name="edit" size={15} className="text-ink" />
                             </div>
@@ -189,7 +189,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
 
                         {cart.address ? (
                             <div className="mb-2 border border-line bg-lilac p-3.5">
-                                <div className="mb-2 border-b-2 border-ink pb-2 font-display text-[13px]">
+                                <div className="mb-2 border-b border-line pb-2 font-display text-[13px]">
                                     Pilih kurir
                                 </div>
 
@@ -236,7 +236,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
                     </>
                 ) : (
                     <div className="mb-2 border border-line bg-lilac p-3.5">
-                        <div className="mb-2 flex items-center justify-between border-b-2 border-ink pb-2 font-display text-[13px]">
+                        <div className="mb-2 flex items-center justify-between border-b border-line pb-2 font-display text-[13px]">
                             <span>Ambil di {branch.name}</span>
                         </div>
 
@@ -268,7 +268,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
                 ) : null}
 
                 <div className="mb-2 border border-line bg-lilac p-3.5">
-                    <div className="mb-2 border-b-2 border-ink pb-2 font-display text-[13px]">
+                    <div className="mb-2 border-b border-line pb-2 font-display text-[13px]">
                         Metode pembayaran
                     </div>
 

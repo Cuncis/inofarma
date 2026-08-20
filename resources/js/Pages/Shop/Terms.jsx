@@ -54,7 +54,7 @@ export default function Terms() {
             <div className="flex-1 overflow-y-auto p-4">
                 {sections.map((section) => (
                     <div key={section.title} className="mb-5">
-                        <div className="mb-2.5 border-b-2 border-ink pb-2 font-display text-[15px]">
+                        <div className="mb-2.5 border-b border-line pb-2 font-display text-[15px]">
                             {section.title}
                         </div>
                         <p className="text-xs leading-[1.7] text-muted">{section.body}</p>
