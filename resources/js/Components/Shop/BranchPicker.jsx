@@ -100,12 +100,15 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder })
 
     if (! branches) {
         return (
-            <div className="mb-3.5 h-16 animate-pulse border border-line bg-[#f5f5f5]" aria-hidden="true" />
+            <div
+                className="mb-3.5 h-16 animate-pulse rounded-lg border border-line bg-[#f5f5f5]"
+                aria-hidden="true"
+            />
         );
     }
 
     return (
-        <div className="mb-3.5">
+        <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
             <div className="mb-[7px] flex items-center justify-between">
                 <span className="text-[13px] font-bold">Pilih Cabang</span>
                 <Link href="/ui/cabang-kami" className="text-[11px] text-brand">

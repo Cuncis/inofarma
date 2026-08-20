@@ -14,7 +14,7 @@ import Rating from './Rating';
  */
 export default function ReviewCard({ review }) {
     return (
-        <div className="mb-2 border border-line p-[13px]">
+        <div className="mb-2 rounded-lg border border-line bg-white p-[13px]">
             <div className="mb-2 flex items-start gap-2.5">
                 <img
                     src={review.avatar}

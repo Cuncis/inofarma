@@ -57,7 +57,7 @@ export function DrugInfoSection({ product }) {
     }
 
     return (
-        <div className="mb-3.5 space-y-3 border-t border-line pt-3.5">
+        <div className="mb-3.5 space-y-3 rounded-lg border border-line bg-white p-3.5">
             <div className="flex items-center justify-between">
                 <span className="text-[13px] font-bold">Informasi Obat</span>
                 <DrugClassBadge drugClass={product.drugClass} />
