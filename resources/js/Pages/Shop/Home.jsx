@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
@@ -16,7 +17,7 @@ import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 export default function Home() {
-    const { recommended, newArrivals, trendingProducts, topBrands } = useShopCatalog();
+    const { recommended, newArrivals, trendingProducts } = useShopCatalog();
     const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
 
@@ -40,10 +41,21 @@ export default function Home() {
             }
             footer={<TabBar active="home" />}
         >
-            <div className="flex-1 overflow-y-auto pb-[70px]">
+            <div className="flex-1 overflow-y-auto pb-5">
                 <HeroCarousel />
 
                 <CategoryShortcuts />
+
+                <Link
+                    href="/ui/signup"
+                    className="mx-3.5 mb-3.5 mt-1 block overflow-hidden rounded-lg border border-line"
+                >
+                    <img
+                        src="/media/images/promo/sehat-ga-mesti-mahal.png"
+                        alt="Sehat ga mesti mahal — ayo daftar member Sobat Ino"
+                        className="w-full"
+                    />
+                </Link>
 
                 <div>
                     <SectionHeading
@@ -88,13 +100,24 @@ export default function Home() {
 
                 <div>
                     <SectionHeading title="Brand Terlaris" className="px-3.5" />
-                    <BrandStrip brands={topBrands} />
+                    <BrandStrip />
                 </div>
 
-                <div>
+                <div className="mb-3.5">
                     <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
                     <BenefitsGrid />
                 </div>
+
+                <Link
+                    href="/ui/cabang-kami"
+                    className="mx-3.5 mt-1 block overflow-hidden rounded-lg border border-line"
+                >
+                    <img
+                        src="/media/images/promo/pengiriman-instan-24-jam.png"
+                        alt="Pengiriman instan dengan layanan antar 24 jam"
+                        className="w-full"
+                    />
+                </Link>
             </div>
 
             <SearchOverlay open={searching} onClose={() => setSearching(false)} />

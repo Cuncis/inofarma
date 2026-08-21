@@ -1,20 +1,20 @@
-import Icon from './Icon';
-
 /**
- * "Keuntungan Belanja di Inofarma" — nine reasons to shop here, each mapped
- * to the closest existing icon in `Icon.jsx` rather than new artwork
- * (nothing was supplied for this section, unlike the hero/category images).
+ * "Keuntungan Belanja di Inofarma" — nine reasons to shop here, each using a
+ * real Apotek Inofarma benefit badge, self-hosted under
+ * `public/media/images/benefits/` (same reasoning as the hero carousel and
+ * category shortcuts — never depend on a third-party host staying online for
+ * storefront artwork).
  */
 const BENEFITS = [
-    { label: 'Produk Kesehatan Termurah', icon: 'tag' },
-    { label: 'Hemat Setiap Hari', icon: 'promo' },
-    { label: 'Produk Lengkap', icon: 'check' },
-    { label: 'Apotek Buka 24 Jam', icon: 'clock' },
-    { label: 'Layanan Antar 24 Jam', icon: 'navigation' },
-    { label: 'Mudah Dijangkau', icon: 'pin' },
-    { label: 'Konsultasi Gratis', icon: 'message' },
-    { label: 'Benefit Sobat Ino', icon: 'heart' },
-    { label: 'Belanja Praktis', icon: 'cart' },
+    { label: 'Produk Kesehatan Termurah', image: '/media/images/benefits/produk-kesehatan-termurah.png' },
+    { label: 'Hemat Setiap Hari', image: '/media/images/benefits/hemat-setiap-hari.png' },
+    { label: 'Produk Lengkap', image: '/media/images/benefits/produk-lengkap.png' },
+    { label: 'Apotek Buka 24 Jam', image: '/media/images/benefits/apotek-buka-24-jam.png' },
+    { label: 'Layanan Antar 24 Jam', image: '/media/images/benefits/layanan-antar-24-jam.png' },
+    { label: 'Mudah Dijangkau', image: '/media/images/benefits/mudah-dijangkau.png' },
+    { label: 'Konsultasi Gratis', image: '/media/images/benefits/konsultasi-gratis.png' },
+    { label: 'Benefit Sobat Ino', image: '/media/images/benefits/benefit-sobat-ino.png' },
+    { label: 'Belanja Praktis', image: '/media/images/benefits/belanja-praktis.png' },
 ];
 
 export default function BenefitsGrid() {
@@ -25,7 +25,7 @@ export default function BenefitsGrid() {
                     key={benefit.label}
                     className="flex flex-col items-center gap-1.5 border border-line bg-white px-2 py-3.5 text-center"
                 >
-                    <Icon name={benefit.icon} size={22} className="text-brand" />
+                    <img src={benefit.image} alt={benefit.label} className="h-9 w-9 object-contain" />
                     <span className="text-[10px] leading-tight text-ink">{benefit.label}</span>
                 </div>
             ))}
