@@ -4,6 +4,7 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
 import BrandStrip from '@/Components/Shop/BrandStrip';
+import Carousel from '@/Components/Shop/Carousel';
 import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
 import HeroCarousel from '@/Components/Shop/HeroCarousel';
 import IconLink from '@/Components/Shop/IconLink';
@@ -16,6 +17,19 @@ import TabBar from '@/Components/Shop/TabBar';
 import Testimonials from '@/Components/Shop/Testimonials';
 import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
+
+const PROMO_SLIDES = [
+    {
+        image: '/media/images/promo/sehat-ga-mesti-mahal.png',
+        href: '/ui/signup',
+        alt: 'Sehat ga mesti mahal — ayo daftar member Sobat Ino',
+    },
+    {
+        image: '/media/images/promo/harga-sobat-produk-lengkap.png',
+        href: '/ui/signup',
+        alt: 'Harga Sobat, Produk Lengkap — gabung Sobat Ino sekarang',
+    },
+];
 
 export default function Home() {
     const { recommended, newArrivals, trendingProducts } = useShopCatalog();
@@ -47,16 +61,11 @@ export default function Home() {
 
                 <CategoryShortcuts />
 
-                <Link
-                    href="/ui/signup"
-                    className="mx-3.5 mb-3.5 mt-1 block overflow-hidden rounded-lg border border-line"
-                >
-                    <img
-                        src="/media/images/promo/sehat-ga-mesti-mahal.png"
-                        alt="Sehat ga mesti mahal — ayo daftar member Sobat Ino"
-                        className="w-full"
-                    />
-                </Link>
+                <Carousel
+                    slides={PROMO_SLIDES}
+                    aspect="aspect-[1740/396]"
+                    className="mx-3.5 mb-3.5 mt-1"
+                />
 
                 <div>
                     <SectionHeading
