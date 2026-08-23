@@ -13,6 +13,7 @@ import SearchBarTrigger from '@/Components/Shop/SearchBarTrigger';
 import SectionHeading from '@/Components/Shop/SectionHeading';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
+import Testimonials from '@/Components/Shop/Testimonials';
 import useCartCount from '@/Components/Shop/useCartCount';
 import { useShopCatalog } from '@/Components/Shop/data';
 
@@ -101,6 +102,11 @@ export default function Home() {
                 <div>
                     <SectionHeading title="Brand Terlaris" className="px-3.5" />
                     <BrandStrip />
+                </div>
+
+                <div>
+                    <SectionHeading title="Testimoni Sobat Ino" className="px-3.5" />
+                    <Testimonials />
                 </div>
 
                 <div className="mb-3.5">
