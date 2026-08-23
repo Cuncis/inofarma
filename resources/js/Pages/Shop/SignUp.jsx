@@ -3,11 +3,11 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
-import SocialButtons from '@/Components/Shop/SocialButtons';
 
 export default function SignUp() {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
+        phone: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -23,52 +23,70 @@ export default function SignUp() {
     return (
         <MobileLayout
             title="Daftar"
-            header={<AppBar title="Daftar" back="/ui/signin" tone="white" />}
+            header={<AppBar title="Daftar" back="/ui/signin" tone="brand" />}
         >
             <form
                 onSubmit={submit}
+                autoComplete="off"
                 className="flex-1 overflow-y-auto bg-canvas px-[22px] py-[18px]"
             >
                 <h1 className="mb-2 text-center font-display text-[22px] text-brand">Daftar</h1>
 
                 <p className="mb-[18px] text-center text-[13px] text-muted">
-                    Gunakan media sosial atau email Anda
+                    Lengkapi data diri Anda untuk mendaftar
                 </p>
-
-                <SocialButtons />
 
                 <Field
                     name="name"
+                    label="Nama Lengkap"
                     value={data.name}
                     onChange={(event) => setData('name', event.target.value)}
-                    placeholder="Kirana Wijaya"
+                    placeholder="Contoh: Kirana Wijaya"
                     error={errors.name}
+                    autoComplete="off"
+                    className="mb-2.5"
+                />
+                <Field
+                    type="tel"
+                    name="phone"
+                    label="Nomor Telepon"
+                    value={data.phone}
+                    onChange={(event) => setData('phone', event.target.value)}
+                    placeholder="Contoh: 081234567890"
+                    error={errors.phone}
+                    autoComplete="off"
                     className="mb-2.5"
                 />
                 <Field
                     type="email"
                     name="email"
+                    label="Email"
                     value={data.email}
                     onChange={(event) => setData('email', event.target.value)}
-                    placeholder="kirana.wijaya@mail.com"
+                    placeholder="Contoh: kirana.wijaya@mail.com"
                     error={errors.email}
+                    autoComplete="off"
                     className="mb-2.5"
                 />
                 <Field
                     type="password"
                     name="password"
+                    label="Kata Sandi"
                     value={data.password}
                     onChange={(event) => setData('password', event.target.value)}
-                    placeholder="Masukkan kata sandi"
+                    placeholder="••••••••"
                     error={errors.password}
+                    autoComplete="off"
                     className="mb-2.5"
                 />
                 <Field
                     type="password"
                     name="password_confirmation"
+                    label="Ulangi Kata Sandi"
                     value={data.password_confirmation}
                     onChange={(event) => setData('password_confirmation', event.target.value)}
-                    placeholder="Ulangi kata sandi"
+                    placeholder="••••••••"
+                    autoComplete="off"
                     className="mb-2.5"
                 />
 

@@ -11,6 +11,7 @@ import Icon from './Icon';
  * @param {{
  *   type?: string,
  *   name?: string,
+ *   label?: string,
  *   value?: string,
  *   defaultValue?: string,
  *   placeholder?: string,
@@ -25,6 +26,7 @@ import Icon from './Icon';
 export default function Field({
     type = 'text',
     name,
+    label,
     value,
     defaultValue,
     placeholder,
@@ -42,12 +44,19 @@ export default function Field({
 
     return (
         <div className={className}>
+            {label ? (
+                <label htmlFor={name} className="mb-1 block text-[12px] font-medium text-ink">
+                    {label}
+                </label>
+            ) : null}
+
             <div
                 className={`flex h-control items-center gap-2 border bg-white px-3.5 ${
                     error ? 'border-danger' : 'border-blush'
                 }`}
             >
                 <input
+                    id={name}
                     type={isPassword && revealed ? 'text' : type}
                     name={name}
                     value={value}

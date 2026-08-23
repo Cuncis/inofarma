@@ -30,17 +30,21 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $data = $request->validate([
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
         $this->ensureIsNotRateLimited($request);
 
-        if (! Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
+        // The "Email/No. Telepon" field accepts either — an `@` marks it as
+        // an email, otherwise it's looked up as a phone number.
+        $field = str_contains($data['email'], '@') ? 'email' : 'phone';
+
+        if (! Auth::guard('customer')->attempt([$field => $data['email'], 'password' => $data['password']], $request->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey($request));
 
-            throw ValidationException::withMessages(['email' => 'Email atau kata sandi salah.']);
+            throw ValidationException::withMessages(['email' => 'Email/No. Telepon atau kata sandi salah.']);
         }
 
         RateLimiter::clear($this->throttleKey($request));
@@ -75,6 +79,7 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s()]+$/', 'unique:customers,phone'],
             'email' => ['required', 'email', 'max:255', 'unique:customers,email'],
             'password' => ['required', 'confirmed', PasswordRule::defaults()],
             // PDP (UU 27/2022) requires an explicit, affirmative action — a
@@ -82,12 +87,14 @@ class AuthController extends Controller
             // `Shop/SignUp.jsx` and `Shop/PrivacyPolicy.jsx`.
             'consent' => ['accepted'],
         ], [
+            'phone.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).',
             'consent.accepted' => 'Anda harus menyetujui Kebijakan Privasi untuk mendaftar.',
         ]);
 
         $customer = Customer::create([
             'code' => CodeSequence::next(Customer::withTrashed(), 'code', 'CUS-'),
             'name' => $data['name'],
+            'phone' => $data['phone'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'status' => 'aktif',

@@ -1,11 +1,12 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
 
 export default function VerifyPhone() {
-    const { data, setData, post, processing, errors } = useForm({ phone: '+6281234567890' });
+    const { shopUser } = usePage().props;
+    const { data, setData, post, processing, errors } = useForm({ phone: shopUser?.phone ?? '' });
 
     const submit = (event) => {
         event.preventDefault();

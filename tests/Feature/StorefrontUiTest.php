@@ -89,6 +89,18 @@ class StorefrontUiTest extends TestCase
         $this->assertFalse(Auth::guard('customer')->check());
     }
 
+    public function test_customers_can_sign_in_with_their_phone_number(): void
+    {
+        $customer = $this->makeCustomer(['phone' => '081234567890']);
+
+        $this->post('/ui/signin', ['email' => '081234567890', 'password' => 'password'])
+            ->assertRedirect(route('home'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertTrue(Auth::guard('customer')->check());
+        $this->assertTrue(Auth::guard('customer')->id() === $customer->id);
+    }
+
     public function test_the_signed_in_shopper_is_shared_with_every_screen(): void
     {
         $customer = $this->makeCustomer(['name' => 'Kirana Wijaya', 'email' => 'kirana.wijaya@mail.com']);
@@ -104,7 +116,7 @@ class StorefrontUiTest extends TestCase
 
     public function test_signing_in_requires_an_email_and_a_password(): void
     {
-        $this->post('/ui/signin', ['email' => 'not-an-email', 'password' => ''])
+        $this->post('/ui/signin', ['email' => '', 'password' => ''])
             ->assertSessionHasErrors(['email', 'password']);
 
         $this->assertFalse(Auth::guard('customer')->check());
@@ -112,9 +124,9 @@ class StorefrontUiTest extends TestCase
 
     public function test_validation_messages_are_returned_in_indonesian(): void
     {
-        $this->post('/ui/signin', ['email' => 'bukan-email', 'password' => ''])
+        $this->post('/ui/signin', ['email' => '', 'password' => ''])
             ->assertSessionHasErrors([
-                'email' => 'Kolom email harus berupa alamat email yang valid.',
+                'email' => 'Kolom email wajib diisi.',
                 'password' => 'Kolom kata sandi wajib diisi.',
             ]);
     }
@@ -135,6 +147,7 @@ class StorefrontUiTest extends TestCase
 
         $this->post('/ui/daftar', [
             'name' => 'Pelanggan Baru',
+            'phone' => '081234567890',
             'email' => 'baru@example.test',
             'password' => 'kata-sandi-baru',
             'password_confirmation' => 'kata-sandi-baru',
@@ -143,7 +156,11 @@ class StorefrontUiTest extends TestCase
 
         $this->assertTrue(Auth::guard('customer')->check());
         $customer = Customer::where('email', 'baru@example.test')->first();
-        $this->assertDatabaseHas('customers', ['email' => 'baru@example.test', 'email_verified_at' => null]);
+        $this->assertDatabaseHas('customers', [
+            'email' => 'baru@example.test',
+            'phone' => '081234567890',
+            'email_verified_at' => null,
+        ]);
         $this->assertNotNull($customer->consent_at);
 
         Notification::assertSentTo($customer, CustomerVerifyEmail::class);
