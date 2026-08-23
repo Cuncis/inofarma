@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
@@ -28,6 +27,24 @@ const PROMO_SLIDES = [
         image: '/media/images/promo/harga-sobat-produk-lengkap.png',
         href: '/ui/signup',
         alt: 'Harga Sobat, Produk Lengkap — gabung Sobat Ino sekarang',
+    },
+];
+
+const BOTTOM_SLIDES = [
+    {
+        image: '/media/images/promo/pengiriman-instan-24-jam.png',
+        href: '/ui/cabang-kami',
+        alt: 'Pengiriman instan dengan layanan antar 24 jam',
+    },
+    {
+        image: '/media/images/promo/temukan-cabang-terdekat.png',
+        href: '/ui/cabang-kami',
+        alt: 'Temukan cabang Inofarma terdekat',
+    },
+    {
+        image: '/media/images/promo/selalu-lebih-hemat.png',
+        href: '/ui/shop',
+        alt: 'Selalu lebih hemat, lebih lengkap',
     },
 ];
 
@@ -123,16 +140,11 @@ export default function Home() {
                     <BenefitsGrid />
                 </div>
 
-                <Link
-                    href="/ui/cabang-kami"
-                    className="mx-3.5 mt-1 block overflow-hidden rounded-lg border border-line"
-                >
-                    <img
-                        src="/media/images/promo/pengiriman-instan-24-jam.png"
-                        alt="Pengiriman instan dengan layanan antar 24 jam"
-                        className="w-full"
-                    />
-                </Link>
+                <Carousel
+                    slides={BOTTOM_SLIDES}
+                    aspect="aspect-[1920/601]"
+                    className="mx-3.5 mt-1"
+                />
             </div>
 
             <SearchOverlay open={searching} onClose={() => setSearching(false)} />
