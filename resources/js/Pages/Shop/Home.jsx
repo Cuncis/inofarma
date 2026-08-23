@@ -8,7 +8,6 @@ import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
 import HeroCarousel from '@/Components/Shop/HeroCarousel';
 import IconLink from '@/Components/Shop/IconLink';
 import ProductStrip from '@/Components/Shop/ProductStrip';
-import PromoBanner from '@/Components/Shop/PromoBanner';
 import SearchBarTrigger from '@/Components/Shop/SearchBarTrigger';
 import SectionHeading from '@/Components/Shop/SectionHeading';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
@@ -114,15 +113,10 @@ export default function Home() {
                     <ProductStrip products={trendingProducts} />
                 </div>
 
-                <PromoBanner
-                    href="/ui/shop"
-                    eyebrow="Promo bulan ini"
-                    title={'Diskon hingga 20%\nuntuk suplemen'}
-                    caption="Pakai kode HEMAT15 di halaman keranjang"
-                    cta="Belanja sekarang"
-                    icon="promo"
-                    tone="success"
-                    className="mt-6"
+                <Carousel
+                    slides={BOTTOM_SLIDES}
+                    aspect="aspect-[1920/601]"
+                    className="mx-3.5 mt-6"
                 />
 
                 <div>
@@ -135,16 +129,10 @@ export default function Home() {
                     <Testimonials />
                 </div>
 
-                <div className="mb-3.5">
+                <div>
                     <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
                     <BenefitsGrid />
                 </div>
-
-                <Carousel
-                    slides={BOTTOM_SLIDES}
-                    aspect="aspect-[1920/601]"
-                    className="mx-3.5 mt-1"
-                />
             </div>
 
             <SearchOverlay open={searching} onClose={() => setSearching(false)} />
