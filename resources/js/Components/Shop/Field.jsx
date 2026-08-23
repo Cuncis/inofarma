@@ -44,7 +44,7 @@ export default function Field({
         <div className={className}>
             <div
                 className={`flex h-control items-center gap-2 border bg-white px-3.5 ${
-                    error ? 'border-brand' : 'border-blush'
+                    error ? 'border-danger' : 'border-blush'
                 }`}
             >
                 <input
@@ -81,7 +81,7 @@ export default function Field({
                 ) : null}
             </div>
 
-            {error ? <p className="mt-1 text-[11px] text-brand">{error}</p> : null}
+            {error ? <p className="mt-1 text-[11px] text-danger">{error}</p> : null}
         </div>
     );
 }
