@@ -13,7 +13,7 @@ export default function Faq() {
                     const expanded = open === faq.question;
 
                     return (
-                        <div key={faq.question} className="mb-2 border border-line">
+                        <div key={faq.question} className="mb-2 border border-line bg-white">
                             <button
                                 type="button"
                                 onClick={() => setOpen(expanded ? null : faq.question)}
