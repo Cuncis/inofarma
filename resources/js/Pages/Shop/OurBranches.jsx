@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
+import geolocationErrorMessage from '@/Components/Shop/geolocationError';
 import Icon from '@/Components/Shop/Icon';
 import useLocationConsent from '@/Components/Shop/useLocationConsent';
 
@@ -28,6 +29,16 @@ export default function OurBranches({ branches, areas, hasLocation }) {
             return;
         }
 
+        // The Geolocation API is blocked outright on an insecure origin
+        // (plain HTTP, other than localhost) — the browser fails every call
+        // with the same generic permission-denied error, which otherwise
+        // looks identical to the user actually having said no.
+        if (! window.isSecureContext) {
+            setLocationError('Fitur lokasi hanya berfungsi lewat HTTPS (atau localhost). Pilih area terdekat secara manual di bawah.');
+
+            return;
+        }
+
         setLocating(true);
         setLocationError('');
 
@@ -39,10 +50,11 @@ export default function OurBranches({ branches, areas, hasLocation }) {
                     { preserveScroll: true, onFinish: () => setLocating(false) },
                 );
             },
-            () => {
+            (error) => {
                 setLocating(false);
-                setLocationError('Izin lokasi ditolak. Pilih area terdekat secara manual di bawah.');
+                setLocationError(`${geolocationErrorMessage(error)} Pilih area terdekat secara manual di bawah.`);
             },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
         );
     };
 

@@ -4,6 +4,8 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
+import geolocationErrorMessage from '@/Components/Shop/geolocationError';
+import Icon from '@/Components/Shop/Icon';
 import useLocationConsent from '@/Components/Shop/useLocationConsent';
 
 /**
@@ -197,6 +199,16 @@ export default function AddNewAddress({ provinces }) {
             return;
         }
 
+        // The Geolocation API is blocked outright on an insecure origin
+        // (plain HTTP, other than localhost) — the browser fails every call
+        // with the same generic permission-denied error, which otherwise
+        // looks identical to the user actually having said no.
+        if (! window.isSecureContext) {
+            setLocationError('Fitur lokasi hanya berfungsi lewat HTTPS (atau localhost). Isi alamat secara manual.');
+
+            return;
+        }
+
         setLocating(true);
         setLocationError('');
 
@@ -209,10 +221,11 @@ export default function AddNewAddress({ provinces }) {
                 }));
                 setLocating(false);
             },
-            () => {
-                setLocationError('Tidak bisa mengambil lokasi. Isi alamat secara manual.');
+            (error) => {
+                setLocationError(geolocationErrorMessage(error));
                 setLocating(false);
             },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
         );
     };
 
@@ -367,7 +380,7 @@ export default function AddNewAddress({ provinces }) {
                 </div>
 
                 {! consented ? (
-                    <label className="mb-2 flex items-start gap-2 text-[11px] leading-relaxed text-muted">
+                    <label className="mb-2.5 flex items-start gap-2 text-[11px] leading-relaxed text-muted">
                         <input
                             type="checkbox"
                             checked={consented}
@@ -382,22 +395,35 @@ export default function AddNewAddress({ provinces }) {
                     type="button"
                     onClick={useMyLocation}
                     disabled={locating || ! consented}
-                    className="mb-1 text-xs font-semibold text-brand disabled:opacity-60"
+                    className="mb-2.5 flex w-full items-center gap-3 rounded-lg border border-line bg-white p-3.5 text-left disabled:opacity-60"
                 >
-                    {locating
-                        ? 'Mengambil lokasi…'
-                        : data.latitude
-                          ? 'Lokasi tersimpan ✓ — perbarui'
-                          : '📍 Gunakan lokasi saya'}
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blush text-brand">
+                        <Icon name="navigation" size={18} />
+                    </span>
+
+                    <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] font-bold text-ink">
+                            {locating
+                                ? 'Mengambil lokasi…'
+                                : data.latitude
+                                  ? 'Lokasi tersimpan — perbarui'
+                                  : 'Gunakan lokasi saya'}
+                        </span>
+                        <span className="block text-[11px] text-muted">
+                            Membantu menghitung ongkir dan radius antar dari cabang.
+                        </span>
+                    </span>
+
+                    {data.latitude && ! locating ? (
+                        <Icon name="check" size={16} className="shrink-0 text-success" />
+                    ) : (
+                        <Icon name="chevronRight" size={14} className="shrink-0 text-[#cccccc]" />
+                    )}
                 </button>
 
                 {locationError ? (
                     <p className="mb-2.5 text-[11px] text-danger">{locationError}</p>
-                ) : (
-                    <p className="mb-2.5 text-[11px] text-muted">
-                        Membantu menghitung ongkir dan radius antar dari cabang.
-                    </p>
-                )}
+                ) : null}
 
                 <Button type="submit" disabled={processing}>
                     {processing ? 'Menyimpan…' : 'Tambah Alamat'}
