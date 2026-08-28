@@ -21,15 +21,33 @@ export default function Faq() {
                                 className="flex w-full justify-between p-3.5 text-left text-[13px] font-bold"
                             >
                                 <span>{faq.question}</span>
-                                <span className="text-brand">{expanded ? '−' : '+'}</span>
+                                <span
+                                    className={`text-brand transition-transform duration-300 ease-in-out ${
+                                        expanded ? 'rotate-180' : ''
+                                    }`}
+                                >
+                                    {expanded ? '−' : '+'}
+                                </span>
                             </button>
 
-                            {expanded ? (
-                                <div className="px-3.5 pb-3.5 text-xs leading-relaxed text-muted">
-                                    {faq.answer ??
-                                        'Tim kami siap membantu — hubungi kami lewat aplikasi dan kami akan membalas dalam satu hari kerja.'}
+                            {/*
+                             * `grid-rows-[0fr]` → `[1fr]` animates height without
+                             * measuring it in JS — the content is always mounted
+                             * (never conditionally removed), so the transition has
+                             * something to animate between.
+                             */}
+                            <div
+                                className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+                                    expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                                }`}
+                            >
+                                <div className="overflow-hidden">
+                                    <div className="px-3.5 pb-3.5 text-xs leading-relaxed text-muted">
+                                        {faq.answer ??
+                                            'Tim kami siap membantu — hubungi kami lewat aplikasi dan kami akan membalas dalam satu hari kerja.'}
+                                    </div>
                                 </div>
-                            ) : null}
+                            </div>
                         </div>
                     );
                 })}
