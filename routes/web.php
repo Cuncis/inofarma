@@ -31,6 +31,7 @@ use App\Http\Controllers\Shop\LocationController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController;
 use App\Http\Controllers\Shop\PrivacyController;
+use App\Http\Controllers\Shop\RegionController;
 use App\Http\Controllers\Shop\ShippingController;
 use App\Http\Controllers\Webhooks\BiteshipWebhookController;
 use App\Http\Controllers\Webhooks\DokuWebhookController;
@@ -473,6 +474,7 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
         Route::get('my-address', [AddressController::class, 'index'])->name('my-address');
         Route::get('add-new-address', [AddressController::class, 'create'])->name('add-new-address');
         Route::post('add-new-address', [AddressController::class, 'store'])->name('add-new-address.store');
+        Route::get('wilayah', [RegionController::class, 'children'])->name('wilayah');
         Route::delete('alamat/{address}', [AddressController::class, 'destroy'])->name('alamat.destroy');
         Route::post('alamat/{address}/utama', [AddressController::class, 'makeDefault'])->name('alamat.utama');
 

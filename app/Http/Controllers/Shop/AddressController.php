@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Models\Region;
 use App\Support\Cart\CartManager;
 use App\Support\Presenters\CustomerAddressPresenter;
 use Illuminate\Http\RedirectResponse;
@@ -31,7 +32,13 @@ class AddressController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Shop/AddNewAddress');
+        return Inertia::render('Shop/AddNewAddress', [
+            // The Provinsi dropdown's options — small enough (38 rows) to
+            // send with the page; Kota/Kecamatan/Kelurahan are fetched from
+            // `RegionController::children()` as each parent is picked.
+            'provinces' => Region::query()->where('level', 1)->orderBy('name')->get(['code', 'name'])
+                ->map(fn (Region $region) => ['code' => $region->code, 'name' => $region->name]),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse

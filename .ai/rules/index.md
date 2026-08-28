@@ -11,6 +11,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Support/Auth/**,app/Http/Controllers/Admin/** | .ai/rules/controllers-admin.md |
 | resources/js/Pages/Shop/OrderDetail.jsx,resources/js/Pages/Shop/TrackOrder.jsx,app/Http/Controllers/Shop/OrderController.php | .ai/rules/controllers-shop.md |
 | app/Http/Controllers/** | .ai/rules/controllers.md |
+| app/Models/Region.php,app/Console/Commands/ImportRegions.php,app/Http/Controllers/Shop/RegionController.php,database/data/** | .ai/rules/data.md |
 | tests/Feature/** | .ai/rules/feature.md |
 | tailwind.config.js | .ai/rules/general.md |
 | app/Support/Presenters/InvoicePresenter.php,app/Http/Controllers/Admin/InvoiceController.php,app/Models/Coupon.php,app/Http/Controllers/Admin/CouponController.php | .ai/rules/http-controllers-admin.md |
