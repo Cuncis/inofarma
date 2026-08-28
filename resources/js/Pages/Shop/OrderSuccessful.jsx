@@ -7,7 +7,7 @@ import { asset } from '@/Components/Shop/data';
  */
 export default function OrderSuccessful({ orderNumber }) {
     return (
-        <MobileLayout title="Pesanan Berhasil" background="bg-blush">
+        <MobileLayout title="Pesanan Berhasil" background="bg-canvas">
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">
                 <img src={asset.logo('white')} alt="Inofarma" className="mb-[18px] h-8 w-auto" />
 

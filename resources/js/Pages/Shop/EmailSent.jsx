@@ -12,7 +12,7 @@ export default function EmailSent() {
                 <AppBar title="Atur Ulang Sandi" back="/ui/forgot-password" tone="white" />
             }
         >
-            <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-blush p-6 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-canvas p-6 text-center">
                 <img
                     src={asset.other('04')}
                     alt=""

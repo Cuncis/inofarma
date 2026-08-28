@@ -17,6 +17,25 @@ class AddressTest extends TestCase
         $this->get('/ui/my-address')->assertRedirect(route('ui.signin'));
     }
 
+    public function test_edit_profile_requires_signing_in(): void
+    {
+        $this->get('/ui/edit-profile')->assertRedirect(route('ui.signin'));
+    }
+
+    public function test_edit_profile_shows_the_customers_saved_addresses(): void
+    {
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        CustomerAddress::factory()->for($customer)->isDefault()->create(['label' => 'Rumah']);
+        CustomerAddress::factory()->for($customer)->create(['label' => 'Kantor']);
+
+        $this->actingAs($customer, 'customer');
+
+        $this->get('/ui/edit-profile')->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Shop/EditProfile')
+            ->has('addresses', 2)
+        );
+    }
+
     public function test_a_customer_can_add_an_address_and_it_becomes_the_default(): void
     {
         $customer = Customer::factory()->create(['status' => 'aktif']);

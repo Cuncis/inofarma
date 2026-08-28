@@ -22,12 +22,12 @@ export default function TrackOrder({ order }) {
     return (
         <MobileLayout
             title="Lacak Pesanan"
-            background="bg-blush"
+            background="bg-canvas"
             header={<AppBar title="Lacak Pesanan" back={`/ui/pesanan/${order.number}`} tone="brand" />}
         >
             <FlashBanner />
 
-            <div className="flex-1 overflow-y-auto bg-blush p-[18px]">
+            <div className="flex-1 overflow-y-auto bg-canvas p-[18px]">
                 <img
                     src={asset.other('08')}
                     alt=""

@@ -388,7 +388,6 @@ $beShopScreens = [
     'wishlist-empty' => 'WishlistEmpty',
     'promocodes-empty' => 'PromocodesEmpty',
     'order-history-empty' => 'OrderHistoryEmpty',
-    'edit-profile' => 'EditProfile',
     'my-promocodes' => 'MyPromocodes',
     'shipping-info' => 'ShippingInfo',
     'faq' => 'Faq',
@@ -468,6 +467,8 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
 
         Route::get('shipping-details', [AddressController::class, 'forCheckout'])->name('shipping-details');
         Route::post('shipping-details', [AddressController::class, 'selectForCheckout'])->name('shipping-details.store');
+
+        Route::get('edit-profile', [AddressController::class, 'forProfile'])->name('edit-profile');
 
         Route::get('my-address', [AddressController::class, 'index'])->name('my-address');
         Route::get('add-new-address', [AddressController::class, 'create'])->name('add-new-address');

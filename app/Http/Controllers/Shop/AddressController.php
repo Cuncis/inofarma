@@ -101,6 +101,16 @@ class AddressController extends Controller
         return back()->with('success', 'Alamat utama diperbarui.');
     }
 
+    /** "Ubah Profil" shows the saved-address count/default inline, with a link out to `Shop/MyAddress` to manage them. */
+    public function forProfile(Request $request): Response
+    {
+        return Inertia::render('Shop/EditProfile', [
+            'addresses' => CustomerAddressPresenter::collection(
+                $this->customer($request)->addresses()->orderByDesc('is_default')->orderByDesc('id')->get()
+            ),
+        ]);
+    }
+
     /** The address picker that "Detail pengiriman" on the checkout page links out to. */
     public function forCheckout(Request $request): Response
     {
