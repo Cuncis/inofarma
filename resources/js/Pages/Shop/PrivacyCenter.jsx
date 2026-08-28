@@ -33,7 +33,7 @@ export default function PrivacyCenter() {
                 <div className="mb-5 border border-line p-3.5">
                     <div className="mb-2 font-display text-[15px]">Unduh Data Saya</div>
                     <p className="mb-3 text-xs leading-relaxed text-muted">
-                        Berkas JSON berisi profil, alamat tersimpan, dan riwayat pesanan Anda —
+                        Berkas JSON berisi profil, alamat tersimpan, dan riwayat pesanan Anda,
                         sesuai hak akses data pribadi Anda menurut UU PDP.
                     </p>
                     <a

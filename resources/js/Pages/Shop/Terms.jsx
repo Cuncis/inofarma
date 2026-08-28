@@ -9,11 +9,11 @@ import AppBar from '@/Components/Shop/AppBar';
 const sections = [
     {
         title: '1. Ruang Lingkup',
-        body: 'Syarat & Ketentuan ini mengatur penggunaan aplikasi dan layanan Inofarma — jaringan apotek dengan cabang fisik yang menjual obat bebas dan obat bebas terbatas. Kami tidak menjual obat keras atau obat dengan resep dokter melalui aplikasi ini.',
+        body: 'Syarat & Ketentuan ini mengatur penggunaan aplikasi dan layanan Inofarma, jaringan apotek dengan cabang fisik yang menjual obat bebas dan obat bebas terbatas. Kami tidak menjual obat keras atau obat dengan resep dokter melalui aplikasi ini.',
     },
     {
         title: '2. Akun Pelanggan',
-        body: 'Anda bertanggung jawab menjaga kerahasiaan kata sandi akun Anda. Data yang Anda daftarkan harus benar — nomor telepon diverifikasi lewat kode OTP karena dipakai untuk konfirmasi pesanan dan pengambilan di cabang.',
+        body: 'Anda bertanggung jawab menjaga kerahasiaan kata sandi akun Anda. Data yang Anda daftarkan harus benar, nomor telepon diverifikasi lewat kode OTP karena dipakai untuk konfirmasi pesanan dan pengambilan di cabang.',
     },
     {
         title: '3. Pemesanan',
@@ -21,11 +21,11 @@ const sections = [
     },
     {
         title: '4. Pembayaran',
-        body: 'Pembayaran daring diproses oleh DOKU (transfer bank, e-wallet, QRIS, kartu) — Inofarma tidak pernah menyimpan nomor kartu atau kredensial pembayaran Anda. Pesanan Ambil di Toko juga bisa dibayar tunai di kasir cabang saat pengambilan.',
+        body: 'Pembayaran daring diproses oleh DOKU (transfer bank, e-wallet, QRIS, kartu). Inofarma tidak pernah menyimpan nomor kartu atau kredensial pembayaran Anda. Pesanan Ambil di Toko juga bisa dibayar tunai di kasir cabang saat pengambilan.',
     },
     {
         title: '5. Pengiriman',
-        body: 'Pesanan Antar dikirim oleh kurir pihak ketiga (Biteship, termasuk kurir instan) dari cabang yang Anda pilih. Alamat di luar radius antar cabang tersebut tidak bisa dipilih untuk pengiriman — lihat Kebijakan Pengiriman untuk detail lengkap.',
+        body: 'Pesanan Antar dikirim oleh kurir pihak ketiga (Biteship, termasuk kurir instan) dari cabang yang Anda pilih. Alamat di luar radius antar cabang tersebut tidak bisa dipilih untuk pengiriman, lihat Kebijakan Pengiriman untuk detail lengkap.',
     },
     {
         title: '6. Pengambilan di Toko',
@@ -33,11 +33,11 @@ const sections = [
     },
     {
         title: '7. Kebijakan Retur Obat',
-        body: 'Karena menyangkut keamanan konsumsi, obat yang sudah diserahkan ke pelanggan (baik diantar maupun diambil) tidak dapat dikembalikan atau ditukar, kecuali: (a) produk yang diterima salah atau berbeda dari yang dipesan, (b) produk rusak atau kedaluwarsa saat diterima, atau (c) segel kemasan sudah rusak sebelum diterima pelanggan. Klaim retur harus diajukan dalam 2x24 jam sejak barang diterima, dengan foto kondisi produk, melalui kontak cabang tempat pesanan dibuat. Retur yang disetujui diproses sebagai pengembalian dana, bukan penukaran barang — lihat Kebijakan Pengembalian Dana.',
+        body: 'Karena menyangkut keamanan konsumsi, obat yang sudah diserahkan ke pelanggan (baik diantar maupun diambil) tidak dapat dikembalikan atau ditukar, kecuali: (a) produk yang diterima salah atau berbeda dari yang dipesan, (b) produk rusak atau kedaluwarsa saat diterima, atau (c) segel kemasan sudah rusak sebelum diterima pelanggan. Klaim retur harus diajukan dalam 2x24 jam sejak barang diterima, dengan foto kondisi produk, melalui kontak cabang tempat pesanan dibuat. Retur yang disetujui diproses sebagai pengembalian dana, bukan penukaran barang, lihat Kebijakan Pengembalian Dana.',
     },
     {
         title: '8. Golongan Obat dan Batasan',
-        body: 'Setiap produk menampilkan golongan obatnya (bebas atau bebas terbatas) beserta peringatan P1-P6 bila berlaku. Sebagian produk punya batas jumlah pembelian per transaksi, ditampilkan di halaman produk. Informasi pada aplikasi ini adalah informasi umum dan bukan pengganti nasihat medis dari apoteker atau dokter — lihat "Cara Menghubungi Apoteker" pada halaman produk.',
+        body: 'Setiap produk menampilkan golongan obatnya (bebas atau bebas terbatas) beserta peringatan P1-P6 bila berlaku. Sebagian produk punya batas jumlah pembelian per transaksi, ditampilkan di halaman produk. Informasi pada aplikasi ini adalah informasi umum dan bukan pengganti nasihat medis dari apoteker atau dokter, lihat "Cara Menghubungi Apoteker" pada halaman produk.',
     },
     {
         title: '9. Perubahan Ketentuan',

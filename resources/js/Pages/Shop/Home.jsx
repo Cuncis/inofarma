@@ -20,12 +20,12 @@ const PROMO_SLIDES = [
     {
         image: '/media/images/promo/sehat-ga-mesti-mahal.png',
         href: '/ui/signup',
-        alt: 'Sehat ga mesti mahal — ayo daftar member Sobat Ino',
+        alt: 'Sehat ga mesti mahal, ayo daftar member Sobat Ino',
     },
     {
         image: '/media/images/promo/harga-sobat-produk-lengkap.png',
         href: '/ui/signup',
-        alt: 'Harga Sobat, Produk Lengkap — gabung Sobat Ino sekarang',
+        alt: 'Harga Sobat, Produk Lengkap, gabung Sobat Ino sekarang',
     },
 ];
 

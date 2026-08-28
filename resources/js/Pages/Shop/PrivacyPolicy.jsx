@@ -10,7 +10,7 @@ import AppBar from '@/Components/Shop/AppBar';
 const sections = [
     {
         title: '1. Data yang Kami Kumpulkan',
-        body: 'Data akun (nama, email, nomor telepon, kata sandi terenkripsi), alamat pengiriman beserta koordinatnya, riwayat pesanan, dan data lokasi perangkat Anda (bila Anda memberikan izin terpisah — lihat bagian 5). Kami tidak pernah menyimpan nomor kartu pembayaran atau kredensial e-wallet Anda; itu diproses langsung oleh DOKU.',
+        body: 'Data akun (nama, email, nomor telepon, kata sandi terenkripsi), alamat pengiriman beserta koordinatnya, riwayat pesanan, dan data lokasi perangkat Anda (bila Anda memberikan izin terpisah, lihat bagian 5). Kami tidak pernah menyimpan nomor kartu pembayaran atau kredensial e-wallet Anda; itu diproses langsung oleh DOKU.',
     },
     {
         title: '2. Tujuan Pengumpulan',
@@ -22,10 +22,10 @@ const sections = [
     },
     {
         title: '4. Pihak Ketiga yang Memproses Data Anda',
-        body: 'DOKU (pembayaran), Biteship (pengiriman dan kurir instan), Amazon SES (email transaksional), dan WhatsApp Business Platform milik Meta (notifikasi WhatsApp). Masing-masing hanya menerima data yang mereka butuhkan untuk fungsinya — misalnya kurir hanya menerima nama, telepon, dan alamat penerima, bukan riwayat belanja Anda.',
+        body: 'DOKU (pembayaran), Biteship (pengiriman dan kurir instan), Amazon SES (email transaksional), dan WhatsApp Business Platform milik Meta (notifikasi WhatsApp). Masing-masing hanya menerima data yang mereka butuhkan untuk fungsinya. Misalnya, kurir hanya menerima nama, telepon, dan alamat penerima, bukan riwayat belanja Anda.',
     },
     {
-        title: '5. Data Lokasi — Persetujuan Terpisah',
+        title: '5. Data Lokasi: Persetujuan Terpisah',
         body: 'Koordinat perangkat Anda adalah data pribadi tersendiri menurut kami, terpisah dari persetujuan akun. Kami meminta persetujuan eksplisit lagi setiap kali fitur "gunakan lokasi saya" dipakai pertama kali (di halaman Cabang Kami dan Tambah Alamat) sebelum peramban Anda diminta membagikan lokasi. Anda selalu bisa memilih area secara manual sebagai gantinya.',
     },
     {
@@ -58,7 +58,7 @@ export default function PrivacyPolicy() {
             header={<AppBar title="Kebijakan Privasi" back="/ui/profile" tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto p-4">
-                <p className="mb-4 text-[11px] text-faint">Versi 1.0 — berlaku sejak pendaftaran akun Anda.</p>
+                <p className="mb-4 text-[11px] text-faint">Versi 1.0, berlaku sejak pendaftaran akun Anda.</p>
 
                 {sections.map((section) => (
                     <div key={section.title} className="mb-5">

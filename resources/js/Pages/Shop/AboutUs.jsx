@@ -21,7 +21,7 @@ export default function AboutUs() {
                     <p className="text-xs leading-[1.7] text-muted">
                         Inofarma adalah jaringan apotek dengan 10 cabang di wilayah Jabodetabek,
                         menjual obat bebas dan obat bebas terbatas serta kebutuhan kesehatan
-                        sehari-hari — diantar dari cabang terdekat Anda atau diambil langsung di
+                        sehari-hari, diantar dari cabang terdekat Anda atau diambil langsung di
                         toko.
                     </p>
                 </div>
@@ -31,7 +31,7 @@ export default function AboutUs() {
                         Badan Usaha
                     </div>
                     <p className="text-xs leading-[1.7] text-muted">
-                        Dioperasikan oleh [Nama PT — isi nama badan usaha resmi terdaftar di
+                        Dioperasikan oleh [Nama PT, isi nama badan usaha resmi terdaftar di
                         OSS/Kemenkumham]
                         <br />
                         NIB: [isi nomor induk berusaha]
@@ -59,7 +59,7 @@ export default function AboutUs() {
                     </div>
                     <p className="text-xs leading-[1.7] text-muted">
                         Setiap cabang beroperasi dengan SIA (Surat Izin Apotek) dan Apoteker
-                        Penanggung Jawab dengan SIPA aktif sendiri-sendiri — lihat detail izin dan
+                        Penanggung Jawab dengan SIPA aktif sendiri-sendiri, lihat detail izin dan
                         kontak apoteker tiap cabang di halaman{' '}
                         <a href="/ui/cabang-kami" className="text-brand underline">
                             Cabang Kami

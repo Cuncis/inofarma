@@ -19,7 +19,7 @@ const sections = [
     },
     {
         title: 'Berapa Lama',
-        body: 'Pengembalian dana dicatat dan diproses oleh staf cabang setelah dana secara nyata sudah dikirim kembali — bukan otomatis lewat sistem pembayaran. Perkirakan 3-14 hari kerja tergantung metode pembayaran awal dan bank/e-wallet penerima. Status "Refund" pada halaman Lacak Pesanan berarti pengembalian sudah tercatat oleh cabang.',
+        body: 'Pengembalian dana dicatat dan diproses oleh staf cabang setelah dana secara nyata sudah dikirim kembali, bukan otomatis lewat sistem pembayaran. Perkirakan 3-14 hari kerja tergantung metode pembayaran awal dan bank/e-wallet penerima. Status "Refund" pada halaman Lacak Pesanan berarti pengembalian sudah tercatat oleh cabang.',
     },
     {
         title: 'Stok pada Pesanan yang Di-refund',
@@ -27,7 +27,7 @@ const sections = [
     },
     {
         title: 'Pertanyaan Status Refund',
-        body: 'Hubungi cabang tempat pesanan Anda dibuat — nomor telepon dan WhatsApp cabang tersedia di halaman Cabang Kami dan pada halaman Lacak Pesanan Anda.',
+        body: 'Hubungi cabang tempat pesanan Anda dibuat, nomor telepon dan WhatsApp cabang tersedia di halaman Cabang Kami dan pada halaman Lacak Pesanan Anda.',
     },
 ];
 

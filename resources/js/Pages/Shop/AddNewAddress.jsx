@@ -406,7 +406,7 @@ export default function AddNewAddress({ provinces }) {
                             {locating
                                 ? 'Mengambil lokasi…'
                                 : data.latitude
-                                  ? 'Lokasi tersimpan — perbarui'
+                                  ? 'Lokasi tersimpan, perbarui'
                                   : 'Gunakan lokasi saya'}
                         </span>
                         <span className="block text-[11px] text-muted">

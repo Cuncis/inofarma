@@ -308,7 +308,7 @@ export default function Checkout({ cart, pickupEtaOptions }) {
 
                             <p className="mt-1.5 text-xs text-muted">
                                 Satu-satunya metode untuk pesanan Antar. Anda akan diarahkan ke
-                                halaman pembayaran DOKU — pilih transfer bank, e-wallet, atau
+                                halaman pembayaran DOKU, pilih transfer bank, e-wallet, atau
                                 QRIS di sana.
                             </p>
                         </>

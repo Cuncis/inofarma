@@ -44,7 +44,7 @@ export default function Faq() {
                                 <div className="overflow-hidden">
                                     <div className="px-3.5 pb-3.5 text-xs leading-relaxed text-muted">
                                         {faq.answer ??
-                                            'Tim kami siap membantu — hubungi kami lewat aplikasi dan kami akan membalas dalam satu hari kerja.'}
+                                            'Tim kami siap membantu, hubungi kami lewat aplikasi dan kami akan membalas dalam satu hari kerja.'}
                                     </div>
                                 </div>
                             </div>

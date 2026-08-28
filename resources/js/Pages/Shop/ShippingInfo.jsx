@@ -11,11 +11,11 @@ import AppBar from '@/Components/Shop/AppBar';
 const sections = [
     {
         title: 'Ongkos Kirim',
-        body: 'Ongkos kirim dihitung langsung dari cabang yang Anda pilih ke alamat tujuan — bukan tarif rata, dan berbeda-beda tergantung jarak, berat, dan kurir yang Anda pilih saat checkout (termasuk kurir instan seperti Gojek/Grab untuk pengiriman cepat di sekitar cabang).',
+        body: 'Ongkos kirim dihitung langsung dari cabang yang Anda pilih ke alamat tujuan, bukan tarif rata, dan berbeda-beda tergantung jarak, berat, dan kurir yang Anda pilih saat checkout (termasuk kurir instan seperti Gojek/Grab untuk pengiriman cepat di sekitar cabang).',
     },
     {
         title: 'Area Pengiriman',
-        body: 'Setiap cabang punya radius antar sendiri. Alamat di luar radius cabang yang Anda pilih tidak bisa diproses untuk pengiriman — pilih cabang lain yang lebih dekat dengan alamat Anda, atau pilih Ambil di Toko.',
+        body: 'Setiap cabang punya radius antar sendiri. Alamat di luar radius cabang yang Anda pilih tidak bisa diproses untuk pengiriman, pilih cabang lain yang lebih dekat dengan alamat Anda, atau pilih Ambil di Toko.',
     },
     {
         title: 'Estimasi Waktu Kirim',
@@ -31,7 +31,7 @@ const sections = [
     },
     {
         title: 'Metode Pembayaran',
-        body: 'Pembayaran online diproses DOKU: transfer bank, e-wallet (GoPay, OVO, DANA, dll.), QRIS, dan kartu debit/kredit — semua diproses langsung di halaman DOKU, tidak lewat server kami. Pesanan Ambil di Toko juga bisa dibayar tunai saat pengambilan. Semua transaksi online dilindungi enkripsi standar industri milik DOKU.',
+        body: 'Pembayaran online diproses DOKU: transfer bank, e-wallet (GoPay, OVO, DANA, dll.), QRIS, dan kartu debit/kredit. Semua diproses langsung di halaman DOKU, tidak lewat server kami. Pesanan Ambil di Toko juga bisa dibayar tunai saat pengambilan. Semua transaksi online dilindungi enkripsi standar industri milik DOKU.',
     },
 ];
 
