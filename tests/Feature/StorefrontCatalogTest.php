@@ -36,6 +36,10 @@ class StorefrontCatalogTest extends TestCase
                 ->has('catalog.categories', self::CATEGORY_COUNT)
                 ->where('catalog.products.0.name', 'Paracetamol 500mg')
                 ->where('catalog.products.0.price', 12500)
+                // PRD-001 is seeded with a second photo specifically to
+                // exercise the "several photos" gallery with real seed data.
+                ->has('catalog.products.0.images', 2)
+                ->has('catalog.products.1.images', 1)
             );
 
         // Also on a screen deep in the flow, because the search overlay lives in

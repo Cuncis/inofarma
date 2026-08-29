@@ -15,7 +15,8 @@ import { usePage } from '@inertiajs/react';
  * @property {string} slug
  * @property {string} name
  * @property {string} category
- * @property {string} image
+ * @property {string} image       The primary photo — grids/strips/cards use this.
+ * @property {{path: string, alt: string}[]} images  Every photo, in display order — the product-detail gallery.
  * @property {number} price       Current selling price, in rupiah.
  * @property {number} [oldPrice]  Struck-through price when the item is discounted.
  * @property {number} stock       Across every branch.

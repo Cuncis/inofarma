@@ -61,6 +61,13 @@ class ShopCatalogPresenter
             'name' => $product->name,
             'category' => $product->category?->name,
             'image' => $product->image_path,
+            // The product-detail gallery; falls back to the same single
+            // image `image_path` already does, so a product with no
+            // `ProductImage` rows (a plain seed/demo one) still gets a
+            // one-photo gallery instead of an empty one.
+            'images' => $product->images->isNotEmpty()
+                ? $product->images->map(fn ($image) => ['path' => $image->path, 'alt' => $image->alt ?? $product->name])->all()
+                : [['path' => $product->image_path, 'alt' => $product->name]],
             'price' => $product->price,
             'oldPrice' => $product->old_price,
             'stock' => $stock,

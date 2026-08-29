@@ -6,6 +6,7 @@ import Icon from '@/Components/Shop/Icon';
 import BranchPicker from '@/Components/Shop/BranchPicker';
 import FlashBanner from '@/Components/Shop/FlashBanner';
 import { DrugInfoSection } from '@/Components/Shop/DrugInfo';
+import ProductGallery from '@/Components/Shop/ProductGallery';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
 import { findProduct, money, reviews, useShopCatalog } from '@/Components/Shop/data';
@@ -53,19 +54,16 @@ export default function ProductDetail() {
                 />
             }
         >
-            <div className="relative h-[285px] shrink-0 bg-[#f0f0f0]">
-                <img
-                    src={product.image}
-                    alt={product.name}
-                    className="absolute inset-0 h-full w-full object-contain p-8"
-                />
-
-                {product.prescription ? (
-                    <span className="absolute bottom-3 left-3 bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink">
-                        Perlu resep
-                    </span>
-                ) : null}
-            </div>
+            <ProductGallery
+                images={product.images ?? [{ path: product.image, alt: product.name }]}
+                badge={
+                    product.prescription ? (
+                        <span className="absolute bottom-3 left-3 bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink">
+                            Perlu resep
+                        </span>
+                    ) : null
+                }
+            />
 
             <FlashBanner />
 
