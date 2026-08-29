@@ -379,7 +379,6 @@ $beShopScreens = [
     'new-password' => 'NewPassword',
     'home' => 'Home',
     'wishlist' => 'Wishlist',
-    'profile' => 'Profile',
     'categories' => 'Categories',
     'shop' => 'Shop',
     'product-detail' => 'ProductDetail',
@@ -459,6 +458,8 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
     ]))->name('order-successful');
 
     Route::middleware('customer')->group(function () {
+        Route::get('profile', fn () => Inertia::render('Shop/Profile'))->name('profile');
+
         Route::post('keranjang/kupon', [CartController::class, 'applyCoupon'])->name('keranjang.kupon.store');
         Route::delete('keranjang/kupon', [CartController::class, 'removeCoupon'])->name('keranjang.kupon.destroy');
 

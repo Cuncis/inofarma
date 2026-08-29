@@ -46,7 +46,6 @@ class StorefrontUiTest extends TestCase
         return [
             'sign in' => ['ui/signin', 'Shop/SignIn'],
             'sign up' => ['ui/signup', 'Shop/SignUp'],
-            'profile' => ['ui/profile', 'Shop/Profile'],
             'leave a review' => ['ui/leave-a-review', 'Shop/LeaveAReview'],
         ];
     }
@@ -109,9 +108,15 @@ class StorefrontUiTest extends TestCase
 
         $this->get('/ui/profile')
             ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('Shop/Profile')
                 ->where('shopUser.email', 'kirana.wijaya@mail.com')
                 ->where('shopUser.name', 'Kirana Wijaya')
             );
+    }
+
+    public function test_profile_requires_signing_in(): void
+    {
+        $this->get('/ui/profile')->assertRedirect(route('ui.signin'));
     }
 
     public function test_signing_in_requires_an_email_and_a_password(): void

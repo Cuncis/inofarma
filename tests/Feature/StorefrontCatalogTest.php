@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\Concerns\SeedsDemoCatalogue;
@@ -38,7 +39,10 @@ class StorefrontCatalogTest extends TestCase
             );
 
         // Also on a screen deep in the flow, because the search overlay lives in
-        // the layout and can be opened from anywhere.
+        // the layout and can be opened from anywhere. Profile is
+        // customer-gated, so this needs a signed-in shopper.
+        $this->actingAs(Customer::factory()->create(['status' => 'aktif']), 'customer');
+
         $this->get('/ui/profile')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('catalog.products', self::PRODUCT_COUNT)
