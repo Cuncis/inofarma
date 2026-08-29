@@ -237,7 +237,7 @@ export default function Cart({ cart }) {
                     </div>
                 </div>
 
-                <Button href="/ui/checkout" className="mb-2">
+                <Button href={signedIn ? '/ui/checkout' : '/ui/checkout/tamu'} className="mb-2">
                     Lanjut ke Pembayaran
                 </Button>
             </div>

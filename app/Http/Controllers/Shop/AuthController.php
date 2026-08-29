@@ -25,8 +25,12 @@ use Illuminate\Validation\ValidationException;
  */
 class AuthController extends Controller
 {
-    /** Bumped whenever `Shop/PrivacyPolicy.jsx`'s substance changes materially (Fase 9.2). */
-    private const CONSENT_VERSION = '1.0';
+    /**
+     * Bumped whenever `Shop/PrivacyPolicy.jsx`'s substance changes materially
+     * (Fase 9.2). Public — `GuestCheckoutController` stamps the same version
+     * on the account it silently creates for a guest at checkout.
+     */
+    public const CONSENT_VERSION = '1.0';
 
     public function login(Request $request): RedirectResponse
     {

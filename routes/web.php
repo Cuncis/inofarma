@@ -27,6 +27,7 @@ use App\Http\Controllers\Shop\AuthController as ShopAuthController;
 use App\Http\Controllers\Shop\BranchController as ShopBranchController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
+use App\Http\Controllers\Shop\GuestCheckoutController;
 use App\Http\Controllers\Shop\LocationController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController;
@@ -457,6 +458,21 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
         'orderNumber' => $request->query('nomor'),
     ]))->name('order-successful');
 
+    // Public — the Provinsi/Kota/Kecamatan/Kelurahan cascade used by both
+    // `Shop/AddNewAddress.jsx` (signed-in) and `Shop/GuestCheckout.jsx`
+    // (not yet signed in), and open government region data either way.
+    Route::get('wilayah', [RegionController::class, 'children'])->name('wilayah');
+
+    /**
+     * Checkout without an account (Fase 0's "boleh checkout sebagai tamu?",
+     * decided: yes). Public on purpose — `GuestCheckoutController` creates
+     * and signs the guest in itself, then hands off to the normal
+     * `customer`-gated checkout below. A signed-in customer redirected here
+     * bounces straight back to `ui.checkout`.
+     */
+    Route::get('checkout/tamu', [GuestCheckoutController::class, 'create'])->name('checkout.tamu');
+    Route::post('checkout/tamu', [GuestCheckoutController::class, 'store'])->name('checkout.tamu.store');
+
     Route::middleware('customer')->group(function () {
         Route::get('profile', fn () => Inertia::render('Shop/Profile'))->name('profile');
 
@@ -475,7 +491,6 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
         Route::get('my-address', [AddressController::class, 'index'])->name('my-address');
         Route::get('add-new-address', [AddressController::class, 'create'])->name('add-new-address');
         Route::post('add-new-address', [AddressController::class, 'store'])->name('add-new-address.store');
-        Route::get('wilayah', [RegionController::class, 'children'])->name('wilayah');
         Route::delete('alamat/{address}', [AddressController::class, 'destroy'])->name('alamat.destroy');
         Route::post('alamat/{address}/utama', [AddressController::class, 'makeDefault'])->name('alamat.utama');
 

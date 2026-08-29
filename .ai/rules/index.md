@@ -23,6 +23,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Support/Cart/**,app/Http/Controllers/Shop/CartController.php,app/Http/Controllers/Shop/CheckoutController.php,app/Models/Cart.php,app/Models/CartItem.php | .ai/rules/models-models.md |
 | app/Support/ProductImageUploader.php,app/Http/Controllers/Admin/ProductImageController.php,app/Models/ProductImage.php | .ai/rules/models.md |
 | resources/js/{Pages,Components,Layouts}/Admin*/** | .ai/rules/pages-components-layouts.md |
+| app/Http/Controllers/Shop/GuestCheckoutController.php,app/Http/Controllers/Shop/CheckoutController.php,app/Support/Cart/**,resources/js/Pages/Shop/GuestCheckout.jsx,resources/js/Pages/Shop/Cart.jsx | .ai/rules/pages-shop.md |
 | app/Observers/**,app/Notifications/**,app/Support/Notifications/**,app/Support/Money.php,app/Console/Commands/NotifyExpiringBatches.php,app/Console/Commands/NotifyApproachingPickupDeadlines.php,app/Http/Controllers/Admin/NotificationController.php,app/Support/Presenters/AdminNotificationPresenter.php | .ai/rules/presenters.md |
 | public/** | .ai/rules/public.md |
 | app/Support/Shipping/**,app/Http/Controllers/Admin/OrderController.php | .ai/rules/shipping-http-controllers-admin.md |
