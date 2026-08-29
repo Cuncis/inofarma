@@ -7,11 +7,11 @@ import Icon from './Icon';
  * blue on purpose — this sits on headers that are themselves blue now
  * (`AppBar` tone="brand"), so a blue badge would disappear into it.
  *
- * @param {{ name: string, href: string, label: string, size?: number, badge?: number }} props
+ * @param {{ name: string, href: string, label: string, size?: number, badge?: number, id?: string }} props
  */
-export default function IconLink({ name, href, label, size = 19, badge = 0 }) {
+export default function IconLink({ name, href, label, size = 19, badge = 0, id }) {
     return (
-        <Link href={href} aria-label={label} className="relative flex items-center">
+        <Link id={id} href={href} aria-label={label} className="relative flex items-center">
             <Icon name={name} size={size} />
 
             {badge > 0 ? (

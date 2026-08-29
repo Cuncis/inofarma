@@ -55,7 +55,13 @@ export default function ProductDetail() {
                                 <Icon name={liked ? 'heartFilled' : 'heart'} size={20} />
                             </button>
 
-                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
+                            <IconLink
+                                id="cart-icon-target"
+                                name="cart"
+                                href="/ui/cart"
+                                label="Keranjang"
+                                badge={cartCount}
+                            />
                         </>
                     }
                 />

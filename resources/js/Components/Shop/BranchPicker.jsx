@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import Icon from './Icon';
 import Button from './Button';
+import flyToCart from './flyToCart';
 import useDragScroll from './useDragScroll';
 
 /**
@@ -27,6 +28,7 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder })
     const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
     const branchDrag = useDragScroll();
+    const addButtonRef = useRef(null);
 
     const { transform, post, processing, errors, clearErrors } = useForm({});
 
@@ -89,6 +91,7 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder })
             preserveScroll: true,
             onSuccess: () => {
                 setAdded(true);
+                flyToCart(addButtonRef.current);
                 window.setTimeout(() => setAdded(false), 1800);
             },
         });
@@ -252,14 +255,15 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder })
                             </button>
                         </div>
                     ) : (
-                        <Button
-                            type="button"
-                            onClick={() => addToCart(false)}
-                            disabled={processing}
-                            className="mt-2.5"
-                        >
-                            {added ? 'Ditambahkan ✓' : 'Masukkan ke Keranjang'}
-                        </Button>
+                        <div ref={addButtonRef} className="mt-2.5">
+                            <Button
+                                type="button"
+                                onClick={() => addToCart(false)}
+                                disabled={processing}
+                            >
+                                {added ? 'Ditambahkan ✓' : 'Masukkan ke Keranjang'}
+                            </Button>
+                        </div>
                     )}
                 </>
             ) : null}
