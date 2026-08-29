@@ -6,9 +6,11 @@ import Icon from '@/Components/Shop/Icon';
 import BranchPicker from '@/Components/Shop/BranchPicker';
 import FlashBanner from '@/Components/Shop/FlashBanner';
 import { DrugInfoSection } from '@/Components/Shop/DrugInfo';
+import IconLink from '@/Components/Shop/IconLink';
 import ProductGallery from '@/Components/Shop/ProductGallery';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
+import useCartCount from '@/Components/Shop/useCartCount';
 import { findProduct, money, reviews, useShopCatalog } from '@/Components/Shop/data';
 
 export default function ProductDetail() {
@@ -22,6 +24,7 @@ export default function ProductDetail() {
 
     const [variant, setVariant] = useState(product?.variants[0]);
     const [liked, setLiked] = useState(false);
+    const cartCount = useCartCount();
 
     if (! product) {
         return (
@@ -42,14 +45,18 @@ export default function ProductDetail() {
                     back="/ui/shop"
                     tone="brand"
                     actions={
-                        <button
-                            type="button"
-                            onClick={() => setLiked((current) => ! current)}
-                            aria-label={liked ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
-                            className={liked ? 'text-danger' : 'text-white'}
-                        >
-                            <Icon name={liked ? 'heartFilled' : 'heart'} size={20} />
-                        </button>
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => setLiked((current) => ! current)}
+                                aria-label={liked ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
+                                className={liked ? 'text-danger' : 'text-white'}
+                            >
+                                <Icon name={liked ? 'heartFilled' : 'heart'} size={20} />
+                            </button>
+
+                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
+                        </>
                     }
                 />
             }
