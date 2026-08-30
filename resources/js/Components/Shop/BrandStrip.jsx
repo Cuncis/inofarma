@@ -31,11 +31,10 @@ export default function BrandStrip() {
             className={`flex gap-3.5 overflow-x-auto px-3.5 scrollbar-none ${drag.className}`}
         >
             {BRANDS.map((brand) => (
-                <div key={brand.name} className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center">
+                <div key={brand.name} className="flex w-16 shrink-0 items-center justify-center text-center">
                     <span className="flex h-14 w-14 items-center justify-center rounded-full border border-line bg-white p-1.5">
                         <img src={brand.image} alt={brand.name} className="h-full w-full object-contain" />
                     </span>
-                    <span className="line-clamp-2 text-[10px] leading-tight text-ink">{brand.name}</span>
                 </div>
             ))}
         </div>
