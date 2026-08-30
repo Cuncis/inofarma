@@ -189,20 +189,20 @@ class ProductCsvImportTest extends TestCase
 
     public function test_an_unseeded_category_tag_creates_the_category(): void
     {
-        $this->assertDatabaseMissing('categories', ['name' => 'Kebutuhan Keluarga']);
+        $this->assertDatabaseMissing('categories', ['name' => 'Perawatan Gigi']);
 
         $this->post('/admin/produk/impor', [
             'file' => $this->csvUpload([[
                 'Handle' => 'sikat-gigi-keluarga',
                 'Title' => 'Sikat Gigi Keluarga',
                 'Body (HTML)' => $this->bodyHtml('Dus, 1 Pcs', 'Deskripsi.', 'Komposisi.', 'PKRT'),
-                'Tags' => 'Kebutuhan Keluarga, mqty:0',
+                'Tags' => 'Perawatan Gigi, mqty:0',
                 'Variant SKU' => 'TEST-004',
                 'Variant Price' => '5000.00',
             ]]),
         ]);
 
-        $this->assertDatabaseHas('categories', ['name' => 'Kebutuhan Keluarga', 'status' => 'aktif']);
+        $this->assertDatabaseHas('categories', ['name' => 'Perawatan Gigi', 'status' => 'aktif']);
         $this->assertSame('non-obat', Product::where('sku', 'TEST-004')->first()->drug_class);
     }
 }

@@ -24,23 +24,29 @@ use Illuminate\Support\Str;
 class CatalogSeeder extends Seeder
 {
     /**
-     * name, slug, gambar, status, deskripsi
+     * name, slug, status, deskripsi. `image_path` is derived from the slug
+     * (see `seedCategories()`) rather than listed here, since it always
+     * points at the storefront's curated `/media/images/categories/{slug}.png`
+     * badge art. The homepage category shortcuts and this admin-managed
+     * list intentionally share the exact same 7 categories and artwork.
      *
-     * @var list<array{0: string, 1: string, 2: int, 3: string, 4: string}>
+     * @var list<array{0: string, 1: string, 2: string, 3: string}>
      */
     private const CATEGORIES = [
-        ['Obat Bebas', 'obat-bebas', 1, 'aktif',
-            'Obat yang dapat dibeli tanpa resep dokter dan dijual bebas di apotek maupun toko obat berizin.'],
-        ['Obat Keras', 'obat-keras', 2, 'aktif',
-            'Obat yang hanya boleh diserahkan dengan resep dokter dan diawasi apoteker.'],
-        ['Suplemen', 'suplemen', 3, 'aktif',
-            'Vitamin dan produk penunjang daya tahan tubuh untuk konsumsi harian.'],
-        ['Alat Kesehatan', 'alat-kesehatan', 4, 'aktif',
+        ['Kesehatan', 'kesehatan', 'aktif',
+            'Obat umum dan kebutuhan kesehatan sehari-hari, termasuk yang memerlukan resep dokter.'],
+        ['Kebutuhan Keluarga', 'kebutuhan-keluarga', 'aktif',
+            'Produk kebersihan dan pembunuh kuman untuk kulit maupun permukaan, dibutuhkan setiap rumah tangga.'],
+        ['Alat Kesehatan', 'alat-kesehatan', 'aktif',
             'Perlengkapan medis habis pakai maupun alat ukur untuk perawatan di rumah.'],
-        ['Antiseptik', 'antiseptik', 6, 'aktif',
-            'Produk pembersih dan pembunuh kuman untuk kulit maupun permukaan.'],
-        ['Perawatan Kulit', 'perawatan-kulit', 10, 'nonaktif',
-            'Produk perawatan kulit harian termasuk pelindung dari sinar matahari.'],
+        ['Perawatan Tubuh', 'perawatan-tubuh', 'aktif',
+            'Produk perawatan tubuh harian termasuk pelindung dari sinar matahari.'],
+        ['Obat Tradisional', 'obat-tradisional', 'aktif',
+            'Obat herbal dan racikan tradisional turun-temurun untuk keluhan ringan sehari-hari.'],
+        ['Vitamin & Suplemen', 'vitamin-suplemen', 'aktif',
+            'Vitamin dan produk penunjang daya tahan tubuh untuk konsumsi harian.'],
+        ['Obat Bebas', 'obat-bebas', 'aktif',
+            'Obat yang dapat dibeli tanpa resep dokter dan dijual bebas di apotek maupun toko obat berizin.'],
     ];
 
     /**
@@ -65,27 +71,27 @@ class CatalogSeeder extends Seeder
     private const PRODUCTS = [
         ['PRD-001', 'Paracetamol 500mg', 'Obat Bebas', 'Apotek Sehat Bersama', 1, 12500, 15000, 482, 1240, '4.8', 'Strip', false,
             'Meredakan demam dan nyeri ringan hingga sedang. Aman dikonsumsi setelah makan.'],
-        ['PRD-002', 'Amoxicillin 500mg', 'Obat Keras', 'Apotek Sehat Bersama', 2, 38000, null, 126, 860, '4.6', 'Strip', true,
+        ['PRD-002', 'Amoxicillin 500mg', 'Kesehatan', 'Apotek Sehat Bersama', 2, 38000, null, 126, 860, '4.6', 'Strip', true,
             'Antibiotik untuk infeksi bakteri. Wajib menyertakan resep dokter saat memesan.'],
-        ['PRD-003', 'Vitamin C 1000mg', 'Suplemen', 'Toko Obat Mandiri', 3, 75000, 89000, 0, 2130, '4.9', 'Botol', false,
+        ['PRD-003', 'Vitamin C 1000mg', 'Vitamin & Suplemen', 'Toko Obat Mandiri', 3, 75000, 89000, 0, 2130, '4.9', 'Botol', false,
             'Membantu menjaga daya tahan tubuh. Dikonsumsi satu tablet per hari.'],
         ['PRD-004', 'Masker Medis 3 Ply', 'Alat Kesehatan', 'Farmasi Nusantara', 4, 45000, null, 1520, 4210, '4.7', 'Box', false,
             'Masker tiga lapis dengan filter, nyaman dipakai seharian dan tidak mudah lepas.'],
-        ['PRD-005', 'Hand Sanitizer 500ml', 'Antiseptik', 'Griya Farma', 5, 32000, 40000, 64, 980, '4.5', 'Botol', false,
+        ['PRD-005', 'Hand Sanitizer 500ml', 'Kebutuhan Keluarga', 'Griya Farma', 5, 32000, 40000, 64, 980, '4.5', 'Botol', false,
             'Membunuh kuman tanpa perlu dibilas, dengan pelembap agar tangan tidak kering.'],
         ['PRD-006', 'Termometer Digital', 'Alat Kesehatan', 'Farmasi Nusantara', 6, 125000, null, 213, 540, '4.8', 'Pcs', false,
             'Pengukur suhu tubuh digital dengan hasil akurat dalam waktu sepuluh detik.'],
-        ['PRD-007', 'Vitamin D3 1000 IU', 'Suplemen', 'Toko Obat Mandiri', 7, 68000, null, 340, 720, '4.7', 'Botol', false,
+        ['PRD-007', 'Vitamin D3 1000 IU', 'Vitamin & Suplemen', 'Toko Obat Mandiri', 7, 68000, null, 340, 720, '4.7', 'Botol', false,
             'Mendukung kesehatan tulang dan sistem imun, terutama bagi yang jarang terkena sinar matahari.'],
-        ['PRD-008', 'Minyak Kayu Putih 60ml', 'Obat Bebas', 'Apotek Sehat Bersama', 8, 24000, 30000, 610, 1580, '4.6', 'Botol', false,
+        ['PRD-008', 'Minyak Kayu Putih 60ml', 'Obat Tradisional', 'Apotek Sehat Bersama', 8, 24000, 30000, 610, 1580, '4.6', 'Botol', false,
             'Menghangatkan badan dan meredakan perut kembung. Cocok dibawa bepergian.'],
         ['PRD-009', 'Plester Luka Isi 20', 'Alat Kesehatan', 'Farmasi Nusantara', 9, 18500, null, 890, 1120, '4.4', 'Box', false,
             'Plester elastis anti air untuk luka kecil, melekat kuat namun mudah dilepas.'],
         ['PRD-010', 'Obat Batuk Sirup 100ml', 'Obat Bebas', 'Apotek Sehat Bersama', 10, 29500, 35000, 275, 940, '4.5', 'Botol', false,
             'Meredakan batuk berdahak dan melegakan tenggorokan. Tersedia rasa jeruk.'],
-        ['PRD-011', 'Sunscreen SPF 50', 'Perawatan Kulit', 'Griya Farma', 11, 96000, null, 158, 660, '4.8', 'Botol', false,
+        ['PRD-011', 'Sunscreen SPF 50', 'Perawatan Tubuh', 'Griya Farma', 11, 96000, null, 158, 660, '4.8', 'Botol', false,
             'Perlindungan harian dari sinar UVA dan UVB, ringan dan tidak meninggalkan whitecast.'],
-        ['PRD-012', 'Alkohol Swab Isi 100', 'Antiseptik', 'Griya Farma', 12, 21000, null, 430, 810, '4.3', 'Box', false,
+        ['PRD-012', 'Alkohol Swab Isi 100', 'Kebutuhan Keluarga', 'Griya Farma', 12, 21000, null, 430, 810, '4.3', 'Box', false,
             'Tisu alkohol steril sekali pakai untuk membersihkan kulit sebelum penyuntikan.'],
     ];
 
@@ -130,13 +136,13 @@ class CatalogSeeder extends Seeder
     {
         $categories = [];
 
-        foreach (self::CATEGORIES as $position => [$name, $slug, $image, $status, $description]) {
+        foreach (self::CATEGORIES as $position => [$name, $slug, $status, $description]) {
             $categories[$name] = Category::withTrashed()->updateOrCreate(
                 ['slug' => $slug],
                 [
                     'name' => $name,
                     'description' => $description,
-                    'image_path' => "/media/images/small/img-{$image}.jpg",
+                    'image_path' => "/media/images/categories/{$slug}.png",
                     'position' => $position,
                     'status' => $status,
                     'deleted_at' => null,
@@ -311,8 +317,7 @@ class CatalogSeeder extends Seeder
         }
 
         return match ($category) {
-            'Obat Bebas', 'Suplemen', 'Antiseptik' => 'bebas',
-            'Obat Keras' => 'keras',
+            'Obat Bebas', 'Vitamin & Suplemen', 'Kebutuhan Keluarga', 'Obat Tradisional' => 'bebas',
             default => 'non-obat',
         };
     }

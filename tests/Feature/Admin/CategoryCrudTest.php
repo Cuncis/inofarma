@@ -40,9 +40,9 @@ class CategoryCrudTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/CategoryList')
                 ->has('categories', self::CATEGORY_COUNT)
-                ->where('categories.0.name', 'Obat Bebas')
-                // three seed products sit in Obat Bebas
-                ->where('categories.0.products', 3)
+                ->where('categories.0.name', 'Kesehatan')
+                // one seed product sits in Kesehatan
+                ->where('categories.0.products', 1)
             );
     }
 
@@ -55,9 +55,9 @@ class CategoryCrudTest extends TestCase
         $this->get('/admin/kategori')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('categories', self::CATEGORY_COUNT + 1)
-                ->where('categories.6.name', 'Perawatan Bayi')
-                ->where('categories.6.slug', 'perawatan-bayi')
-                ->where('categories.6.products', 0)
+                ->where('categories.7.name', 'Perawatan Bayi')
+                ->where('categories.7.slug', 'perawatan-bayi')
+                ->where('categories.7.products', 0)
             );
     }
 
@@ -77,9 +77,9 @@ class CategoryCrudTest extends TestCase
 
     public function test_a_duplicate_slug_gets_a_suffix_instead_of_colliding(): void
     {
-        $this->post('/admin/kategori', $this->validPayload(['name' => 'Vitamin A', 'slug' => 'suplemen']));
+        $this->post('/admin/kategori', $this->validPayload(['name' => 'Vitamin A', 'slug' => 'vitamin-suplemen']));
 
-        $this->get('/admin/kategori/suplemen-2')
+        $this->get('/admin/kategori/vitamin-suplemen-2')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('category.name', 'Vitamin A')
@@ -88,11 +88,11 @@ class CategoryCrudTest extends TestCase
 
     public function test_a_category_can_be_read_with_its_products(): void
     {
-        $this->get('/admin/kategori/suplemen')
+        $this->get('/admin/kategori/vitamin-suplemen')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Admin/CategoryDetail')
-                ->where('category.name', 'Suplemen')
+                ->where('category.name', 'Vitamin & Suplemen')
                 ->has('products', 2)
                 ->where('products.0.name', 'Vitamin C 1000mg')
             );
@@ -106,17 +106,17 @@ class CategoryCrudTest extends TestCase
 
     public function test_a_category_can_be_updated(): void
     {
-        $this->put('/admin/kategori/antiseptik', $this->validPayload([
-            'name' => 'Antiseptik & Desinfektan',
-            'slug' => 'antiseptik',
+        $this->put('/admin/kategori/kebutuhan-keluarga', $this->validPayload([
+            'name' => 'Kebutuhan Keluarga & Rumah Tangga',
+            'slug' => 'kebutuhan-keluarga',
             'status' => 'Nonaktif',
         ]))
             ->assertRedirect(route('admin.kategori.index'))
             ->assertSessionHas('success');
 
-        $this->get('/admin/kategori/antiseptik')
+        $this->get('/admin/kategori/kebutuhan-keluarga')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('category.name', 'Antiseptik & Desinfektan')
+                ->where('category.name', 'Kebutuhan Keluarga & Rumah Tangga')
                 ->where('category.status', 'Nonaktif')
             );
     }
@@ -125,23 +125,23 @@ class CategoryCrudTest extends TestCase
     {
         // No cascade to run any more — products hold a foreign key, so the new
         // name is simply what the relation reads back.
-        $this->put('/admin/kategori/antiseptik', $this->validPayload([
-            'name' => 'Antiseptik & Desinfektan',
-            'slug' => 'antiseptik',
+        $this->put('/admin/kategori/kebutuhan-keluarga', $this->validPayload([
+            'name' => 'Kebutuhan Keluarga & Rumah Tangga',
+            'slug' => 'kebutuhan-keluarga',
         ]));
 
         $this->get('/admin/produk/PRD-005')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('product.category', 'Antiseptik & Desinfektan')
+                ->where('product.category', 'Kebutuhan Keluarga & Rumah Tangga')
             );
 
-        $this->get('/admin/kategori/antiseptik')
+        $this->get('/admin/kategori/kebutuhan-keluarga')
             ->assertInertia(fn (AssertableInertia $page) => $page->has('products', 2));
     }
 
     public function test_a_category_still_holding_products_cannot_be_deleted(): void
     {
-        $this->delete('/admin/kategori/suplemen')
+        $this->delete('/admin/kategori/vitamin-suplemen')
             ->assertRedirect(route('admin.kategori.index'))
             ->assertSessionHas('error');
 
@@ -178,15 +178,15 @@ class CategoryCrudTest extends TestCase
 
     public function test_a_category_name_cannot_be_duplicated(): void
     {
-        $this->post('/admin/kategori', $this->validPayload(['name' => 'Suplemen', 'slug' => 'suplemen-baru']))
+        $this->post('/admin/kategori', $this->validPayload(['name' => 'Vitamin & Suplemen', 'slug' => 'suplemen-baru']))
             ->assertSessionHasErrors(['name' => 'Kategori dengan nama ini sudah ada.']);
     }
 
     public function test_a_category_keeps_its_own_name_when_edited(): void
     {
-        $this->put('/admin/kategori/suplemen', $this->validPayload([
-            'name' => 'Suplemen',
-            'slug' => 'suplemen',
+        $this->put('/admin/kategori/vitamin-suplemen', $this->validPayload([
+            'name' => 'Vitamin & Suplemen',
+            'slug' => 'vitamin-suplemen',
             'description' => 'Deskripsi baru.',
         ]))->assertSessionHasNoErrors();
     }

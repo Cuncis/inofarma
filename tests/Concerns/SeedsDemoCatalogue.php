@@ -12,7 +12,7 @@ trait SeedsDemoCatalogue
 {
     protected const BRANCH_COUNT = 10;
 
-    protected const CATEGORY_COUNT = 6;
+    protected const CATEGORY_COUNT = 7;
 
     protected const SUPPLIER_COUNT = 5;
 

@@ -24,12 +24,28 @@ function initialQuery(url) {
     return query ? (new URLSearchParams(query).get('q') ?? '') : '';
 }
 
+/**
+ * Seed the active category from `?category=`, so the homepage/"Kategori"
+ * shortcuts can link straight to a filtered shop. Falls back to "Semua" when
+ * absent, or when the value doesn't match a real category.
+ *
+ * @param {string} url
+ * @param {string[]} filterCategories
+ * @returns {string}
+ */
+function initialCategory(url, filterCategories) {
+    const query = url.split('?')[1];
+    const requested = query ? new URLSearchParams(query).get('category') : null;
+
+    return requested && filterCategories.includes(requested) ? requested : 'Semua';
+}
+
 export default function Shop() {
     const { filterCategories, shopProducts } = useShopCatalog();
     const { url } = usePage();
     const cartCount = useCartCount();
     const [query, setQuery] = useState(() => initialQuery(url));
-    const [category, setCategory] = useState('Semua');
+    const [category, setCategory] = useState(() => initialCategory(url, filterCategories));
     const categoryDrag = useDragScroll();
 
     const results = useMemo(() => {

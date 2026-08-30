@@ -28,24 +28,6 @@ export const asset = {
 };
 
 /**
- * The storefront's curated category shortcuts — shown on the homepage grid
- * and the "Kategori" page. Deliberately not the raw admin `Category` list
- * (Obat Bebas, Obat Keras, Suplemen, ...): these are shopper-facing groupings
- * with self-hosted badge art, and every tile still links to `/ui/shop`
- * rather than a real per-category filter.
- */
-export const shopCategories = [
-    { name: 'Kesehatan', image: '/media/images/categories/kesehatan.png' },
-    { name: 'Kebutuhan Keluarga', image: '/media/images/categories/kebutuhan-keluarga.png' },
-    { name: 'Alat Kesehatan', image: '/media/images/categories/alat-kesehatan.png' },
-    { name: 'Perawatan Tubuh', image: '/media/images/categories/perawatan-tubuh.png' },
-    { name: 'Obat Tradisional', image: '/media/images/categories/obat-tradisional.png' },
-    { name: 'Vitamin & Suplemen', image: '/media/images/categories/vitamin-suplemen.png' },
-    { name: 'Obat Bebas', image: '/media/images/categories/obat-bebas.png' },
-    { name: 'Semua Produk', image: '/media/images/categories/semua-produk.png' },
-];
-
-/**
  * Storefront view of the catalogue.
  *
  * Everything below is derived at render time from the shared `catalog` prop,

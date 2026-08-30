@@ -143,8 +143,8 @@ class StorefrontCatalogTest extends TestCase
     {
         $this->get('/ui/categories')
             ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('catalog.categories.0.name', 'Obat Bebas')
-                ->where('catalog.categories.0.products', 3)
+                ->where('catalog.categories.0.name', 'Kesehatan')
+                ->where('catalog.categories.0.products', 1)
             );
     }
 }

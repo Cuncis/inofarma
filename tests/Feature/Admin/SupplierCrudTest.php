@@ -189,7 +189,7 @@ class SupplierCrudTest extends TestCase
 
         $this->post('/admin/produk', [
             'name' => 'Betadine 30ml',
-            'category' => 'Antiseptik',
+            'category' => 'Kebutuhan Keluarga',
             'seller' => 'Apotek Cendana',
             'unit' => 'Botol',
             'status' => 'Aktif',
