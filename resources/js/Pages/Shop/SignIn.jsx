@@ -29,12 +29,6 @@ export default function SignIn() {
                 autoComplete="off"
                 className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-[22px] py-6"
             >
-                <h1 className="mb-2 font-display text-2xl text-brand">Masuk</h1>
-
-                <p className="mb-5 text-center text-[13px] text-muted">
-                    Masuk menggunakan email Anda
-                </p>
-
                 <div className="w-full">
                     <Field
                         type="text"

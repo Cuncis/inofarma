@@ -16,11 +16,15 @@ export default function ForgotPassword() {
     return (
         <MobileLayout
             title="Lupa Kata Sandi"
-            header={<AppBar title="Lupa Kata Sandi" back="/ui/signin" tone="white" />}
+            background="bg-canvas"
+            header={<AppBar title="Lupa Kata Sandi" back="/ui/signin" tone="brand" />}
         >
-            <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
-                <div className="bg-blush bg-[radial-gradient(circle_at_10%_90%,rgba(254,121,0,.18)_0%,transparent_60%)] p-6">
-                    <p className="mb-5 text-[13px] leading-[1.7] text-muted">
+            <form
+                onSubmit={submit}
+                className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-[22px] py-6"
+            >
+                <div className="w-full">
+                    <p className="mb-5 text-center text-sm text-muted">
                         Masukkan alamat email yang terdaftar pada akun Anda, lalu kami
                         akan mengirimkan tautan untuk mengatur ulang kata sandi.
                     </p>
