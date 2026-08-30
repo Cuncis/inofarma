@@ -30,12 +30,14 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
         <header
             className={`flex h-appbar shrink-0 items-center px-3.5 ${tones[tone]}`}
         >
-            <div className="flex min-w-[40px] items-center">
+            <div className="flex min-w-[40px] items-center gap-3">
                 {back ? (
                     <Link href={typeof back === 'string' ? back : '#'} aria-label="Kembali">
                         <Icon name="back" size={20} />
                     </Link>
-                ) : brand ? (
+                ) : null}
+
+                {brand ? (
                     <Link href="/" aria-label="Inofarma" className="flex items-center">
                         <img src={asset.logo(logoTone)} alt="Inofarma" className="h-6 w-auto" />
                     </Link>
