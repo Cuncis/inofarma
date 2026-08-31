@@ -16,7 +16,11 @@ import Field from '@/Components/Shop/Field';
  * @param {{ provinces: { code: string, name: string }[] }} props
  */
 export default function GuestCheckout({ provinces }) {
-    const { data, setData, post, processing, errors } = useForm({
+    // Keyed so the in-progress form survives a trip to Syarat & Ketentuan /
+    // Kebijakan Privasi and back — Inertia persists remembered data in
+    // browser history state, restored on the back navigation `AppBar`
+    // triggers from those pages.
+    const { data, setData, post, processing, errors } = useForm('guest-checkout-form', {
         name: '',
         phone: '',
         email: '',

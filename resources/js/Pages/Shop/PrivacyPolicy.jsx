@@ -55,7 +55,7 @@ export default function PrivacyPolicy() {
     return (
         <MobileLayout
             title="Kebijakan Privasi"
-            header={<AppBar title="Kebijakan Privasi" back="/ui/profile" tone="brand" />}
+            header={<AppBar title="Kebijakan Privasi" back tone="brand" />}
         >
             <div className="flex-1 overflow-y-auto p-4">
                 <p className="mb-4 text-[11px] text-faint">Versi 1.0, berlaku sejak pendaftaran akun Anda.</p>

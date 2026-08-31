@@ -6,6 +6,12 @@ import Icon from './Icon';
  * Fixed 48px screen header: optional back arrow or wordmark on the left, a
  * centred screen title, and up to two action icons on the right.
  *
+ * `back` as a string navigates to that URL. `back={true}` instead replays the
+ * browser's own back navigation (`history.back()`), landing on whichever
+ * screen actually linked here rather than one hardcoded destination — needed
+ * wherever this bar is reused from more than one caller (e.g. Terms/Privacy,
+ * opened from sign-up, checkout, or the profile menu).
+ *
  * @param {{
  *   title?: string,
  *   back?: string|boolean,
@@ -32,9 +38,15 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
         >
             <div className="flex min-w-[40px] items-center gap-3">
                 {back ? (
-                    <Link href={typeof back === 'string' ? back : '#'} aria-label="Kembali">
-                        <Icon name="back" size={20} />
-                    </Link>
+                    typeof back === 'string' ? (
+                        <Link href={back} aria-label="Kembali">
+                            <Icon name="back" size={20} />
+                        </Link>
+                    ) : (
+                        <button type="button" onClick={() => window.history.back()} aria-label="Kembali">
+                            <Icon name="back" size={20} />
+                        </button>
+                    )
                 ) : null}
 
                 {brand ? (

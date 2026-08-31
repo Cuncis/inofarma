@@ -5,7 +5,11 @@ import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
 
 export default function SignUp() {
-    const { data, setData, post, processing, errors } = useForm({
+    // Keyed so the in-progress form survives a trip to Syarat & Ketentuan /
+    // Kebijakan Privasi and back — Inertia persists remembered data in
+    // browser history state, restored on the back navigation `AppBar`
+    // triggers from those pages.
+    const { data, setData, post, processing, errors } = useForm('signup-form', {
         name: '',
         phone: '',
         email: '',
