@@ -17,7 +17,7 @@ export default function VerifyPhone() {
     return (
         <MobileLayout
             title="Verifikasi Nomor HP"
-            header={<AppBar title="Verifikasi Nomor HP" back="/ui/signup" tone="white" />}
+            header={<AppBar title="Verifikasi Nomor HP" back="/ui/signup" tone="brand" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
                 <div className="bg-blush p-6">

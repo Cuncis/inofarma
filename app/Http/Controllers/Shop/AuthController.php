@@ -157,7 +157,7 @@ class AuthController extends Controller
 
         Log::info("OTP untuk {$customer->phone}: {$code}");
 
-        return redirect()->route('ui.otp-code');
+        return redirect()->route('ui.otp-code')->with('success', $this->otpFlashMessage($code));
     }
 
     public function verifyPhoneOtp(Request $request): RedirectResponse
@@ -180,7 +180,21 @@ class AuthController extends Controller
 
         Log::info("OTP untuk {$customer->phone}: {$code}");
 
-        return back()->with('success', 'Kode OTP baru telah dikirim.');
+        return back()->with('success', $this->otpFlashMessage($code, resent: true));
+    }
+
+    /**
+     * With no SMS gateway wired in, the code above only ever reaches the
+     * log — so a tester in the browser has no way to complete the flow
+     * without tailing `storage/logs/laravel.log`. Surface it in the flash
+     * banner instead, but only outside production: a leaked OTP is a real
+     * account-takeover risk once a real SMS gateway is in place.
+     */
+    private function otpFlashMessage(string $code, bool $resent = false): string
+    {
+        $sent = $resent ? 'Kode OTP baru telah dikirim.' : 'Kode OTP telah dikirim.';
+
+        return app()->isProduction() ? $sent : "{$sent} (mode pengembangan, tanpa SMS gateway: {$code})";
     }
 
     public function sendResetLink(Request $request): RedirectResponse

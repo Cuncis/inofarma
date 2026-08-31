@@ -3,6 +3,7 @@ import { router, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
+import FlashBanner from '@/Components/Shop/FlashBanner';
 
 export default function OtpCode() {
     const [digits, setDigits] = useState(['', '', '', '', '', '']);
@@ -47,9 +48,11 @@ export default function OtpCode() {
         <MobileLayout
             title="Kode Verifikasi"
             header={
-                <AppBar title="Verifikasi Nomor HP" back="/ui/verify-phone" tone="white" />
+                <AppBar title="Verifikasi Nomor HP" back="/ui/verify-phone" tone="brand" />
             }
         >
+            <FlashBanner />
+
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
                 <div className="bg-blush p-6">
                     <p className="mb-[18px] text-[13px] leading-[1.7] text-muted">
