@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePage } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
@@ -47,6 +47,16 @@ export default function Shop() {
     const [query, setQuery] = useState(() => initialQuery(url));
     const [category, setCategory] = useState(() => initialCategory(url, filterCategories));
     const categoryDrag = useDragScroll();
+    const activePillRef = useRef(null);
+
+    // Keep the chosen pill in view: a category picked from the homepage/
+    // "Kategori" shortcuts can land here scrolled far down the strip (or the
+    // shopper picks one that's currently off-screen), so re-center it
+    // whenever the active category changes instead of leaving the strip
+    // wherever it happened to be.
+    useEffect(() => {
+        activePillRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, [category]);
 
     const results = useMemo(() => {
         const needle = query.trim().toLowerCase();
@@ -92,6 +102,7 @@ export default function Shop() {
                         {['Semua', ...filterCategories].map((name) => (
                             <button
                                 key={name}
+                                ref={category === name ? activePillRef : null}
                                 type="button"
                                 onClick={() => setCategory(name)}
                                 className={`shrink-0 px-3 py-1.5 text-[11px] ${
