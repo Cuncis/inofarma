@@ -10,6 +10,7 @@ import Icon from './Icon';
  *   value: string,
  *   onChange: (value: string) => void,
  *   placeholder?: string,
+ *   ariaLabel?: string,
  *   autoFocus?: boolean,
  * }} props
  */
@@ -17,6 +18,7 @@ export default function SearchBar({
     value,
     onChange,
     placeholder = 'Cari obat, vitamin, alat kesehatan...',
+    ariaLabel = 'Cari produk',
     autoFocus = false,
 }) {
     return (
@@ -32,7 +34,7 @@ export default function SearchBar({
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
                 placeholder={placeholder}
-                aria-label="Cari produk"
+                aria-label={ariaLabel}
                 autoFocus={autoFocus}
                 className="h-11 w-full border border-line bg-white pl-10 pr-10 text-xs text-muted placeholder:text-[#bbbbbb] focus:border-brand focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
             />

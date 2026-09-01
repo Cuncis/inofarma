@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import geolocationErrorMessage from './geolocationError';
 import Icon from './Icon';
+import LocationPickerModal from './LocationPickerModal';
 import useLocationConsent from './useLocationConsent';
 
 /**
@@ -175,53 +175,28 @@ export default function AddressFields({ data, setData, errors, provinces }) {
         }));
     };
 
-    const [locating, setLocating] = useState(false);
-    const [locationError, setLocationError] = useState('');
+    const [pickerOpen, setPickerOpen] = useState(false);
     const { consented, consent } = useLocationConsent();
 
     /**
-     * Fills the coordinates from the browser's own location, same API
-     * `LocationController`/`BranchPicker` already use elsewhere in the shop.
+     * Opens the map picker rather than calling `navigator.geolocation`
+     * directly — the Geolocation API alone is unreliable across devices and
+     * browsers (permission prompts, in-app browsers, disabled OS location
+     * services all fail it in ways a shopper can't work around), so picking
+     * a point by hand on `LocationPickerModal`'s map is always available; a
+     * device fix there is only a shortcut, never a requirement.
      */
-    const useMyLocation = () => {
+    const openLocationPicker = () => {
         if (! consented) {
             return;
         }
 
-        if (! navigator.geolocation) {
-            setLocationError('Perangkat ini tidak mendukung deteksi lokasi.');
+        setPickerOpen(true);
+    };
 
-            return;
-        }
-
-        // The Geolocation API is blocked outright on an insecure origin
-        // (plain HTTP, other than localhost) — the browser fails every call
-        // with the same generic permission-denied error, which otherwise
-        // looks identical to the user actually having said no.
-        if (! window.isSecureContext) {
-            setLocationError('Fitur lokasi hanya berfungsi lewat HTTPS (atau localhost). Isi alamat secara manual.');
-
-            return;
-        }
-
-        setLocating(true);
-        setLocationError('');
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setData((current) => ({
-                    ...current,
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                }));
-                setLocating(false);
-            },
-            (error) => {
-                setLocationError(geolocationErrorMessage(error));
-                setLocating(false);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
-        );
+    const confirmLocation = (lat, lng) => {
+        setData((current) => ({ ...current, latitude: lat, longitude: lng }));
+        setPickerOpen(false);
     };
 
     return (
@@ -320,9 +295,12 @@ export default function AddressFields({ data, setData, errors, provinces }) {
 
             <button
                 type="button"
-                onClick={useMyLocation}
-                disabled={locating || ! consented}
-                className="mb-2.5 flex w-full items-center gap-3 rounded-lg border border-line bg-white p-3.5 text-left disabled:opacity-60"
+                onClick={openLocationPicker}
+                disabled={! consented}
+                aria-describedby={! consented ? 'location-consent-hint' : undefined}
+                className={`flex w-full items-center gap-3 rounded-lg border border-line bg-white p-3.5 text-left disabled:opacity-60 ${
+                    consented ? 'mb-2.5' : 'mb-1'
+                }`}
             >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blush text-brand">
                     <Icon name="navigation" size={18} />
@@ -330,27 +308,33 @@ export default function AddressFields({ data, setData, errors, provinces }) {
 
                 <span className="min-w-0 flex-1">
                     <span className="block text-[13px] font-bold text-ink">
-                        {locating
-                            ? 'Mengambil lokasi…'
-                            : data.latitude
-                              ? 'Lokasi tersimpan, perbarui'
-                              : 'Gunakan lokasi saya'}
+                        {data.latitude ? 'Lokasi tersimpan, perbarui' : 'Gunakan lokasi saya'}
                     </span>
                     <span className="block text-[11px] text-muted">
                         Membantu menghitung ongkir dan radius antar dari cabang.
                     </span>
                 </span>
 
-                {data.latitude && ! locating ? (
+                {data.latitude ? (
                     <Icon name="check" size={16} className="shrink-0 text-success" />
                 ) : (
                     <Icon name="chevronRight" size={14} className="shrink-0 text-[#cccccc]" />
                 )}
             </button>
 
-            {locationError ? (
-                <p className="mb-2.5 text-[11px] text-danger">{locationError}</p>
+            {! consented ? (
+                <p id="location-consent-hint" className="mb-2.5 text-[11px] text-faint">
+                    Setujui berbagi lokasi di atas terlebih dahulu untuk mengaktifkan tombol ini.
+                </p>
             ) : null}
+
+            <LocationPickerModal
+                open={pickerOpen}
+                initialLat={data.latitude}
+                initialLng={data.longitude}
+                onClose={() => setPickerOpen(false)}
+                onConfirm={confirmLocation}
+            />
         </>
     );
 }
