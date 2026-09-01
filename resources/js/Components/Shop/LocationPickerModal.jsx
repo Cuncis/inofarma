@@ -8,7 +8,10 @@ import SearchBar from './SearchBar';
 // zoom to for every shopper.
 const DEFAULT_CENTER = { lat: -2.5, lng: 118 };
 const DEFAULT_ZOOM = 5;
-const POINT_ZOOM = 16;
+
+// Building-level, not just street-level — 16 still left shoppers unsure
+// which house/shop the pin actually sat on.
+const POINT_ZOOM = 18;
 
 // Google's own usage guidance is to fire Autocomplete requests only after
 // the shopper pauses typing, not on every keystroke.
@@ -91,6 +94,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
     const markerRef = useRef(null);
     const autocompleteServiceRef = useRef(null);
     const placesServiceRef = useRef(null);
+    const locateRequestRef = useRef(0);
     const [point, setPoint] = useState(null);
     const [confirming, setConfirming] = useState(false);
     const [locating, setLocating] = useState(false);
@@ -124,6 +128,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
         }
 
         setConfirming(false);
+        setLocating(false);
         setLocateError('');
         setMapError('');
         setQuery('');
@@ -261,24 +266,61 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
             return;
         }
 
+        // Identifies this button press specifically, so a callback that
+        // finally lands from an earlier, already-abandoned attempt (some
+        // Android browsers keep an old request alive and can call back on
+        // it late, after a newer attempt has already succeeded or failed)
+        // gets ignored instead of overwriting fresher state — that stray
+        // late callback landing after success is what left the error banner
+        // stuck on screen even once a location had already been found.
+        const requestId = ++locateRequestRef.current;
+
         setLocating(true);
         setLocateError('');
 
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
+        const attempt = (retriesLeft) => {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    if (requestId !== locateRequestRef.current) {
+                        return;
+                    }
 
-                placePoint(latitude, longitude);
-                mapRef.current?.setCenter({ lat: latitude, lng: longitude });
-                mapRef.current?.setZoom(POINT_ZOOM);
-                setLocating(false);
-            },
-            (error) => {
-                setLocateError(geolocationErrorMessage(error));
-                setLocating(false);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
-        );
+                    const { latitude, longitude } = position.coords;
+
+                    placePoint(latitude, longitude);
+                    mapRef.current?.setCenter({ lat: latitude, lng: longitude });
+                    mapRef.current?.setZoom(POINT_ZOOM);
+                    setLocateError('');
+                    setLocating(false);
+                },
+                (error) => {
+                    if (requestId !== locateRequestRef.current) {
+                        return;
+                    }
+
+                    // The OS/browser location provider is often still
+                    // warming up right after a request starts and fails
+                    // almost instantly (well under the timeout below)
+                    // rather than waiting for a fix — a plain retry a
+                    // couple seconds later already works, so a few silent
+                    // ones spread over several seconds clear this without
+                    // bothering the shopper with an error a wait would have
+                    // avoided anyway. Not worth it for a denied permission,
+                    // which won't change no matter how long we wait.
+                    if (retriesLeft > 0 && error.code !== error.PERMISSION_DENIED) {
+                        setTimeout(() => attempt(retriesLeft - 1), 1500);
+
+                        return;
+                    }
+
+                    setLocateError(geolocationErrorMessage(error));
+                    setLocating(false);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+            );
+        };
+
+        attempt(3);
     };
 
     if (! open) {
