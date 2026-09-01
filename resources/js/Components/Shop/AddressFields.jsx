@@ -293,12 +293,24 @@ export default function AddressFields({ data, setData, errors, provinces }) {
                 </label>
             ) : null}
 
+            {data.latitude && data.longitude ? (
+                // Static Maps, not the JS map from `LocationPickerModal` —
+                // this is a read-only thumbnail of where the pin landed, not
+                // something the shopper interacts with, so a plain image is
+                // both simpler and lighter than mounting another live map.
+                <img
+                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${data.latitude},${data.longitude}&zoom=16&size=600x260&scale=2&markers=color:0x0900AA%7C${data.latitude},${data.longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`}
+                    alt="Pratinjau lokasi alamat di peta"
+                    className="mb-2.5 h-32 w-full border border-line object-cover"
+                />
+            ) : null}
+
             <button
                 type="button"
                 onClick={openLocationPicker}
                 disabled={! consented}
                 aria-describedby={! consented ? 'location-consent-hint' : undefined}
-                className={`flex w-full items-center gap-3 rounded-lg border border-line bg-white p-3.5 text-left disabled:opacity-60 ${
+                className={`flex w-full items-center gap-3 border border-line bg-white p-3.5 text-left disabled:opacity-60 ${
                     consented ? 'mb-2.5' : 'mb-1'
                 }`}
             >
