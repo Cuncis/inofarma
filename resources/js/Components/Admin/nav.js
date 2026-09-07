@@ -36,15 +36,6 @@ export const navSections = [
             { label: 'Pesanan', icon: 'solar:bag-smile-bold-duotone', href: '/admin/pesanan' },
             { label: 'Pengambilan', icon: 'solar:qr-code-bold-duotone', href: '/admin/pengambilan' },
             {
-                label: 'Pembelian',
-                icon: 'solar:card-send-bold-duotone',
-                children: [
-                    { label: 'Daftar', href: '/admin/pembelian' },
-                    { label: 'Order', href: '/admin/pembelian/order' },
-                    { label: 'Retur', href: '/admin/pembelian/retur' },
-                ],
-            },
-            {
                 label: 'Atribut',
                 icon: 'solar:confetti-minimalistic-bold-duotone',
                 href: '/admin/atribut',
@@ -55,8 +46,6 @@ export const navSections = [
                 icon: 'solar:card-transfer-bold-duotone',
                 href: '/admin/rekonsiliasi',
             },
-            { label: 'Pengaturan', icon: 'solar:settings-bold-duotone', href: '/admin/pengaturan' },
-            { label: 'Profil', icon: 'solar:user-circle-bold-duotone', href: '/admin/profil' },
             { label: 'Staf Admin', icon: 'solar:user-id-bold-duotone', href: '/admin/staf' },
             { label: 'Peran', icon: 'solar:user-speak-rounded-bold-duotone', href: '/admin/peran' },
             {
@@ -72,28 +61,6 @@ export const navSections = [
             },
             { label: 'Pemasok', icon: 'solar:shop-bold-duotone', href: '/admin/pemasok' },
             { label: 'Kupon', icon: 'solar:leaf-bold-duotone', href: '/admin/kupon' },
-            { label: 'Ulasan', icon: 'solar:chat-square-like-bold-duotone', href: '/admin/ulasan' },
-        ],
-    },
-    {
-        title: 'Aplikasi',
-        items: [
-            { label: 'Chat', icon: 'solar:chat-round-bold-duotone', href: '/admin/chat' },
-            { label: 'Email', icon: 'solar:mailbox-bold-duotone', href: '/admin/email' },
-            { label: 'Kalender', icon: 'solar:calendar-bold-duotone', href: '/admin/kalender' },
-            { label: 'Todo', icon: 'solar:checklist-bold-duotone', href: '/admin/todo' },
-        ],
-    },
-    {
-        title: 'Lainnya',
-        items: [
-            { label: 'Pusat Bantuan', icon: 'solar:help-bold-duotone', href: '/admin/bantuan' },
-            { label: 'FAQ', icon: 'solar:question-circle-bold-duotone', href: '/admin/faq' },
-            {
-                label: 'Kebijakan Privasi',
-                icon: 'solar:document-text-bold-duotone',
-                href: '/admin/kebijakan-privasi',
-            },
         ],
     },
 ];

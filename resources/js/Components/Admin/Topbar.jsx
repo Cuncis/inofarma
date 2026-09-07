@@ -143,22 +143,6 @@ export default function Topbar({ onToggleSidebar, onToggleCollapse }) {
                         {admin.name}
                     </p>
 
-                    {[
-                        { label: 'Profil', icon: 'solar:user-circle-bold-duotone', href: '/admin/profil' },
-                        { label: 'Pesan', icon: 'solar:chat-round-bold-duotone', href: '/admin/chat' },
-                        { label: 'Pengaturan', icon: 'solar:settings-bold-duotone', href: '/admin/pengaturan' },
-                        { label: 'Bantuan', icon: 'solar:help-bold-duotone', href: '/admin/bantuan' },
-                    ].map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-admin-body hover:bg-admin-hover dark:text-admin-dark-body dark:hover:bg-admin-dark-hover"
-                        >
-                            <Icon name={item.icon} size={18} className="text-admin-muted" />
-                            {item.label}
-                        </Link>
-                    ))}
-
                     <div className="border-t border-admin-border dark:border-admin-dark-border">
                         <Link
                             href="/admin/keluar"

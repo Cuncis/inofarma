@@ -69,26 +69,6 @@ Route::post('biteship/notifikasi', [BiteshipWebhookController::class, 'handle'])
  */
 $adminScreens = [
     '/' => 'Dashboard',
-    'dasbor/penjualan' => 'DashboardSales',
-    'dasbor/keuangan' => 'DashboardFinance',
-
-    'pembelian' => 'PurchaseList',
-    'pembelian/order' => 'PurchaseOrder',
-    'pembelian/retur' => 'PurchaseReturns',
-
-    'ulasan' => 'Reviews',
-    'profil' => 'Profile',
-    'pengaturan' => 'Settings',
-
-    'chat' => 'Chat',
-    'email' => 'Email',
-    'kalender' => 'Calendar',
-    'todo' => 'Todo',
-
-    'bantuan' => 'HelpCenter',
-    'faq' => 'Faq',
-    'kebijakan-privasi' => 'PrivacyPolicy',
-
 ];
 
 Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {

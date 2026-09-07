@@ -4,8 +4,9 @@ import { media } from '@/lib/media';
 /**
  * Admin demo fixtures.
  *
- * Static stand-ins so every screen renders with believable content, for the
- * screens whose feature does not exist yet (invoices, purchasing, coupons).
+ * Static stand-ins backing the dashboard and the global search index — the
+ * only pieces of the admin that still show fixture data instead of the
+ * database directly.
  *
  * Products and categories are NOT here any more — they come from the database
  * through the shared `catalog` prop. Anything below that duplicates a real
@@ -240,118 +241,3 @@ export { money };
 
 // `attributes` and `coupons` fixtures are gone — Atribut and Kupon are real
 // entities as of Fase 4.3, backed by `AttributeController`/`CouponController`.
-// `invoices`/`invoiceLines` stay: the real Faktur screens read `Order` data
-// directly (see `InvoicePresenter`), and only `DashboardFinance`'s decorative
-// summary table still uses this fixture.
-
-export const invoices = [
-    { number: 'INV-2025-0451', customer: 'Kirana Wijaya', issued: '14 Agu 2025', due: '21 Agu 2025', total: 486000, status: 'Lunas' },
-    { number: 'INV-2025-0450', customer: 'Rizky Ananda', issued: '14 Agu 2025', due: '21 Agu 2025', total: 1250000, status: 'Belum Bayar' },
-    { number: 'INV-2025-0449', customer: 'Dinda Puspita', issued: '13 Agu 2025', due: '20 Agu 2025', total: 275000, status: 'Lunas' },
-    { number: 'INV-2025-0448', customer: 'Bagas Saputra', issued: '12 Agu 2025', due: '19 Agu 2025', total: 92000, status: 'Jatuh Tempo' },
-];
-
-export const invoiceLines = [
-    { name: 'Paracetamol 500mg', qty: 12, price: 12500 },
-    { name: 'Vitamin C 1000mg', qty: 3, price: 75000 },
-    { name: 'Masker Medis 3 Ply', qty: 2, price: 45000 },
-];
-
-export const purchases = [
-    { number: 'PO-1043', supplier: 'PT Kimia Farma', date: '14 Agu 2025', items: 12, total: 18400000, status: 'Diterima' },
-    { number: 'PO-1042', supplier: 'PT Kalbe Farma', date: '11 Agu 2025', items: 8, total: 9600000, status: 'Dikirim' },
-    { number: 'PO-1041', supplier: 'PT Dexa Medica', date: '08 Agu 2025', items: 21, total: 27350000, status: 'Menunggu' },
-    { number: 'PO-1040', supplier: 'PT Bio Farma', date: '05 Agu 2025', items: 5, total: 4250000, status: 'Dibatalkan' },
-];
-
-export const purchaseReturns = [
-    { number: 'RTN-0231', supplier: 'PT Kimia Farma', date: '13 Agu 2025', items: 3, total: 640000, reason: 'Kemasan rusak', status: 'Disetujui' },
-    { number: 'RTN-0230', supplier: 'PT Kalbe Farma', date: '10 Agu 2025', items: 1, total: 125000, reason: 'Mendekati kedaluwarsa', status: 'Diproses' },
-    { number: 'RTN-0229', supplier: 'PT Dexa Medica', date: '06 Agu 2025', items: 6, total: 1830000, reason: 'Salah kirim', status: 'Disetujui' },
-];
-
-export const productReviews = [
-    { author: 'Sari Wulandari', avatar: img.user(5), product: 'Paracetamol 500mg', score: 5, date: '14 Agu 2025', body: 'Pengiriman cepat dan obat asli. Kemasan rapi, akan beli lagi.', status: 'Disetujui' },
-    { author: 'Rizky Ananda', avatar: img.user(2), product: 'Vitamin C 1000mg', score: 4, date: '13 Agu 2025', body: 'Kualitas bagus, tapi harganya sedikit lebih mahal dari apotek sebelah.', status: 'Disetujui' },
-    { author: 'Dinda Puspita', avatar: img.user(3), product: 'Masker Medis 3 Ply', score: 5, date: '12 Agu 2025', body: 'Maskernya nyaman dipakai seharian, tidak bikin sesak.', status: 'Menunggu' },
-    { author: 'Bagas Saputra', avatar: img.user(4), product: 'Hand Sanitizer 500ml', score: 3, date: '10 Agu 2025', body: 'Aromanya agak menyengat, tapi efektif dan cepat kering.', status: 'Menunggu' },
-];
-
-export const adminFaqs = [
-    { question: 'Bagaimana cara menambahkan produk baru?', answer: 'Buka menu Produk lalu klik tombol Tambah Produk. Lengkapi nama, kategori, harga, dan stok, kemudian simpan.' },
-    { question: 'Bagaimana cara mengatur hak akses pengguna?', answer: 'Buka menu Hak Akses untuk mengatur izin per peran, atau menu Peran untuk membuat peran baru beserta izinnya.' },
-    { question: 'Apakah stok otomatis berkurang saat ada pesanan?', answer: 'Ya. Setiap pesanan yang diproses akan mengurangi stok pada gudang yang dipilih secara otomatis.' },
-    { question: 'Bagaimana cara mencetak faktur?', answer: 'Buka detail faktur yang diinginkan, lalu klik tombol Cetak di bagian kanan atas halaman.' },
-    { question: 'Bisakah saya mengekspor laporan penjualan?', answer: 'Bisa. Pada halaman Pesanan dan Dasbor tersedia tombol Ekspor untuk mengunduh laporan.' },
-];
-
-export const helpTopics = [
-    { title: 'Memulai', icon: 'solar:widget-5-bold-duotone', count: 12, description: 'Panduan dasar penggunaan panel admin Inofarma.' },
-    { title: 'Produk & Stok', icon: 'solar:box-bold-duotone', count: 18, description: 'Kelola katalog, kategori, atribut, dan inventaris.' },
-    { title: 'Pesanan', icon: 'solar:bag-smile-bold-duotone', count: 15, description: 'Proses, kirim, dan selesaikan pesanan pelanggan.' },
-    { title: 'Pembayaran', icon: 'solar:card-send-bold-duotone', count: 9, description: 'Metode pembayaran, faktur, dan pengembalian dana.' },
-    { title: 'Pengguna & Akses', icon: 'solar:users-group-two-rounded-bold-duotone', count: 7, description: 'Atur peran, izin, dan akun staf apotek.' },
-    { title: 'Keamanan', icon: 'solar:lock-keyhole-bold-duotone', count: 6, description: 'Kata sandi, verifikasi dua langkah, dan log aktivitas.' },
-];
-
-export const pricingPlans = [
-    { name: 'Dasar', price: 0, period: 'bulan', highlight: false, features: ['1 gudang', '100 produk', 'Laporan dasar', 'Dukungan email'] },
-    { name: 'Profesional', price: 499000, period: 'bulan', highlight: true, features: ['5 gudang', 'Produk tanpa batas', 'Laporan lengkap', 'Dukungan prioritas', 'Multi-pengguna'] },
-    { name: 'Enterprise', price: 1499000, period: 'bulan', highlight: false, features: ['Gudang tanpa batas', 'Produk tanpa batas', 'Integrasi API', 'Manajer akun khusus', 'SLA 99,9%'] },
-];
-
-export const activityTimeline = [
-    { date: '14 Agu 2025', items: [
-        { time: '09.00', title: 'Pesanan #INO-2451 dibuat', body: 'Kirana Wijaya memesan 3 item senilai Rp 486.000.', icon: 'solar:bag-smile-bold-duotone', tone: 'brand' },
-        { time: '11.30', title: 'Stok Paracetamol 500mg ditambah', body: 'Penerimaan PO-1043 sebanyak 120 strip ke Gudang Jakarta.', icon: 'solar:box-bold-duotone', tone: 'success' },
-    ] },
-    { date: '13 Agu 2025', items: [
-        { time: '14.20', title: 'Ulasan baru menunggu moderasi', body: 'Dinda Puspita memberi ulasan pada Masker Medis 3 Ply.', icon: 'solar:chat-square-like-bold-duotone', tone: 'warning' },
-        { time: '16.45', title: 'Pesanan #INO-2448 dibatalkan', body: 'Pembatalan diajukan oleh pelanggan sebelum pengiriman.', icon: 'solar:danger-triangle-broken', tone: 'danger' },
-    ] },
-    { date: '12 Agu 2025', items: [
-        { time: '08.10', title: 'Penjual baru terdaftar', body: 'Griya Farma mendaftar dan menunggu verifikasi izin.', icon: 'solar:shop-bold-duotone', tone: 'info' },
-    ] },
-];
-
-export const conversations = [
-    { name: 'Kirana Wijaya', avatar: img.user(1), last: 'Baik, saya tunggu konfirmasinya ya.', at: '09.42', unread: 2, online: true },
-    { name: 'Rizky Ananda', avatar: img.user(2), last: 'Stok Amoxicillin masih ada?', at: '09.15', unread: 0, online: true },
-    { name: 'Dinda Puspita', avatar: img.user(3), last: 'Terima kasih bantuannya!', at: 'Kemarin', unread: 0, online: false },
-    { name: 'Bagas Saputra', avatar: img.user(4), last: 'Pesanan saya kok belum dikirim?', at: 'Kemarin', unread: 1, online: false },
-    { name: 'Sari Wulandari', avatar: img.user(5), last: 'Apakah bisa kirim ke Semarang?', at: '2 hari lalu', unread: 0, online: false },
-];
-
-export const chatMessages = [
-    { from: 'them', body: 'Selamat pagi, saya mau tanya soal pesanan #INO-2451.', at: '09.30' },
-    { from: 'me', body: 'Selamat pagi Bu Kirana. Silakan, ada yang bisa kami bantu?', at: '09.32' },
-    { from: 'them', body: 'Kira-kira sampai kapan ya pesanan saya dikirim?', at: '09.35' },
-    { from: 'me', body: 'Pesanan sedang disiapkan dan akan dikirim hari ini. Estimasi tiba besok sore.', at: '09.38' },
-    { from: 'them', body: 'Baik, saya tunggu konfirmasinya ya.', at: '09.42' },
-];
-
-export const emails = [
-    { from: 'PT Kimia Farma', subject: 'Konfirmasi pengiriman PO-1043', preview: 'Kami informasikan bahwa pesanan Anda telah dikirim...', at: '09.20', unread: true, starred: true },
-    { from: 'Rizky Ananda', subject: 'Pertanyaan stok Amoxicillin', preview: 'Halo, apakah Amoxicillin 500mg masih tersedia?', at: '08.55', unread: true, starred: false },
-    { from: 'Sistem Inofarma', subject: 'Laporan penjualan mingguan', preview: 'Ringkasan penjualan 07-13 Agustus 2025 sudah siap...', at: 'Kemarin', unread: false, starred: true },
-    { from: 'PT Kalbe Farma', subject: 'Penawaran harga produk baru', preview: 'Bersama ini kami sampaikan daftar harga terbaru...', at: 'Kemarin', unread: false, starred: false },
-    { from: 'Dinda Puspita', subject: 'Terima kasih', preview: 'Pelayanannya sangat memuaskan, terima kasih!', at: '2 hari lalu', unread: false, starred: false },
-];
-
-export const calendarEvents = [
-    { day: 5, title: 'Audit stok bulanan', tone: 'brand' },
-    { day: 8, title: 'Kirim PO ke Kalbe', tone: 'warning' },
-    { day: 14, title: 'Rapat tim apotek', tone: 'info' },
-    { day: 18, title: 'Jatuh tempo INV-0450', tone: 'danger' },
-    { day: 22, title: 'Pelatihan staf baru', tone: 'success' },
-    { day: 27, title: 'Tutup buku bulanan', tone: 'brand' },
-];
-
-export const todoItems = [
-    { id: 1, title: 'Verifikasi izin Griya Farma', due: 'Hari ini', priority: 'Tinggi', done: false },
-    { id: 2, title: 'Cek stok menipis di Gudang Medan', due: 'Hari ini', priority: 'Tinggi', done: false },
-    { id: 3, title: 'Balas ulasan pelanggan yang tertunda', due: 'Besok', priority: 'Sedang', done: false },
-    { id: 4, title: 'Susun laporan penjualan Agustus', due: '20 Agu', priority: 'Sedang', done: false },
-    { id: 5, title: 'Perbarui harga produk Kalbe', due: '18 Agu', priority: 'Rendah', done: true },
-    { id: 6, title: 'Arsipkan faktur Juli', due: '15 Agu', priority: 'Rendah', done: true },
-];
