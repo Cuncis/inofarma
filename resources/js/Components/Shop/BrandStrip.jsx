@@ -32,7 +32,7 @@ export default function BrandStrip() {
         >
             {BRANDS.map((brand) => (
                 <div key={brand.name} className="flex w-16 shrink-0 items-center justify-center text-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-line bg-white p-1.5">
+                    <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-line bg-white p-1.5">
                         <img src={brand.image} alt={brand.name} className="h-full w-full object-contain" />
                     </span>
                 </div>
