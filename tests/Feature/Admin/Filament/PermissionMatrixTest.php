@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `RoleController::matrix()`/`updateMatrix()`, exercised
- * through the Filament page at /admin/beta/hak-akses.
+ * through the Filament page at /admin/hak-akses.
  */
 class PermissionMatrixTest extends TestCase
 {
@@ -62,7 +62,7 @@ class PermissionMatrixTest extends TestCase
 
         $this->post('/admin/masuk', ['email' => $limited->email, 'password' => 'password']);
 
-        $this->get('/admin/beta/hak-akses')->assertForbidden();
+        $this->get('/admin/hak-akses')->assertForbidden();
     }
 
     public function test_saving_without_the_update_permission_is_refused(): void

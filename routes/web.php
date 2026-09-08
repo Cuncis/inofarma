@@ -1,27 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
-use App\Http\Controllers\Admin\AttributeController;
-use App\Http\Controllers\Admin\BranchController as AdminBranchController;
-use App\Http\Controllers\Admin\BranchStockController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\CustomerController;
-use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\NotificationController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
-use App\Http\Controllers\Admin\PickupController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductImageController;
-use App\Http\Controllers\Admin\ProductImportController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\StaffController;
-use App\Http\Controllers\Admin\StockMatrixController;
-use App\Http\Controllers\Admin\StockTransferController;
-use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\TwoFactorChallengeController;
-use App\Http\Controllers\Admin\TwoFactorController;
 use App\Http\Controllers\Shop\AddressController;
 use App\Http\Controllers\Shop\AuthController as ShopAuthController;
 use App\Http\Controllers\Shop\BranchController as ShopBranchController;
@@ -59,19 +39,7 @@ Route::post('doku/notifikasi', [DokuWebhookController::class, 'handle'])->name('
  */
 Route::post('biteship/notifikasi', [BiteshipWebhookController::class, 'handle'])->name('biteship.notifikasi');
 
-/**
- * Admin screens.
- *
- * Layout-only Inertia pages converted from the source HTML theme. The slug order
- * mirrors `resources/js/Components/Admin/nav.js`.
- *
- * @var array<string, string>
- */
-$adminScreens = [
-    '/' => 'Dashboard',
-];
-
-Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
+Route::prefix('admin')->name('admin.')->group(function () {
     /**
      * Sign-in and password recovery sit outside the guard, or reaching them
      * would loop. The 2FA challenge is a special case: the user has passed
@@ -88,256 +56,15 @@ Route::prefix('admin')->name('admin.')->group(function () use ($adminScreens) {
     Route::get('dua-faktor', [TwoFactorChallengeController::class, 'show'])->name('dua-faktor');
     Route::post('dua-faktor', [TwoFactorChallengeController::class, 'store'])->name('dua-faktor.store');
 
-    Route::middleware('admin')->group(function () use ($adminScreens) {
+    /**
+     * Every other /admin screen is the Filament panel now (see
+     * App\Providers\Filament\AdminPanelProvider) — only the pre-panel auth
+     * handshake above and sign-out below stay outside it, since
+     * EnsureAdminIsAuthenticated redirects here rather than to a
+     * Filament-generated login page.
+     */
+    Route::middleware('admin')->group(function () {
         Route::post('keluar', [AdminAuthController::class, 'logout'])->name('keluar');
-
-        Route::prefix('notifikasi')->name('notifikasi.')->controller(NotificationController::class)->group(function () {
-            Route::post('{notification}/baca', 'markRead')->name('baca');
-            Route::post('baca-semua', 'markAllRead')->name('baca-semua');
-        });
-
-        Route::prefix('keamanan')->name('keamanan.')->controller(TwoFactorController::class)->group(function () {
-            Route::get('/', 'show')->name('index');
-            Route::post('aktifkan', 'enable')->name('aktifkan');
-            Route::post('konfirmasi', 'confirm')->name('konfirmasi');
-            Route::delete('/', 'disable')->name('nonaktifkan');
-            Route::post('kode-pemulihan', 'regenerateRecoveryCodes')->name('kode-pemulihan');
-        });
-
-        /**
-         * Staf: the `users` rows admin sign-in actually checks, each with a
-         * branch (null = pusat) and one or more roles (Fase 3.2).
-         */
-        Route::prefix('staf')->name('staf.')->controller(StaffController::class)
-            ->middleware('permission:Pengaturan:Ubah')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::get('{staff}/ubah', 'edit')->name('edit');
-                Route::put('{staff}', 'update')->name('update');
-                Route::delete('{staff}', 'destroy')->name('destroy');
-            });
-
-        Route::prefix('peran')->name('peran.')->controller(RoleController::class)
-            ->middleware('permission:Peran:Lihat')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store')->middleware('permission:Peran:Ubah');
-                Route::get('{role}/ubah', 'edit')->name('edit');
-                Route::put('{role}', 'update')->name('update')->middleware('permission:Peran:Ubah');
-                Route::delete('{role}', 'destroy')->name('destroy')->middleware('permission:Peran:Ubah');
-            });
-
-        Route::get('hak-akses', [RoleController::class, 'matrix'])->name('hak-akses')
-            ->middleware('permission:Peran:Lihat');
-        Route::post('hak-akses', [RoleController::class, 'updateMatrix'])->name('hak-akses.store')
-            ->middleware('permission:Peran:Ubah');
-
-        /**
-         * Product CRUD. Backed by the session store rather than a database, but the
-         * routes are the ones a real resource would expose.
-         */
-        /**
-         * Category CRUD. Deleting is refused while products still reference the
-         * category, so `destroy` can come back with an error rather than a success.
-         */
-        /**
-         * Customer CRUD. Deleting is refused while order history exists.
-         */
-        /**
-         * Seller CRUD. Deleting is refused while the seller still stocks products.
-         */
-        /**
-         * Order CRUD. A completed order cannot be deleted, only cancelled.
-         */
-        Route::prefix('pesanan')->name('pesanan.')->controller(OrderController::class)
-            ->middleware('permission:Pesanan:Lihat')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::post('reset', 'reset')->name('reset');
-                Route::get('{order}', 'show')->name('show');
-                Route::get('{order}/ubah', 'edit')->name('edit');
-                Route::put('{order}', 'update')->name('update');
-                Route::delete('{order}', 'destroy')->name('destroy');
-
-                /**
-                 * Fase 7 fulfilment actions, triggered from `Admin/OrderDetail.jsx`
-                 * rather than the generic status-dropdown edit form: booking a real
-                 * Biteship waybill, and issuing a pickup code + QR.
-                 */
-                Route::post('{order}/kirim', 'ship')->name('kirim')
-                    ->middleware('permission:Pesanan:Proses');
-                Route::post('{order}/siap', 'markReady')->name('siap')
-                    ->middleware('permission:Pesanan:Proses');
-                Route::post('{order}/cek-status-kirim', 'checkShipmentStatus')->name('cek-status-kirim')
-                    ->middleware('permission:Pesanan:Proses');
-            });
-
-        /**
-         * The branch counter's own screen: everything currently
-         * `siap diambil`, and the code-entry form that hands one over.
-         */
-        Route::prefix('pengambilan')->name('pengambilan.')->controller(PickupController::class)
-            ->middleware('permission:Pesanan:Proses')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::post('{order}/serahkan', 'handOver')->name('serahkan');
-            });
-
-        /**
-         * "Pemasok" — distributor/PBF that supplies stock to a branch, not a
-         * marketplace seller (utang teknis #5). The route segment carries the
-         * new name; `{supplier}` route params still bind by `Supplier::code`.
-         */
-        Route::prefix('pemasok')->name('pemasok.')->controller(SupplierController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::post('reset', 'reset')->name('reset');
-            Route::get('{supplier}', 'show')->name('show');
-            Route::get('{supplier}/ubah', 'edit')->name('edit');
-            Route::put('{supplier}', 'update')->name('update');
-            Route::delete('{supplier}', 'destroy')->name('destroy');
-        });
-
-        Route::prefix('atribut')->name('atribut.')->controller(AttributeController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::get('{attribute}/ubah', 'edit')->name('edit');
-            Route::put('{attribute}', 'update')->name('update');
-            Route::delete('{attribute}', 'destroy')->name('destroy');
-        });
-
-        Route::prefix('kupon')->name('kupon.')->controller(CouponController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::get('{coupon}/ubah', 'edit')->name('edit');
-            Route::put('{coupon}', 'update')->name('update');
-            Route::delete('{coupon}', 'destroy')->name('destroy');
-        });
-
-        Route::prefix('faktur')->name('faktur.')->controller(InvoiceController::class)
-            ->middleware('permission:Pesanan:Lihat')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('{order}', 'show')->name('show');
-                Route::post('{order}/refund', 'refund')->name('refund')
-                    ->middleware('permission:Pesanan:Refund');
-            });
-
-        Route::get('rekonsiliasi', [AdminPaymentController::class, 'index'])
-            ->name('rekonsiliasi')
-            ->middleware('permission:Pesanan:Lihat');
-
-        Route::post('rekonsiliasi/{payment:invoice_number}/cek-status', [AdminPaymentController::class, 'checkStatus'])
-            ->name('rekonsiliasi.cek-status')
-            ->middleware('permission:Pesanan:Proses');
-
-        Route::prefix('pelanggan')->name('pelanggan.')->controller(CustomerController::class)
-            ->middleware('permission:Pelanggan:Lihat')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::post('reset', 'reset')->name('reset');
-                Route::get('{customer}', 'show')->name('show');
-                Route::get('{customer}/ubah', 'edit')->name('edit');
-                Route::put('{customer}', 'update')->name('update');
-                Route::delete('{customer}', 'destroy')->name('destroy');
-            });
-
-        Route::prefix('kategori')->name('kategori.')->controller(CategoryController::class)->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('tambah', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::post('reset', 'reset')->name('reset');
-            Route::get('{category}', 'show')->name('show');
-            Route::get('{category}/ubah', 'edit')->name('edit');
-            Route::put('{category}', 'update')->name('update');
-            Route::delete('{category}', 'destroy')->name('destroy');
-        });
-
-        Route::prefix('produk')->name('produk.')->controller(ProductController::class)
-            ->middleware('permission:Produk:Lihat')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::post('reset', 'reset')->name('reset');
-                Route::get('impor', [ProductImportController::class, 'create'])->name('impor.create');
-                Route::post('impor', [ProductImportController::class, 'store'])->name('impor.store');
-                Route::get('{product}', 'show')->name('show');
-                Route::get('{product}/ubah', 'edit')->name('edit');
-                Route::put('{product}', 'update')->name('update');
-                Route::delete('{product}', 'destroy')->name('destroy');
-            });
-
-        Route::prefix('produk/{product}/gambar')->name('produk.gambar.')
-            ->controller(ProductImageController::class)
-            ->middleware('permission:Produk:Lihat')
-            ->group(function () {
-                Route::post('/', 'store')->name('store');
-                Route::post('urutkan', 'reorder')->name('urutkan');
-                Route::post('{image}/utama', 'makePrimary')->name('utama');
-                Route::delete('{image}', 'destroy')->name('destroy');
-            });
-
-        /**
-         * Branch CRUD. A branch with stock on its shelves or orders in its
-         * history cannot be deleted, only closed.
-         */
-        Route::prefix('cabang')->name('cabang.')->controller(AdminBranchController::class)
-            ->middleware('permission:Cabang:Lihat')
-            ->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::post('reset', 'reset')->name('reset');
-                Route::get('{branch}', 'show')->name('show');
-                Route::get('{branch}/ubah', 'edit')->name('edit');
-                Route::put('{branch}', 'update')->name('update');
-                Route::delete('{branch}', 'destroy')->name('destroy');
-            });
-
-        /**
-         * Inventory across branches: per-branch stock (view/adjust/receive), the
-         * product × branch matrix, and stock transfers between branches.
-         */
-        Route::prefix('inventaris')->name('inventaris.')->middleware('permission:Inventaris:Lihat')->group(function () {
-            Route::prefix('stok')->name('stok.')->controller(BranchStockController::class)->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('{branch}', 'show')->name('show');
-                Route::post('{branch}/{product}/sesuaikan', 'adjust')->name('adjust')
-                    ->middleware('permission:Inventaris:Sesuaikan Stok');
-                Route::post('{branch}/{product}/terima', 'receive')->name('receive')
-                    ->middleware('permission:Inventaris:Terima Barang');
-            });
-
-            Route::get('matriks', [StockMatrixController::class, 'index'])->name('matriks');
-
-            Route::prefix('transfer')->name('transfer.')->controller(StockTransferController::class)->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::get('tambah', 'create')->name('create');
-                Route::post('/', 'store')->name('store');
-                Route::get('{transfer}', 'show')->name('show');
-                Route::post('{transfer}/kirim', 'ship')->name('ship');
-                Route::post('{transfer}/terima', 'receive')->name('receive');
-                Route::post('{transfer}/batalkan', 'cancel')->name('cancel');
-            });
-        });
-
-        foreach ($adminScreens as $slug => $component) {
-            $path = $slug === '/' ? '/' : $slug;
-            $name = $slug === '/' ? 'dashboard' : str_replace('/', '.', $slug);
-
-            Route::get($path, fn () => Inertia::render("Admin/{$component}"))->name($name);
-        }
     });
 });
 

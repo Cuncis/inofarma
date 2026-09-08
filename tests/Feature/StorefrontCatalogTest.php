@@ -2,9 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Models\Category;
 use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Supplier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use Livewire\Livewire;
 use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
@@ -56,18 +63,22 @@ class StorefrontCatalogTest extends TestCase
     public function test_a_price_changed_in_the_admin_shows_up_in_the_shop(): void
     {
         $this->signInAsAdmin();
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
 
-        $this->put('/admin/produk/PRD-001', [
-            'name' => 'Paracetamol 500mg',
-            'category' => 'Obat Bebas',
-            'seller' => 'Apotek Sehat Bersama',
-            'unit' => 'Strip',
-            'status' => 'Aktif',
-            'price' => 13750,
-            'oldPrice' => 15000,
-            'prescription' => false,
-            'blurb' => 'Meredakan demam dan nyeri ringan.',
-        ])->assertSessionHasNoErrors();
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+            ->fillForm([
+                'name' => 'Paracetamol 500mg',
+                'category_id' => $product->category_id,
+                'supplier_id' => $product->supplier_id,
+                'unit' => 'Strip',
+                'status' => 'aktif',
+                'price' => 13750,
+                'old_price' => 15000,
+                'requires_prescription' => false,
+                'blurb' => 'Meredakan demam dan nyeri ringan.',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $this->get('/')
             ->assertInertia(fn (AssertableInertia $page) => $page
@@ -80,18 +91,23 @@ class StorefrontCatalogTest extends TestCase
     public function test_a_product_added_in_the_admin_appears_in_the_shop(): void
     {
         $this->signInAsAdmin();
+        $category = Category::where('name', 'Obat Bebas')->firstOrFail();
+        $seller = Supplier::where('name', 'Apotek Sehat Bersama')->firstOrFail();
 
-        $this->post('/admin/produk', [
-            'name' => 'Ibuprofen 400mg',
-            'category' => 'Obat Bebas',
-            'seller' => 'Apotek Sehat Bersama',
-            'unit' => 'Strip',
-            'status' => 'Aktif',
-            'price' => 17500,
-            'oldPrice' => null,
-            'prescription' => false,
-            'blurb' => 'Meredakan nyeri dan peradangan ringan.',
-        ])->assertSessionHasNoErrors();
+        Livewire::test(CreateProduct::class)
+            ->fillForm([
+                'name' => 'Ibuprofen 400mg',
+                'category_id' => $category->id,
+                'supplier_id' => $seller->id,
+                'unit' => 'Strip',
+                'status' => 'aktif',
+                'price' => 17500,
+                'old_price' => null,
+                'requires_prescription' => false,
+                'blurb' => 'Meredakan nyeri dan peradangan ringan.',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
 
         $this->get('/ui/shop')
             ->assertInertia(fn (AssertableInertia $page) => $page
@@ -103,28 +119,30 @@ class StorefrontCatalogTest extends TestCase
     public function test_a_deactivated_product_leaves_the_shop_but_stays_in_the_admin(): void
     {
         $this->signInAsAdmin();
+        $product = Product::where('sku', 'PRD-006')->firstOrFail();
 
-        $this->put('/admin/produk/PRD-006', [
-            'name' => 'Termometer Digital',
-            'category' => 'Alat Kesehatan',
-            'seller' => 'Farmasi Nusantara',
-            'unit' => 'Pcs',
-            'status' => 'Nonaktif',
-            'price' => 125000,
-            'oldPrice' => null,
-            'prescription' => false,
-            'blurb' => '',
-        ])->assertSessionHasNoErrors();
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+            ->fillForm([
+                'name' => 'Termometer Digital',
+                'category_id' => $product->category_id,
+                'supplier_id' => $product->supplier_id,
+                'unit' => 'Pcs',
+                'status' => 'nonaktif',
+                'price' => 125000,
+                'old_price' => null,
+                'requires_prescription' => false,
+                'blurb' => '',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $this->get('/')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('catalog.products', self::PRODUCT_COUNT - 1)
             );
 
-        $this->get('/admin/produk')
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('products', self::PRODUCT_COUNT)
-            );
+        Livewire::test(ListProducts::class)
+            ->assertCountTableRecords(self::PRODUCT_COUNT);
     }
 
     public function test_the_shop_reports_availability_rather_than_catalogue_status(): void

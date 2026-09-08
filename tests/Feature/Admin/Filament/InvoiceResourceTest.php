@@ -21,7 +21,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `InvoiceTest`, exercised through the Filament resource
- * at /admin/beta instead of the legacy Inertia routes.
+ * at /admin instead of the legacy Inertia routes.
  */
 class InvoiceResourceTest extends TestCase
 {
@@ -79,7 +79,7 @@ class InvoiceResourceTest extends TestCase
 
     public function test_an_unknown_invoice_is_a_404(): void
     {
-        $this->get('/admin/beta/faktur/999999')->assertNotFound();
+        $this->get('/admin/faktur/999999')->assertNotFound();
     }
 
     public function test_a_paid_order_can_be_refunded(): void

@@ -1,6 +1,6 @@
 ---
 paths:
-  - 'app/Support/ProductCsvImporter.php,app/Http/Controllers/Admin/ProductImportController.php'
+  - 'app/Support/ProductCsvImporter.php,app/Filament/Pages/ProductImport.php'
 ---
 
 # Support Http Controllers Admin
@@ -12,4 +12,6 @@ Scope is deliberately products only: no stock/branch/batch rows are created (`Ex
 
 `Golongan Obat: BLUE` → `drug_class = 'bebas terbatas'`, which legally requires a P1–P6 warning (`Product::needs_warning_label`). The CSV has no warning text, so those rows import as `status = 'nonaktif'` rather than going live unwarned — an admin must add the warning and activate by hand. `unit` and `indication` are best-effort (keyword/regex guesses from the packaging line and Deskripsi) — null/default rather than fabricated when no pattern matches.
 
-Bypasses `ProductRequest` entirely (writes via Eloquent directly, like a seeder) since it's a bulk backend import, not a form submission — so `ProductRequest`'s `seller` (required) and `warning` (`required_if:drugClass,Bebas Terbatas`) rules don't block it; imported bebas-terbatas products stay `nonaktif` until an admin fills in `warning` and `seller` through the normal edit form.
+Bypasses the product form's own validation entirely (writes via Eloquent directly, like a seeder) since it's a bulk backend import, not a form submission — imported bebas-terbatas products stay `nonaktif` until an admin fills in `warning` and `seller` through the normal edit form (`App\Filament\Resources\Products\Schemas\ProductForm`, which does enforce `warning` as required when `drug_class` is `bebas terbatas`).
+
+`App\Filament\Pages\ProductImport` (not in the main nav — reached from the Produk list's "Impor CSV" header action) intercepts the uploaded file via `FileUpload::saveUploadedFileUsing()` and writes it to a real temp path before handing it to `ProductCsvImporter::import()`, which needs a genuine filesystem path to `fopen()` — Filament's own upload storage doesn't guarantee that shape.

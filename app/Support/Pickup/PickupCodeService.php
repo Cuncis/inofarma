@@ -2,6 +2,7 @@
 
 namespace App\Support\Pickup;
 
+use App\Filament\Resources\Pickups\PickupResource;
 use App\Models\Order;
 use App\Models\User;
 use App\Support\AuditLogger;
@@ -17,12 +18,13 @@ use BaconQrCode\Writer;
  * a 48-hour window (0.3's own suggested default).
  *
  * QR rendering reuses `bacon/bacon-qr-code`, already a direct dependency for
- * 2FA (`Admin\TwoFactorController`), so this needed no new package. It
+ * 2FA (`App\Filament\Pages\Security`), so this needed no new package. It
  * encodes a URL into the admin's own hand-over screen rather than the bare
  * code — a phone camera without an app to type into is still useful,
- * `Admin/PickupQueue.jsx` pre-fills the code from the URL's query string,
- * and the counter staff still has to press "Serahkan" themselves; nothing
- * about scanning it hands an order over on its own.
+ * `App\Filament\Resources\Pickups\Pages\ListPickups::mount()` pre-fills the
+ * code from the URL's query string, and the counter staff still has to
+ * press "Serahkan" themselves; nothing about scanning it hands an order
+ * over on its own.
  */
 class PickupCodeService
 {
@@ -46,7 +48,10 @@ class PickupCodeService
             return null;
         }
 
-        $url = route('admin.pengambilan.index', ['order' => $order->number, 'kode' => $order->pickup_code]);
+        $url = PickupResource::getUrl().'?'.http_build_query([
+            'order' => $order->number,
+            'kode' => $order->pickup_code,
+        ]);
         $renderer = new ImageRenderer(new RendererStyle(220, 1), new SvgImageBackEnd);
         $svg = (new Writer($renderer))->writeString($url);
 

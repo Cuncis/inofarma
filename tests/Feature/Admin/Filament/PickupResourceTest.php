@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as the hand-over part of `PickupTest`, exercised through
- * the Filament resource at /admin/beta instead of the legacy Inertia route.
+ * the Filament resource at /admin instead of the legacy Inertia route.
  */
 class PickupResourceTest extends TestCase
 {
@@ -122,7 +122,7 @@ class PickupResourceTest extends TestCase
         PickupCodeService::issue($other);
         $other->refresh();
 
-        $this->get("/admin/beta/pengambilan?order={$order->number}")
+        $this->get("/admin/pengambilan?order={$order->number}")
             ->assertOk()
             ->assertSee($order->number)
             ->assertDontSee($other->number);

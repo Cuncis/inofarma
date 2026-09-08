@@ -52,7 +52,7 @@ class AdminAuthTest extends TestCase
         $user = $this->makeUser();
 
         $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'])
-            ->assertRedirect(route('admin.dashboard'))
+            ->assertRedirect('/admin')
             ->assertSessionHasNoErrors();
 
         $this->assertTrue(Auth::guard('web')->check());
@@ -111,17 +111,9 @@ class AdminAuthTest extends TestCase
 
     public function test_the_admin_area_is_closed_to_anonymous_visitors(): void
     {
-        foreach (['/admin', '/admin/produk', '/admin/kategori', '/admin/pesanan'] as $path) {
+        foreach (['/admin', '/admin/produk', '/admin/produk/create', '/admin/kategori', '/admin/pesanan'] as $path) {
             $this->get($path)->assertRedirect(route('admin.masuk'));
         }
-    }
-
-    public function test_writes_are_closed_to_anonymous_visitors_too(): void
-    {
-        $this->post('/admin/produk', ['name' => 'Seharusnya Gagal'])
-            ->assertRedirect(route('admin.masuk'));
-
-        $this->delete('/admin/produk/PRD-001')->assertRedirect(route('admin.masuk'));
     }
 
     public function test_signing_in_returns_you_to_where_you_were_headed(): void
@@ -134,31 +126,24 @@ class AdminAuthTest extends TestCase
             ->assertRedirect(url('/admin/kategori'));
     }
 
+    /**
+     * `/admin` is the Filament panel's own dashboard now (a Livewire page,
+     * not an Inertia response) — this is a plain HTTP smoke test rather than
+     * an `assertInertia()` component check.
+     */
     public function test_a_signed_in_admin_reaches_the_dashboard(): void
     {
         $this->signIn($this->makeUser())
             ->get('/admin')
             ->assertOk()
-            ->assertInertia(fn (AssertableInertia $page) => $page->component('Admin/Dashboard'));
-    }
-
-    public function test_the_signed_in_admin_is_shared_with_every_screen(): void
-    {
-        $user = $this->makeUser(['name' => 'Kirana Wijaya', 'email' => 'kirana.wijaya@inofarma.co.id']);
-
-        $this->signIn($user)
-            ->get('/admin/produk')
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('adminUser.name', 'Kirana Wijaya')
-                ->where('adminUser.email', 'kirana.wijaya@inofarma.co.id')
-            );
+            ->assertDontSee('Whoops', false);
     }
 
     public function test_visiting_login_while_signed_in_goes_to_the_dashboard(): void
     {
         $this->signIn($this->makeUser())
             ->get('/admin/masuk')
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect('/admin');
     }
 
     public function test_signing_out_closes_the_area_again(): void
@@ -185,7 +170,7 @@ class AdminAuthTest extends TestCase
         $code = (new Google2FA)->getCurrentOtp($secret);
 
         $this->post('/admin/dua-faktor', ['code' => $code])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect('/admin');
 
         $this->assertTrue(Auth::guard('web')->check());
     }

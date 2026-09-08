@@ -23,7 +23,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `OrderCrudTest`, `ShipmentTest` and the order-facing part
- * of `PickupTest`, exercised through the Filament resource at /admin/beta
+ * of `PickupTest`, exercised through the Filament resource at /admin
  * instead of the legacy Inertia routes.
  */
 class OrderResourceTest extends TestCase
@@ -188,7 +188,7 @@ class OrderResourceTest extends TestCase
 
     public function test_an_unknown_order_is_a_404(): void
     {
-        $this->get('/admin/beta/pesanan/999999')->assertNotFound();
+        $this->get('/admin/pesanan/999999')->assertNotFound();
     }
 
     public function test_an_order_can_be_updated(): void

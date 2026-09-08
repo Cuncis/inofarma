@@ -20,7 +20,7 @@ use Tests\TestCase;
 /**
  * Same scenarios as `BranchStockTest`, `StockMatrixTest` and
  * `StockTransferCrudTest`, exercised through the Filament resources/widget
- * at /admin/beta instead of the legacy Inertia routes.
+ * at /admin instead of the legacy Inertia routes.
  */
 class InventoryResourceTest extends TestCase
 {

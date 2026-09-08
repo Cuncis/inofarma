@@ -14,7 +14,7 @@ use Tests\TestCase;
 /**
  * Phase 1 pilot for the Filament migration (see .ai/rules) — same behaviour
  * as `AttributeCrudTest`, exercised through the Filament resource at
- * /admin/beta instead of the legacy Inertia routes.
+ * /admin instead of the legacy Inertia routes.
  */
 class AttributeResourceTest extends TestCase
 {

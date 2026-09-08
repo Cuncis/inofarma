@@ -2,8 +2,11 @@
 
 namespace App\Notifications\Admin;
 
+use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
 use App\Support\Money;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -11,8 +14,13 @@ use Illuminate\Notifications\Notification;
 /**
  * "Pesanan baru di cabangnya" (ROADMAP.md Fase 8) — fired by
  * `App\Observers\OrderObserver::created()` to every active staff member of
- * the order's branch. Database-channel only: this is the admin topbar bell,
- * not an email — see `App\Support\Presenters\AdminNotificationPresenter`.
+ * the order's branch. Database-channel only: this is the admin panel's own
+ * bell (`->databaseNotifications()`), not an email.
+ *
+ * Still a plain queued Laravel notification (delivery stays `$user->notify()`
+ * via the standard `database` channel) — only the stored payload shape comes
+ * from `Filament\Notifications\Notification::getDatabaseMessage()`, which is
+ * what stamps `data->format = 'filament'` so the panel's bell picks it up.
  */
 class NewOrderAtBranch extends Notification implements ShouldQueue
 {
@@ -31,10 +39,12 @@ class NewOrderAtBranch extends Notification implements ShouldQueue
     {
         $order = $this->order;
 
-        return [
-            'title' => 'Pesanan baru',
-            'body' => "#{$order->number} — ".Money::rupiah($order->grand_total),
-            'link' => route('admin.pesanan.show', $order->number),
-        ];
+        return FilamentNotification::make()
+            ->title('Pesanan baru')
+            ->body("#{$order->number} — ".Money::rupiah($order->grand_total))
+            ->actions([
+                Action::make('view')->label('Lihat Pesanan')->url(OrderResource::getUrl('view', ['record' => $order])),
+            ])
+            ->getDatabaseMessage();
     }
 }

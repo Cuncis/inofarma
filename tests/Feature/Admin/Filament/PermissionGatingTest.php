@@ -48,28 +48,28 @@ class PermissionGatingTest extends TestCase
     public function test_cabang_requires_cabang_lihat(): void
     {
         $this->signInAs('Tanpa Cabang', []);
-        $this->get('/admin/beta/cabang')->assertForbidden();
+        $this->get('/admin/cabang')->assertForbidden();
 
         $this->signInAs('Dengan Cabang', ['Cabang:Lihat']);
-        $this->get('/admin/beta/cabang')->assertOk();
+        $this->get('/admin/cabang')->assertOk();
     }
 
     public function test_pelanggan_requires_pelanggan_lihat(): void
     {
         $this->signInAs('Tanpa Pelanggan', []);
-        $this->get('/admin/beta/pelanggan')->assertForbidden();
+        $this->get('/admin/pelanggan')->assertForbidden();
 
         $this->signInAs('Dengan Pelanggan', ['Pelanggan:Lihat']);
-        $this->get('/admin/beta/pelanggan')->assertOk();
+        $this->get('/admin/pelanggan')->assertOk();
     }
 
     public function test_pesanan_requires_pesanan_lihat(): void
     {
         $this->signInAs('Tanpa Pesanan', []);
-        $this->get('/admin/beta/pesanan')->assertForbidden();
+        $this->get('/admin/pesanan')->assertForbidden();
 
         $this->signInAs('Dengan Pesanan', ['Pesanan:Lihat']);
-        $this->get('/admin/beta/pesanan')->assertOk();
+        $this->get('/admin/pesanan')->assertOk();
     }
 
     public function test_faktur_requires_pesanan_lihat_and_refund_requires_pesanan_refund(): void
@@ -77,7 +77,7 @@ class PermissionGatingTest extends TestCase
         $order = Order::factory()->create(['payment_status' => 'lunas']);
 
         $this->signInAs('Tanpa Faktur', []);
-        $this->get('/admin/beta/faktur')->assertForbidden();
+        $this->get('/admin/faktur')->assertForbidden();
 
         $this->signInAs('Faktur Tanpa Refund', ['Pesanan:Lihat']);
         Livewire::test(ViewInvoice::class, ['record' => $order->getKey()])
@@ -91,62 +91,72 @@ class PermissionGatingTest extends TestCase
     public function test_rekonsiliasi_requires_pesanan_lihat(): void
     {
         $this->signInAs('Tanpa Rekonsiliasi', []);
-        $this->get('/admin/beta/rekonsiliasi')->assertForbidden();
+        $this->get('/admin/rekonsiliasi')->assertForbidden();
 
         $this->signInAs('Dengan Rekonsiliasi', ['Pesanan:Lihat']);
-        $this->get('/admin/beta/rekonsiliasi')->assertOk();
+        $this->get('/admin/rekonsiliasi')->assertOk();
     }
 
     public function test_pengambilan_requires_pesanan_proses_not_just_lihat(): void
     {
         $this->signInAs('Hanya Lihat', ['Pesanan:Lihat']);
-        $this->get('/admin/beta/pengambilan')->assertForbidden();
+        $this->get('/admin/pengambilan')->assertForbidden();
 
         $this->signInAs('Dengan Proses', ['Pesanan:Proses']);
-        $this->get('/admin/beta/pengambilan')->assertOk();
+        $this->get('/admin/pengambilan')->assertOk();
     }
 
     public function test_inventaris_screens_require_inventaris_lihat(): void
     {
         $this->signInAs('Tanpa Inventaris', []);
-        $this->get('/admin/beta/inventaris/stok')->assertForbidden();
-        $this->get('/admin/beta/inventaris/matriks')->assertForbidden();
-        $this->get('/admin/beta/inventaris/transfer')->assertForbidden();
+        $this->get('/admin/inventaris/stok')->assertForbidden();
+        $this->get('/admin/inventaris/matriks')->assertForbidden();
+        $this->get('/admin/inventaris/transfer')->assertForbidden();
 
         $this->signInAs('Dengan Inventaris', ['Inventaris:Lihat']);
-        $this->get('/admin/beta/inventaris/stok')->assertOk();
-        $this->get('/admin/beta/inventaris/matriks')->assertOk();
-        $this->get('/admin/beta/inventaris/transfer')->assertOk();
+        $this->get('/admin/inventaris/stok')->assertOk();
+        $this->get('/admin/inventaris/matriks')->assertOk();
+        $this->get('/admin/inventaris/transfer')->assertOk();
     }
 
     public function test_staf_requires_pengaturan_ubah(): void
     {
         $this->signInAs('Tanpa Staf', []);
-        $this->get('/admin/beta/staf')->assertForbidden();
+        $this->get('/admin/staf')->assertForbidden();
 
         $this->signInAs('Dengan Staf', ['Pengaturan:Ubah']);
-        $this->get('/admin/beta/staf')->assertOk();
+        $this->get('/admin/staf')->assertOk();
     }
 
     public function test_peran_requires_peran_lihat_and_write_actions_require_peran_ubah(): void
     {
         $this->signInAs('Tanpa Peran', []);
-        $this->get('/admin/beta/peran')->assertForbidden();
+        $this->get('/admin/peran')->assertForbidden();
 
         $this->signInAs('Peran Lihat Saja', ['Peran:Lihat']);
-        $this->get('/admin/beta/peran')->assertOk();
-        $this->get('/admin/beta/peran/create')->assertForbidden();
+        $this->get('/admin/peran')->assertOk();
+        $this->get('/admin/peran/create')->assertForbidden();
 
         $this->signInAs('Peran Ubah', ['Peran:Lihat', 'Peran:Ubah']);
-        $this->get('/admin/beta/peran/create')->assertOk();
+        $this->get('/admin/peran/create')->assertOk();
     }
 
     public function test_catalogue_screens_have_no_permission_gate_matching_legacy(): void
     {
         $this->signInAs('Staf Biasa', []);
 
-        $this->get('/admin/beta/atribut')->assertOk();
-        $this->get('/admin/beta/pemasok')->assertOk();
-        $this->get('/admin/beta/kupon')->assertOk();
+        $this->get('/admin/atribut')->assertOk();
+        $this->get('/admin/pemasok')->assertOk();
+        $this->get('/admin/kupon')->assertOk();
+        $this->get('/admin/kategori')->assertOk();
+    }
+
+    public function test_produk_requires_produk_lihat(): void
+    {
+        $this->signInAs('Tanpa Produk', []);
+        $this->get('/admin/produk')->assertForbidden();
+
+        $this->signInAs('Dengan Produk', ['Produk:Lihat']);
+        $this->get('/admin/produk')->assertOk();
     }
 }

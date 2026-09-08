@@ -22,7 +22,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `PaymentReconciliationTest`, exercised through the
- * Filament resource/widget at /admin/beta instead of the legacy Inertia route.
+ * Filament resource/widget at /admin instead of the legacy Inertia route.
  */
 class ReconciliationResourceTest extends TestCase
 {

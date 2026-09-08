@@ -30,7 +30,7 @@ class AdminAuthController extends Controller
     public function show(Request $request): Response|RedirectResponse
     {
         if (Auth::guard('web')->check()) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->to('/admin');
         }
 
         return Inertia::render('Admin/AuthSignIn');
@@ -128,6 +128,6 @@ class AdminAuthController extends Controller
 
     private function intendedUrl(Request $request): string
     {
-        return $request->session()->pull('admin_intended') ?? route('admin.dashboard');
+        return $request->session()->pull('admin_intended') ?? url('/admin');
     }
 }

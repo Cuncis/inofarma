@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `RoleCrudTest`, exercised through the Filament resource
- * at /admin/beta instead of the legacy Inertia routes.
+ * at /admin instead of the legacy Inertia routes.
  */
 class RoleResourceTest extends TestCase
 {

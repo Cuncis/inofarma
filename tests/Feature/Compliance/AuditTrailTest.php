@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Compliance;
 
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\BranchStock;
@@ -13,6 +15,7 @@ use App\Models\Product;
 use App\Models\Supplier;
 use App\Support\Inventory\StockAllocator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
@@ -38,12 +41,15 @@ class AuditTrailTest extends TestCase
         $category = Category::first();
         $supplier = Supplier::first();
 
-        $this->post('/admin/produk', [
-            'name' => 'Parasetamol 500mg', 'category' => $category->name, 'seller' => $supplier->name,
-            'unit' => 'Strip', 'status' => 'Aktif', 'price' => 12000, 'prescription' => false,
-        ])->assertSessionHasNoErrors();
+        Livewire::test(CreateProduct::class)
+            ->fillForm([
+                'name' => 'Parasetamol 500mg', 'category_id' => $category->id, 'supplier_id' => $supplier->id,
+                'unit' => 'Strip', 'status' => 'aktif', 'price' => 12000, 'requires_prescription' => false,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
 
-        $product = Product::where('name', 'Parasetamol 500mg')->first();
+        $product = Product::where('name', 'Parasetamol 500mg')->firstOrFail();
 
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'produk_ditambahkan',
@@ -56,11 +62,14 @@ class AuditTrailTest extends TestCase
     {
         $product = Product::factory()->create(['price' => 10000, 'drug_class' => 'bebas']);
 
-        $this->put("/admin/produk/{$product->sku}", [
-            'name' => $product->name, 'category' => $product->category->name, 'seller' => $product->supplier->name,
-            'unit' => $product->unit, 'status' => 'Aktif', 'price' => 15000, 'prescription' => false,
-            'drugClass' => 'Bebas Terbatas', 'warning' => 'P1 Awas! Obat Keras.',
-        ])->assertSessionHasNoErrors();
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+            ->fillForm([
+                'name' => $product->name, 'category_id' => $product->category_id, 'supplier_id' => $product->supplier_id,
+                'unit' => $product->unit, 'status' => 'aktif', 'price' => 15000, 'requires_prescription' => false,
+                'drug_class' => 'bebas terbatas', 'warning' => 'P1 Awas! Obat Keras.',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
 
         $log = AuditLog::where('action', 'produk_diubah')->where('auditable_id', $product->id)->first();
 
@@ -75,7 +84,8 @@ class AuditTrailTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $this->delete("/admin/produk/{$product->sku}")->assertSessionHasNoErrors();
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+            ->callAction('delete');
 
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'produk_dihapus',

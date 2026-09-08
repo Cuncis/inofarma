@@ -26,7 +26,8 @@ class Product extends Model
         'price', 'old_price', 'cost_price', 'unit', 'blurb', 'description',
         'drug_class', 'nie_bpom', 'composition', 'indication', 'dosage',
         'side_effects', 'warning', 'manufacturer', 'requires_prescription',
-        'max_qty_per_order', 'storage', 'weight_grams', 'sold_count', 'rating', 'status',
+        'max_qty_per_order', 'storage', 'weight_grams', 'length_cm', 'width_cm',
+        'height_cm', 'sold_count', 'rating', 'status',
     ];
 
     protected function casts(): array
@@ -36,6 +37,9 @@ class Product extends Model
             'old_price' => 'integer',
             'cost_price' => 'integer',
             'weight_grams' => 'integer',
+            'length_cm' => 'integer',
+            'width_cm' => 'integer',
+            'height_cm' => 'integer',
             'sold_count' => 'integer',
             'rating' => 'decimal:2',
             'requires_prescription' => 'boolean',

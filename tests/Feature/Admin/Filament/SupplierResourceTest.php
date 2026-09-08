@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `SupplierCrudTest`, exercised through the Filament
- * resource at /admin/beta instead of the legacy Inertia routes.
+ * resource at /admin instead of the legacy Inertia routes.
  */
 class SupplierResourceTest extends TestCase
 {

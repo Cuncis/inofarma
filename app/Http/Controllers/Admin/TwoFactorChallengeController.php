@@ -48,7 +48,7 @@ class TwoFactorChallengeController extends Controller
 
             app(AdminAuthController::class)->establishSession($request, $user);
 
-            return redirect()->route('admin.dashboard')->with('success', 'Selamat datang kembali!');
+            return redirect()->to('/admin')->with('success', 'Selamat datang kembali!');
         }
 
         throw ValidationException::withMessages(['code' => 'Kode tidak valid.']);

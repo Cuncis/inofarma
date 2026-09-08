@@ -1,6 +1,6 @@
 ---
 paths:
-  - 'app/Support/Shipping/**,app/Support/Pickup/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/ShippingController.php,app/Http/Controllers/Admin/OrderController.php,app/Http/Controllers/Admin/PickupController.php,app/Models/Shipment.php'
+  - 'app/Support/Shipping/**,app/Support/Pickup/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/ShippingController.php,app/Filament/Resources/Orders/**,app/Filament/Resources/Pickups/**,app/Models/Shipment.php'
 ---
 
 # Admin Models
@@ -8,7 +8,7 @@ paths:
 ## Biteship integration (Fase 7): quote at checkout, book from admin, no webhook signature
 Biteship client is hand-rolled (`App\Support\Shipping\Biteship\BiteshipClient`), same reasoning as DOKU's client — no well-maintained official SDK, and the surface needed is small (couriers, rates, orders, trackings).
 
-Split checkout-time quote from admin-time booking, deliberately: `CheckoutController::store()` calls `POST /v1/rates/couriers` (via `ShippingQuoteService`) and only *records* the chosen courier + price on a `Shipment` row (`biteship_order_id` stays null) — it never calls `POST /v1/orders`. An admin books the real waybill later from `Admin\OrderController::ship()` (`ShipmentService::bookForOrder()`), matching ROADMAP.md 7.1's "buat label dan resi dari admin cabang". Never make checkout itself call `POST /v1/orders`.
+Split checkout-time quote from admin-time booking, deliberately: `CheckoutController::store()` calls `POST /v1/rates/couriers` (via `ShippingQuoteService`) and only *records* the chosen courier + price on a `Shipment` row (`biteship_order_id` stays null) — it never calls `POST /v1/orders`. An admin books the real waybill later from the "Buat Resi" action on `App\Filament\Resources\Orders\Pages\ViewOrder` (`ShipmentService::bookForOrder()`), matching ROADMAP.md 7.1's "buat label dan resi dari admin cabang". Never make checkout itself call `POST /v1/orders`.
 
 Never hardcode a courier company whitelist — `BiteshipClient::rates()` first calls `GET /v1/couriers` to discover whatever's actually active on the merchant's Biteship account and passes that as the `couriers` param. A merchant activating/deactivating a courier in their dashboard must not require a code change here.
 

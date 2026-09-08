@@ -25,17 +25,13 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            // TEMP during the Filament migration (see .ai/rules) — parked off
-            // the real /admin path so the existing Inertia admin keeps
-            // working undisturbed until every module is ported. Flip both
-            // back to 'admin' at final cutover.
-            ->id('beta')
-            ->path('admin/beta')
+            ->id('admin')
+            ->path('admin')
             // No ->login(): staff already authenticate through the existing
             // AdminAuthController/TwoFactorChallengeController flow against
             // the same `web` guard. This panel trusts that session instead
             // of shipping its own login page — see the `admin` middleware
-            // alias below, the same one guarding the legacy Inertia routes.
+            // alias below, the same one guarding that flow.
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -49,6 +45,12 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
+            // Replaces the legacy admin topbar bell (NotificationController) —
+            // App\Notifications\Admin\LowStock already writes to the standard
+            // `database` channel via BranchStockObserver, so this is the only
+            // wiring needed; Filament's own bell renders it with mark-read/
+            // mark-all-read built in.
+            ->databaseNotifications()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

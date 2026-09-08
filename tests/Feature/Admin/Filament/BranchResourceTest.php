@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * Same scenarios as `BranchCrudTest`, exercised through the Filament resource
- * at /admin/beta instead of the legacy Inertia routes (see .ai/rules).
+ * at /admin instead of the legacy Inertia routes (see .ai/rules).
  */
 class BranchResourceTest extends TestCase
 {
