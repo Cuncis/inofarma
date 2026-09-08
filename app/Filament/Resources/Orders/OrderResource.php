@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Line items are snapshotted from the catalogue at write time — see
@@ -36,6 +37,11 @@ class OrderResource extends Resource
     protected static ?string $recordTitleAttribute = 'number';
 
     protected static ?string $slug = 'pesanan';
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Pesanan:Lihat');
+    }
 
     public static function form(Schema $schema): Schema
     {

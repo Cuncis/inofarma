@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Peran CRUD — see RoleController's docblock. A role still assigned to staff
@@ -31,6 +33,26 @@ class RoleResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $slug = 'peran';
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Peran:Lihat');
+    }
+
+    public static function canCreate(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Peran:Ubah');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Peran:Ubah');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Peran:Ubah');
+    }
 
     public static function form(Schema $schema): Schema
     {

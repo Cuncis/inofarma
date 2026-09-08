@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 /**
@@ -38,6 +39,11 @@ class StockTransferResource extends Resource
     protected static ?string $recordTitleAttribute = 'code';
 
     protected static ?string $slug = 'inventaris/transfer';
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Inventaris:Lihat');
+    }
 
     public static function form(Schema $schema): Schema
     {

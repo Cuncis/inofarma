@@ -9,6 +9,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 /**
@@ -40,6 +41,11 @@ class BranchStockResource extends Resource
     public static function table(Table $table): Table
     {
         return BranchStocksTable::configure($table);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Inventaris:Lihat');
     }
 
     public static function canCreate(): bool

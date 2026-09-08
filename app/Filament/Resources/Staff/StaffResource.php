@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Staff accounts — the `User` rows behind admin sign-in, each with a branch
@@ -34,6 +35,11 @@ class StaffResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $slug = 'staf';
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Pengaturan:Ubah');
+    }
 
     public static function form(Schema $schema): Schema
     {

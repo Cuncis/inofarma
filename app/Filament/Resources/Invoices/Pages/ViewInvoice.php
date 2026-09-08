@@ -10,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 
 class ViewInvoice extends ViewRecord
 {
@@ -24,7 +25,8 @@ class ViewInvoice extends ViewRecord
                 ->label('Catat Refund')
                 ->icon(Heroicon::OutlinedArrowUturnLeft)
                 ->color('danger')
-                ->visible(fn (Order $record) => $record->payment_status === 'lunas')
+                ->visible(fn (Order $record) => $record->payment_status === 'lunas'
+                    && Auth::guard('web')->user()?->can('Pesanan:Refund'))
                 ->schema([
                     Textarea::make('note')
                         ->label('Catatan')

@@ -11,6 +11,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
 class ReconciliationsTable
@@ -54,7 +55,8 @@ class ReconciliationsTable
                 Action::make('cekStatus')
                     ->label('Cek Status')
                     ->icon(Heroicon::OutlinedArrowPath)
-                    ->visible(fn (Payment $record) => $record->status === 'pending')
+                    ->visible(fn (Payment $record) => $record->status === 'pending'
+                        && Auth::guard('web')->user()?->can('Pesanan:Proses'))
                     ->action(function (Payment $record) {
                         try {
                             $result = DokuPaymentService::make()->reconcile($record);

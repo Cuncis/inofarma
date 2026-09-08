@@ -6,6 +6,7 @@ use App\Filament\Widgets\StockMatrixWidget;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 /**
@@ -26,6 +27,11 @@ class StockMatrix extends Page
     protected static ?string $title = 'Matriks Stok';
 
     protected static ?string $slug = 'inventaris/matriks';
+
+    public static function canAccess(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Inventaris:Lihat');
+    }
 
     protected function getHeaderWidgets(): array
     {

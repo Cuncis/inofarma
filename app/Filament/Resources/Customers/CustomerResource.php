@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerResource extends Resource
 {
@@ -27,6 +28,13 @@ class CustomerResource extends Resource
     protected static ?string $pluralModelLabel = 'Pelanggan';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?string $slug = 'pelanggan';
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Pelanggan:Lihat');
+    }
 
     public static function form(Schema $schema): Schema
     {

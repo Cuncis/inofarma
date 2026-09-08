@@ -9,6 +9,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * "Rekonsiliasi harian, dipecah per cabang untuk setoran" (ROADMAP.md Fase
@@ -34,6 +35,11 @@ class ReconciliationResource extends Resource
     public static function table(Table $table): Table
     {
         return ReconciliationsTable::configure($table);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Pesanan:Lihat');
     }
 
     public static function canCreate(): bool

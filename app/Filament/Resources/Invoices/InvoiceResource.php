@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * "Faktur" is Order read as an invoice, not a table of its own — see
@@ -41,6 +42,11 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         return InvoicesTable::configure($table);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Pesanan:Lihat');
     }
 
     public static function canCreate(): bool

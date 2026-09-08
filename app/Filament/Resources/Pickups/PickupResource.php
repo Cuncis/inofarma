@@ -9,6 +9,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * The branch counter's own screen (ROADMAP.md 7.2): every order currently
@@ -33,6 +34,11 @@ class PickupResource extends Resource
     public static function table(Table $table): Table
     {
         return PickupsTable::configure($table);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Pesanan:Proses');
     }
 
     public static function canCreate(): bool

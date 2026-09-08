@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
 class ViewOrder extends ViewRecord
@@ -28,7 +29,8 @@ class ViewOrder extends ViewRecord
                 ->visible(fn (Order $record) => $record->fulfilment === 'antar'
                     && $record->status === 'diproses'
                     && $record->shipment
-                    && ! $record->shipment->is_booked)
+                    && ! $record->shipment->is_booked
+                    && Auth::guard('web')->user()?->can('Pesanan:Proses'))
                 ->action(function (Order $record) {
                     try {
                         ShipmentService::make()->bookForOrder($record);
@@ -49,7 +51,9 @@ class ViewOrder extends ViewRecord
             Action::make('markReady')
                 ->label('Tandai Siap Diambil')
                 ->icon(Heroicon::OutlinedCheckCircle)
-                ->visible(fn (Order $record) => $record->fulfilment === 'ambil' && $record->status === 'diproses')
+                ->visible(fn (Order $record) => $record->fulfilment === 'ambil'
+                    && $record->status === 'diproses'
+                    && Auth::guard('web')->user()?->can('Pesanan:Proses'))
                 ->action(function (Order $record) {
                     $record = PickupCodeService::issue($record);
 
@@ -64,7 +68,8 @@ class ViewOrder extends ViewRecord
             Action::make('checkShipmentStatus')
                 ->label('Cek Status Kirim')
                 ->icon(Heroicon::OutlinedArrowPath)
-                ->visible(fn (Order $record) => (bool) $record->shipment?->is_booked)
+                ->visible(fn (Order $record) => (bool) $record->shipment?->is_booked
+                    && Auth::guard('web')->user()?->can('Pesanan:Proses'))
                 ->action(function (Order $record) {
                     try {
                         $result = ShipmentService::make()->reconcile($record->shipment);

@@ -63,6 +63,7 @@ class BranchStocksTable
                 Action::make('sesuaikan')
                     ->label('Sesuaikan')
                     ->icon(Heroicon::OutlinedAdjustmentsHorizontal)
+                    ->visible(fn () => Auth::guard('web')->user()?->can('Inventaris:Sesuaikan Stok'))
                     ->schema([
                         TextInput::make('delta')
                             ->label('Jumlah Penyesuaian')
@@ -106,6 +107,7 @@ class BranchStocksTable
                 Action::make('terima')
                     ->label('Terima Barang')
                     ->icon(Heroicon::OutlinedInboxArrowDown)
+                    ->visible(fn () => Auth::guard('web')->user()?->can('Inventaris:Terima Barang'))
                     ->schema([
                         TextInput::make('batchNumber')
                             ->label('Nomor Batch')

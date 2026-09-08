@@ -28,6 +28,8 @@ class AttributeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?string $slug = 'atribut';
+
     public static function form(Schema $schema): Schema
     {
         return AttributeForm::configure($schema);

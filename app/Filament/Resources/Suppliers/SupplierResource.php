@@ -28,6 +28,8 @@ class SupplierResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?string $slug = 'pemasok';
+
     public static function form(Schema $schema): Schema
     {
         return SupplierForm::configure($schema);
