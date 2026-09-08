@@ -59,6 +59,27 @@ class AdminAuthTest extends TestCase
         $this->assertTrue(Auth::guard('web')->user()->is($user));
     }
 
+    /**
+     * `/admin` is the Filament panel, not an Inertia page — a real Inertia
+     * client-side visit (the browser form on Admin/AuthSignIn.jsx) must land
+     * there via `X-Inertia-Location` (a 409), not a plain 3xx `Location`
+     * redirect. A plain redirect gets followed by Inertia's own client-side
+     * fetch instead of triggering a real browser navigation, which renders
+     * the Filament page's full HTML squashed into the current Inertia
+     * layout — looking like a popup instead of a full page.
+     */
+    public function test_a_real_inertia_visit_gets_an_x_inertia_location_redirect_to_the_panel(): void
+    {
+        $user = $this->makeUser();
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password'], [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => '1',
+        ])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', url('/admin'));
+    }
+
     public function test_the_wrong_password_is_rejected(): void
     {
         $user = $this->makeUser();
@@ -173,6 +194,30 @@ class AdminAuthTest extends TestCase
             ->assertRedirect('/admin');
 
         $this->assertTrue(Auth::guard('web')->check());
+    }
+
+    /**
+     * Same reasoning as the plain sign-in's Inertia-visit test — the 2FA
+     * challenge form is also an Inertia page, and its success redirect also
+     * lands on the non-Inertia Filament panel.
+     */
+    public function test_a_real_inertia_2fa_confirmation_gets_an_x_inertia_location_redirect(): void
+    {
+        $secret = (new Google2FA)->generateSecretKey();
+        $user = $this->makeUser([
+            'two_factor_secret' => $secret,
+            'two_factor_confirmed_at' => now(),
+        ]);
+
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password']);
+        $code = (new Google2FA)->getCurrentOtp($secret);
+
+        $this->post('/admin/dua-faktor', ['code' => $code], [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => '1',
+        ])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', url('/admin'));
     }
 
     public function test_the_storefront_is_unaffected_by_the_admin_guard(): void

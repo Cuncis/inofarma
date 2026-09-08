@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use PragmaRX\Google2FAQRCode\Google2FA;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * The second step of login for a staff account with 2FA confirmed.
@@ -30,7 +31,7 @@ class TwoFactorChallengeController extends Controller
         return Inertia::render('Admin/AuthTwoFactorChallenge');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|SymfonyResponse
     {
         $userId = $request->session()->get('admin_2fa.user_id');
 
@@ -48,7 +49,10 @@ class TwoFactorChallengeController extends Controller
 
             app(AdminAuthController::class)->establishSession($request, $user);
 
-            return redirect()->to('/admin')->with('success', 'Selamat datang kembali!');
+            // `Inertia::location()`, not a plain redirect — `/admin` is the
+            // Filament panel, not an Inertia page. See AdminAuthController's
+            // show()/login() for the full reasoning.
+            return Inertia::location(url('/admin'));
         }
 
         throw ValidationException::withMessages(['code' => 'Kode tidak valid.']);

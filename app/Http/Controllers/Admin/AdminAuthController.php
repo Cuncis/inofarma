@@ -16,6 +16,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Admin sign-in, backed by the real `web` guard and the `users` table.
@@ -27,16 +28,24 @@ use Inertia\Response;
  */
 class AdminAuthController extends Controller
 {
-    public function show(Request $request): Response|RedirectResponse
+    public function show(Request $request): Response|SymfonyResponse
     {
         if (Auth::guard('web')->check()) {
-            return redirect()->to('/admin');
+            // `Inertia::location()`, not a plain redirect: `/admin` is the
+            // Filament panel, not an Inertia page. A bare redirect would have
+            // Inertia's client try to swap it in as page content (it renders
+            // squashed into the current layout, looking like a popup)
+            // instead of doing a real browser navigation. `Inertia::location()`
+            // detects the request is Inertia-driven and returns a 409 with
+            // `X-Inertia-Location` instead, which the client turns into a
+            // real `window.location` visit — see AdminAuthTest.
+            return Inertia::location(url('/admin'));
         }
 
         return Inertia::render('Admin/AuthSignIn');
     }
 
-    public function login(LoginRequest $request): RedirectResponse
+    public function login(LoginRequest $request): SymfonyResponse
     {
         $user = $request->attemptCredentials();
 
@@ -49,7 +58,9 @@ class AdminAuthController extends Controller
 
         $this->establishSession($request, $user);
 
-        return redirect($this->intendedUrl($request))->with('success', 'Selamat datang kembali!');
+        // Same reasoning as show() above — the intended URL is always a
+        // Filament page now, never an Inertia one.
+        return Inertia::location($this->intendedUrl($request));
     }
 
     public function logout(Request $request): RedirectResponse
