@@ -30,13 +30,13 @@ const TESTIMONIALS = [
  * `BrandStrip` and `BenefitsGrid` — there's no testimonial model backing the
  * storefront catalogue.
  */
-export default function Testimonials() {
+export default function Testimonials({ className = 'px-3.5' }) {
     const drag = useDragScroll();
 
     return (
         <div
             {...drag}
-            className={`flex gap-3 overflow-x-auto px-3.5 pb-1 scrollbar-none ${drag.className}`}
+            className={`flex gap-3 overflow-x-auto pb-1 scrollbar-none ${className} ${drag.className}`}
         >
             {TESTIMONIALS.map((testimonial) => (
                 <div

@@ -17,9 +17,9 @@ const BENEFITS = [
     { label: 'Belanja Praktis', image: '/media/images/benefits/belanja-praktis.png' },
 ];
 
-export default function BenefitsGrid() {
+export default function BenefitsGrid({ className = 'grid-cols-3 px-3.5' }) {
     return (
-        <div className="grid grid-cols-3 gap-3 px-3.5">
+        <div className={`grid gap-3 ${className}`}>
             {BENEFITS.map((benefit) => (
                 <div
                     key={benefit.label}

@@ -20,7 +20,7 @@ import { useShopCatalog } from './data';
  * Shares its category list with the "Kategori" page (`Categories.jsx`) so
  * the two screens always list the same set, in the same order.
  */
-export default function CategoryShortcuts() {
+export default function CategoryShortcuts({ className = 'mx-3.5 my-3.5' }) {
     const { categories } = useShopCatalog();
 
     const tiles = [
@@ -29,7 +29,7 @@ export default function CategoryShortcuts() {
     ];
 
     return (
-        <div className="mx-3.5 my-3.5 grid grid-cols-4 border-l border-t border-line bg-white">
+        <div className={`grid grid-cols-4 border-l border-t border-line bg-white ${className}`}>
             {tiles.map((category) => (
                 <Link
                     key={category.name}

@@ -40,7 +40,7 @@ export const asset = {
 
 /**
  * @param {import('@/lib/catalog').CatalogProduct} product
- * @returns {{ id: string, name: string, category: string, image: string, price: string, oldPrice?: string, rating: string }}
+ * @returns {{ id: string, name: string, category: string, image: string, price: string, oldPrice?: string, rating: string, brand: string, soldOut: boolean }}
  */
 const toTile = (product) => ({
     id: product.id,
@@ -50,6 +50,8 @@ const toTile = (product) => ({
     price: money(product.price),
     oldPrice: product.oldPrice ? money(product.oldPrice) : undefined,
     rating: product.rating,
+    brand: product.manufacturer || 'Inofarma',
+    soldOut: product.stock <= 0,
 });
 
 /**

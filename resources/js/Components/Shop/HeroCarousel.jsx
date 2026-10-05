@@ -15,6 +15,6 @@ const SLIDES = [
     { image: '/media/images/hero/hero-banner-3.jpg', href: '/ui/cabang-kami', alt: 'Inofarma siap antar 24/7' },
 ];
 
-export default function HeroCarousel() {
-    return <Carousel slides={SLIDES} aspect="aspect-[16/9]" className="mx-3.5 mt-3.5" />;
+export default function HeroCarousel({ className = 'mx-3.5 mt-3.5' }) {
+    return <Carousel slides={SLIDES} aspect="aspect-[16/9]" className={className} />;
 }

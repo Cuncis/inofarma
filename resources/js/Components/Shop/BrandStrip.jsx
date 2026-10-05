@@ -22,13 +22,32 @@ const BRANDS = [
     { name: 'Counterpain', image: '/media/images/brands/counterpain.png' },
 ];
 
-export default function BrandStrip() {
+/**
+ * `spread` lays the logos out as an even nine-column row filling the
+ * container (desktop), instead of the scrolling strip of small circles.
+ */
+export default function BrandStrip({ className = 'px-3.5', spread = false }) {
     const drag = useDragScroll();
+
+    if (spread) {
+        return (
+            <div className={`grid grid-cols-9 gap-5 ${className}`}>
+                {BRANDS.map((brand) => (
+                    <span
+                        key={brand.name}
+                        className="flex aspect-square items-center justify-center overflow-hidden rounded-full border border-line bg-white p-4"
+                    >
+                        <img src={brand.image} alt={brand.name} className="h-full w-full object-contain" />
+                    </span>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div
             {...drag}
-            className={`flex gap-3.5 overflow-x-auto px-3.5 scrollbar-none ${drag.className}`}
+            className={`flex gap-3.5 overflow-x-auto scrollbar-none ${className} ${drag.className}`}
         >
             {BRANDS.map((brand) => (
                 <div key={brand.name} className="flex w-16 shrink-0 items-center justify-center text-center">

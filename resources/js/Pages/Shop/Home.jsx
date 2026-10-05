@@ -5,6 +5,7 @@ import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
 import BrandStrip from '@/Components/Shop/BrandStrip';
 import Carousel from '@/Components/Shop/Carousel';
 import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
+import DesktopHome from '@/Components/Shop/DesktopHome';
 import HeroCarousel from '@/Components/Shop/HeroCarousel';
 import IconLink from '@/Components/Shop/IconLink';
 import ProductStrip from '@/Components/Shop/ProductStrip';
@@ -14,6 +15,7 @@ import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
 import Testimonials from '@/Components/Shop/Testimonials';
 import useCartCount from '@/Components/Shop/useCartCount';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { useShopCatalog } from '@/Components/Shop/data';
 
 const PROMO_SLIDES = [
@@ -51,6 +53,11 @@ export default function Home() {
     const { recommended, newArrivals, trendingProducts } = useShopCatalog();
     const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
+    const isDesktop = useIsDesktop();
+
+    if (isDesktop) {
+        return <DesktopHome promoSlides={PROMO_SLIDES} bottomSlides={BOTTOM_SLIDES} />;
+    }
 
     return (
         <MobileLayout
