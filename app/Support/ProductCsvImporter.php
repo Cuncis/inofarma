@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -53,8 +54,13 @@ class ProductCsvImporter
         'Dus' => 'Box',
     ];
 
+    private const IMAGE_CONCURRENCY = 10;
+
     /** @var array<string, int> */
     private array $categoryCache = [];
+
+    /** @var array<int, array{product: Product, url: string}> */
+    private array $pendingImages = [];
 
     /**
      * @return array{created: int, updated: int, warnedInactive: int, imagesFailed: list<string>, failed: list<array{row: int, message: string}>}
@@ -79,6 +85,8 @@ class ProductCsvImporter
         }
 
         fclose($handle);
+
+        $this->attachPendingImages($summary);
 
         return $summary;
     }
@@ -142,12 +150,45 @@ class ProductCsvImporter
         $imageUrl = trim($row[$index['Image Src']] ?? '');
 
         if ($imageUrl !== '' && ! $product->images()->exists()) {
-            try {
-                $this->attachImage($product, $imageUrl);
-            } catch (\Throwable) {
-                $summary['imagesFailed'][] = $sku;
+            $this->pendingImages[$product->id] = ['product' => $product, 'url' => $imageUrl];
+        }
+    }
+
+    /**
+     * Downloads are done after all rows are saved, several at a time. Fetching
+     * ~300 images one by one took longer than the request's time limit and
+     * killed the import halfway through.
+     *
+     * @param  array{created: int, updated: int, warnedInactive: int, imagesFailed: list<string>, failed: array}  $summary
+     */
+    private function attachPendingImages(array &$summary): void
+    {
+        foreach (array_chunk($this->pendingImages, self::IMAGE_CONCURRENCY, preserve_keys: true) as $chunk) {
+            $responses = Http::pool(function ($pool) use ($chunk) {
+                foreach ($chunk as $id => $pending) {
+                    $pool->as((string) $id)
+                        ->withHeaders(['User-Agent' => 'Inofarma-ProductImport/1.0 (internal catalogue import)'])
+                        ->timeout(20)
+                        ->get($pending['url']);
+                }
+            });
+
+            foreach ($chunk as $id => $pending) {
+                try {
+                    $response = $responses[(string) $id] ?? null;
+
+                    if (! $response instanceof Response || ! $response->successful()) {
+                        throw new \RuntimeException("Gagal mengunduh gambar: {$pending['url']}");
+                    }
+
+                    $this->storeImage($pending['product'], $pending['url'], $response);
+                } catch (\Throwable) {
+                    $summary['imagesFailed'][] = $pending['product']->sku;
+                }
             }
         }
+
+        $this->pendingImages = [];
     }
 
     /**
@@ -281,16 +322,8 @@ class ProductCsvImporter
         return $value === '' || (float) $value <= 0 ? null : (int) round((float) $value);
     }
 
-    private function attachImage(Product $product, string $url): void
+    private function storeImage(Product $product, string $url, Response $response): void
     {
-        $response = Http::withHeaders([
-            'User-Agent' => 'Inofarma-ProductImport/1.0 (internal catalogue import)',
-        ])->timeout(20)->get($url);
-
-        if (! $response->successful()) {
-            throw new \RuntimeException("Gagal mengunduh gambar: {$url}");
-        }
-
         $extension = pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION) ?: 'jpg';
         $tempPath = tempnam(sys_get_temp_dir(), 'csvimg');
         file_put_contents($tempPath, $response->body());
