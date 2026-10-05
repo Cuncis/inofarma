@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Support\ProductCsvImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -65,5 +66,33 @@ class ProductCsvImporterTest extends TestCase
         $this->assertSame(1, $second['updated']);
         $this->assertSame(3, $second['failed'][0]['row']);
         $this->assertSame(1, Product::count());
+    }
+
+    public function test_categories_get_curated_icon_and_placeholder_icons_are_upgraded(): void
+    {
+        $stale = Category::factory()->create([
+            'name' => 'Obat Bebas',
+            'slug' => 'obat-bebas',
+            'image_path' => '/media/images/small/img-3.jpg',
+        ]);
+
+        $body = '<p>Strip</p><p>Golongan Obat: GREEN</p>';
+        $path = $this->writeCsv([
+            ['a', 'Produk A', $body, 'mqty:1, Obat Bebas', 'SKU-A', '10', '15000', '', ''],
+            ['b', 'Produk B', $body, 'mqty:0, Vitamin & Suplemen', 'SKU-B', '10', '15000', '', ''],
+            ['c', 'Produk C', $body, 'Kategori Tidak Ada', 'SKU-C', '10', '15000', '', ''],
+        ]);
+
+        (new ProductCsvImporter)->import($path);
+
+        $this->assertSame('/media/images/categories/obat-bebas.png', $stale->fresh()->image_path);
+        $this->assertSame(
+            '/media/images/categories/vitamin-suplemen.png',
+            Category::where('slug', 'vitamin-suplemen')->value('image_path'),
+        );
+        $this->assertStringStartsWith(
+            '/media/images/small/',
+            Category::where('slug', 'kategori-tidak-ada')->value('image_path'),
+        );
     }
 }
