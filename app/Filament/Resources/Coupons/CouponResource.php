@@ -22,9 +22,15 @@ class CouponResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
-    protected static ?string $modelLabel = 'Kupon';
+    public static function getModelLabel(): string
+    {
+        return __('Kupon');
+    }
 
-    protected static ?string $pluralModelLabel = 'Kupon';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Kupon');
+    }
 
     protected static ?string $recordTitleAttribute = 'code';
 

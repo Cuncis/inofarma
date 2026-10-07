@@ -30,19 +30,19 @@ class ProductsTable
                 ->withSum('stocks', 'quantity'))
             ->columns([
                 TextColumn::make('sku')
-                    ->label('SKU')
+                    ->label(__('SKU'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Nama')
+                    ->label(__('Nama'))
                     ->searchable(),
                 TextColumn::make('category.name')
-                    ->label('Kategori'),
+                    ->label(__('Kategori')),
                 TextColumn::make('price')
-                    ->label('Harga')
+                    ->label(__('Harga'))
                     ->alignRight()
                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                 TextColumn::make('stocks_sum_quantity')
-                    ->label('Stok')
+                    ->label(__('Stok'))
                     ->alignRight()
                     ->state(fn (Product $record) => (int) $record->stocks_sum_quantity)
                     ->badge()
@@ -52,10 +52,10 @@ class ProductsTable
                         default => 'success',
                     }),
                 TextColumn::make('sold_count')
-                    ->label('Terjual')
+                    ->label(__('Terjual'))
                     ->alignRight(),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::PRODUCT_STATUSES, $state))
                     ->color(fn (string $state) => match ($state) {
@@ -66,11 +66,11 @@ class ProductsTable
             ])
             ->filters([
                 SelectFilter::make('category_id')
-                    ->label('Kategori')
+                    ->label(__('Kategori'))
                     ->relationship('category', 'name'),
                 SelectFilter::make('status')
-                    ->label('Status')
-                    ->options(array_flip(AdminOptions::PRODUCT_STATUSES)),
+                    ->label(__('Status'))
+                    ->options(AdminOptions::options(AdminOptions::PRODUCT_STATUSES)),
                 TrashedFilter::make(),
             ])
             ->recordActions([

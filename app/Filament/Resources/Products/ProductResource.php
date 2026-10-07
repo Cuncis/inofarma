@@ -31,9 +31,15 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
-    protected static ?string $modelLabel = 'Produk';
+    public static function getModelLabel(): string
+    {
+        return __('Produk');
+    }
 
-    protected static ?string $pluralModelLabel = 'Produk';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Produk');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

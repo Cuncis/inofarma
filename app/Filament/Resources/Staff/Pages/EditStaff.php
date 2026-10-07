@@ -25,7 +25,7 @@ class EditStaff extends EditRecord
                     if ($record->id === Auth::guard('web')->id()) {
                         Notification::make()
                             ->danger()
-                            ->title('Anda tidak bisa menghapus akun Anda sendiri.')
+                            ->title(__('Anda tidak bisa menghapus akun Anda sendiri.'))
                             ->send();
 
                         $action->cancel();

@@ -267,3 +267,46 @@ input[type='time'].fi-input::-webkit-datetime-edit {
 .fi-ta-filters .fi-sc.fi-grid .fi-sc.fi-grid {
     grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
 }
+
+/*
+ * Language switch in the profile menu: the two flag buttons share one row,
+ * everything else in that list (sign out) keeps its full-width row. The text
+ * label stays in the DOM for screen readers.
+ */
+.fi-dropdown-list:has(> form > [data-lang]) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.fi-dropdown-list:has(> form > [data-lang]) > * {
+    flex: 1 1 100%;
+}
+
+.fi-dropdown-list:has(> form > [data-lang]) > form:has([data-lang]) {
+    flex: 1 1 calc(50% - 0.125rem);
+}
+
+[data-lang] {
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+/* Let the flag keep its own proportions instead of Filament's square icon box. */
+[data-lang] .fi-icon {
+    width: auto;
+    height: auto;
+    flex: none;
+}
+
+[data-lang] .fi-dropdown-list-item-label {
+    flex: none;
+    font-weight: 600;
+}
+
+/* Active language: the same quiet highlight the theme switcher uses, no border. */
+[data-lang][data-active] {
+    background-color: var(--gray-100, rgb(0 0 0 / 0.06));
+}

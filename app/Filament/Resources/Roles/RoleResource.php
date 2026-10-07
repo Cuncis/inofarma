@@ -26,9 +26,15 @@ class RoleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
-    protected static ?string $modelLabel = 'Peran';
+    public static function getModelLabel(): string
+    {
+        return __('Peran');
+    }
 
-    protected static ?string $pluralModelLabel = 'Peran';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Peran');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -12,6 +12,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
@@ -24,7 +25,10 @@ class ImagesRelationManager extends RelationManager
 {
     protected static string $relationship = 'images';
 
-    protected static ?string $title = 'Gambar';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('Gambar');
+    }
 
     public function table(Table $table): Table
     {
@@ -34,20 +38,20 @@ class ImagesRelationManager extends RelationManager
             ->reorderable('position')
             ->columns([
                 ImageColumn::make('path')
-                    ->label('Gambar')
+                    ->label(__('Gambar'))
                     ->square(),
                 IconColumn::make('is_primary')
-                    ->label('Utama')
+                    ->label(__('Utama'))
                     ->boolean(),
                 TextColumn::make('position')
-                    ->label('Urutan'),
+                    ->label(__('Urutan')),
             ])
             ->headerActions([
                 Action::make('upload')
-                    ->label('Unggah Gambar')
+                    ->label(__('Unggah Gambar'))
                     ->schema([
                         FileUpload::make('images')
-                            ->label('Gambar')
+                            ->label(__('Gambar'))
                             ->multiple()
                             ->image()
                             ->maxSize(5120)
@@ -72,7 +76,7 @@ class ImagesRelationManager extends RelationManager
             ])
             ->recordActions([
                 Action::make('makePrimary')
-                    ->label('Jadikan Utama')
+                    ->label(__('Jadikan Utama'))
                     ->visible(fn (ProductImage $record) => ! $record->is_primary)
                     ->action(function (ProductImage $record) {
                         $this->getOwnerRecord()->images()->update(['is_primary' => false]);

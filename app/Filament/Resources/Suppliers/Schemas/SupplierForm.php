@@ -16,61 +16,61 @@ class SupplierForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nama Toko')
-                    ->placeholder('Apotek Sehat Bersama')
+                    ->label(__('Nama Toko'))
+                    ->placeholder(__('Apotek Sehat Bersama'))
                     ->required()
                     ->maxLength(80)
                     ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->whereNull('deleted_at'))
-                    ->validationMessages(['unique' => 'Nama toko ini sudah terdaftar.'])
+                    ->validationMessages(['unique' => __('Nama toko ini sudah terdaftar.')])
                     ->helperText(function (?Supplier $record): ?string {
                         $count = $record?->products()->count() ?? 0;
 
                         return $count > 0
-                            ? "Mengubah nama toko akan otomatis memperbarui {$count} produk yang dipasoknya."
+                            ? __('Mengubah nama toko akan otomatis memperbarui :count produk yang dipasoknya.', ['count' => $count])
                             : null;
                     }),
                 TextInput::make('contact_person')
-                    ->label('Nama Pemilik')
-                    ->placeholder('Kirana Wijaya')
+                    ->label(__('Nama Pemilik'))
+                    ->placeholder(__('Kirana Wijaya'))
                     ->required()
                     ->maxLength(80),
                 TextInput::make('email')
-                    ->label('Email')
+                    ->label(__('Email'))
                     ->email()
-                    ->placeholder('apotek@mail.com')
+                    ->placeholder(__('apotek@mail.com'))
                     ->required()
                     ->maxLength(120)
                     ->unique(table: Supplier::class, ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->whereNull('deleted_at'))
-                    ->validationMessages(['unique' => 'Email ini sudah dipakai pemasok lain.']),
+                    ->validationMessages(['unique' => __('Email ini sudah dipakai pemasok lain.')]),
                 TextInput::make('phone')
-                    ->label('Nomor Telepon')
+                    ->label(__('Nomor Telepon'))
                     ->tel()
                     ->placeholder('+62 21 5551 0001')
                     ->required()
                     ->maxLength(30)
                     ->regex('/^[0-9+\-\s()]+$/')
-                    ->validationMessages(['regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).']),
+                    ->validationMessages(['regex' => __('Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).')]),
                 TextInput::make('license_number')
-                    ->label('Nomor Izin Apotek')
+                    ->label(__('Nomor Izin Apotek'))
                     ->placeholder('SIA/2025/00123')
-                    ->helperText('Harus unik untuk setiap pemasok.')
+                    ->helperText(__('Harus unik untuk setiap pemasok.'))
                     ->required()
                     ->maxLength(40)
                     ->unique(table: Supplier::class, ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->whereNull('deleted_at'))
-                    ->validationMessages(['unique' => 'Nomor izin apotek ini sudah terdaftar.']),
+                    ->validationMessages(['unique' => __('Nomor izin apotek ini sudah terdaftar.')]),
                 TextInput::make('kota')
-                    ->label('Kota')
-                    ->placeholder('Jakarta Selatan')
+                    ->label(__('Kota'))
+                    ->placeholder(__('Jakarta Selatan'))
                     ->required()
                     ->maxLength(60),
                 Select::make('status')
-                    ->label('Status')
-                    ->options(array_flip(AdminOptions::SUPPLIER_STATUSES))
+                    ->label(__('Status'))
+                    ->options(AdminOptions::options(AdminOptions::SUPPLIER_STATUSES))
                     ->default('aktif')
                     ->required(),
                 Textarea::make('address_line')
-                    ->label('Alamat Toko')
-                    ->placeholder('Jl. Jend. Sudirman Kav. 52-53')
+                    ->label(__('Alamat Toko'))
+                    ->placeholder(__('Jl. Jend. Sudirman Kav. 52-53'))
                     ->columnSpanFull(),
             ])
             ->columns(2);

@@ -30,9 +30,15 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
-    protected static ?string $modelLabel = 'Pesanan';
+    public static function getModelLabel(): string
+    {
+        return __('Pesanan');
+    }
 
-    protected static ?string $pluralModelLabel = 'Pesanan';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Pesanan');
+    }
 
     protected static ?string $recordTitleAttribute = 'number';
 

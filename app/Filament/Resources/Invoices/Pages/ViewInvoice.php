@@ -22,14 +22,14 @@ class ViewInvoice extends ViewRecord
             // Records that a refund happened (Fase 6) — this never calls
             // DOKU's refund API, see InvoiceController's docblock.
             Action::make('refund')
-                ->label('Catat Refund')
+                ->label(__('Catat Refund'))
                 ->icon(Heroicon::OutlinedArrowUturnLeft)
                 ->color('danger')
                 ->visible(fn (Order $record) => $record->payment_status === 'lunas'
                     && Auth::guard('web')->user()?->can('Pesanan:Refund'))
                 ->schema([
                     Textarea::make('note')
-                        ->label('Catatan')
+                        ->label(__('Catatan'))
                         ->required()
                         ->maxLength(500),
                 ])
@@ -48,7 +48,7 @@ class ViewInvoice extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Refund untuk #{$record->number} dicatat.")
+                        ->title(__('Refund untuk #:number dicatat.', ['number' => $record->number]))
                         ->send();
                 }),
         ];

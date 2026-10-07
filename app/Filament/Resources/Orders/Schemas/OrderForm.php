@@ -17,60 +17,60 @@ class OrderForm
     {
         return $schema
             ->components([
-                Section::make('Informasi Pesanan')
+                Section::make(__('Informasi Pesanan'))
                     ->columns(2)
                     ->schema([
                         Select::make('customer_id')
-                            ->label('Pelanggan')
+                            ->label(__('Pelanggan'))
                             ->relationship('customer', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
                         Select::make('branch_id')
-                            ->label('Cabang')
+                            ->label(__('Cabang'))
                             ->relationship('branch', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
                         Select::make('fulfilment')
-                            ->label('Cara Terima')
-                            ->options(array_flip(AdminOptions::FULFILMENTS))
+                            ->label(__('Cara Terima'))
+                            ->options(AdminOptions::options(AdminOptions::FULFILMENTS))
                             ->required(),
                         Select::make('payment_method')
-                            ->label('Metode Pembayaran')
-                            ->options(array_combine(AdminOptions::paymentMethods(), AdminOptions::paymentMethods()))
+                            ->label(__('Metode Pembayaran'))
+                            ->options(AdminOptions::listOptions(AdminOptions::paymentMethods()))
                             ->required(),
                         Select::make('status')
-                            ->label('Status')
-                            ->options(array_flip(AdminOptions::ORDER_STATUSES))
+                            ->label(__('Status'))
+                            ->options(AdminOptions::options(AdminOptions::ORDER_STATUSES))
                             ->required(),
                         TextInput::make('shipping_total')
-                            ->label('Ongkos Kirim')
+                            ->label(__('Ongkos Kirim'))
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(10000000)
                             ->default(0)
                             ->required(),
                         Textarea::make('note')
-                            ->label('Catatan')
+                            ->label(__('Catatan'))
                             ->maxLength(500)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Item Pesanan')
+                Section::make(__('Item Pesanan'))
                     ->schema([
                         Repeater::make('items')
                             ->label('')
                             ->relationship('items')
                             ->schema([
                                 Select::make('product_id')
-                                    ->label('Produk')
+                                    ->label(__('Produk'))
                                     ->relationship('product', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->required()
                                     ->columnSpan(2),
                                 TextInput::make('quantity')
-                                    ->label('Jumlah')
+                                    ->label(__('Jumlah'))
                                     ->numeric()
                                     ->minValue(1)
                                     ->maxValue(10000)
@@ -80,7 +80,7 @@ class OrderForm
                             ->mutateRelationshipDataBeforeCreateUsing(fn (array $data) => self::snapshot($data))
                             ->mutateRelationshipDataBeforeSaveUsing(fn (array $data) => self::snapshot($data))
                             ->columns(3)
-                            ->addActionLabel('Tambah Item')
+                            ->addActionLabel(__('Tambah Item'))
                             ->minItems(1)
                             ->required(),
                     ]),

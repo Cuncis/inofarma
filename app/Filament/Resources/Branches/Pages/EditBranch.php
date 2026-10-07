@@ -29,8 +29,8 @@ class EditBranch extends EditRecord
                     if ($stockCount > 0 || $orderCount > 0) {
                         Notification::make()
                             ->danger()
-                            ->title("\"{$record->name}\" masih punya stok atau riwayat pesanan dan tidak bisa dihapus.")
-                            ->body('Ubah statusnya menjadi Tutup Permanen.')
+                            ->title(__('":name" masih punya stok atau riwayat pesanan dan tidak bisa dihapus.', ['name' => $record->name]))
+                            ->body(__('Ubah statusnya menjadi Tutup Permanen.'))
                             ->send();
 
                         $action->cancel();

@@ -15,97 +15,97 @@ class BranchForm
     {
         return $schema
             ->components([
-                Section::make('Identitas Cabang')
+                Section::make(__('Identitas Cabang'))
                     ->columns(2)
                     ->components([
                         TextInput::make('name')
-                            ->label('Nama Cabang')
-                            ->placeholder('Apotek Inofarma Cinere')
+                            ->label(__('Nama Cabang'))
+                            ->placeholder(__('Apotek Inofarma Cinere'))
                             ->required()
                             ->maxLength(120)
                             ->columnSpanFull(),
                         Select::make('status')
-                            ->label('Status')
-                            ->options(array_flip(AdminOptions::BRANCH_STATUSES))
+                            ->label(__('Status'))
+                            ->options(AdminOptions::options(AdminOptions::BRANCH_STATUSES))
                             ->default('aktif')
                             ->required(),
                         TextInput::make('phone')
-                            ->label('Telepon')
+                            ->label(__('Telepon'))
                             ->tel()
                             ->placeholder('+62 21 5551 0001')
                             ->maxLength(30),
                         TextInput::make('whatsapp')
-                            ->label('WhatsApp')
+                            ->label(__('WhatsApp'))
                             ->tel()
                             ->placeholder('+62 812-0000-1111')
                             ->maxLength(30),
                     ]),
 
-                Section::make('Alamat & Lokasi')
+                Section::make(__('Alamat & Lokasi'))
                     ->columns(2)
                     ->components([
                         TextInput::make('address_line')
-                            ->label('Alamat Jalan')
-                            ->placeholder('Jl. Contoh No. 1')
+                            ->label(__('Alamat Jalan'))
+                            ->placeholder(__('Jl. Contoh No. 1'))
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
                         TextInput::make('kelurahan')->maxLength(80),
                         TextInput::make('kecamatan')->maxLength(80),
                         TextInput::make('kota')
-                            ->label('Kota/Kabupaten')
+                            ->label(__('Kota/Kabupaten'))
                             ->required()
                             ->maxLength(80),
                         TextInput::make('provinsi')
-                            ->label('Provinsi')
+                            ->label(__('Provinsi'))
                             ->required()
                             ->maxLength(80),
                         TextInput::make('postal_code')
-                            ->label('Kode Pos')
+                            ->label(__('Kode Pos'))
                             ->maxLength(10),
                         TextInput::make('latitude')
-                            ->label('Lintang (Latitude)')
+                            ->label(__('Lintang (Latitude)'))
                             ->numeric()
                             ->placeholder('-6.200000')
                             ->minValue(-90)
                             ->maxValue(90)
-                            ->helperText('Kosongkan bila belum diketahui — cabang tidak akan muncul di pencarian terdekat.'),
+                            ->helperText(__('Kosongkan bila belum diketahui — cabang tidak akan muncul di pencarian terdekat.')),
                         TextInput::make('longitude')
-                            ->label('Bujur (Longitude)')
+                            ->label(__('Bujur (Longitude)'))
                             ->numeric()
                             ->placeholder('106.816666')
                             ->minValue(-180)
                             ->maxValue(180),
                     ]),
 
-                Section::make('Perizinan')
+                Section::make(__('Perizinan'))
                     ->columns(2)
                     ->components([
                         TextInput::make('sia_number')
-                            ->label('Nomor SIA')
+                            ->label(__('Nomor SIA'))
                             ->placeholder('SIA/2025/00123')
                             ->maxLength(60),
                         TextInput::make('apj_name')
-                            ->label('Nama APJ')
+                            ->label(__('Nama APJ'))
                             ->maxLength(120),
                         TextInput::make('apj_sipa_number')
-                            ->label('Nomor SIPA APJ')
+                            ->label(__('Nomor SIPA APJ'))
                             ->maxLength(60),
                     ]),
 
-                Section::make('Layanan')
+                Section::make(__('Layanan'))
                     ->columns(2)
                     ->components([
                         Toggle::make('supports_delivery')
-                            ->label('Melayani antar')
+                            ->label(__('Melayani antar'))
                             ->default(true)
                             ->required(),
                         Toggle::make('supports_pickup')
-                            ->label('Melayani ambil di tempat')
+                            ->label(__('Melayani ambil di tempat'))
                             ->default(true)
                             ->required(),
                         TextInput::make('delivery_radius_km')
-                            ->label('Radius Antar (km)')
+                            ->label(__('Radius Antar (km)'))
                             ->numeric()
                             ->default(10)
                             ->minValue(1)

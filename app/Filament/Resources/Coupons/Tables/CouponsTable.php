@@ -24,39 +24,39 @@ class CouponsTable
             ->modifyQueryUsing(fn ($query) => $query->with('branches'))
             ->columns([
                 TextColumn::make('code')
-                    ->label('Kode')
+                    ->label(__('Kode'))
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Tipe')
+                    ->label(__('Tipe'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::COUPON_TYPES, $state)),
                 TextColumn::make('value')
-                    ->label('Nilai')
+                    ->label(__('Nilai'))
                     ->formatStateUsing(fn (Coupon $record) => $record->type === 'persentase'
                         ? "{$record->value}%"
                         : Money::rupiah($record->value)),
                 TextColumn::make('minimum_purchase')
-                    ->label('Min. Belanja')
+                    ->label(__('Min. Belanja'))
                     ->alignRight()
                     ->formatStateUsing(fn (?int $state) => $state ? Money::rupiah($state) : '—'),
                 TextColumn::make('used_count')
-                    ->label('Terpakai')
+                    ->label(__('Terpakai'))
                     ->alignRight(),
                 TextColumn::make('branches.name')
-                    ->label('Cabang')
+                    ->label(__('Cabang'))
                     ->badge()
                     ->limitList(2)
-                    ->placeholder('Semua cabang'),
+                    ->placeholder(__('Semua cabang')),
                 TextColumn::make('expires_at')
-                    ->label('Berlaku Sampai')
+                    ->label(__('Berlaku Sampai'))
                     ->date('d M Y')
                     ->placeholder('—'),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (Coupon $record) => match (true) {
-                        $record->is_exhausted => 'Habis',
-                        $record->is_expired => 'Kedaluwarsa',
+                        $record->is_exhausted => __('Habis'),
+                        $record->is_expired => __('Kedaluwarsa'),
                         default => AdminOptions::toLabel(AdminOptions::COUPON_STATUSES, $record->status),
                     }),
             ])

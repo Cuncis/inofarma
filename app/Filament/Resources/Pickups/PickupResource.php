@@ -23,9 +23,15 @@ class PickupResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQrCode;
 
-    protected static ?string $modelLabel = 'Pengambilan';
+    public static function getModelLabel(): string
+    {
+        return __('Pengambilan');
+    }
 
-    protected static ?string $pluralModelLabel = 'Pengambilan';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Pengambilan');
+    }
 
     protected static ?string $recordTitleAttribute = 'number';
 

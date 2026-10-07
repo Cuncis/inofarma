@@ -24,7 +24,7 @@ class EditRole extends EditRecord
                     if ($count > 0) {
                         Notification::make()
                             ->danger()
-                            ->title("Peran \"{$record->name}\" masih dipakai {$count} staf dan tidak bisa dihapus.")
+                            ->title(__('Peran ":name" masih dipakai :count staf dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
                             ->send();
 
                         $action->cancel();

@@ -6,6 +6,7 @@ use App\Filament\Widgets\StockMatrixWidget;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
@@ -20,11 +21,20 @@ class StockMatrix extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTableCells;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Inventaris';
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('Inventaris');
+    }
 
-    protected static ?string $navigationLabel = 'Matriks Stok';
+    public static function getNavigationLabel(): string
+    {
+        return __('Matriks Stok');
+    }
 
-    protected static ?string $title = 'Matriks Stok';
+    public function getTitle(): string|Htmlable
+    {
+        return __('Matriks Stok');
+    }
 
     protected static ?string $slug = 'inventaris/matriks';
 

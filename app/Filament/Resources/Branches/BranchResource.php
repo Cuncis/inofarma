@@ -23,9 +23,15 @@ class BranchResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
-    protected static ?string $modelLabel = 'Cabang';
+    public static function getModelLabel(): string
+    {
+        return __('Cabang');
+    }
 
-    protected static ?string $pluralModelLabel = 'Cabang';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Cabang');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -26,26 +26,26 @@ class StaffTable
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['branch', 'roles']))
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama')
+                    ->label(__('Nama'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('Email'))
                     ->searchable(),
                 TextColumn::make('branch.name')
-                    ->label('Cabang')
-                    ->placeholder('Pusat (semua cabang)'),
+                    ->label(__('Cabang'))
+                    ->placeholder(__('Pusat (semua cabang)')),
                 TextColumn::make('roles.name')
-                    ->label('Peran')
+                    ->label(__('Peran'))
                     ->badge(),
                 IconColumn::make('is_active')
-                    ->label('Aktif')
+                    ->label(__('Aktif'))
                     ->boolean(),
                 IconColumn::make('two_factor_confirmed_at')
-                    ->label('2FA')
+                    ->label(__('2FA'))
                     ->boolean()
                     ->state(fn (User $record) => $record->hasEnabledTwoFactor()),
                 TextColumn::make('last_login_at')
-                    ->label('Login Terakhir')
+                    ->label(__('Login Terakhir'))
                     ->dateTime('d M Y, H:i')
                     ->placeholder('—'),
             ])
@@ -59,7 +59,7 @@ class StaffTable
                         if ($record->id === Auth::guard('web')->id()) {
                             Notification::make()
                                 ->danger()
-                                ->title('Anda tidak bisa menghapus akun Anda sendiri.')
+                                ->title(__('Anda tidak bisa menghapus akun Anda sendiri.'))
                                 ->send();
 
                             $action->cancel();

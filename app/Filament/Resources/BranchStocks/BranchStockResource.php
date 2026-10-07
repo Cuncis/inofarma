@@ -28,13 +28,25 @@ class BranchStockResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Inventaris';
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('Inventaris');
+    }
 
-    protected static ?string $navigationLabel = 'Stok';
+    public static function getNavigationLabel(): string
+    {
+        return __('Stok');
+    }
 
-    protected static ?string $modelLabel = 'Stok';
+    public static function getModelLabel(): string
+    {
+        return __('Stok');
+    }
 
-    protected static ?string $pluralModelLabel = 'Stok';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Stok');
+    }
 
     protected static ?string $slug = 'inventaris/stok';
 

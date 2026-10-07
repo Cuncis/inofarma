@@ -22,9 +22,15 @@ class SupplierResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTruck;
 
-    protected static ?string $modelLabel = 'Pemasok';
+    public static function getModelLabel(): string
+    {
+        return __('Pemasok');
+    }
 
-    protected static ?string $pluralModelLabel = 'Pemasok';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Pemasok');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

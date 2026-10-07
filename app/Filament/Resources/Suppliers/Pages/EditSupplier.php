@@ -25,7 +25,7 @@ class EditSupplier extends EditRecord
                     if ($count > 0) {
                         Notification::make()
                             ->danger()
-                            ->title("\"{$record->name}\" masih memasok {$count} produk dan tidak bisa dihapus.")
+                            ->title(__('":name" masih memasok :count produk dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
                             ->send();
 
                         $action->cancel();

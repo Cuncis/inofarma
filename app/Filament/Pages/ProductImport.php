@@ -10,6 +10,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -26,9 +27,15 @@ class ProductImport extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowUpTray;
 
-    protected static ?string $navigationLabel = 'Impor Produk';
+    public static function getNavigationLabel(): string
+    {
+        return __('Impor Produk');
+    }
 
-    protected static ?string $title = 'Impor Produk (CSV)';
+    public function getTitle(): string|Htmlable
+    {
+        return __('Impor Produk (CSV)');
+    }
 
     protected static ?string $slug = 'produk/impor';
 
@@ -46,11 +53,11 @@ class ProductImport extends Page
     {
         return [
             Action::make('import')
-                ->label('Impor')
+                ->label(__('Impor'))
                 ->icon(Heroicon::OutlinedArrowUpTray)
                 ->schema([
                     FileUpload::make('file')
-                        ->label('Berkas CSV')
+                        ->label(__('Berkas CSV'))
                         ->required()
                         ->acceptedFileTypes(['text/csv', 'text/plain', 'application/vnd.ms-excel'])
                         ->maxSize(10240)
@@ -68,11 +75,11 @@ class ProductImport extends Page
 
                     Notification::make()
                         ->success()
-                        ->title("Impor selesai: {$this->result['created']} produk baru, {$this->result['updated']} diperbarui.")
+                        ->title(__('Impor selesai: :created produk baru, :updated diperbarui.', ['created' => $this->result['created'], 'updated' => $this->result['updated']]))
                         ->send();
                 }),
             Action::make('backToProducts')
-                ->label('Kembali ke Produk')
+                ->label(__('Kembali ke Produk'))
                 ->color('gray')
                 ->url(fn () => ProductResource::getUrl('index')),
         ];

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\LocaleController;
 use App\Http\Controllers\Admin\TwoFactorChallengeController;
 use App\Http\Controllers\Shop\AddressController;
 use App\Http\Controllers\Shop\AuthController as ShopAuthController;
@@ -65,6 +66,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
      */
     Route::middleware('admin')->group(function () {
         Route::post('keluar', [AdminAuthController::class, 'logout'])->name('keluar');
+        Route::post('bahasa/{locale}', LocaleController::class)->name('bahasa');
     });
 });
 

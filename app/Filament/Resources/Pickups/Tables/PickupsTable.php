@@ -25,27 +25,27 @@ class PickupsTable
                 ->orderBy('ready_at'))
             ->columns([
                 TextColumn::make('number')
-                    ->label('No. Pesanan')
+                    ->label(__('No. Pesanan'))
                     ->searchable(),
                 TextColumn::make('customer.name')
-                    ->label('Pelanggan')
+                    ->label(__('Pelanggan'))
                     ->searchable(),
                 TextColumn::make('branch.name')
-                    ->label('Cabang'),
+                    ->label(__('Cabang')),
                 TextColumn::make('ready_at')
-                    ->label('Siap Sejak')
+                    ->label(__('Siap Sejak'))
                     ->dateTime('d M Y, H:i'),
                 TextColumn::make('pickup_code_expires_at')
-                    ->label('Berlaku Sampai')
+                    ->label(__('Berlaku Sampai'))
                     ->dateTime('d M Y, H:i'),
             ])
             ->recordActions([
                 Action::make('serahkan')
-                    ->label('Serahkan')
+                    ->label(__('Serahkan'))
                     ->icon(Heroicon::OutlinedCheckBadge)
                     ->schema([
                         TextInput::make('code')
-                            ->label('Kode Ambil')
+                            ->label(__('Kode Ambil'))
                             ->required()
                             ->maxLength(10),
                     ])
@@ -61,10 +61,10 @@ class PickupsTable
 
                         Notification::make()
                             ->success()
-                            ->title("Pesanan #{$record->number} berhasil diserahkan.")
+                            ->title(__('Pesanan #:number berhasil diserahkan.', ['number' => $record->number]))
                             ->send();
                     }),
             ])
-            ->emptyStateHeading('Tidak ada pesanan yang siap diambil.');
+            ->emptyStateHeading(__('Tidak ada pesanan yang siap diambil.'));
     }
 }

@@ -23,8 +23,8 @@ class EditOrder extends EditRecord
                     if (! $record->is_deletable) {
                         Notification::make()
                             ->danger()
-                            ->title("Pesanan #{$record->number} sudah selesai dan tidak bisa dihapus.")
-                            ->body('Ubah statusnya menjadi Dibatalkan bila perlu.')
+                            ->title(__('Pesanan #:number sudah selesai dan tidak bisa dihapus.', ['number' => $record->number]))
+                            ->body(__('Ubah statusnya menjadi Dibatalkan bila perlu.'))
                             ->send();
 
                         $action->cancel();

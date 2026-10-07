@@ -34,26 +34,26 @@ class CustomersTable
                 ))
             ->columns([
                 TextColumn::make('code')
-                    ->label('Kode')
+                    ->label(__('Kode'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Pelanggan')
+                    ->label(__('Pelanggan'))
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label('Telepon')
+                    ->label(__('Telepon'))
                     ->searchable(),
                 TextColumn::make('city')
-                    ->label('Kota')
+                    ->label(__('Kota'))
                     ->state(fn (Customer $record) => ($record->addresses->firstWhere('is_default', true) ?? $record->addresses->first())?->kota),
                 TextColumn::make('orders_count')
-                    ->label('Pesanan')
+                    ->label(__('Pesanan'))
                     ->alignRight(),
                 TextColumn::make('spent_total')
-                    ->label('Total Belanja')
+                    ->label(__('Total Belanja'))
                     ->alignRight()
                     ->formatStateUsing(fn (?string $state) => Money::rupiah((int) $state)),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::CUSTOMER_STATUSES, $state)),
             ])
@@ -72,8 +72,8 @@ class CustomersTable
                         if ($count > 0) {
                             Notification::make()
                                 ->danger()
-                                ->title("\"{$record->name}\" memiliki {$count} pesanan dan tidak bisa dihapus.")
-                                ->body('Ubah statusnya menjadi Nonaktif.')
+                                ->title(__('":name" memiliki :count pesanan dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
+                                ->body(__('Ubah statusnya menjadi Nonaktif.'))
                                 ->send();
 
                             $action->cancel();

@@ -21,14 +21,14 @@ class AttributesTable
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Atribut')
+                    ->label(__('Atribut'))
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Tipe')
+                    ->label(__('Tipe'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::ATTRIBUTE_TYPES, $state)),
                 TextColumn::make('values')
-                    ->label('Nilai')
+                    ->label(__('Nilai'))
                     ->formatStateUsing(function (mixed $state): string {
                         $values = is_string($state) ? json_decode($state, true) : $state;
 

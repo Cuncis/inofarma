@@ -22,9 +22,15 @@ class AttributeResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static ?string $modelLabel = 'Atribut';
+    public static function getModelLabel(): string
+    {
+        return __('Atribut');
+    }
 
-    protected static ?string $pluralModelLabel = 'Atribut';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Atribut');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -16,43 +16,43 @@ class CustomerForm
             ->columns(2)
             ->components([
                 TextInput::make('name')
-                    ->label('Nama Lengkap')
-                    ->placeholder('Kirana Wijaya')
+                    ->label(__('Nama Lengkap'))
+                    ->placeholder(__('Kirana Wijaya'))
                     ->required()
                     ->maxLength(80),
                 TextInput::make('email')
-                    ->label('Email')
+                    ->label(__('Email'))
                     ->email()
-                    ->placeholder('kirana@mail.com')
-                    ->helperText('Dipakai untuk menautkan riwayat pesanan.')
+                    ->placeholder(__('kirana@mail.com'))
+                    ->helperText(__('Dipakai untuk menautkan riwayat pesanan.'))
                     ->required()
                     ->maxLength(120)
                     ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->whereNull('deleted_at'))
-                    ->validationMessages(['unique' => 'Email ini sudah dipakai pelanggan lain.']),
+                    ->validationMessages(['unique' => __('Email ini sudah dipakai pelanggan lain.')]),
                 TextInput::make('phone')
-                    ->label('Nomor Telepon')
+                    ->label(__('Nomor Telepon'))
                     ->tel()
                     ->placeholder('+62 812-3456-7890')
                     ->required()
                     ->maxLength(30)
                     ->regex('/^[0-9+\-\s()]+$/')
-                    ->validationMessages(['regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).']),
+                    ->validationMessages(['regex' => __('Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).')]),
                 // `city`/`address` are not Customer columns — they read from
                 // and write back to the default `CustomerAddress`, same as
                 // CustomerController::syncAddress().
                 TextInput::make('city')
-                    ->label('Kota')
-                    ->placeholder('Jakarta Barat')
+                    ->label(__('Kota'))
+                    ->placeholder(__('Jakarta Barat'))
                     ->required()
                     ->maxLength(60),
                 Select::make('status')
-                    ->label('Status')
-                    ->options(array_flip(AdminOptions::CUSTOMER_STATUSES))
+                    ->label(__('Status'))
+                    ->options(AdminOptions::options(AdminOptions::CUSTOMER_STATUSES))
                     ->default('aktif')
                     ->required(),
                 Textarea::make('address')
-                    ->label('Alamat')
-                    ->placeholder('Jl. Kebon Jeruk Raya No. 27')
+                    ->label(__('Alamat'))
+                    ->placeholder(__('Jl. Kebon Jeruk Raya No. 27'))
                     ->columnSpanFull(),
             ]);
     }

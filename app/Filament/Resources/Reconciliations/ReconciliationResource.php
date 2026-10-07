@@ -24,9 +24,15 @@ class ReconciliationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
-    protected static ?string $modelLabel = 'Rekonsiliasi';
+    public static function getModelLabel(): string
+    {
+        return __('Rekonsiliasi');
+    }
 
-    protected static ?string $pluralModelLabel = 'Rekonsiliasi';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Rekonsiliasi');
+    }
 
     protected static ?string $recordTitleAttribute = 'invoice_number';
 

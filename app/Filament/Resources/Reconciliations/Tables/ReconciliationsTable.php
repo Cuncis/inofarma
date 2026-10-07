@@ -19,26 +19,26 @@ class ReconciliationsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->heading('Log Pembayaran')
+            ->heading(__('Log Pembayaran'))
             ->defaultSort('id', 'desc')
             ->modifyQueryUsing(fn (Builder $query) => $query->with('order.branch'))
             ->columns([
                 TextColumn::make('order.number')
-                    ->label('No. Pesanan')
+                    ->label(__('No. Pesanan'))
                     ->searchable(),
                 TextColumn::make('order.branch.name')
-                    ->label('Cabang'),
+                    ->label(__('Cabang')),
                 TextColumn::make('channel')
-                    ->label('Kanal')
+                    ->label(__('Kanal'))
                     ->placeholder('—'),
                 TextColumn::make('amount')
-                    ->label('Jumlah')
+                    ->label(__('Jumlah'))
                     ->alignRight()
                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => ucfirst($state))
+                    ->formatStateUsing(fn (string $state) => __(ucfirst($state)))
                     ->color(fn (string $state) => match ($state) {
                         'success' => 'success',
                         'pending' => 'warning',
@@ -46,14 +46,14 @@ class ReconciliationsTable
                         default => 'danger',
                     }),
                 TextColumn::make('created_at')
-                    ->label('Waktu')
+                    ->label(__('Waktu'))
                     ->dateTime('d M Y, H:i'),
             ])
             ->recordActions([
                 // Only a still-open attempt has anything to learn from DOKU —
                 // success/expired/refunded are already final.
                 Action::make('cekStatus')
-                    ->label('Cek Status')
+                    ->label(__('Cek Status'))
                     ->icon(Heroicon::OutlinedArrowPath)
                     ->visible(fn (Payment $record) => $record->status === 'pending'
                         && Auth::guard('web')->user()?->can('Pesanan:Proses'))
@@ -65,7 +65,7 @@ class ReconciliationsTable
 
                             Notification::make()
                                 ->danger()
-                                ->title('Gagal menghubungi DOKU. Coba lagi sebentar lagi.')
+                                ->title(__('Gagal menghubungi DOKU. Coba lagi sebentar lagi.'))
                                 ->send();
 
                             return;
@@ -74,7 +74,7 @@ class ReconciliationsTable
                         if (! $result) {
                             Notification::make()
                                 ->danger()
-                                ->title('DOKU tidak mengenali pembayaran ini.')
+                                ->title(__('DOKU tidak mengenali pembayaran ini.'))
                                 ->send();
 
                             return;
@@ -83,7 +83,7 @@ class ReconciliationsTable
                         if ($result->status === 'pending') {
                             Notification::make()
                                 ->danger()
-                                ->title("Menurut DOKU, pembayaran #{$record->invoice_number} masih menunggu pembayaran.")
+                                ->title(__('Menurut DOKU, pembayaran #:invoice_number masih menunggu pembayaran.', ['invoice_number' => $record->invoice_number]))
                                 ->send();
 
                             return;
@@ -91,7 +91,7 @@ class ReconciliationsTable
 
                         Notification::make()
                             ->success()
-                            ->title("Status pembayaran #{$record->invoice_number} diperbarui: {$result->status}.")
+                            ->title(__('Status pembayaran #:invoice_number diperbarui: :status.', ['invoice_number' => $record->invoice_number, 'status' => $result->status]))
                             ->send();
                     }),
             ]);

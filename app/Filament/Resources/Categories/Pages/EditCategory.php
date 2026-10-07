@@ -26,7 +26,7 @@ class EditCategory extends EditRecord
                     if ($count > 0) {
                         Notification::make()
                             ->danger()
-                            ->title("Kategori \"{$record->name}\" masih dipakai {$count} produk dan tidak bisa dihapus.")
+                            ->title(__('Kategori ":name" masih dipakai :count produk dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
                             ->send();
 
                         $action->cancel();

@@ -16,22 +16,22 @@ class AttributeForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nama Atribut')
-                    ->placeholder('Bentuk Sediaan')
+                    ->label(__('Nama Atribut'))
+                    ->placeholder(__('Bentuk Sediaan'))
                     ->required()
                     ->maxLength(80)
                     ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->whereNull('deleted_at'))
-                    ->validationMessages(['unique' => 'Atribut dengan nama ini sudah ada.']),
+                    ->validationMessages(['unique' => __('Atribut dengan nama ini sudah ada.')]),
                 Select::make('type')
-                    ->label('Tipe')
-                    ->options(array_flip(AdminOptions::ATTRIBUTE_TYPES))
+                    ->label(__('Tipe'))
+                    ->options(AdminOptions::options(AdminOptions::ATTRIBUTE_TYPES))
                     ->default('pilihan')
                     ->required()
                     ->live(),
                 TagsInput::make('values')
-                    ->label('Nilai')
-                    ->placeholder('Tablet, Kapsul, Sirup, Salep')
-                    ->helperText('Tekan Enter setelah setiap nilai.')
+                    ->label(__('Nilai'))
+                    ->placeholder(__('Tablet, Kapsul, Sirup, Salep'))
+                    ->helperText(__('Tekan Enter setelah setiap nilai.'))
                     ->visible(fn (Get $get) => $get('type') === 'pilihan')
                     ->required(fn (Get $get) => $get('type') === 'pilihan')
                     ->distinct()

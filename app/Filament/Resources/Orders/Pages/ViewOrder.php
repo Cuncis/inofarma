@@ -24,7 +24,7 @@ class ViewOrder extends ViewRecord
             // books the real Biteship waybill for the courier already
             // quoted at checkout. See ShipmentService::bookForOrder().
             Action::make('ship')
-                ->label('Buat Resi')
+                ->label(__('Buat Resi'))
                 ->icon(Heroicon::OutlinedTruck)
                 ->visible(fn (Order $record) => $record->fulfilment === 'antar'
                     && $record->status === 'diproses'
@@ -42,14 +42,14 @@ class ViewOrder extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Resi untuk pesanan #{$record->number} berhasil dibuat.")
+                        ->title(__('Resi untuk pesanan #:number berhasil dibuat.', ['number' => $record->number]))
                         ->send();
                 }),
 
             // Issues the pickup code + QR and moves the order to "siap
             // diambil" (ROADMAP.md 7.2). See PickupCodeService::issue().
             Action::make('markReady')
-                ->label('Tandai Siap Diambil')
+                ->label(__('Tandai Siap Diambil'))
                 ->icon(Heroicon::OutlinedCheckCircle)
                 ->visible(fn (Order $record) => $record->fulfilment === 'ambil'
                     && $record->status === 'diproses'
@@ -59,14 +59,14 @@ class ViewOrder extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Pesanan #{$record->number} siap diambil. Kode: {$record->pickup_code}.")
+                        ->title(__('Pesanan #:number siap diambil. Kode: :pickup_code.', ['number' => $record->number, 'pickup_code' => $record->pickup_code]))
                         ->send();
                 }),
 
             // Manual nudge for a late/lost Biteship webhook — same reasoning
             // as the DOKU payment side's "Cek Status" (ReconciliationResource).
             Action::make('checkShipmentStatus')
-                ->label('Cek Status Kirim')
+                ->label(__('Cek Status Kirim'))
                 ->icon(Heroicon::OutlinedArrowPath)
                 ->visible(fn (Order $record) => (bool) $record->shipment?->is_booked
                     && Auth::guard('web')->user()?->can('Pesanan:Proses'))
@@ -81,7 +81,7 @@ class ViewOrder extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Status pengiriman #{$record->number} diperbarui: {$result->status}.")
+                        ->title(__('Status pengiriman #:number diperbarui: :status.', ['number' => $record->number, 'status' => $result->status]))
                         ->send();
                 }),
         ];

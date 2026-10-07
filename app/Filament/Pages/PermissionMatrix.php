@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,9 +27,15 @@ class PermissionMatrix extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
 
-    protected static ?string $navigationLabel = 'Hak Akses';
+    public static function getNavigationLabel(): string
+    {
+        return __('Hak Akses');
+    }
 
-    protected static ?string $title = 'Hak Akses';
+    public function getTitle(): string|Htmlable
+    {
+        return __('Hak Akses');
+    }
 
     protected static ?string $slug = 'hak-akses';
 
@@ -67,7 +74,7 @@ class PermissionMatrix extends Page
     {
         return [
             Action::make('save')
-                ->label('Simpan Perubahan')
+                ->label(__('Simpan Perubahan'))
                 ->action('save'),
         ];
     }
@@ -75,7 +82,7 @@ class PermissionMatrix extends Page
     public function save(): void
     {
         if (! Auth::guard('web')->user()?->can('Peran:Ubah')) {
-            Notification::make()->danger()->title('Anda tidak punya izin untuk mengubah hak akses.')->send();
+            Notification::make()->danger()->title(__('Anda tidak punya izin untuk mengubah hak akses.'))->send();
 
             return;
         }
@@ -89,6 +96,6 @@ class PermissionMatrix extends Page
 
         AuditLogger::log('permissions_matrix_updated');
 
-        Notification::make()->success()->title('Hak akses berhasil disimpan.')->send();
+        Notification::make()->success()->title(__('Hak akses berhasil disimpan.'))->send();
     }
 }

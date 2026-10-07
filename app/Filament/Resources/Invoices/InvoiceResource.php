@@ -26,9 +26,15 @@ class InvoiceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static ?string $modelLabel = 'Faktur';
+    public static function getModelLabel(): string
+    {
+        return __('Faktur');
+    }
 
-    protected static ?string $pluralModelLabel = 'Faktur';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Faktur');
+    }
 
     protected static ?string $recordTitleAttribute = 'number';
 

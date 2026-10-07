@@ -20,7 +20,7 @@ class ViewStockTransfer extends ViewRecord
     {
         return [
             Action::make('ship')
-                ->label('Kirim')
+                ->label(__('Kirim'))
                 ->icon(Heroicon::OutlinedTruck)
                 ->visible(fn (StockTransfer $record) => $record->can_be_shipped && self::onSide($record->from_branch_id))
                 ->action(function (StockTransfer $record) {
@@ -34,11 +34,11 @@ class ViewStockTransfer extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Transfer {$updated->code} dikirim dari {$updated->fromBranch->name}.")
+                        ->title(__('Transfer :code dikirim dari :name.', ['code' => $updated->code, 'name' => $updated->fromBranch->name]))
                         ->send();
                 }),
             Action::make('receive')
-                ->label('Terima')
+                ->label(__('Terima'))
                 ->icon(Heroicon::OutlinedInboxArrowDown)
                 ->visible(fn (StockTransfer $record) => $record->can_be_received && self::onSide($record->to_branch_id))
                 ->action(function (StockTransfer $record) {
@@ -52,11 +52,11 @@ class ViewStockTransfer extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Transfer {$updated->code} diterima di {$updated->toBranch->name}.")
+                        ->title(__('Transfer :code diterima di :name.', ['code' => $updated->code, 'name' => $updated->toBranch->name]))
                         ->send();
                 }),
             Action::make('cancel')
-                ->label('Batalkan')
+                ->label(__('Batalkan'))
                 ->color('danger')
                 ->icon(Heroicon::OutlinedXCircle)
                 ->requiresConfirmation()
@@ -72,7 +72,7 @@ class ViewStockTransfer extends ViewRecord
 
                     Notification::make()
                         ->success()
-                        ->title("Transfer {$updated->code} dibatalkan.")
+                        ->title(__('Transfer :code dibatalkan.', ['code' => $updated->code]))
                         ->send();
                 }),
         ];

@@ -28,8 +28,8 @@ class EditCustomer extends EditRecord
                     if ($count > 0) {
                         Notification::make()
                             ->danger()
-                            ->title("\"{$record->name}\" memiliki {$count} pesanan dan tidak bisa dihapus.")
-                            ->body('Ubah statusnya menjadi Nonaktif.')
+                            ->title(__('":name" memiliki :count pesanan dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
+                            ->body(__('Ubah statusnya menjadi Nonaktif.'))
                             ->send();
 
                         $action->cancel();

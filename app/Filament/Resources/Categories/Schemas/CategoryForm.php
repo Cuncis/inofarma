@@ -15,23 +15,23 @@ class CategoryForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nama Kategori')
+                    ->label(__('Nama Kategori'))
                     ->required()
                     ->maxLength(80)
                     ->unique(ignoreRecord: true, modifyRuleUsing: fn ($rule) => $rule->whereNull('deleted_at'))
-                    ->validationMessages(['unique' => 'Kategori dengan nama ini sudah ada.']),
+                    ->validationMessages(['unique' => __('Kategori dengan nama ini sudah ada.')]),
                 TextInput::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->maxLength(80)
                     ->regex('/^[a-z0-9-]+$/')
-                    ->validationMessages(['regex' => 'Slug hanya boleh berisi huruf kecil, angka, dan tanda hubung.'])
-                    ->helperText('Kosongkan untuk membuat otomatis dari nama.'),
+                    ->validationMessages(['regex' => __('Slug hanya boleh berisi huruf kecil, angka, dan tanda hubung.')])
+                    ->helperText(__('Kosongkan untuk membuat otomatis dari nama.')),
                 Select::make('status')
-                    ->label('Status')
-                    ->options(array_flip(AdminOptions::CATEGORY_STATUSES))
+                    ->label(__('Status'))
+                    ->options(AdminOptions::options(AdminOptions::CATEGORY_STATUSES))
                     ->required(),
                 Textarea::make('description')
-                    ->label('Deskripsi')
+                    ->label(__('Deskripsi'))
                     ->maxLength(500)
                     ->columnSpanFull(),
             ]);

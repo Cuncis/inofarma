@@ -26,35 +26,36 @@ class DailyReconciliationWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Terkumpul per Cabang per Hari')
-            ->description(fn () => 'Total periode ini: '.Money::rupiah($this->grandTotal()))
+            ->heading(__('Terkumpul per Cabang per Hari'))
+            ->description(fn () => __('Total periode ini: :total', ['total' => Money::rupiah($this->grandTotal())]))
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filters([
                 Filter::make('range')
                     ->schema([
-                        DatePicker::make('dari')->label('Dari')->default(now()->subDays(6)->startOfDay()),
-                        DatePicker::make('sampai')->label('Sampai')->default(now()->endOfDay()),
+                        DatePicker::make('dari')->label(__('Dari'))->default(now()->subDays(6)->startOfDay()),
+                        DatePicker::make('sampai')->label(__('Sampai'))->default(now()->endOfDay()),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->columnSpan(2),
             ])
             ->records(fn (): Collection => $this->dailyRows())
             ->columns([
                 TextColumn::make('tanggal')
-                    ->label('Tanggal')
+                    ->label(__('Tanggal'))
                     ->formatStateUsing(fn (string $state) => Carbon::parse($state)->translatedFormat('d M Y')),
                 TextColumn::make('branch')
-                    ->label('Cabang'),
+                    ->label(__('Cabang')),
                 TextColumn::make('jumlah_pesanan')
-                    ->label('Jumlah Pesanan')
+                    ->label(__('Jumlah Pesanan'))
                     ->alignRight(),
                 TextColumn::make('total')
-                    ->label('Total Terkumpul')
+                    ->label(__('Total Terkumpul'))
                     ->alignRight()
                     ->weight('bold')
                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
             ])
             ->paginated(false)
-            ->emptyStateHeading('Belum ada pembayaran lunas pada rentang tanggal ini.');
+            ->emptyStateHeading(__('Belum ada pembayaran lunas pada rentang tanggal ini.'));
     }
 
     /**

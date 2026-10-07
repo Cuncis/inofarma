@@ -157,7 +157,32 @@ class AdminOptions
             return null;
         }
 
-        return array_search($value, $map, true) ?: null;
+        $label = array_search($value, $map, true);
+
+        return $label === false || $label === '' ? null : __($label);
+    }
+
+    /**
+     * Dropdown options for a status map: stored value => translated label.
+     *
+     * @param  array<string, string>  $map
+     * @return array<string, string>
+     */
+    public static function options(array $map): array
+    {
+        return array_map(fn (string $label) => __($label), array_flip($map));
+    }
+
+    /**
+     * Dropdown options for a plain list whose stored value is the list item
+     * itself, shown translated.
+     *
+     * @param  list<string>  $items
+     * @return array<string, string>
+     */
+    public static function listOptions(array $items): array
+    {
+        return array_combine($items, array_map(fn (string $item) => __($item), $items));
     }
 
     /**
@@ -169,9 +194,9 @@ class AdminOptions
     public static function stockLabel(int $quantity, int $lowThreshold = 20): string
     {
         return match (true) {
-            $quantity <= 0 => 'Habis',
-            $quantity <= $lowThreshold => 'Stok Menipis',
-            default => 'Tersedia',
+            $quantity <= 0 => __('Habis'),
+            $quantity <= $lowThreshold => __('Stok Menipis'),
+            default => __('Tersedia'),
         };
     }
 }

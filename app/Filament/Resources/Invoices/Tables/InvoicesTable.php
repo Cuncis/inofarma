@@ -17,24 +17,24 @@ class InvoicesTable
             ->modifyQueryUsing(fn ($query) => $query->with('customer'))
             ->columns([
                 TextColumn::make('number')
-                    ->label('Nomor')
+                    ->label(__('Nomor'))
                     ->searchable(),
                 TextColumn::make('customer.name')
-                    ->label('Pelanggan')
+                    ->label(__('Pelanggan'))
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('Diterbitkan')
+                    ->label(__('Diterbitkan'))
                     ->date('d M Y'),
                 TextColumn::make('expires_at')
-                    ->label('Jatuh Tempo')
+                    ->label(__('Jatuh Tempo'))
                     ->date('d M Y')
                     ->placeholder('—'),
                 TextColumn::make('grand_total')
-                    ->label('Total')
+                    ->label(__('Total'))
                     ->alignRight()
                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->state(fn (Order $record) => self::status($record))
                     ->color(fn (string $state) => match ($state) {
@@ -52,10 +52,10 @@ class InvoicesTable
     private static function status(Order $order): string
     {
         return match (true) {
-            $order->payment_status === 'lunas' => 'Lunas',
-            $order->payment_status === 'refund' => 'Refund',
-            $order->expires_at?->isPast() => 'Jatuh Tempo',
-            default => 'Belum Bayar',
+            $order->payment_status === 'lunas' => __('Lunas'),
+            $order->payment_status === 'refund' => __('Refund'),
+            $order->expires_at?->isPast() => __('Jatuh Tempo'),
+            default => __('Belum Bayar'),
         };
     }
 }

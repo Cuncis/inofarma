@@ -13,7 +13,7 @@ class ListStockTransfers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Minta Transfer'),
+            CreateAction::make()->label(__('Minta Transfer')),
         ];
     }
 }

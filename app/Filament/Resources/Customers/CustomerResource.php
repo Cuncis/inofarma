@@ -23,9 +23,15 @@ class CustomerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?string $modelLabel = 'Pelanggan';
+    public static function getModelLabel(): string
+    {
+        return __('Pelanggan');
+    }
 
-    protected static ?string $pluralModelLabel = 'Pelanggan';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Pelanggan');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

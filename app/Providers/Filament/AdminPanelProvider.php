@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\EnsureAdminIsAuthenticated;
+use App\Http\Middleware\SetAdminLocale;
+use App\Support\AdminFlags;
+use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -11,7 +14,6 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -43,15 +45,37 @@ class AdminPanelProvider extends PanelProvider
             // this only changes what a first-time visitor sees.
             ->defaultThemeMode(ThemeMode::Light)
             ->viteTheme('resources/css/filament/admin/theme.css')
+            // Language switch in the profile menu: two flags on one row. The
+            // active language is outlined; labels stay for screen readers.
+            ->userMenuItems([
+                Action::make('locale-id')
+                    ->label('ID')
+                    ->icon(AdminFlags::for('id'))
+                    ->url(fn () => route('admin.bahasa', 'id'))
+                    ->postToUrl()
+                    ->extraAttributes(fn () => [
+                        'title' => 'Bahasa Indonesia',
+                        'data-lang' => 'id',
+                        'data-active' => app()->getLocale() === 'id' ? 'true' : null,
+                    ]),
+                Action::make('locale-en')
+                    ->label('EN')
+                    ->icon(AdminFlags::for('en'))
+                    ->url(fn () => route('admin.bahasa', 'en'))
+                    ->postToUrl()
+                    ->extraAttributes(fn () => [
+                        'title' => 'English',
+                        'data-lang' => 'en',
+                        'data-active' => app()->getLocale() === 'en' ? 'true' : null,
+                    ]),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-            ])
+            ->widgets([])
             // Replaces the legacy admin topbar bell (NotificationController) —
             // App\Notifications\Admin\LowStock already writes to the standard
             // `database` channel via BranchStockObserver, so this is the only
@@ -62,6 +86,7 @@ class AdminPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
+                SetAdminLocale::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 PreventRequestForgery::class,

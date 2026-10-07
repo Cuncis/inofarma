@@ -24,23 +24,23 @@ class BranchesTable
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('code')
-                    ->label('Kode')
+                    ->label(__('Kode'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Cabang')
+                    ->label(__('Cabang'))
                     ->searchable(),
                 TextColumn::make('kota')
-                    ->label('Kota')
+                    ->label(__('Kota'))
                     ->searchable(),
                 TextColumn::make('stocks_count')
-                    ->label('Produk Distok')
+                    ->label(__('Produk Distok'))
                     ->counts('stocks')
                     ->alignRight(),
                 IconColumn::make('is_open_now')
-                    ->label('Buka Sekarang')
+                    ->label(__('Buka Sekarang'))
                     ->boolean(),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::BRANCH_STATUSES, $state)),
                 TextColumn::make('created_at')
@@ -65,8 +65,8 @@ class BranchesTable
                         if ($stockCount > 0 || $orderCount > 0) {
                             Notification::make()
                                 ->danger()
-                                ->title("\"{$record->name}\" masih punya stok atau riwayat pesanan dan tidak bisa dihapus.")
-                                ->body('Ubah statusnya menjadi Tutup Permanen.')
+                                ->title(__('":name" masih punya stok atau riwayat pesanan dan tidak bisa dihapus.', ['name' => $record->name]))
+                                ->body(__('Ubah statusnya menjadi Tutup Permanen.'))
                                 ->send();
 
                             $action->cancel();

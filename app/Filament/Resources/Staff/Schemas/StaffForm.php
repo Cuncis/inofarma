@@ -17,30 +17,30 @@ class StaffForm
     {
         return $schema
             ->components([
-                Section::make('Akun')
+                Section::make(__('Akun'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
-                            ->label('Nama')
+                            ->label(__('Nama'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('email')
-                            ->label('Email')
+                            ->label(__('Email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
                         TextInput::make('phone')
-                            ->label('Telepon')
+                            ->label(__('Telepon'))
                             ->maxLength(30),
                         Select::make('branch_id')
-                            ->label('Cabang')
+                            ->label(__('Cabang'))
                             ->relationship('branch', 'name')
                             ->searchable()
                             ->preload()
-                            ->placeholder('Pusat (semua cabang)'),
+                            ->placeholder(__('Pusat (semua cabang)')),
                         TextInput::make('password')
-                            ->label('Kata Sandi')
+                            ->label(__('Kata Sandi'))
                             ->password()
                             ->revealable()
                             ->rule(Password::defaults())
@@ -49,16 +49,16 @@ class StaffForm
                             ->dehydrated(fn (?string $state) => filled($state))
                             ->dehydrateStateUsing(fn (string $state) => Hash::make($state)),
                         TextInput::make('password_confirmation')
-                            ->label('Konfirmasi Kata Sandi')
+                            ->label(__('Konfirmasi Kata Sandi'))
                             ->password()
                             ->revealable()
                             ->required(fn (string $operation) => $operation === 'create')
                             ->dehydrated(false),
                         Toggle::make('is_active')
-                            ->label('Aktif')
+                            ->label(__('Aktif'))
                             ->default(true),
                     ]),
-                Section::make('Peran')
+                Section::make(__('Peran'))
                     ->schema([
                         CheckboxList::make('roles')
                             ->label('')

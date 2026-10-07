@@ -30,26 +30,27 @@ class OrdersTable
                 ->withSum('items as item_count', 'quantity'))
             ->columns([
                 TextColumn::make('number')
-                    ->label('No. Pesanan')
+                    ->label(__('No. Pesanan'))
                     ->searchable(),
                 TextColumn::make('customer.name')
-                    ->label('Pelanggan')
+                    ->label(__('Pelanggan'))
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('Tanggal')
+                    ->label(__('Tanggal'))
                     ->date('d M Y'),
                 TextColumn::make('item_count')
-                    ->label('Item')
+                    ->label(__('Item'))
                     ->alignRight(),
                 TextColumn::make('payment_method')
-                    ->label('Pembayaran'),
+                    ->label(__('Pembayaran'))
+                    ->formatStateUsing(fn (?string $state) => $state ? __($state) : null),
                 TextColumn::make('grand_total')
-                    ->label('Total')
+                    ->label(__('Total'))
                     ->alignRight()
                     ->weight('semibold')
                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::ORDER_STATUSES, $state))
                     ->color(fn (string $state) => match ($state) {
@@ -62,8 +63,8 @@ class OrdersTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
-                    ->options(array_flip(AdminOptions::ORDER_STATUSES)),
+                    ->label(__('Status'))
+                    ->options(AdminOptions::options(AdminOptions::ORDER_STATUSES)),
                 TrashedFilter::make(),
             ])
             ->recordActions([
@@ -75,8 +76,8 @@ class OrdersTable
                         if (! $record->is_deletable) {
                             Notification::make()
                                 ->danger()
-                                ->title("Pesanan #{$record->number} sudah selesai dan tidak bisa dihapus.")
-                                ->body('Ubah statusnya menjadi Dibatalkan bila perlu.')
+                                ->title(__('Pesanan #:number sudah selesai dan tidak bisa dihapus.', ['number' => $record->number]))
+                                ->body(__('Ubah statusnya menjadi Dibatalkan bila perlu.'))
                                 ->send();
 
                             $action->cancel();

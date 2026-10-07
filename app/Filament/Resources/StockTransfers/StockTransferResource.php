@@ -28,13 +28,25 @@ class StockTransferResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Inventaris';
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('Inventaris');
+    }
 
-    protected static ?string $navigationLabel = 'Transfer';
+    public static function getNavigationLabel(): string
+    {
+        return __('Transfer');
+    }
 
-    protected static ?string $modelLabel = 'Transfer';
+    public static function getModelLabel(): string
+    {
+        return __('Transfer');
+    }
 
-    protected static ?string $pluralModelLabel = 'Transfer';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Transfer');
+    }
 
     protected static ?string $recordTitleAttribute = 'code';
 

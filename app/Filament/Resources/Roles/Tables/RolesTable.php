@@ -20,17 +20,17 @@ class RolesTable
             ->modifyQueryUsing(fn (Builder $query) => $query->withCount(['users', 'permissions']))
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama')
+                    ->label(__('Nama'))
                     ->searchable(),
                 TextColumn::make('description')
-                    ->label('Deskripsi')
+                    ->label(__('Deskripsi'))
                     ->placeholder('—')
                     ->limit(60),
                 TextColumn::make('users_count')
-                    ->label('Staf')
+                    ->label(__('Staf'))
                     ->alignRight(),
                 TextColumn::make('permissions_count')
-                    ->label('Hak Akses')
+                    ->label(__('Hak Akses'))
                     ->alignRight(),
             ])
             ->recordActions([
@@ -44,7 +44,7 @@ class RolesTable
                         if ($count > 0) {
                             Notification::make()
                                 ->danger()
-                                ->title("Peran \"{$record->name}\" masih dipakai {$count} staf dan tidak bisa dihapus.")
+                                ->title(__('Peran ":name" masih dipakai :count staf dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
                                 ->send();
 
                             $action->cancel();

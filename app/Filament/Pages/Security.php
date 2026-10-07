@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use PragmaRX\Google2FAQRCode\Google2FA;
@@ -27,9 +28,15 @@ class Security extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldExclamation;
 
-    protected static ?string $navigationLabel = 'Keamanan';
+    public static function getNavigationLabel(): string
+    {
+        return __('Keamanan');
+    }
 
-    protected static ?string $title = 'Keamanan';
+    public function getTitle(): string|Htmlable
+    {
+        return __('Keamanan');
+    }
 
     protected static ?string $slug = 'keamanan';
 
@@ -53,7 +60,7 @@ class Security extends Page
     {
         return [
             Action::make('activate')
-                ->label('Aktifkan 2FA')
+                ->label(__('Aktifkan 2FA'))
                 ->icon(Heroicon::OutlinedLockClosed)
                 ->visible(fn () => ! $this->enabled && ! $this->pending)
                 ->action(function () {
@@ -71,16 +78,16 @@ class Security extends Page
 
                     Notification::make()
                         ->success()
-                        ->title('Pindai kode QR dengan aplikasi authenticator Anda, lalu konfirmasi kodenya.')
+                        ->title(__('Pindai kode QR dengan aplikasi authenticator Anda, lalu konfirmasi kodenya.'))
                         ->send();
                 }),
             Action::make('confirm')
-                ->label('Konfirmasi')
+                ->label(__('Konfirmasi'))
                 ->icon(Heroicon::OutlinedCheckCircle)
                 ->visible(fn () => $this->pending)
                 ->schema([
                     TextInput::make('code')
-                        ->label('Kode Authenticator')
+                        ->label(__('Kode Authenticator'))
                         ->required()
                         ->rule(function () {
                             return function (string $attribute, $value, Closure $fail) {
@@ -99,10 +106,10 @@ class Security extends Page
                     AuditLogger::log('2fa_confirmed', $user);
                     $this->refreshState();
 
-                    Notification::make()->success()->title('Autentikasi dua faktor aktif.')->send();
+                    Notification::make()->success()->title(__('Autentikasi dua faktor aktif.'))->send();
                 }),
             Action::make('regenerate')
-                ->label('Buat Kode Pemulihan Baru')
+                ->label(__('Buat Kode Pemulihan Baru'))
                 ->icon(Heroicon::OutlinedArrowPath)
                 ->visible(fn () => $this->enabled)
                 ->requiresConfirmation()
@@ -114,10 +121,10 @@ class Security extends Page
                     session()->flash('two_factor_recovery_codes_reveal', $codes);
                     $this->refreshState();
 
-                    Notification::make()->success()->title('Kode pemulihan baru telah dibuat.')->send();
+                    Notification::make()->success()->title(__('Kode pemulihan baru telah dibuat.'))->send();
                 }),
             Action::make('disable')
-                ->label('Nonaktifkan 2FA')
+                ->label(__('Nonaktifkan 2FA'))
                 ->icon(Heroicon::OutlinedLockOpen)
                 ->color('danger')
                 ->visible(fn () => $this->enabled || $this->pending)
@@ -134,7 +141,7 @@ class Security extends Page
                     AuditLogger::log('2fa_disabled', $user);
                     $this->refreshState();
 
-                    Notification::make()->success()->title('Autentikasi dua faktor dinonaktifkan.')->send();
+                    Notification::make()->success()->title(__('Autentikasi dua faktor dinonaktifkan.'))->send();
                 }),
         ];
     }

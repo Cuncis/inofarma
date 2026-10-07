@@ -18,7 +18,7 @@ class StockTransferForm
         return $schema
             ->components([
                 Select::make('from_branch_id')
-                    ->label('Cabang Asal')
+                    ->label(__('Cabang Asal'))
                     ->relationship('fromBranch', 'name')
                     ->searchable()
                     ->preload()
@@ -32,22 +32,22 @@ class StockTransferForm
                         }
                     }),
                 Select::make('to_branch_id')
-                    ->label('Cabang Tujuan')
+                    ->label(__('Cabang Tujuan'))
                     ->relationship('toBranch', 'name')
                     ->searchable()
                     ->preload()
                     ->required()
                     ->different('from_branch_id')
-                    ->validationMessages(['different' => 'Cabang tujuan harus berbeda dari cabang asal.']),
+                    ->validationMessages(['different' => __('Cabang tujuan harus berbeda dari cabang asal.')]),
                 Select::make('product_id')
-                    ->label('Produk')
+                    ->label(__('Produk'))
                     ->relationship('product', 'name')
                     ->searchable()
                     ->preload()
                     ->required()
                     ->live(),
                 TextInput::make('quantity')
-                    ->label('Jumlah')
+                    ->label(__('Jumlah'))
                     ->numeric()
                     ->integer()
                     ->minValue(1)
@@ -65,11 +65,11 @@ class StockTransferForm
                         $available = $stock ? $stock->quantity - $stock->reserved_quantity : 0;
 
                         if ($available < (int) $value) {
-                            $fail("Stok di cabang asal hanya tersisa {$available}.");
+                            $fail(__('Stok di cabang asal hanya tersisa :available.', ['available' => $available]));
                         }
                     }),
                 Textarea::make('note')
-                    ->label('Catatan')
+                    ->label(__('Catatan'))
                     ->maxLength(255)
                     ->columnSpanFull(),
             ]);

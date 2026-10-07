@@ -13,7 +13,7 @@ class ListOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Buat Pesanan'),
+            CreateAction::make()->label(__('Buat Pesanan')),
         ];
     }
 }

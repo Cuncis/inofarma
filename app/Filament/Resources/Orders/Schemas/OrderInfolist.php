@@ -17,35 +17,35 @@ class OrderInfolist
     {
         return $schema
             ->components([
-                Section::make('Ringkasan')
+                Section::make(__('Ringkasan'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                TextEntry::make('number')->label('No. Pesanan'),
-                                TextEntry::make('customer.name')->label('Pelanggan'),
-                                TextEntry::make('branch.name')->label('Cabang'),
+                                TextEntry::make('number')->label(__('No. Pesanan')),
+                                TextEntry::make('customer.name')->label(__('Pelanggan')),
+                                TextEntry::make('branch.name')->label(__('Cabang')),
                                 TextEntry::make('fulfilment')
-                                    ->label('Cara Terima')
+                                    ->label(__('Cara Terima'))
                                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::FULFILMENTS, $state)),
-                                TextEntry::make('payment_method')->label('Pembayaran'),
+                                TextEntry::make('payment_method')->label(__('Pembayaran'))->formatStateUsing(fn (?string $state) => $state ? __($state) : null),
                                 TextEntry::make('status')
-                                    ->label('Status')
+                                    ->label(__('Status'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::ORDER_STATUSES, $state)),
-                                TextEntry::make('created_at')->label('Tanggal')->date('d M Y'),
-                                TextEntry::make('note')->label('Catatan')->placeholder('—')->columnSpan(2),
+                                TextEntry::make('created_at')->label(__('Tanggal'))->date('d M Y'),
+                                TextEntry::make('note')->label(__('Catatan'))->placeholder('—')->columnSpan(2),
                             ]),
                     ]),
-                Section::make('Item Pesanan')
+                Section::make(__('Item Pesanan'))
                     ->schema([
                         RepeatableEntry::make('items')
                             ->label('')
                             ->schema([
-                                TextEntry::make('product_name')->label('Produk'),
-                                TextEntry::make('quantity')->label('Qty'),
-                                TextEntry::make('unit_price')->label('Harga')
+                                TextEntry::make('product_name')->label(__('Produk')),
+                                TextEntry::make('quantity')->label(__('Qty')),
+                                TextEntry::make('unit_price')->label(__('Harga'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
-                                TextEntry::make('line_total')->label('Subtotal')
+                                TextEntry::make('line_total')->label(__('Subtotal'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                             ])
                             ->columns(4),
@@ -54,34 +54,34 @@ class OrderInfolist
                                 TextEntry::make('subtotal')
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                                 TextEntry::make('shipping_total')
-                                    ->label('Ongkos Kirim')
+                                    ->label(__('Ongkos Kirim'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                                 TextEntry::make('grand_total')
-                                    ->label('Total')
+                                    ->label(__('Total'))
                                     ->weight('bold')
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                             ]),
                     ]),
-                Section::make('Pengiriman')
+                Section::make(__('Pengiriman'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                TextEntry::make('shipment.courier_name')->label('Kurir')->placeholder('—'),
-                                TextEntry::make('shipment.courier_service_name')->label('Layanan')->placeholder('—'),
-                                TextEntry::make('shipment.waybill_id')->label('No. Resi')->placeholder('Belum dibuat'),
-                                TextEntry::make('shipment.status')->label('Status Kirim')->placeholder('—'),
+                                TextEntry::make('shipment.courier_name')->label(__('Kurir'))->placeholder('—'),
+                                TextEntry::make('shipment.courier_service_name')->label(__('Layanan'))->placeholder('—'),
+                                TextEntry::make('shipment.waybill_id')->label(__('No. Resi'))->placeholder(__('Belum dibuat')),
+                                TextEntry::make('shipment.status')->label(__('Status Kirim'))->placeholder('—'),
                             ]),
                     ])
                     ->visible(fn (Order $record) => $record->fulfilment === 'antar' && $record->shipment !== null),
-                Section::make('Pengambilan')
+                Section::make(__('Pengambilan'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                TextEntry::make('pickup_code')->label('Kode Ambil')->placeholder('Belum diterbitkan'),
-                                TextEntry::make('pickup_code_expires_at')->label('Berlaku Sampai')
+                                TextEntry::make('pickup_code')->label(__('Kode Ambil'))->placeholder(__('Belum diterbitkan')),
+                                TextEntry::make('pickup_code_expires_at')->label(__('Berlaku Sampai'))
                                     ->dateTime('d M Y, H:i')->placeholder('—'),
-                                TextEntry::make('picked_up_at')->label('Diambil Pada')
-                                    ->dateTime('d M Y, H:i')->placeholder('Belum diambil'),
+                                TextEntry::make('picked_up_at')->label(__('Diambil Pada'))
+                                    ->dateTime('d M Y, H:i')->placeholder(__('Belum diambil')),
                             ]),
                     ])
                     ->visible(fn (Order $record) => $record->fulfilment === 'ambil'),

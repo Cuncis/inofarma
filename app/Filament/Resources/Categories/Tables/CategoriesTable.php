@@ -25,18 +25,18 @@ class CategoriesTable
             ->modifyQueryUsing(fn (Builder $query) => $query->withCount('products'))
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama')
+                    ->label(__('Nama'))
                     ->searchable(),
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label(__('Slug'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::CATEGORY_STATUSES, $state)),
                 TextColumn::make('products_count')
-                    ->label('Produk')
+                    ->label(__('Produk'))
                     ->alignRight(),
             ])
             ->filters([
@@ -54,7 +54,7 @@ class CategoriesTable
                         if ($count > 0) {
                             Notification::make()
                                 ->danger()
-                                ->title("Kategori \"{$record->name}\" masih dipakai {$count} produk dan tidak bisa dihapus.")
+                                ->title(__('Kategori ":name" masih dipakai :count produk dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
                                 ->send();
 
                             $action->cancel();

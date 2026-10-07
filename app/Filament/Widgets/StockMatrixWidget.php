@@ -25,13 +25,13 @@ class StockMatrixWidget extends TableWidget
         $branches = Branch::query()->active()->orderBy('name')->get(['id', 'code', 'name']);
 
         return $table
-            ->heading('Matriks Stok')
+            ->heading(__('Matriks Stok'))
             ->records(fn (): Collection => $this->rows($branches))
             ->columns([
                 TextColumn::make('productName')
-                    ->label('Produk'),
+                    ->label(__('Produk')),
                 TextColumn::make('category')
-                    ->label('Kategori')
+                    ->label(__('Kategori'))
                     ->placeholder('—'),
                 ...$branches->map(fn (Branch $branch) => TextColumn::make("branch_{$branch->id}")
                     ->label($branch->name)
@@ -41,7 +41,7 @@ class StockMatrixWidget extends TableWidget
                     ->formatStateUsing(fn (mixed $state) => is_array($state) ? ($state['quantity'] ?? 0) : $state))->all(),
             ])
             ->paginated(false)
-            ->emptyStateHeading('Belum ada produk.');
+            ->emptyStateHeading(__('Belum ada produk.'));
     }
 
     /**

@@ -15,18 +15,18 @@ class RoleForm
     {
         return $schema
             ->components([
-                Section::make('Peran')
+                Section::make(__('Peran'))
                     ->schema([
                         TextInput::make('name')
-                            ->label('Nama')
+                            ->label(__('Nama'))
                             ->required()
                             ->maxLength(100)
                             ->unique(table: Role::class, ignoreRecord: true),
                         Textarea::make('description')
-                            ->label('Deskripsi')
+                            ->label(__('Deskripsi'))
                             ->maxLength(255),
                     ]),
-                Section::make('Hak Akses')
+                Section::make(__('Hak Akses'))
                     ->schema([
                         CheckboxList::make('permissions')
                             ->label('')

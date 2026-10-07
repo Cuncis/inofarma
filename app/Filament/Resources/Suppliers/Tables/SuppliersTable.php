@@ -33,29 +33,29 @@ class SuppliersTable
                 ]))
             ->columns([
                 TextColumn::make('code')
-                    ->label('Kode')
+                    ->label(__('Kode'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Pemasok')
+                    ->label(__('Pemasok'))
                     ->searchable(),
                 TextColumn::make('contact_person')
-                    ->label('Pemilik')
+                    ->label(__('Pemilik'))
                     ->searchable(),
                 TextColumn::make('kota')
-                    ->label('Kota')
+                    ->label(__('Kota'))
                     ->searchable(),
                 TextColumn::make('products_count')
-                    ->label('Produk')
+                    ->label(__('Produk'))
                     ->alignRight(),
                 TextColumn::make('revenue')
-                    ->label('Pendapatan')
+                    ->label(__('Pendapatan'))
                     ->alignRight()
                     ->formatStateUsing(fn (?string $state) => Money::rupiah((int) $state)),
                 TextColumn::make('created_at')
-                    ->label('Bergabung')
+                    ->label(__('Bergabung'))
                     ->date('d M Y'),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::SUPPLIER_STATUSES, $state)),
             ])
@@ -75,7 +75,7 @@ class SuppliersTable
                         if ($count > 0) {
                             Notification::make()
                                 ->danger()
-                                ->title("\"{$record->name}\" masih memasok {$count} produk dan tidak bisa dihapus.")
+                                ->title(__('":name" masih memasok :count produk dan tidak bisa dihapus.', ['name' => $record->name, 'count' => $count]))
                                 ->send();
 
                             $action->cancel();

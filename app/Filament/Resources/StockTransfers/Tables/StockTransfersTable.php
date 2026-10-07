@@ -18,23 +18,23 @@ class StockTransfersTable
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['fromBranch', 'toBranch', 'product', 'requestedBy']))
             ->columns([
                 TextColumn::make('code')
-                    ->label('Kode')
+                    ->label(__('Kode'))
                     ->searchable(),
                 TextColumn::make('fromBranch.name')
-                    ->label('Dari'),
+                    ->label(__('Dari')),
                 TextColumn::make('toBranch.name')
-                    ->label('Ke'),
+                    ->label(__('Ke')),
                 TextColumn::make('product.name')
-                    ->label('Produk')
+                    ->label(__('Produk'))
                     ->searchable(),
                 TextColumn::make('quantity')
-                    ->label('Jumlah')
+                    ->label(__('Jumlah'))
                     ->alignRight(),
                 TextColumn::make('requestedBy.name')
-                    ->label('Diminta Oleh')
+                    ->label(__('Diminta Oleh'))
                     ->placeholder('—'),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('Status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::STOCK_TRANSFER_STATUSES, $state))
                     ->color(fn (string $state) => match ($state) {
@@ -44,13 +44,13 @@ class StockTransfersTable
                         default => 'warning',
                     }),
                 TextColumn::make('created_at')
-                    ->label('Tanggal')
+                    ->label(__('Tanggal'))
                     ->date('d M Y'),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
-                    ->options(array_flip(AdminOptions::STOCK_TRANSFER_STATUSES)),
+                    ->label(__('Status'))
+                    ->options(AdminOptions::options(AdminOptions::STOCK_TRANSFER_STATUSES)),
             ])
             ->recordActions([
                 ViewAction::make(),

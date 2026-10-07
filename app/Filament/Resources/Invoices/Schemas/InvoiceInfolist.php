@@ -16,25 +16,25 @@ class InvoiceInfolist
     {
         return $schema
             ->components([
-                Section::make('Faktur')
+                Section::make(__('Faktur'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 TextEntry::make('number')
-                                    ->label('Nomor'),
+                                    ->label(__('Nomor')),
                                 TextEntry::make('customer.name')
-                                    ->label('Pelanggan'),
+                                    ->label(__('Pelanggan')),
                                 TextEntry::make('branch.name')
-                                    ->label('Cabang'),
+                                    ->label(__('Cabang')),
                                 TextEntry::make('created_at')
-                                    ->label('Diterbitkan')
+                                    ->label(__('Diterbitkan'))
                                     ->date('d M Y'),
                                 TextEntry::make('expires_at')
-                                    ->label('Jatuh Tempo')
+                                    ->label(__('Jatuh Tempo'))
                                     ->date('d M Y')
                                     ->placeholder('—'),
                                 TextEntry::make('status')
-                                    ->label('Status')
+                                    ->label(__('Status'))
                                     ->badge()
                                     ->state(fn (Order $record) => self::status($record))
                                     ->color(fn (string $state) => match ($state) {
@@ -45,14 +45,14 @@ class InvoiceInfolist
                                     }),
                             ]),
                     ]),
-                Section::make('Rincian')
+                Section::make(__('Rincian'))
                     ->schema([
                         RepeatableEntry::make('items')
-                            ->label('Item')
+                            ->label(__('Item'))
                             ->schema([
-                                TextEntry::make('product_name')->label('Produk'),
-                                TextEntry::make('quantity')->label('Qty'),
-                                TextEntry::make('unit_price')->label('Harga')
+                                TextEntry::make('product_name')->label(__('Produk')),
+                                TextEntry::make('quantity')->label(__('Qty')),
+                                TextEntry::make('unit_price')->label(__('Harga'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                             ])
                             ->columns(3),
@@ -61,39 +61,39 @@ class InvoiceInfolist
                                 TextEntry::make('subtotal')
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                                 TextEntry::make('discount_total')
-                                    ->label('Diskon')
+                                    ->label(__('Diskon'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                                 TextEntry::make('shipping_total')
-                                    ->label('Ongkir')
+                                    ->label(__('Ongkir'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                                 TextEntry::make('tax_total')
-                                    ->label('Pajak')
+                                    ->label(__('Pajak'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                             ]),
                         TextEntry::make('grand_total')
-                            ->label('Total')
+                            ->label(__('Total'))
                             ->weight('bold')
                             ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                     ]),
-                Section::make('Riwayat Pembayaran')
+                Section::make(__('Riwayat Pembayaran'))
                     ->schema([
                         RepeatableEntry::make('payments')
                             ->label('')
                             ->schema([
-                                TextEntry::make('invoice_number')->label('No. Invoice'),
+                                TextEntry::make('invoice_number')->label(__('No. Invoice')),
                                 TextEntry::make('status')
-                                    ->label('Status')
+                                    ->label(__('Status'))
                                     ->badge()
-                                    ->formatStateUsing(fn (string $state) => ucfirst($state)),
-                                TextEntry::make('channel')->label('Kanal'),
+                                    ->formatStateUsing(fn (string $state) => __(ucfirst($state))),
+                                TextEntry::make('channel')->label(__('Kanal')),
                                 TextEntry::make('amount')
-                                    ->label('Jumlah')
+                                    ->label(__('Jumlah'))
                                     ->formatStateUsing(fn (int $state) => Money::rupiah($state)),
                                 TextEntry::make('created_at')
-                                    ->label('Dibuat')
+                                    ->label(__('Dibuat'))
                                     ->dateTime('d M Y, H:i'),
                                 TextEntry::make('paid_at')
-                                    ->label('Dibayar')
+                                    ->label(__('Dibayar'))
                                     ->dateTime('d M Y, H:i')
                                     ->placeholder('—'),
                             ])
@@ -106,10 +106,10 @@ class InvoiceInfolist
     private static function status(Order $order): string
     {
         return match (true) {
-            $order->payment_status === 'lunas' => 'Lunas',
-            $order->payment_status === 'refund' => 'Refund',
-            $order->expires_at?->isPast() => 'Jatuh Tempo',
-            default => 'Belum Bayar',
+            $order->payment_status === 'lunas' => __('Lunas'),
+            $order->payment_status === 'refund' => __('Refund'),
+            $order->expires_at?->isPast() => __('Jatuh Tempo'),
+            default => __('Belum Bayar'),
         };
     }
 }

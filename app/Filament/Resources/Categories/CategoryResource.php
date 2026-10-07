@@ -27,9 +27,15 @@ class CategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static ?string $modelLabel = 'Kategori';
+    public static function getModelLabel(): string
+    {
+        return __('Kategori');
+    }
 
-    protected static ?string $pluralModelLabel = 'Kategori';
+    public static function getPluralModelLabel(): string
+    {
+        return __('plural:Kategori');
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 
