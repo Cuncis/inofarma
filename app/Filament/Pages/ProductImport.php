@@ -29,12 +29,12 @@ class ProductImport extends Page
 
     public static function getNavigationLabel(): string
     {
-        return __('Impor Produk');
+        return __('Import Produk');
     }
 
     public function getTitle(): string|Htmlable
     {
-        return __('Impor Produk (CSV)');
+        return __('Import Produk (CSV)');
     }
 
     protected static ?string $slug = 'produk/impor';
@@ -53,11 +53,11 @@ class ProductImport extends Page
     {
         return [
             Action::make('import')
-                ->label(__('Impor'))
+                ->label(__('Import'))
                 ->icon(Heroicon::OutlinedArrowUpTray)
                 ->schema([
                     FileUpload::make('file')
-                        ->label(__('Berkas CSV'))
+                        ->label(__('File CSV'))
                         ->required()
                         ->acceptedFileTypes(['text/csv', 'text/plain', 'application/vnd.ms-excel'])
                         ->maxSize(10240)
@@ -75,7 +75,7 @@ class ProductImport extends Page
 
                     Notification::make()
                         ->success()
-                        ->title(__('Impor selesai: :created produk baru, :updated diperbarui.', ['created' => $this->result['created'], 'updated' => $this->result['updated']]))
+                        ->title(__('Import selesai: :created produk baru, :updated diperbarui.', ['created' => $this->result['created'], 'updated' => $this->result['updated']]))
                         ->send();
                 }),
             Action::make('backToProducts')

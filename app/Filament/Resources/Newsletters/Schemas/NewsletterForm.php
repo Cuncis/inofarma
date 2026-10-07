@@ -72,7 +72,7 @@ class NewsletterForm
                                             ->fileAttachmentsMaxSize(2048)
                                             ->disabled($locked),
                                     ]),
-                                Tab::make(__('HTML Kustom'))
+                                Tab::make(__('Custom HTML'))
                                     ->badge(fn (Get $get) => filled($get('custom_html')) ? __('Aktif') : null)
                                     ->schema([
                                         CodeEditor::make('custom_html')

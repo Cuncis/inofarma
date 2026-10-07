@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Observers\BranchStockObserver;
 use App\Observers\OrderObserver;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -18,7 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Upload boxes always read "Drag & Drop your files or Browse", never the
+        // Indonesian rendering of those technical terms.
+        $this->app->bind(FileUpload::class, \App\Filament\Forms\FileUpload::class);
     }
 
     /**

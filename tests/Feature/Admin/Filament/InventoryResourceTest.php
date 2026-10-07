@@ -108,6 +108,74 @@ class InventoryResourceTest extends TestCase
         ]);
     }
 
+    public function test_initial_stock_gives_a_brand_new_product_its_first_stock_row_and_batch(): void
+    {
+        $branch = Branch::where('code', 'CB-001')->firstOrFail();
+        $product = Product::factory()->create(['name' => 'Produk Baru Uji', 'status' => 'nonaktif']);
+
+        $this->assertFalse(BranchStock::where('product_id', $product->id)->exists());
+
+        Livewire::test(ListBranchStocks::class)
+            ->callAction('stokAwal', data: [
+                'branchId' => $branch->id,
+                'productId' => $product->id,
+                'batchNumber' => 'B-AWAL-001',
+                'expiresAt' => now()->addYear()->toDateString(),
+                'quantity' => 40,
+                'costPrice' => 5000,
+            ])
+            ->assertHasNoActionErrors();
+
+        $stock = BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->firstOrFail();
+        $this->assertSame(40, $stock->quantity);
+        $this->assertDatabaseHas('inventory_batches', [
+            'branch_id' => $branch->id, 'product_id' => $product->id, 'batch_number' => 'B-AWAL-001', 'quantity' => 40,
+        ]);
+        $this->assertDatabaseHas('inventory_movements', ['product_id' => $product->id, 'branch_id' => $branch->id, 'type' => 'pembelian', 'quantity' => 40, 'balance_after' => 40]);
+    }
+
+    public function test_initial_stock_on_a_product_already_in_stock_adds_to_it(): void
+    {
+        $stock = BranchStock::whereHas('branch', fn ($q) => $q->where('code', 'CB-001'))
+            ->whereHas('product', fn ($q) => $q->where('sku', 'PRD-001'))
+            ->firstOrFail();
+        $before = $stock->quantity;
+
+        Livewire::test(ListBranchStocks::class)
+            ->callAction('stokAwal', data: [
+                'branchId' => $stock->branch_id,
+                'productId' => $stock->product_id,
+                'batchNumber' => 'B-TAMBAH-1',
+                'expiresAt' => now()->addYear()->toDateString(),
+                'quantity' => 10,
+            ]);
+
+        $this->assertSame($before + 10, $stock->fresh()->quantity);
+        $this->assertSame(1, BranchStock::where('branch_id', $stock->branch_id)->where('product_id', $stock->product_id)->count());
+    }
+
+    public function test_initial_stock_needs_a_branch_product_and_batch_details(): void
+    {
+        Livewire::test(ListBranchStocks::class)
+            ->callAction('stokAwal', data: ['branchId' => null, 'productId' => null, 'batchNumber' => '', 'quantity' => null])
+            ->assertHasActionErrors(['branchId' => 'required', 'productId' => 'required', 'batchNumber' => 'required', 'quantity' => 'required']);
+    }
+
+    public function test_initial_stock_requires_a_future_expiry_date(): void
+    {
+        $branch = Branch::where('code', 'CB-001')->firstOrFail();
+        $product = Product::factory()->create();
+
+        Livewire::test(ListBranchStocks::class)
+            ->callAction('stokAwal', data: [
+                'branchId' => $branch->id, 'productId' => $product->id, 'batchNumber' => 'B-1',
+                'expiresAt' => now()->subDay()->toDateString(), 'quantity' => 5,
+            ])
+            ->assertHasActionErrors(['expiresAt']);
+
+        $this->assertFalse(BranchStock::where('product_id', $product->id)->exists());
+    }
+
     public function test_receiving_requires_a_future_expiry_date(): void
     {
         $stock = BranchStock::whereHas('product')->firstOrFail();

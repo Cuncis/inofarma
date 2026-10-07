@@ -214,6 +214,6 @@ class ProductImportTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('categories', ['name' => 'Perawatan Gigi', 'status' => 'aktif']);
-        $this->assertSame('non-obat', Product::where('sku', 'TEST-004')->first()->drug_class);
+        $this->assertSame('bebas', Product::where('sku', 'TEST-004')->first()->drug_class);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Filament\Resources\Products\Pages\CreateProduct;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\Concerns\SignsInAsAdmin;
 use Tests\TestCase;
 
@@ -90,5 +92,31 @@ class AdminTranslationTest extends TestCase
             ->assertSee('Module &amp; Action', false)
             ->assertSee('Products')
             ->assertDontSee('Modul &amp; Aksi', false);
+    }
+
+    public function test_the_upload_box_keeps_its_technical_wording_in_english_even_in_indonesian(): void
+    {
+        $this->seed();
+        $this->signInAsAdmin();
+
+        $this->assertSame('id', app()->getLocale());
+
+        $html = Livewire::test(CreateProduct::class)->html();
+
+        // The label set the upload box loads is picked by this locale value.
+        $this->assertStringContainsString("locale: 'en',", $html);
+        $this->assertSame('id', app()->getLocale());
+    }
+
+    public function test_the_text_editor_toolbar_and_table_hints_use_english_technical_terms(): void
+    {
+        app()->setLocale('id');
+
+        $this->assertSame('Link', __('filament-forms::components.rich_editor.tools.link'));
+        $this->assertSame('Undo', __('filament-forms::components.rich_editor.tools.undo'));
+        $this->assertSame('Heading 2', __('filament-forms::components.rich_editor.tools.h2'));
+        $this->assertSame('Drag and drop the records into order.', __('filament-tables::table.reorder_indicator'));
+        // Anything not overridden stays Filament's own Indonesian.
+        $this->assertSame('Tabel', __('filament-forms::components.rich_editor.tools.table'));
     }
 }

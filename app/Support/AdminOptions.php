@@ -34,6 +34,17 @@ class AdminOptions
         'Keras' => 'keras',
     ];
 
+    /**
+     * What can be chosen for a new or edited product: over-the-counter and
+     * limited over-the-counter only. The pharmacy sells no prescription drugs,
+     * so "Keras" is left out, and "Non-Obat" is no longer offered either; {@see DRUG_CLASSES} still
+     * knows it so an old row can be shown.
+     */
+    public const SELLABLE_DRUG_CLASSES = [
+        'Bebas' => 'bebas',
+        'Bebas Terbatas' => 'bebas terbatas',
+    ];
+
     /** `products.storage` — menentukan cabang mana boleh menjualnya (produk rantai dingin butuh kulkas). */
     public const STORAGE_CONDITIONS = [
         'Suhu Ruang' => 'suhu ruang',

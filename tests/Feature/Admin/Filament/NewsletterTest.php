@@ -350,7 +350,7 @@ class NewsletterTest extends TestCase
 
         Livewire::test(EditNewsletter::class, ['record' => $newsletter->id])
             ->mountAction('send')
-            ->assertMountedActionModalSee('dikirim ke 2 pelanggan');
+            ->assertMountedActionModalSee('dikirim ke 2 subscriber');
     }
 
     public function test_sending_with_no_subscribers_is_refused(): void

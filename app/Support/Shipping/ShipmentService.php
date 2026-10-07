@@ -69,7 +69,7 @@ class ShipmentService
                 'name' => $item->product_name,
                 'value' => $item->unit_price,
                 'quantity' => $item->quantity,
-                'weight' => $item->product?->weight_grams ?? 0,
+                'weight' => $item->product?->shippingWeightGrams() ?? max(1, (int) config('services.biteship.default_item_weight_grams', 200)),
                 'height' => $item->product?->height_cm ?? 0,
                 'length' => $item->product?->length_cm ?? 0,
                 'width' => $item->product?->width_cm ?? 0,

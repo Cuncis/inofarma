@@ -53,7 +53,6 @@ class ProductResourceTest extends TestCase
             'status' => 'aktif',
             'price' => 17500,
             'old_price' => null,
-            'requires_prescription' => false,
             'blurb' => 'Meredakan nyeri dan peradangan ringan.',
         ], $overrides);
     }
@@ -138,8 +137,43 @@ class ProductResourceTest extends TestCase
 
         $order = Order::where('number', 'INO-2446')->firstOrFail();
         $item = $order->items()->firstOrFail();
-        $this->assertSame('Amoxicillin 500mg', $item->product_name);
+        $this->assertSame('Parasetamol Sirup 120mg', $item->product_name);
         $this->assertSame(38000, $item->unit_price);
+    }
+
+    public function test_the_product_form_has_no_prescription_option_and_no_obat_keras_class(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->assertFormFieldDoesNotExist('requires_prescription')
+            ->assertFormFieldExists('drug_class', fn ($field) => array_keys($field->getOptions()) === ['bebas', 'bebas terbatas']);
+    }
+
+    public function test_obat_keras_cannot_be_chosen_for_a_product(): void
+    {
+        $category = Category::first();
+        $supplier = Supplier::first();
+
+        Livewire::test(CreateProduct::class)
+            ->fillForm([
+                'name' => 'Obat Resep Uji', 'category_id' => $category->id, 'supplier_id' => $supplier->id,
+                'unit' => 'Strip', 'status' => 'nonaktif', 'price' => 10000, 'drug_class' => 'keras',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['drug_class']);
+
+        $this->assertDatabaseMissing('products', ['name' => 'Obat Resep Uji']);
+    }
+
+    public function test_saving_a_product_always_clears_the_prescription_flag(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        $product->update(['requires_prescription' => true]);
+
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertFalse($product->fresh()->requires_prescription);
     }
 
     public function test_creating_requires_valid_input(): void
@@ -165,36 +199,46 @@ class ProductResourceTest extends TestCase
             ->assertHasFormErrors(['old_price' => 'gt']);
     }
 
-    public function test_a_product_can_be_created_with_full_pharmacy_data(): void
+    public function test_a_product_is_created_with_its_drug_class_and_a_long_description(): void
     {
+        $description = "Komposisi: Loratadine 10 mg per tablet.\nIndikasi: meredakan gejala alergi.\nAturan pakai: 1 tablet sehari.";
+
         Livewire::test(CreateProduct::class)
             ->fillForm($this->validPayload([
                 'name' => 'Loratadine 10mg',
                 'drug_class' => 'bebas',
-                'nie_bpom' => 'DKL1234567890A1',
-                'composition' => 'Loratadine 10 mg per tablet.',
-                'manufacturer' => 'PT Kalbe Farma Tbk',
-                'max_qty_per_order' => 3,
-                'storage' => 'suhu ruang',
-                'weight_grams' => 20,
-                'length_cm' => 5,
-                'width_cm' => 5,
-                'height_cm' => 10,
+                'blurb' => $description,
             ]))
             ->call('create')
             ->assertHasNoFormErrors();
 
         $product = Product::where('name', 'Loratadine 10mg')->firstOrFail();
         $this->assertSame('bebas', $product->drug_class);
-        $this->assertSame('DKL1234567890A1', $product->nie_bpom);
-        $this->assertSame(3, $product->max_qty_per_order);
-        $this->assertSame(20, $product->weight_grams);
-        $this->assertSame(5, $product->length_cm);
-        $this->assertSame(5, $product->width_cm);
-        $this->assertSame(10, $product->height_cm);
+        $this->assertSame($description, $product->blurb);
     }
 
-    public function test_a_product_without_pharmacy_data_gets_safe_defaults(): void
+    public function test_drug_class_sits_in_general_information_and_the_pharmacy_fields_are_gone(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->assertFormFieldExists('drug_class')
+            ->assertFormFieldExists('blurb');
+
+        foreach (['nie_bpom', 'composition', 'indication', 'dosage', 'side_effects', 'warning', 'manufacturer', 'storage'] as $field) {
+            Livewire::test(CreateProduct::class)->assertFormFieldDoesNotExist($field);
+        }
+    }
+
+    public function test_the_product_form_no_longer_asks_for_size_weight_or_a_purchase_limit(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->assertFormFieldDoesNotExist('weight_grams')
+            ->assertFormFieldDoesNotExist('max_qty_per_order')
+            ->assertFormFieldDoesNotExist('length_cm')
+            ->assertFormFieldDoesNotExist('width_cm')
+            ->assertFormFieldDoesNotExist('height_cm');
+    }
+
+    public function test_a_new_product_defaults_to_bebas(): void
     {
         Livewire::test(CreateProduct::class)
             ->fillForm($this->validPayload(['name' => 'Kapas Bulat 50g']))
@@ -202,17 +246,18 @@ class ProductResourceTest extends TestCase
             ->assertHasNoFormErrors();
 
         $product = Product::where('name', 'Kapas Bulat 50g')->firstOrFail();
-        $this->assertSame('non-obat', $product->drug_class);
-        $this->assertSame('suhu ruang', $product->storage);
+        $this->assertSame('bebas', $product->drug_class);
         $this->assertFalse($product->needs_warning_label);
     }
 
-    public function test_bebas_terbatas_requires_a_warning(): void
+    public function test_bebas_terbatas_no_longer_asks_for_a_warning_field(): void
     {
         Livewire::test(CreateProduct::class)
             ->fillForm($this->validPayload(['name' => 'Obat Flu Malam', 'drug_class' => 'bebas terbatas']))
             ->call('create')
-            ->assertHasFormErrors(['warning' => 'required']);
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('bebas terbatas', Product::where('name', 'Obat Flu Malam')->value('drug_class'));
     }
 
     public function test_the_seeded_cough_syrup_carries_its_p1_warning(): void
@@ -222,6 +267,59 @@ class ProductResourceTest extends TestCase
         $this->assertSame('bebas terbatas', $product->drug_class);
         $this->assertTrue($product->needs_warning_label);
         $this->assertSame('Awas! Obat Keras. Bacalah aturan pemakaiannya.', $product->warning);
+    }
+
+    public function test_photos_picked_on_the_create_form_are_attached_with_the_first_as_main(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->fillForm($this->validPayload([
+                'name' => 'Produk Dengan Foto',
+                'photos' => [
+                    UploadedFile::fake()->image('depan.jpg', 1200, 1200),
+                    UploadedFile::fake()->image('belakang.jpg', 800, 800),
+                ],
+            ]))
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $product = Product::where('name', 'Produk Dengan Foto')->firstOrFail();
+        $images = $product->images()->orderBy('position')->get();
+
+        $this->assertCount(2, $images);
+        $this->assertTrue($images[0]->is_primary);
+        $this->assertFalse($images[1]->is_primary);
+        $this->assertStringContainsString("products/{$product->id}/", $images[0]->path);
+    }
+
+    public function test_a_product_can_still_be_created_without_photos(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->fillForm($this->validPayload(['name' => 'Produk Tanpa Foto']))
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(0, Product::where('name', 'Produk Tanpa Foto')->firstOrFail()->images()->count());
+    }
+
+    public function test_the_photo_box_is_only_on_the_create_form(): void
+    {
+        Livewire::test(CreateProduct::class)->assertFormFieldExists('photos');
+
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])->assertFormFieldIsHidden('photos');
+    }
+
+    public function test_a_file_that_is_not_an_image_is_refused_and_nothing_is_saved(): void
+    {
+        Livewire::test(CreateProduct::class)
+            ->fillForm($this->validPayload([
+                'name' => 'Produk Salah Berkas',
+                'photos' => [UploadedFile::fake()->create('dokumen.pdf', 100, 'application/pdf')],
+            ]))
+            ->call('create')
+            ->assertHasFormErrors(['photos']);
+
+        $this->assertDatabaseMissing('products', ['name' => 'Produk Salah Berkas']);
     }
 
     // --- Images (ImagesRelationManager) ---

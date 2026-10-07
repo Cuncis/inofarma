@@ -79,13 +79,6 @@ export default function ProductDetail() {
         >
             <ProductGallery
                 images={product.images ?? [{ path: product.image, alt: product.name }]}
-                badge={
-                    product.prescription ? (
-                        <span className="absolute bottom-3 left-3 bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink">
-                            Perlu resep
-                        </span>
-                    ) : null
-                }
             />
 
             <FlashBanner />
@@ -115,7 +108,7 @@ export default function ProductDetail() {
                         </span>
                     </Link>
 
-                    <p className="text-xs leading-relaxed text-muted">{product.blurb}</p>
+                    <p className="whitespace-pre-line text-xs leading-relaxed text-muted">{product.blurb}</p>
                 </div>
 
                 <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">

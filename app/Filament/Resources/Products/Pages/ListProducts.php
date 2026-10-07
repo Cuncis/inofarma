@@ -17,7 +17,7 @@ class ListProducts extends ListRecords
     {
         return [
             Action::make('importCsv')
-                ->label(__('Impor CSV'))
+                ->label(__('Import CSV'))
                 ->icon(Heroicon::OutlinedArrowUpTray)
                 ->color('gray')
                 ->url(fn () => ProductImport::getUrl()),

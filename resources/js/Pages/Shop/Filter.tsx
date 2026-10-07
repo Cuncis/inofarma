@@ -9,7 +9,7 @@ export default function Filter() {
     const { filterCategories } = useShopCatalog();
     const [selectedCategories, setSelectedCategories] = useState([filterCategories[0]]);
     const [range, setRange] = useState(priceRanges[0].label);
-    const [labels, setLabels] = useState({ sale: true, prescription: false, inStock: true });
+    const [labels, setLabels] = useState({ sale: true, inStock: true });
 
     const toggleCategory = (name: string) =>
         setSelectedCategories((current) =>
@@ -101,19 +101,6 @@ export default function Filter() {
                     />
                 </div>
 
-                <div className="mb-5">
-                    <Checkbox
-                        checked={labels.prescription}
-                        onChange={() =>
-                            setLabels((current) => ({
-                                ...current,
-                                prescription: ! current.prescription,
-                            }))
-                        }
-                        size={17}
-                        label={<span className="text-xs text-muted">Sembunyikan obat resep</span>}
-                    />
-                </div>
             </div>
         </MobileLayout>
     );

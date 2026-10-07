@@ -2,7 +2,7 @@
     <div class="fi-section rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
         @if (! $result)
             <p class="text-sm text-gray-700 dark:text-gray-300">
-                {{ __('Unggah berkas ekspor produk berformat Shopify (CSV). Baris dengan SKU yang sudah ada akan diperbarui, bukan diduplikasi.') }}
+                {{ __('Upload file export produk berformat Shopify (CSV). Baris dengan SKU yang sudah ada akan diperbarui, bukan diduplikasi.') }}
             </p>
         @else
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -26,7 +26,7 @@
 
             @if (count($result['failed']))
                 <div class="mt-6">
-                    <p class="mb-2 text-sm font-semibold text-gray-950 dark:text-white">{{ __('Baris yang gagal diimpor') }}</p>
+                    <p class="mb-2 text-sm font-semibold text-gray-950 dark:text-white">{{ __('Baris yang gagal di-import') }}</p>
                     <ul class="space-y-1 text-sm text-danger-600 dark:text-danger-400">
                         @foreach ($result['failed'] as $failure)
                             <li>{{ __('Baris :row', ['row' => $failure['row']]) }}: {{ $failure['message'] }}</li>
@@ -37,7 +37,7 @@
 
             @if (count($result['imagesFailed']))
                 <div class="mt-6">
-                    <p class="mb-2 text-sm font-semibold text-gray-950 dark:text-white">{{ __('Gambar yang gagal diunduh') }}</p>
+                    <p class="mb-2 text-sm font-semibold text-gray-950 dark:text-white">{{ __('Gambar yang gagal di-download') }}</p>
                     <ul class="space-y-1 text-sm text-warning-600 dark:text-warning-400">
                         @foreach ($result['imagesFailed'] as $sku)
                             <li>{{ $sku }}</li>

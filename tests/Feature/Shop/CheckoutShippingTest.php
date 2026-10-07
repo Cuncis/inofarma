@@ -106,4 +106,29 @@ class CheckoutShippingTest extends TestCase
             'courier' => ['courierCompany' => 'anteraja', 'courierType' => 'reg'],
         ])->assertSessionHasErrors('courier');
     }
+
+    public function test_a_product_with_no_stored_weight_is_quoted_at_the_default_weight(): void
+    {
+        $this->fakeBiteshipRates();
+        config(['services.biteship.default_item_weight_grams' => 250]);
+        $this->prepareCartWithAddress();
+        Product::query()->update(['weight_grams' => 0]);
+
+        $this->getJson('/checkout/ongkir')->assertOk();
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'rates/couriers')
+            && $request['items'][0]['weight'] === 250);
+    }
+
+    public function test_a_weight_that_was_saved_earlier_is_still_used(): void
+    {
+        $this->fakeBiteshipRates();
+        $this->prepareCartWithAddress();
+        Product::query()->update(['weight_grams' => 60]);
+
+        $this->getJson('/checkout/ongkir')->assertOk();
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'rates/couriers')
+            && $request['items'][0]['weight'] === 60);
+    }
 }

@@ -48,7 +48,7 @@ class ImagesRelationManager extends RelationManager
             ])
             ->headerActions([
                 Action::make('upload')
-                    ->label(__('Unggah Gambar'))
+                    ->label(__('Upload Gambar'))
                     ->schema([
                         FileUpload::make('images')
                             ->label(__('Gambar'))

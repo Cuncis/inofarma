@@ -26,7 +26,9 @@ use Illuminate\Support\Str;
  */
 class ProductCsvImporter
 {
-    /** `Golongan Obat` (CSV) → `products.drug_class`. Unmapped values fall back to 'non-obat'. */
+    /** `Golongan Obat` (CSV) → `products.drug_class`. The pharmacy only classes products as
+     * 'bebas' or 'bebas terbatas', so supplements, household items and
+     * anything unmapped are filed under 'bebas'. */
     private const DRUG_CLASS_MAP = [
         'GREEN' => 'bebas',
         'BLUE' => 'bebas terbatas',
@@ -34,9 +36,9 @@ class ProductCsvImporter
         'OBAT TRADISIONAL' => 'bebas',
         'FITOFARMAKA' => 'bebas',
         'OHT' => 'bebas',
-        'SUPLEMEN' => 'non-obat',
-        'PKRT' => 'non-obat',
-        'ALAT KESEHATAN - NON ELEKTROMEDIK NON STERIL' => 'non-obat',
+        'SUPLEMEN' => 'bebas',
+        'PKRT' => 'bebas',
+        'ALAT KESEHATAN - NON ELEKTROMEDIK NON STERIL' => 'bebas',
     ];
 
     /**
@@ -106,7 +108,7 @@ class ProductCsvImporter
 
         $body = $this->parseBody($row[$index['Body (HTML)']] ?? '');
         $tags = $this->parseTags($row[$index['Tags']] ?? '');
-        $drugClass = self::DRUG_CLASS_MAP[$body['golongan']] ?? 'non-obat';
+        $drugClass = self::DRUG_CLASS_MAP[$body['golongan']] ?? 'bebas';
         $needsWarning = $drugClass === 'bebas terbatas';
 
         $product = Product::withTrashed()->where('sku', $sku)->first();

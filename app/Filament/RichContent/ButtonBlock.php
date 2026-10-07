@@ -36,7 +36,7 @@ class ButtonBlock extends RichContentCustomBlock
                     ->required()
                     ->maxLength(60),
                 TextInput::make('url')
-                    ->label(__('Tautan'))
+                    ->label(__('Link'))
                     ->url()
                     ->required()
                     ->placeholder('https://'),

@@ -138,4 +138,28 @@ class BranchScopeTest extends TestCase
         Livewire::test(ListOrders::class)
             ->assertCountTableRecords(2);
     }
+
+    public function test_a_branch_scoped_user_can_only_add_initial_stock_to_their_own_branch(): void
+    {
+        $product = Product::factory()->create();
+        $this->signInAsKasir();
+
+        Livewire::test(ListBranchStocks::class)
+            ->callAction('stokAwal', data: [
+                'branchId' => $this->other->id, 'productId' => $product->id, 'batchNumber' => 'B-X',
+                'expiresAt' => now()->addYear()->toDateString(), 'quantity' => 5,
+            ])
+            ->assertHasActionErrors(['branchId']);
+
+        $this->assertFalse(BranchStock::withoutGlobalScopes()->where('product_id', $product->id)->exists());
+
+        Livewire::test(ListBranchStocks::class)
+            ->callAction('stokAwal', data: [
+                'branchId' => $this->home->id, 'productId' => $product->id, 'batchNumber' => 'B-OK',
+                'expiresAt' => now()->addYear()->toDateString(), 'quantity' => 5,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertTrue(BranchStock::withoutGlobalScopes()->where('branch_id', $this->home->id)->where('product_id', $product->id)->exists());
+    }
 }

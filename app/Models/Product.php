@@ -47,6 +47,18 @@ class Product extends Model
         ];
     }
 
+    /**
+     * The weight sent to the courier. The product form no longer has a weight
+     * field, so most products have none stored and use the configured default;
+     * a weight that was saved earlier (or imported) is still honoured.
+     */
+    public function shippingWeightGrams(): int
+    {
+        return $this->weight_grams > 0
+            ? $this->weight_grams
+            : max(1, (int) config('services.biteship.default_item_weight_grams', 200));
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

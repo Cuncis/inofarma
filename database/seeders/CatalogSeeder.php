@@ -71,8 +71,8 @@ class CatalogSeeder extends Seeder
     private const PRODUCTS = [
         ['PRD-001', 'Paracetamol 500mg', 'Obat Bebas', 'Apotek Sehat Bersama', 1, 12500, 15000, 482, 1240, '4.8', 'Strip', false,
             'Meredakan demam dan nyeri ringan hingga sedang. Aman dikonsumsi setelah makan.'],
-        ['PRD-002', 'Amoxicillin 500mg', 'Kesehatan', 'Apotek Sehat Bersama', 2, 38000, null, 126, 860, '4.6', 'Strip', true,
-            'Antibiotik untuk infeksi bakteri. Wajib menyertakan resep dokter saat memesan.'],
+        ['PRD-002', 'Parasetamol Sirup 120mg', 'Kesehatan', 'Apotek Sehat Bersama', 2, 38000, null, 126, 860, '4.6', 'Botol', false,
+            'Sirup penurun demam dan pereda nyeri untuk anak.'],
         ['PRD-003', 'Vitamin C 1000mg', 'Vitamin & Suplemen', 'Toko Obat Mandiri', 3, 75000, 89000, 0, 2130, '4.9', 'Botol', false,
             'Membantu menjaga daya tahan tubuh. Dikonsumsi satu tablet per hari.'],
         ['PRD-004', 'Masker Medis 3 Ply', 'Alat Kesehatan', 'Farmasi Nusantara', 4, 45000, null, 1520, 4210, '4.7', 'Box', false,
@@ -107,7 +107,7 @@ class CatalogSeeder extends Seeder
      */
     private const PHARMA = [
         'PRD-001' => ['nie' => 'DBL7813704133A1', 'composition' => 'Tiap tablet mengandung Paracetamol 500 mg.', 'indication' => 'Meredakan demam dan nyeri ringan hingga sedang seperti sakit kepala dan nyeri otot.', 'dosage' => 'Dewasa: 1 tablet, 3-4 kali sehari setelah makan. Maksimal 8 tablet per hari.', 'sideEffects' => 'Jarang: mual atau ruam kulit. Hindari melebihi dosis anjuran karena berisiko pada fungsi hati.', 'warning' => null, 'manufacturer' => 'PT Kimia Farma Tbk', 'storage' => 'suhu ruang', 'maxQty' => 5],
-        'PRD-002' => ['nie' => 'DKL0332701910A1', 'composition' => 'Tiap kapsul mengandung Amoxicillin trihydrate setara Amoxicillin 500 mg.', 'indication' => 'Infeksi bakteri pada saluran napas, saluran kemih, dan kulit.', 'dosage' => 'Sesuai resep dokter, umumnya 1 kapsul setiap 8 jam selama 5-7 hari.', 'sideEffects' => 'Mual, diare, reaksi alergi pada individu yang sensitif terhadap penisilin.', 'warning' => null, 'manufacturer' => 'PT Sanbe Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
+        'PRD-002' => ['nie' => 'DKL0332701910A1', 'composition' => 'Tiap 5 ml mengandung Parasetamol 120 mg.', 'indication' => 'Menurunkan demam dan meredakan nyeri ringan hingga sedang.', 'dosage' => 'Anak 2-6 tahun: 1-2 sendok takar (5-10 ml), 3-4 kali sehari.', 'sideEffects' => 'Jarang: reaksi alergi pada kulit. Hentikan bila muncul ruam.', 'warning' => null, 'manufacturer' => 'PT Sanbe Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
         'PRD-003' => ['nie' => 'SD202312345', 'composition' => 'Tiap tablet effervescent mengandung Vitamin C (Asam Askorbat) 1000 mg.', 'indication' => 'Membantu memenuhi kebutuhan vitamin C harian dan menjaga daya tahan tubuh.', 'dosage' => 'Dewasa: 1 tablet per hari, dilarutkan dalam segelas air.', 'sideEffects' => 'Gangguan pencernaan ringan bila dikonsumsi berlebihan.', 'warning' => null, 'manufacturer' => 'PT Kalbe Farma Tbk', 'storage' => 'suhu ruang', 'maxQty' => null],
         'PRD-004' => ['nie' => null, 'composition' => 'Masker bedah 3 lapis dengan filter tengah.', 'indication' => 'Perlindungan pernapasan sehari-hari dari droplet dan partikel debu.', 'dosage' => 'Sekali pakai, ganti setiap 4-6 jam pemakaian.', 'sideEffects' => null, 'warning' => null, 'manufacturer' => 'PT Selaras Cipta Medika', 'storage' => 'suhu ruang', 'maxQty' => null],
         'PRD-005' => ['nie' => 'NA18211200247', 'composition' => 'Ethyl alcohol 70%, aloe vera extract, glycerin.', 'indication' => 'Membunuh kuman pada tangan tanpa perlu dibilas air.', 'dosage' => 'Tuang secukupnya, ratakan ke seluruh permukaan tangan hingga kering.', 'sideEffects' => 'Kulit kering pada pemakaian berlebihan.', 'warning' => null, 'manufacturer' => 'PT Griya Farma', 'storage' => 'suhu ruang', 'maxQty' => null],
@@ -318,7 +318,7 @@ class CatalogSeeder extends Seeder
 
         return match ($category) {
             'Obat Bebas', 'Vitamin & Suplemen', 'Kebutuhan Keluarga', 'Obat Tradisional' => 'bebas',
-            default => 'non-obat',
+            default => 'bebas',
         };
     }
 }

@@ -33,12 +33,6 @@ function Gallery({ product }: { product: CatalogProduct }) {
 
             <div className="relative flex min-h-[420px] flex-1 items-center justify-center">
                 <img src={current.path} alt={current.alt} className="max-h-[420px] w-full object-contain" />
-
-                {product.prescription ? (
-                    <span className="absolute bottom-0 left-0 bg-warning px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink">
-                        Perlu resep
-                    </span>
-                ) : null}
             </div>
         </div>
     );
@@ -251,7 +245,7 @@ function Description({ product }: { product: CatalogProduct }) {
                 </div>
             ) : null}
 
-            {product.blurb ? <p className="mb-6 text-[13px] leading-relaxed text-muted">{product.blurb}</p> : null}
+            {product.blurb ? <p className="mb-6 whitespace-pre-line text-[13px] leading-relaxed text-muted">{product.blurb}</p> : null}
 
             <dl>
                 {rows.map(([label, value]) => (

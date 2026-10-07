@@ -39,7 +39,7 @@ class ShippingQuoteService
                 'name' => $line['product']->name,
                 'value' => $line['product']->price,
                 'quantity' => $line['quantity'],
-                'weight' => $line['product']->weight_grams,
+                'weight' => $line['product']->shippingWeightGrams(),
                 'height' => $line['product']->height_cm,
                 'length' => $line['product']->length_cm,
                 'width' => $line['product']->width_cm,

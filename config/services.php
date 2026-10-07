@@ -63,6 +63,9 @@ return [
         'api_key' => env('BITESHIP_API_KEY'),
         'base_url' => 'https://api.biteship.com/v1',
         'webhook_token' => env('BITESHIP_WEBHOOK_TOKEN'),
+        // Biteship needs a weight for every item to quote a courier. The product
+        // form no longer asks for one, so an item with none is quoted at this weight.
+        'default_item_weight_grams' => (int) env('BITESHIP_DEFAULT_ITEM_WEIGHT', 200),
     ],
 
     /*

@@ -49,14 +49,14 @@ class SubscribersTable
             ])
             ->headerActions([
                 Action::make('import')
-                    ->label(__('Impor CSV'))
+                    ->label(__('Import CSV'))
                     ->icon(Heroicon::OutlinedArrowUpTray)
                     ->color('gray')
-                    ->modalHeading(__('Impor Pelanggan dari CSV'))
-                    ->modalDescription(__('Satu alamat email per baris, atau berkas dengan kolom "email". Email yang sudah ada dilewati, dan yang pernah berhenti tidak akan didaftarkan ulang.'))
+                    ->modalHeading(__('Import Subscriber dari CSV'))
+                    ->modalDescription(__('Satu alamat email per baris, atau file dengan kolom "email". Email yang sudah ada dilewati, dan yang pernah berhenti tidak akan didaftarkan ulang.'))
                     ->schema([
                         FileUpload::make('file')
-                            ->label(__('Berkas CSV'))
+                            ->label(__('File CSV'))
                             ->acceptedFileTypes(['text/csv', 'text/plain', 'application/vnd.ms-excel'])
                             ->storeFiles(false)
                             ->required(),
@@ -66,17 +66,17 @@ class SubscribersTable
 
                         Notification::make()
                             ->success()
-                            ->title(__('Impor selesai'))
+                            ->title(__('Import selesai'))
                             ->body(__(':imported ditambahkan, :duplicates sudah ada, :invalid tidak valid.', $result))
                             ->send();
                     }),
                 Action::make('export')
-                    ->label(__('Ekspor CSV'))
+                    ->label(__('Export CSV'))
                     ->icon(Heroicon::OutlinedArrowDownTray)
                     ->color('gray')
                     ->action(fn ($livewire) => response()->streamDownload(
                         SubscriberCsv::export($livewire->getFilteredTableQuery()),
-                        'pelanggan-newsletter-'.now()->format('Ymd-His').'.csv',
+                        'subscriber-'.now()->format('Ymd-His').'.csv',
                         ['Content-Type' => 'text/csv'],
                     )),
             ])
@@ -95,6 +95,6 @@ class SubscribersTable
                         Notification::make()->success()->title(__('Langganan dihentikan.'))->send();
                     }),
             ])
-            ->emptyStateHeading(__('Belum ada pelanggan newsletter.'));
+            ->emptyStateHeading(__('Belum ada subscriber.'));
     }
 }

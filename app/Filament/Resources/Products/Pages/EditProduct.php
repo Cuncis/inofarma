@@ -43,6 +43,7 @@ class EditProduct extends EditRecord
     {
         $this->auditedBefore = $this->record->only(self::AUDITED_FIELDS);
         $data['slug'] = Slug::unique(Product::withTrashed(), $data['name'], 'slug', $this->record->id);
+        $data['requires_prescription'] = false;
 
         return $data;
     }
