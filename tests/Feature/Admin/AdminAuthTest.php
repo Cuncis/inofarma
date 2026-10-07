@@ -223,8 +223,8 @@ class AdminAuthTest extends TestCase
     public function test_the_storefront_is_unaffected_by_the_admin_guard(): void
     {
         $this->get('/')->assertOk();
-        $this->get('/ui/shop')->assertOk();
-        $this->get('/ui/signin')->assertOk();
+        $this->get('/shop')->assertOk();
+        $this->get('/signin')->assertOk();
     }
 
     public function test_the_removed_demo_pages_are_gone(): void

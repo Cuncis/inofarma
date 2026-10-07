@@ -21,10 +21,10 @@ export default function Filter() {
     return (
         <MobileLayout
             title="Filter"
-            header={<AppBar title="Filter" back="/ui/shop" tone="brand" />}
+            header={<AppBar title="Filter" back="/shop" tone="brand" />}
             footer={
                 <div className="border-t border-line p-3.5">
-                    <Button href="/ui/shop">Terapkan Filter</Button>
+                    <Button href="/shop">Terapkan Filter</Button>
                 </div>
             }
         >

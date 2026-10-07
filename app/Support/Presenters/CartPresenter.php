@@ -57,6 +57,7 @@ class CartPresenter
             'sku' => $product->sku,
             'name' => $product->name,
             'image' => $product->image_path,
+            'brand' => $product->manufacturer ?: 'Inofarma',
             'unit' => $product->unit,
             'unitPrice' => $price,
             'quantity' => $quantity,

@@ -12,7 +12,7 @@ export default function CartEmpty() {
             header={
                 <AppBar
                     tone="brand"
-                    actions={<IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />}
+                    actions={<IconLink name="history" href="/order-history" label="Riwayat transaksi" />}
                 />
             }
             footer={<TabBar active="order" />}
@@ -32,7 +32,7 @@ export default function CartEmpty() {
                     pemesanan.
                 </p>
 
-                <Button href="/ui/shop">Mulai Belanja</Button>
+                <Button href="/shop">Mulai Belanja</Button>
             </div>
         </MobileLayout>
     );

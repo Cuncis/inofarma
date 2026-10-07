@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { asset } from './data';
+import CartDropdown from './CartDropdown';
 import Icon from './Icon';
-import useCartCount from './useCartCount';
 import useShopUser from './useShopUser';
 
 /**
@@ -11,7 +11,6 @@ import useShopUser from './useShopUser';
  * Search submits to the shop listing's existing `?q=` filter.
  */
 export default function DesktopHeader() {
-    const cartCount = useCartCount();
     const { name, signedIn } = useShopUser();
     const [query, setQuery] = useState('');
 
@@ -20,7 +19,7 @@ export default function DesktopHeader() {
 
         const needle = query.trim();
 
-        router.visit(needle ? `/ui/shop?q=${encodeURIComponent(needle)}` : '/ui/shop');
+        router.visit(needle ? `/shop?q=${encodeURIComponent(needle)}` : '/shop');
     };
 
     return (
@@ -66,25 +65,14 @@ export default function DesktopHeader() {
                     </form>
 
                     <Link
-                        href={signedIn ? '/ui/profile' : '/ui/signin'}
+                        href={signedIn ? '/profile' : '/signin'}
                         className="flex shrink-0 flex-col text-[11px] leading-tight"
                     >
                         <span className="text-white/70">{signedIn ? 'Halo,' : 'Masuk / Daftar'}</span>
                         <span className="font-bold">{signedIn ? name : 'Akun saya'}</span>
                     </Link>
 
-                    <Link href="/ui/cart" className="flex shrink-0 items-center gap-2 text-[13px] font-bold">
-                        <span id="cart-icon-target" className="relative flex items-center">
-                            <Icon name="cart" size={22} />
-
-                            {(
-                                <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </span>
-                        Keranjang
-                    </Link>
+                    <CartDropdown />
                 </div>
             </div>
 

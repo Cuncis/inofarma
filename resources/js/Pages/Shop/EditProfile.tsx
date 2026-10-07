@@ -15,13 +15,13 @@ export default function EditProfile({ addresses }: { addresses: SavedAddress[] }
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        router.visit('/ui/profile');
+        router.visit('/profile');
     };
 
     return (
         <MobileLayout
             title="Ubah Profil"
-            header={<AppBar title="Ubah Profil" back="/ui/profile" tone="brand" />}
+            header={<AppBar title="Ubah Profil" back="/profile" tone="brand" />}
         >
             <form
                 onSubmit={submit}
@@ -67,7 +67,7 @@ export default function EditProfile({ addresses }: { addresses: SavedAddress[] }
 
                     {defaultAddress ? (
                         <Link
-                            href="/ui/my-address"
+                            href="/my-address"
                             className="mb-2.5 flex items-start gap-2.5 border border-line bg-white p-3.5"
                         >
                             <Icon name="pin" size={19} className="mt-0.5 text-ink" />
@@ -89,7 +89,7 @@ export default function EditProfile({ addresses }: { addresses: SavedAddress[] }
                         </Link>
                     ) : (
                         <Link
-                            href="/ui/add-new-address"
+                            href="/add-new-address"
                             className="mb-2.5 flex items-center gap-2.5 border border-dashed border-[#cccccc] bg-white p-3.5 text-[13px] text-brand"
                         >
                             <Icon name="plus" size={16} />

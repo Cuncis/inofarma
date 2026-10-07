@@ -59,8 +59,8 @@ class CheckoutShippingTest extends TestCase
         ]);
 
         $this->actingAs($customer, 'customer');
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
-        $this->post('/ui/shipping-details', ['addressId' => $address->id]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
+        $this->post('/shipping-details', ['addressId' => $address->id]);
 
         return $address;
     }
@@ -70,7 +70,7 @@ class CheckoutShippingTest extends TestCase
         $this->fakeBiteshipRates();
         $this->prepareCartWithAddress();
 
-        $response = $this->getJson('/ui/checkout/ongkir')->assertOk();
+        $response = $this->getJson('/checkout/ongkir')->assertOk();
 
         $options = $response->json('options');
         $this->assertCount(2, $options);
@@ -88,9 +88,9 @@ class CheckoutShippingTest extends TestCase
         InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 10, 'expires_at' => now()->addYear()]);
 
         $this->actingAs($customer, 'customer');
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
 
-        $this->getJson('/ui/checkout/ongkir')->assertOk()->assertJson(['options' => []]);
+        $this->getJson('/checkout/ongkir')->assertOk()->assertJson(['options' => []]);
     }
 
     public function test_checkout_rejects_a_courier_the_live_rates_call_no_longer_returns(): void
@@ -98,7 +98,7 @@ class CheckoutShippingTest extends TestCase
         $this->fakeBiteshipRates();
         $this->prepareCartWithAddress();
 
-        $this->post('/ui/checkout', [
+        $this->post('/checkout', [
             'fulfilment' => 'antar',
             'paymentMethod' => 'online',
             // Client claims a courier that was never actually quoted — the

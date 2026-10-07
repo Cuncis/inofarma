@@ -186,3 +186,16 @@ interface CoverageArea {
     provinsi: string;
     kota: string;
 }
+
+/** One line of the cart as `CartPresenter` returns it. */
+interface CartPreviewItem extends CartLine {
+    brand: string;
+    maxQtyPerOrder: number | null;
+}
+
+/** The cart as the header dropdown fetches it from `ui.keranjang.ringkas`. */
+interface CartPreview {
+    items: CartPreviewItem[];
+    itemCount: number;
+    subtotal: number;
+}

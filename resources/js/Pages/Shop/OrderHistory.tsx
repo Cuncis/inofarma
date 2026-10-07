@@ -20,7 +20,7 @@ export default function OrderHistory({ orders }: { orders: OrderListItem[] }) {
     return (
         <MobileLayout
             title="Riwayat Pesanan"
-            header={<AppBar title="Riwayat Pesanan" back="/ui/profile" tone="brand" />}
+            header={<AppBar title="Riwayat Pesanan" back="/profile" tone="brand" />}
         >
             <FlashBanner />
 
@@ -28,7 +28,7 @@ export default function OrderHistory({ orders }: { orders: OrderListItem[] }) {
                 {orders.map((order) => (
                     <Link
                         key={order.number}
-                        href={`/ui/pesanan/${order.number}`}
+                        href={`/pesanan/${order.number}`}
                         className="mb-2 block rounded-[2px] border border-line bg-white p-3.5"
                     >
                         <div className="mb-[5px] flex justify-between">

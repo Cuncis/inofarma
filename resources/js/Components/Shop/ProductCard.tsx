@@ -35,7 +35,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }: {
     return (
         <div className="overflow-hidden rounded-[2px] border border-line bg-white">
             <div className="relative aspect-3/4 overflow-hidden bg-white">
-                <Link href="/ui/product-detail" className="block h-full w-full">
+                <Link href="/product-detail" className="block h-full w-full">
                     <img
                         src={product.image}
                         alt={product.name}
@@ -61,7 +61,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }: {
 
                 <button
                     type="button"
-                    onClick={() => router.visit('/ui/cart')}
+                    onClick={() => router.visit('/cart')}
                     aria-label={`Masukkan ${product.name} ke keranjang`}
                     className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center bg-white/90 text-faint"
                 >
@@ -69,7 +69,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }: {
                 </button>
             </div>
 
-            <Link href="/ui/product-detail" className="block px-2 py-2">
+            <Link href="/product-detail" className="block px-2 py-2">
                 <div className="mb-[3px] truncate text-xs text-[#333333]">
                     {product.name}
                 </div>

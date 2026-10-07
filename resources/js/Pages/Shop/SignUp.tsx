@@ -21,11 +21,11 @@ export default function SignUp() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/daftar');
+        post('/daftar');
     };
 
     return (
-        <AuthScreen title="Daftar" back="/ui/signin" onSubmit={submit}>
+        <AuthScreen title="Daftar" back="/signin" onSubmit={submit}>
             <div className="w-full">
                 <Field
                     name="name"
@@ -90,11 +90,11 @@ export default function SignUp() {
                     />
                     <span>
                         Saya sudah membaca dan menyetujui{' '}
-                        <Link href="/ui/syarat-ketentuan" className="text-brand underline">
+                        <Link href="/syarat-ketentuan" className="text-brand underline">
                             Syarat &amp; Ketentuan
                         </Link>{' '}
                         dan{' '}
-                        <Link href="/ui/kebijakan-privasi" className="text-brand underline">
+                        <Link href="/kebijakan-privasi" className="text-brand underline">
                             Kebijakan Privasi
                         </Link>{' '}
                         Inofarma.
@@ -110,7 +110,7 @@ export default function SignUp() {
 
                 <div className="mt-2.5 flex justify-center gap-1 text-xs">
                     <span>Sudah punya akun?</span>
-                    <Link href="/ui/signin" className="text-brand">
+                    <Link href="/signin" className="text-brand">
                         Masuk di sini.
                     </Link>
                 </div>

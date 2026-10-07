@@ -26,7 +26,7 @@ class BranchLocatorTest extends TestCase
 
     public function test_our_branches_page_lists_every_active_branch(): void
     {
-        $this->get('/ui/cabang-kami')
+        $this->get('/cabang-kami')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Shop/OurBranches')
@@ -45,7 +45,7 @@ class BranchLocatorTest extends TestCase
             'apj_sipa_number' => 'SIPA-TEST-001',
         ]);
 
-        $this->get('/ui/cabang-kami')
+        $this->get('/cabang-kami')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('branches', fn ($branches) => collect($branches)->contains(
                     fn ($row) => $row['siaNumber'] === 'SIA-TEST-001'
@@ -57,7 +57,7 @@ class BranchLocatorTest extends TestCase
 
     public function test_the_fallback_area_list_only_offers_real_coverage(): void
     {
-        $this->get('/ui/cabang-kami')
+        $this->get('/cabang-kami')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('areas')
                 ->where('areas.0.provinsi', fn (string $provinsi) => in_array(
@@ -128,7 +128,7 @@ class BranchLocatorTest extends TestCase
 
     public function test_a_location_can_be_saved_and_is_then_used_automatically(): void
     {
-        $this->post('/ui/lokasi', ['lat' => -6.1754, 'lng' => 106.8272])
+        $this->post('/lokasi', ['lat' => -6.1754, 'lng' => 106.8272])
             ->assertRedirect();
 
         $response = $this->getJson('/api/cabang/terdekat')->assertOk()->json('branches');
@@ -138,15 +138,15 @@ class BranchLocatorTest extends TestCase
 
     public function test_saving_an_area_without_coordinates_is_accepted(): void
     {
-        $this->post('/ui/lokasi', ['provinsi' => 'DKI Jakarta', 'kota' => 'Jakarta Barat'])
+        $this->post('/lokasi', ['provinsi' => 'DKI Jakarta', 'kota' => 'Jakarta Barat'])
             ->assertRedirect()
             ->assertSessionDoesntHaveErrors();
     }
 
     public function test_a_saved_location_can_be_forgotten(): void
     {
-        $this->post('/ui/lokasi', ['lat' => -6.1754, 'lng' => 106.8272]);
-        $this->delete('/ui/lokasi')->assertRedirect();
+        $this->post('/lokasi', ['lat' => -6.1754, 'lng' => 106.8272]);
+        $this->delete('/lokasi')->assertRedirect();
 
         $response = $this->getJson('/api/cabang/terdekat')->assertOk()->json('branches');
 

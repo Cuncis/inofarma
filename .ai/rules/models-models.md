@@ -8,7 +8,7 @@ paths:
 ## Cart is DB-backed for customers, session-backed for guests — always go through CartManager
 Fase 5.3. `carts`/`cart_items` only ever hold a signed-in customer's cart; a guest's cart lives in the session under `guest_cart` (`{branch_id, items: {productId: qty}}`). Never query `Cart`/`CartItem` directly from a controller or read/write the session key by hand — always go through `App\Support\Cart\CartManager`, which branches on `auth('customer')` internally and exposes one shape (`{branch, address, coupon, lines}`) either way. `CartManager::mergeGuestIntoCustomer()` runs from `Shop\AuthController@login` right after `Auth::guard('customer')->attempt()` succeeds.
 
-Checkout requires signing in (`customer` middleware on `/ui/checkout`, `/ui/shipping-details`, `/ui/my-address`, coupon routes) — Fase 0's "boleh checkout sebagai tamu?" is still an open decision, and requiring an account sidesteps it without foreclosing either answer later. Only add-to-cart/update/remove work for guests.
+Checkout requires signing in (`customer` middleware on `/checkout`, `/shipping-details`, `/my-address`, coupon routes) — Fase 0's "boleh checkout sebagai tamu?" is still an open decision, and requiring an account sidesteps it without foreclosing either answer later. Only add-to-cart/update/remove work for guests.
 
 One cart = one branch (ROADMAP.md 3.3). `CartManager::addItem()` throws `CartBranchConflictException` when a non-empty cart already holds a different branch and `$switchBranch` isn't passed; `Shop\CartController@store` turns that into a `branch` validation error the frontend offers to resolve by resubmitting with `switchBranch: true` (see `BranchPicker.tsx`).
 

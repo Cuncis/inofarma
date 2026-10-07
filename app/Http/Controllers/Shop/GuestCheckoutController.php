@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Region;
 use App\Support\Cart\CartManager;
 use App\Support\CodeSequence;
+use App\Support\Presenters\CartPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,7 @@ class GuestCheckoutController extends Controller
         }
 
         return Inertia::render('Shop/GuestCheckout', [
+            'cart' => CartPresenter::toArray($data),
             'provinces' => Region::query()->where('level', 1)->orderBy('name')->get(['code', 'name'])
                 ->map(fn (Region $region) => ['code' => $region->code, 'name' => $region->name]),
         ]);

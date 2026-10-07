@@ -20,13 +20,13 @@ export default function PrivacyCenter() {
             return;
         }
 
-        destroy('/ui/privasi-saya', { preserveScroll: true });
+        destroy('/privasi-saya', { preserveScroll: true });
     };
 
     return (
         <MobileLayout
             title="Privasi Saya"
-            header={<AppBar title="Privasi Saya" back="/ui/profile" tone="brand" />}
+            header={<AppBar title="Privasi Saya" back="/profile" tone="brand" />}
         >
             <FlashBanner />
 
@@ -38,7 +38,7 @@ export default function PrivacyCenter() {
                         sesuai hak akses data pribadi Anda menurut UU PDP.
                     </p>
                     <a
-                        href="/ui/privasi-saya/unduh"
+                        href="/privasi-saya/unduh"
                         className="inline-block bg-ink px-4 py-2.5 text-[13px] font-bold text-white"
                     >
                         Unduh sebagai JSON

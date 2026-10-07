@@ -49,7 +49,7 @@ export default function OurBranches({ branches, areas, hasLocation }: {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 router.post(
-                    '/ui/lokasi',
+                    '/lokasi',
                     { lat: position.coords.latitude, lng: position.coords.longitude },
                     { preserveScroll: true, onFinish: () => setLocating(false) },
                 );
@@ -69,11 +69,11 @@ export default function OurBranches({ branches, areas, hasLocation }: {
             return;
         }
 
-        router.post('/ui/lokasi', { provinsi, kota }, { preserveScroll: true });
+        router.post('/lokasi', { provinsi, kota }, { preserveScroll: true });
     };
 
     return (
-        <MobileLayout title="Cabang Kami" header={<AppBar title="Cabang Kami" back="/ui/profile" tone="brand" />}>
+        <MobileLayout title="Cabang Kami" header={<AppBar title="Cabang Kami" back="/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 {! hasLocation ? (
                     <div className="mb-3.5 border border-line bg-blush p-3.5">

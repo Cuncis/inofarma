@@ -21,12 +21,12 @@ import { useShopCatalog } from '@/Components/Shop/data';
 const PROMO_SLIDES = [
     {
         image: '/media/images/promo/sehat-ga-mesti-mahal.png',
-        href: '/ui/signup',
+        href: '/signup',
         alt: 'Sehat ga mesti mahal, ayo daftar member Sobat Ino',
     },
     {
         image: '/media/images/promo/harga-sobat-produk-lengkap.png',
-        href: '/ui/signup',
+        href: '/signup',
         alt: 'Harga Sobat, Produk Lengkap, gabung Sobat Ino sekarang',
     },
 ];
@@ -34,17 +34,17 @@ const PROMO_SLIDES = [
 const BOTTOM_SLIDES = [
     {
         image: '/media/images/promo/pengiriman-instan-24-jam.png',
-        href: '/ui/cabang-kami',
+        href: '/cabang-kami',
         alt: 'Pengiriman instan dengan layanan antar 24 jam',
     },
     {
         image: '/media/images/promo/temukan-cabang-terdekat.png',
-        href: '/ui/cabang-kami',
+        href: '/cabang-kami',
         alt: 'Temukan cabang Inofarma terdekat',
     },
     {
         image: '/media/images/promo/selalu-lebih-hemat.png',
-        href: '/ui/shop',
+        href: '/shop',
         alt: 'Selalu lebih hemat, lebih lengkap',
     },
 ];
@@ -68,7 +68,7 @@ export default function Home() {
                         brand
                         tone="brand"
                         actions={
-                            <IconLink id="cart-icon-target" name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
+                            <IconLink id="cart-icon-target" name="cart" href="/cart" label="Keranjang" badge={cartCount} />
                         }
                     />
 
@@ -94,7 +94,7 @@ export default function Home() {
                     <SectionHeading
                         title="Rekomendasi Untukmu"
                         action="Lihat semua"
-                        actionHref="/ui/shop"
+                        actionHref="/shop"
                         className="px-3.5"
                     />
                     <ProductStrip products={recommended} />
@@ -104,7 +104,7 @@ export default function Home() {
                     <SectionHeading
                         title="Produk Kesehatan Terbaru"
                         action="Lihat semua"
-                        actionHref="/ui/shop"
+                        actionHref="/shop"
                         className="px-3.5"
                     />
                     <ProductStrip products={newArrivals} />
@@ -114,7 +114,7 @@ export default function Home() {
                     <SectionHeading
                         title="Produk Terlaris Kami"
                         action="Lihat semua"
-                        actionHref="/ui/shop"
+                        actionHref="/shop"
                         className="px-3.5"
                     />
                     <ProductStrip products={trendingProducts} />

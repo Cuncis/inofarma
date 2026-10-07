@@ -102,7 +102,7 @@ function BuyBox({ product }: { product: CatalogProduct }) {
 
         transform(() => ({ productId: product.id, branchId: selected.id, quantity, switchBranch }));
 
-        post('/ui/keranjang', {
+        post('/keranjang', {
             preserveScroll: true,
             onSuccess: () => {
                 setAdded(true);
@@ -281,7 +281,7 @@ export default function DesktopProductDetail({ product }: { product: CatalogProd
             <nav aria-label="Breadcrumb" className="py-5 text-[11px] text-muted">
                 <Link href="/">Beranda</Link>
                 <span className="mx-2">&rsaquo;</span>
-                <Link href="/ui/shop">Semua produk</Link>
+                <Link href="/shop">Semua produk</Link>
                 <span className="mx-2">&rsaquo;</span>
                 <span>{product.name}</span>
             </nav>

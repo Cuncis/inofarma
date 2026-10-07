@@ -8,7 +8,7 @@ paths:
 ## Compliance conventions (Fase 9): consent, PDP self-service, audit trail
 Two separate consent gates exist, never merge them: account consent (`Customer.consent_at`/`consent_version`, ticked at registration via `Shop/SignUp.tsx`, enforced by `AuthController::register()`'s `'consent' => ['accepted']` rule) vs. location consent (`useLocationConsent()`, a localStorage flag shared by every `navigator.geolocation` call site — currently `Shop/OurBranches.tsx` and `Shop/AddNewAddress.tsx`). Any new screen that calls `navigator.geolocation` must gate it behind `useLocationConsent()` too, not just wire the browser's own permission prompt.
 
-PDP self-service lives at `/ui/privasi-saya` (`Shop\PrivacyController`) — `export()` streams a JSON download, `destroyAccount()` (password-confirmed) clears addresses/cart, scrambles name/email/phone, then soft-deletes. Order history is deliberately preserved (bookkeeping obligation) — never hard-delete or anonymize `orders` rows on account deletion.
+PDP self-service lives at `/privasi-saya` (`Shop\PrivacyController`) — `export()` streams a JSON download, `destroyAccount()` (password-confirmed) clears addresses/cart, scrambles name/email/phone, then soft-deletes. Order history is deliberately preserved (bookkeeping obligation) — never hard-delete or anonymize `orders` rows on account deletion.
 
 `Shop/Terms.tsx`, `PrivacyPolicy.tsx`, `RefundPolicy.tsx`, `ShippingInfo.tsx` are real compliance content, not prototype placeholders — when app mechanics change (payment provider, courier, windows, refund process), update the matching section instead of leaving it stale. The "Tentang Kami" page was removed: every "Tentang Kami" link now goes to the external site http://info.inofarma.com/
 

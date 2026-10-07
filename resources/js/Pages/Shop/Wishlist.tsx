@@ -18,7 +18,7 @@ export default function Wishlist() {
         const next = products.filter((product) => product.name !== name);
 
         if (next.length === 0) {
-            router.visit('/ui/wishlist-empty');
+            router.visit('/wishlist-empty');
 
             return;
         }
@@ -33,7 +33,7 @@ export default function Wishlist() {
                 <AppBar
                     title="Favorit"
                     tone="brand"
-                    actions={<IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />}
+                    actions={<IconLink name="history" href="/order-history" label="Riwayat transaksi" />}
                 />
             }
             footer={<TabBar active="wishlist" />}

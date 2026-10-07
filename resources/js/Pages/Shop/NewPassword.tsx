@@ -24,13 +24,13 @@ export default function NewPassword() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/atur-ulang-sandi');
+        post('/atur-ulang-sandi');
     };
 
     return (
         <MobileLayout
             title="Kata Sandi Baru"
-            header={<AppBar title="Atur Ulang Sandi" back="/ui/email-sent" tone="white" />}
+            header={<AppBar title="Atur Ulang Sandi" back="/email-sent" tone="white" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-[18px]">
                 <p className="mb-4 text-[13px] leading-relaxed text-muted">

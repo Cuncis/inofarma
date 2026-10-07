@@ -35,13 +35,13 @@ export default function DesktopLayout({ title, children, header = null, narrow =
                             <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[1.5px]">Menu Utama</h3>
                             <ul className="space-y-3 text-[11px] text-white/75">
                                 <li><Link href="/">Beranda</Link></li>
-                                <li><Link href="/ui/shop">Semua Produk</Link></li>
+                                <li><Link href="/shop">Semua Produk</Link></li>
                                 <li>
                                     <a href="http://info.inofarma.com/" target="_blank" rel="noopener noreferrer">
                                         Tentang Kami
                                     </a>
                                 </li>
-                                <li><Link href="/ui/cabang-kami">Cabang Kami</Link></li>
+                                <li><Link href="/cabang-kami">Cabang Kami</Link></li>
                             </ul>
                         </nav>
                     </div>

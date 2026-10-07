@@ -10,6 +10,6 @@ All user-visible copy in the storefront screens (labels, headings, placeholders,
 
 Never hardcode a price. Import `money()` from `@/Components/Shop/data` and pass a rupiah amount as a plain number: `money(1350000)` renders `Rp 1.350.000` (`toLocaleString('id-ID')`). Products come from `@/lib/catalog` as plain numbers; `Components/Shop/data.ts` formats them through its `toTile()` adapter for the grids. The real cart/checkout/order screens (Fase 5) get their numbers from `CartPresenter`/`ShopOrderPresenter` props instead — see `app/Support/Cart/**`'s rule file for that side.
 
-Route slugs stay English (`/ui/signin`, `/ui/order-history`) — only the display names in `screens.ts` are translated. Don't rename slugs; `routes/web.php` mirrors them.
+Route slugs stay English (`/signin`, `/order-history`) — only the display names in `screens.ts` are translated. Don't rename slugs; `routes/web.php` mirrors them.
 
 App locale is `id` (`APP_LOCALE`), with `lang/id/validation.php` supplying Indonesian validation messages. Fallback locale is still `en`, so untranslated rules degrade to English rather than showing raw keys.

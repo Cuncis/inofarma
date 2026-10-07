@@ -13,13 +13,13 @@ export default function LeaveAReview() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        router.visit('/ui/reviews');
+        router.visit('/reviews');
     };
 
     return (
         <MobileLayout
             title="Beri Ulasan"
-            header={<AppBar title="Beri Ulasan" back="/ui/order-history" tone="white" />}
+            header={<AppBar title="Beri Ulasan" back="/order-history" tone="white" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-4 text-center">
                 <img

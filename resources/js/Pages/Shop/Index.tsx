@@ -27,7 +27,7 @@ export default function Index() {
                         {group.screens.map((screen) => (
                             <Link
                                 key={screen.slug}
-                                href={`/ui/${screen.slug}`}
+                                href={`/${screen.slug}`}
                                 className="mb-[7px] flex items-center gap-3 border border-line px-3.5 py-[13px]"
                             >
                                 <span className="w-6 text-[11px] text-faint">

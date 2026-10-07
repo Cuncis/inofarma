@@ -20,8 +20,8 @@ class OrderHistoryTest extends TestCase
         BranchStock::factory()->for($branch)->for($product)->create(['quantity' => 10]);
         InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 10, 'expires_at' => now()->addYear()]);
 
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
-        $this->post('/ui/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'Tunai', 'pickupEta' => 'Hari ini']);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'Tunai', 'pickupEta' => 'Hari ini']);
 
         return $customer->orders()->latest('id')->value('number');
     }
@@ -31,7 +31,7 @@ class OrderHistoryTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $this->actingAs($customer, 'customer');
 
-        $this->get('/ui/order-history')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/order-history')->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Shop/OrderHistory')
             ->has('orders', 0)
         );
@@ -46,7 +46,7 @@ class OrderHistoryTest extends TestCase
         $this->actingAs($customer, 'customer');
         $number = $this->placeOrder($customer, $branch, $product);
 
-        $this->get('/ui/order-history')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/order-history')->assertInertia(fn (AssertableInertia $page) => $page
             ->has('orders', 1)
             ->where('orders.0.number', $number)
             ->where('orders.0.status', 'Menunggu Pembayaran')
@@ -64,14 +64,14 @@ class OrderHistoryTest extends TestCase
         $number = $this->placeOrder($customer, $branch, $product);
         $order = $customer->orders()->where('number', $number)->first();
 
-        $this->get("/ui/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get("/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
             ->where('order.steps.0.state', 'current')
             ->where('order.steps.1.state', 'pending')
         );
 
         $order->update(['status' => 'siap diambil', 'ready_at' => now()]);
 
-        $this->get("/ui/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get("/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
             ->where('order.steps.0.state', 'done')
             ->where('order.steps.1.state', 'done')
             ->where('order.steps.2.state', 'current')
@@ -80,7 +80,7 @@ class OrderHistoryTest extends TestCase
 
         $order->update(['status' => 'selesai', 'completed_at' => now()]);
 
-        $this->get("/ui/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get("/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
             ->where('order.steps.3.state', 'done')
             ->where('order.steps.3.label', 'Diambil')
             ->where('order.isCancellable', false)
@@ -96,9 +96,9 @@ class OrderHistoryTest extends TestCase
         $this->actingAs($customer, 'customer');
         $number = $this->placeOrder($customer, $branch, $product);
 
-        $this->post("/ui/pesanan/{$number}/batalkan");
+        $this->post("/pesanan/{$number}/batalkan");
 
-        $this->get("/ui/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get("/track-order/{$number}")->assertInertia(fn (AssertableInertia $page) => $page
             ->where('order.status', 'Dibatalkan')
             ->has('order.steps', 0)
         );

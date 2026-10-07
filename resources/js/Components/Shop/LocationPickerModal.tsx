@@ -66,11 +66,10 @@ function loadGoogleMaps(): Promise<typeof google.maps> {
  * inline panel — a bottom-of-map panel styled like the rest of the sheet
  * blended in and went unnoticed, so this is deliberately unmissable.
  *
- * Renders as a full-frame overlay, same positioning trick as
- * `SearchOverlay.jsx`: `absolute inset-0` resolves against `MobileLayout`'s
- * `relative` root, not the nearest ancestor, because every element between
- * here and there is `position: static` — so it escapes `AddressFields`'
- * scrolling `<form>` instead of being clipped to it.
+ * Renders as a popup: a centred dialog over a dimmed backdrop (full screen on
+ * phones). `position: fixed` takes it out of `AddressFields`' scrolling
+ * `<form>`, so it is never clipped. Clicking the backdrop, the close button or
+ * pressing Escape closes it.
  *
  * The map container and the floating buttons below it are siblings with no
  * z-index of their own — a positioned element without one doesn't start a
@@ -325,12 +324,41 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
         attempt(3);
     };
 
+    useEffect(() => {
+        if (! open) {
+            return;
+        }
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [open, onClose]);
+
     if (! open) {
         return null;
     }
 
     return (
-        <div className="absolute inset-0 z-50 flex flex-col bg-white">
+        <div
+            className="fixed inset-0 z-[100] flex items-stretch justify-center bg-ink/50 sm:items-center sm:p-6"
+            onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                    onClose();
+                }
+            }}
+        >
+        <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pilih Lokasi"
+            className="relative flex h-full w-full flex-col overflow-hidden bg-white shadow-pop sm:h-[min(640px,100%)] sm:max-w-[760px] sm:rounded-[4px]"
+        >
             <div className="flex h-appbar shrink-0 items-center justify-between bg-brand px-3.5 text-white">
                 <span className="font-display text-sm uppercase tracking-[0.5px]">Pilih Lokasi</span>
 
@@ -447,6 +475,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
                     </div>
                 </div>
             ) : null}
+        </div>
         </div>
     );
 }

@@ -12,13 +12,13 @@ export default function VerifyPhone() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/verify-phone');
+        post('/verify-phone');
     };
 
     return (
         <MobileLayout
             title="Verifikasi Nomor HP"
-            header={<AppBar title="Verifikasi Nomor HP" back="/ui/signup" tone="brand" />}
+            header={<AppBar title="Verifikasi Nomor HP" back="/signup" tone="brand" />}
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-5">
                 <div className="bg-blush p-6">

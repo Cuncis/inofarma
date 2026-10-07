@@ -15,7 +15,7 @@ export default function WishlistEmpty() {
                     Yuk, tambahkan produk favorit Anda.
                 </p>
 
-                <Button href="/ui/shop">Mulai Belanja</Button>
+                <Button href="/shop">Mulai Belanja</Button>
             </div>
         </MobileLayout>
     );

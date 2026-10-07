@@ -28,14 +28,14 @@ class StorefrontUiTest extends TestCase
 
     public function test_the_screen_index_lists_every_screen(): void
     {
-        $this->get('/ui')
+        $this->get('/screens')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page->component('Shop/Index'));
     }
 
     /**
-     * `ui/cart` isn't here — with nothing in it (the state a fresh test
-     * starts in) it now redirects to `ui/cart-empty` rather than rendering
+     * `cart` isn't here — with nothing in it (the state a fresh test
+     * starts in) it now redirects to `cart-empty` rather than rendering
      * `Shop/Cart`, so it doesn't fit this "always 200 with this component"
      * shape. See `CartTest` for both cases.
      *
@@ -44,9 +44,9 @@ class StorefrontUiTest extends TestCase
     public static function screenProvider(): array
     {
         return [
-            'sign in' => ['ui/signin', 'Shop/SignIn'],
-            'sign up' => ['ui/signup', 'Shop/SignUp'],
-            'leave a review' => ['ui/leave-a-review', 'Shop/LeaveAReview'],
+            'sign in' => ['signin', 'Shop/SignIn'],
+            'sign up' => ['signup', 'Shop/SignUp'],
+            'leave a review' => ['leave-a-review', 'Shop/LeaveAReview'],
         ];
     }
 
@@ -71,7 +71,7 @@ class StorefrontUiTest extends TestCase
     {
         $customer = $this->makeCustomer();
 
-        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password'])
+        $this->post('/signin', ['email' => $customer->email, 'password' => 'password'])
             ->assertRedirect(route('home'))
             ->assertSessionHasNoErrors();
 
@@ -82,7 +82,7 @@ class StorefrontUiTest extends TestCase
     {
         $customer = $this->makeCustomer();
 
-        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'salah'])
+        $this->post('/signin', ['email' => $customer->email, 'password' => 'salah'])
             ->assertSessionHasErrors('email');
 
         $this->assertFalse(Auth::guard('customer')->check());
@@ -92,7 +92,7 @@ class StorefrontUiTest extends TestCase
     {
         $customer = $this->makeCustomer(['phone' => '081234567890']);
 
-        $this->post('/ui/signin', ['email' => '081234567890', 'password' => 'password'])
+        $this->post('/signin', ['email' => '081234567890', 'password' => 'password'])
             ->assertRedirect(route('home'))
             ->assertSessionHasNoErrors();
 
@@ -104,9 +104,9 @@ class StorefrontUiTest extends TestCase
     {
         $customer = $this->makeCustomer(['name' => 'Kirana Wijaya', 'email' => 'kirana.wijaya@mail.com']);
 
-        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
+        $this->post('/signin', ['email' => $customer->email, 'password' => 'password']);
 
-        $this->get('/ui/profile')
+        $this->get('/profile')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Shop/Profile')
                 ->where('shopUser.email', 'kirana.wijaya@mail.com')
@@ -116,12 +116,12 @@ class StorefrontUiTest extends TestCase
 
     public function test_profile_requires_signing_in(): void
     {
-        $this->get('/ui/profile')->assertRedirect(route('ui.signin'));
+        $this->get('/profile')->assertRedirect(route('ui.signin'));
     }
 
     public function test_signing_in_requires_an_email_and_a_password(): void
     {
-        $this->post('/ui/signin', ['email' => '', 'password' => ''])
+        $this->post('/signin', ['email' => '', 'password' => ''])
             ->assertSessionHasErrors(['email', 'password']);
 
         $this->assertFalse(Auth::guard('customer')->check());
@@ -129,7 +129,7 @@ class StorefrontUiTest extends TestCase
 
     public function test_validation_messages_are_returned_in_indonesian(): void
     {
-        $this->post('/ui/signin', ['email' => '', 'password' => ''])
+        $this->post('/signin', ['email' => '', 'password' => ''])
             ->assertSessionHasErrors([
                 'email' => 'Kolom email wajib diisi.',
                 'password' => 'Kolom kata sandi wajib diisi.',
@@ -139,9 +139,9 @@ class StorefrontUiTest extends TestCase
     public function test_signing_out_clears_the_shopper_and_returns_to_sign_in(): void
     {
         $customer = $this->makeCustomer();
-        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
+        $this->post('/signin', ['email' => $customer->email, 'password' => 'password']);
 
-        $this->post('/ui/signout')->assertRedirect(route('ui.signin'));
+        $this->post('/signout')->assertRedirect(route('ui.signin'));
 
         $this->assertFalse(Auth::guard('customer')->check());
     }
@@ -150,7 +150,7 @@ class StorefrontUiTest extends TestCase
     {
         Notification::fake();
 
-        $this->post('/ui/daftar', [
+        $this->post('/daftar', [
             'name' => 'Pelanggan Baru',
             'phone' => '081234567890',
             'email' => 'baru@example.test',
@@ -174,7 +174,7 @@ class StorefrontUiTest extends TestCase
     /** PDP (UU 27/2022) requires an explicit affirmative action — ROADMAP.md Fase 9.2. */
     public function test_registering_without_consent_is_refused(): void
     {
-        $this->post('/ui/daftar', [
+        $this->post('/daftar', [
             'name' => 'Pelanggan Baru',
             'email' => 'tanpa-consent@example.test',
             'password' => 'kata-sandi-baru',
@@ -187,9 +187,9 @@ class StorefrontUiTest extends TestCase
     public function test_a_phone_otp_can_be_issued_and_verified(): void
     {
         $customer = $this->makeCustomer();
-        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
+        $this->post('/signin', ['email' => $customer->email, 'password' => 'password']);
 
-        $this->post('/ui/verify-phone', ['phone' => '+6281234567890'])
+        $this->post('/verify-phone', ['phone' => '+6281234567890'])
             ->assertRedirect(route('ui.otp-code'));
 
         $customer->refresh();
@@ -201,5 +201,19 @@ class StorefrontUiTest extends TestCase
         // controller action is a two-line pass-through to
         // `Customer::verifyPhoneOtp()`, and this test's job is proving the
         // request reaches that far and issues a real, storable code.
+    }
+
+    public function test_the_old_ui_prefix_redirects_to_the_same_page_without_it(): void
+    {
+        $this->get('/ui/shop?category=Vitamin')->assertRedirect('/shop?category=Vitamin')->assertStatus(301);
+        $this->get('/ui/pesanan/INO-1')->assertRedirect('/pesanan/INO-1')->assertStatus(301);
+        $this->get('/ui')->assertRedirect('/')->assertStatus(301);
+    }
+
+    public function test_storefront_pages_no_longer_live_under_ui(): void
+    {
+        $this->assertSame('/shop', route('ui.shop', absolute: false));
+        $this->assertSame('/screens', route('ui.index', absolute: false));
+        $this->assertSame('/', route('home', absolute: false));
     }
 }

@@ -33,13 +33,13 @@ class CartTest extends TestCase
         $product = Product::factory()->create(['name' => 'Paracetamol 500mg']);
         $this->stock($branch, $product, 10);
 
-        $this->post('/ui/keranjang', [
+        $this->post('/keranjang', [
             'productId' => $product->sku,
             'branchId' => $branch->code,
             'quantity' => 2,
         ])->assertSessionHasNoErrors();
 
-        $this->get('/ui/cart')
+        $this->get('/cart')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Shop/Cart')
                 ->has('cart.items', 1)
@@ -47,6 +47,33 @@ class CartTest extends TestCase
                 ->where('cart.items.0.quantity', 2)
                 ->where('cart.branch.id', $branch->code)
             );
+    }
+
+    public function test_the_mini_cart_summary_is_empty_for_a_new_visitor(): void
+    {
+        $this->getJson('/keranjang/ringkas')
+            ->assertOk()
+            ->assertJson(['items' => [], 'itemCount' => 0, 'subtotal' => 0]);
+    }
+
+    public function test_the_mini_cart_summary_lists_the_cart_lines_with_a_total(): void
+    {
+        $branch = Branch::factory()->create();
+        $product = Product::factory()->create(['name' => 'Paracetamol 500mg', 'manufacturer' => 'PT Contoh Farma']);
+        $this->stock($branch, $product, 10);
+
+        $this->post('/keranjang', [
+            'productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 2,
+        ]);
+
+        $this->getJson('/keranjang/ringkas')
+            ->assertOk()
+            ->assertJsonPath('itemCount', 2)
+            ->assertJsonPath('items.0.sku', $product->sku)
+            ->assertJsonPath('items.0.name', 'Paracetamol 500mg')
+            ->assertJsonPath('items.0.brand', 'PT Contoh Farma')
+            ->assertJsonPath('items.0.quantity', 2)
+            ->assertJsonPath('subtotal', $product->price * 2);
     }
 
     public function test_adding_a_product_from_a_different_branch_is_refused_by_default(): void
@@ -58,12 +85,12 @@ class CartTest extends TestCase
         $this->stock($branchA, $productA, 10);
         $this->stock($branchB, $productB, 10);
 
-        $this->post('/ui/keranjang', ['productId' => $productA->sku, 'branchId' => $branchA->code]);
+        $this->post('/keranjang', ['productId' => $productA->sku, 'branchId' => $branchA->code]);
 
-        $this->post('/ui/keranjang', ['productId' => $productB->sku, 'branchId' => $branchB->code])
+        $this->post('/keranjang', ['productId' => $productB->sku, 'branchId' => $branchB->code])
             ->assertSessionHasErrors('branch');
 
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/cart')->assertInertia(fn (AssertableInertia $page) => $page
             ->has('cart.items', 1)
             ->where('cart.branch.id', $branchA->code)
         );
@@ -78,13 +105,13 @@ class CartTest extends TestCase
         $this->stock($branchA, $productA, 10);
         $this->stock($branchB, $productB, 10);
 
-        $this->post('/ui/keranjang', ['productId' => $productA->sku, 'branchId' => $branchA->code]);
+        $this->post('/keranjang', ['productId' => $productA->sku, 'branchId' => $branchA->code]);
 
-        $this->post('/ui/keranjang', [
+        $this->post('/keranjang', [
             'productId' => $productB->sku, 'branchId' => $branchB->code, 'switchBranch' => true,
         ])->assertSessionHasNoErrors();
 
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/cart')->assertInertia(fn (AssertableInertia $page) => $page
             ->has('cart.items', 1)
             ->where('cart.items.0.sku', $productB->sku)
             ->where('cart.branch.id', $branchB->code)
@@ -97,7 +124,7 @@ class CartTest extends TestCase
         $product = Product::factory()->create();
         $this->stock($branch, $product, 3);
 
-        $this->post('/ui/keranjang', [
+        $this->post('/keranjang', [
             'productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 5,
         ])->assertSessionHasErrors('quantity');
     }
@@ -108,7 +135,7 @@ class CartTest extends TestCase
         $product = Product::factory()->create(['max_qty_per_order' => 2]);
         $this->stock($branch, $product, 50);
 
-        $this->post('/ui/keranjang', [
+        $this->post('/keranjang', [
             'productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 3,
         ])->assertSessionHasErrors('quantity');
     }
@@ -119,15 +146,15 @@ class CartTest extends TestCase
         $product = Product::factory()->create();
         $this->stock($branch, $product, 10);
 
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
 
-        $this->patch("/ui/keranjang/{$product->sku}", ['quantity' => 4]);
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->patch("/keranjang/{$product->sku}", ['quantity' => 4]);
+        $this->get('/cart')->assertInertia(fn (AssertableInertia $page) => $page
             ->where('cart.items.0.quantity', 4)
         );
 
-        $this->patch("/ui/keranjang/{$product->sku}", ['quantity' => 0]);
-        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
+        $this->patch("/keranjang/{$product->sku}", ['quantity' => 0]);
+        $this->get('/cart')->assertRedirect(route('ui.cart-empty'));
     }
 
     public function test_an_item_can_be_removed_directly(): void
@@ -136,10 +163,10 @@ class CartTest extends TestCase
         $product = Product::factory()->create();
         $this->stock($branch, $product, 10);
 
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
-        $this->delete("/ui/keranjang/{$product->sku}")->assertSessionHasNoErrors();
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
+        $this->delete("/keranjang/{$product->sku}")->assertSessionHasNoErrors();
 
-        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
+        $this->get('/cart')->assertRedirect(route('ui.cart-empty'));
     }
 
     /**
@@ -149,7 +176,7 @@ class CartTest extends TestCase
      */
     public function test_visiting_the_cart_with_nothing_in_it_redirects_straight_to_cart_empty(): void
     {
-        $this->get('/ui/cart')->assertRedirect(route('ui.cart-empty'));
+        $this->get('/cart')->assertRedirect(route('ui.cart-empty'));
     }
 
     public function test_a_guest_cart_merges_into_the_customers_cart_on_sign_in(): void
@@ -159,11 +186,11 @@ class CartTest extends TestCase
         $this->stock($branch, $product, 10);
         $customer = Customer::factory()->create(['password' => Hash::make('password'), 'status' => 'aktif']);
 
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 2]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 2]);
 
-        $this->post('/ui/signin', ['email' => $customer->email, 'password' => 'password']);
+        $this->post('/signin', ['email' => $customer->email, 'password' => 'password']);
 
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/cart')->assertInertia(fn (AssertableInertia $page) => $page
             ->has('cart.items', 1)
             ->where('cart.items.0.quantity', 2)
         );
@@ -171,7 +198,7 @@ class CartTest extends TestCase
 
     public function test_applying_a_coupon_requires_signing_in(): void
     {
-        $this->post('/ui/keranjang/kupon', ['code' => 'HEMAT'])
+        $this->post('/keranjang/kupon', ['code' => 'HEMAT'])
             ->assertRedirect(route('ui.signin'));
     }
 
@@ -183,13 +210,13 @@ class CartTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
 
         $this->actingAs($customer, 'customer');
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
 
         Coupon::factory()->create(['code' => 'HEMAT10', 'type' => 'persentase', 'value' => 10]);
 
-        $this->post('/ui/keranjang/kupon', ['code' => 'hemat10'])->assertSessionHasNoErrors();
+        $this->post('/keranjang/kupon', ['code' => 'hemat10'])->assertSessionHasNoErrors();
 
-        $this->get('/ui/cart')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/cart')->assertInertia(fn (AssertableInertia $page) => $page
             ->where('cart.coupon.code', 'HEMAT10')
             ->where('cart.discount', 10000)
         );
@@ -203,11 +230,11 @@ class CartTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
 
         $this->actingAs($customer, 'customer');
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 1]);
 
         Coupon::factory()->create(['code' => 'BESAR', 'minimum_purchase' => 500000]);
 
-        $this->post('/ui/keranjang/kupon', ['code' => 'BESAR'])->assertSessionHasErrors('code');
+        $this->post('/keranjang/kupon', ['code' => 'BESAR'])->assertSessionHasErrors('code');
     }
 
     public function test_a_coupon_scoped_to_another_branch_is_rejected(): void
@@ -222,8 +249,8 @@ class CartTest extends TestCase
         $coupon->branches()->attach($otherBranch);
 
         $this->actingAs($customer, 'customer');
-        $this->post('/ui/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
 
-        $this->post('/ui/keranjang/kupon', ['code' => 'CABANGLAIN'])->assertSessionHasErrors('code');
+        $this->post('/keranjang/kupon', ['code' => 'CABANGLAIN'])->assertSessionHasErrors('code');
     }
 }

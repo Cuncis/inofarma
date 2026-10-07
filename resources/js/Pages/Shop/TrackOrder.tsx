@@ -21,7 +21,7 @@ export default function TrackOrder({ order }: { order: {
         <MobileLayout
             title="Lacak Pesanan"
             background="bg-canvas"
-            header={<AppBar title="Lacak Pesanan" back={`/ui/pesanan/${order.number}`} tone="brand" />}
+            header={<AppBar title="Lacak Pesanan" back={`/pesanan/${order.number}`} tone="brand" />}
         >
             <FlashBanner />
 

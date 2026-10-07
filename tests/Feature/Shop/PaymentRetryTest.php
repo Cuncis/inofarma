@@ -65,7 +65,7 @@ class PaymentRetryTest extends TestCase
 
         $this->actingAs($customer, 'customer');
 
-        $this->post("/ui/pesanan/{$order->number}/bayar")
+        $this->post("/pesanan/{$order->number}/bayar")
             ->assertRedirect('https://sandbox.doku.com/checkout-link-v2/tok_retry');
 
         $this->assertSame(1, Payment::where('order_id', $order->id)->count());
@@ -89,7 +89,7 @@ class PaymentRetryTest extends TestCase
         $this->actingAs($customer, 'customer');
 
         $this->withHeaders(['X-Inertia' => 'true'])
-            ->post("/ui/pesanan/{$order->number}/bayar")
+            ->post("/pesanan/{$order->number}/bayar")
             ->assertStatus(409)
             ->assertHeader('X-Inertia-Location', 'https://sandbox.doku.com/checkout-link-v2/tok_retry');
     }
@@ -101,8 +101,8 @@ class PaymentRetryTest extends TestCase
         $this->fakeDoku();
 
         $this->actingAs($customer, 'customer');
-        $this->post("/ui/pesanan/{$order->number}/bayar");
-        $this->post("/ui/pesanan/{$order->number}/bayar");
+        $this->post("/pesanan/{$order->number}/bayar");
+        $this->post("/pesanan/{$order->number}/bayar");
 
         $invoiceNumbers = Payment::where('order_id', $order->id)->pluck('invoice_number');
         $this->assertCount(2, $invoiceNumbers->unique());
@@ -117,7 +117,7 @@ class PaymentRetryTest extends TestCase
         $order->update(['payment_status' => 'lunas']);
 
         $this->actingAs($customer, 'customer');
-        $this->post("/ui/pesanan/{$order->number}/bayar")->assertSessionHas('error');
+        $this->post("/pesanan/{$order->number}/bayar")->assertSessionHas('error');
 
         $this->assertSame(0, Payment::where('order_id', $order->id)->count());
     }
@@ -129,6 +129,6 @@ class PaymentRetryTest extends TestCase
         $order = $this->makeUnpaidOrder($owner);
 
         $this->actingAs($intruder, 'customer');
-        $this->post("/ui/pesanan/{$order->number}/bayar")->assertNotFound();
+        $this->post("/pesanan/{$order->number}/bayar")->assertNotFound();
     }
 }

@@ -8,7 +8,7 @@ export default function PromocodesEmpty() {
     return (
         <MobileLayout
             title="Kode Promo Kosong"
-            header={<AppBar title="Tambah Kode Promo" back="/ui/profile" tone="brand" />}
+            header={<AppBar title="Tambah Kode Promo" back="/profile" tone="brand" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6 text-center">
                 <img
@@ -33,7 +33,7 @@ export default function PromocodesEmpty() {
                     <Field name="promocode" placeholder="HEMAT15" />
                 </div>
 
-                <Button href="/ui/my-promocodes">Tambah Kode Promo</Button>
+                <Button href="/my-promocodes">Tambah Kode Promo</Button>
             </div>
         </MobileLayout>
     );

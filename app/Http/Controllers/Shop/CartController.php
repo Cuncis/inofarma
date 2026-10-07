@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Support\Cart\CartBranchConflictException;
 use App\Support\Cart\CartManager;
 use App\Support\Presenters\CartPresenter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -59,6 +60,15 @@ class CartController extends Controller
         }
 
         return back()->with('success', "{$product->name} ditambahkan ke keranjang.");
+    }
+
+    /**
+     * The cart as JSON for the header's mini-cart dropdown, so it can be
+     * refreshed without a page visit. Same shape the Cart page renders.
+     */
+    public function preview(CartManager $cart): JsonResponse
+    {
+        return response()->json(CartPresenter::toArray($cart->current()));
     }
 
     public function update(Request $request, string $product, CartManager $cart): RedirectResponse

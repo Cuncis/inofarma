@@ -7,17 +7,17 @@ import Icon from '@/Components/Shop/Icon';
 
 export default function MyAddress({ addresses }: { addresses: SavedAddress[] }) {
     const remove = (address: SavedAddress) => {
-        router.delete(`/ui/alamat/${address.id}`, { preserveScroll: true });
+        router.delete(`/alamat/${address.id}`, { preserveScroll: true });
     };
 
     const makeDefault = (address: SavedAddress) => {
-        router.post(`/ui/alamat/${address.id}/utama`, {}, { preserveScroll: true });
+        router.post(`/alamat/${address.id}/utama`, {}, { preserveScroll: true });
     };
 
     return (
         <MobileLayout
             title="Alamat Saya"
-            header={<AppBar title="Alamat Saya" back="/ui/profile" tone="brand" />}
+            header={<AppBar title="Alamat Saya" back="/profile" tone="brand" />}
         >
             <FlashBanner />
 
@@ -70,7 +70,7 @@ export default function MyAddress({ addresses }: { addresses: SavedAddress[] }) 
                 ) : null}
             </div>
 
-            <Fab href="/ui/add-new-address" label="Tambah alamat baru" />
+            <Fab href="/add-new-address" label="Tambah alamat baru" />
         </MobileLayout>
     );
 }

@@ -52,7 +52,7 @@ export default function ProductDetail() {
             header={
                 <AppBar
                     title="Detail Produk"
-                    back="/ui/shop"
+                    back="/shop"
                     tone="brand"
                     actions={
                         <>
@@ -68,7 +68,7 @@ export default function ProductDetail() {
                             <IconLink
                                 id="cart-icon-target"
                                 name="cart"
-                                href="/ui/cart"
+                                href="/cart"
                                 label="Keranjang"
                                 badge={cartCount}
                             />
@@ -108,7 +108,7 @@ export default function ProductDetail() {
                         </div>
                     </div>
 
-                    <Link href="/ui/reviews" className="mb-3 flex items-center gap-[5px]">
+                    <Link href="/reviews" className="mb-3 flex items-center gap-[5px]">
                         <Rating score={Math.round(Number(product.rating))} />
                         <span className="text-xs text-muted">
                             {product.rating} ({product.sold} terjual)
@@ -149,7 +149,7 @@ export default function ProductDetail() {
 
                 <div className="mb-2.5 mt-4 flex justify-between border-t border-line pt-2.5">
                     <span className="font-display text-sm">Ulasan</span>
-                    <Link href="/ui/reviews" className="text-xs text-brand">
+                    <Link href="/reviews" className="text-xs text-brand">
                         Lihat semua
                     </Link>
                 </div>

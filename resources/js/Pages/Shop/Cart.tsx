@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
@@ -7,60 +6,26 @@ import FlashBanner from '@/Components/Shop/FlashBanner';
 import Icon from '@/Components/Shop/Icon';
 import IconLink from '@/Components/Shop/IconLink';
 import TabBar from '@/Components/Shop/TabBar';
+import DesktopCart from '@/Components/Shop/DesktopCart';
+import useCartActions from '@/Components/Shop/useCartActions';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import useShopUser from '@/Components/Shop/useShopUser';
 import { money } from '@/Components/Shop/data';
 
 export default function Cart({ cart }: { cart: {
-  branch: CartBranch | null, address: SavedAddress | null, items: CartLine[], itemCount: number,
+  branch: CartBranch | null, address: SavedAddress | null, items: CartPreviewItem[], itemCount: number,
   subtotal: number, coupon: CartCoupon | null, discount: number,
 } }) {
     const { signedIn } = useShopUser();
-    const [promo, setPromo] = useState('');
-    const [busySku, setBusySku] = useState<string | null>(null);
-    const [couponError, setCouponError] = useState('');
-
-    const changeQuantity = (item: CartLine, quantity: number) => {
-        setBusySku(item.sku);
-
-        router.patch(
-            `/ui/keranjang/${item.sku}`,
-            { quantity },
-            { preserveScroll: true, onFinish: () => setBusySku(null) },
-        );
-    };
-
-    const removeItem = (item: CartLine) => {
-        setBusySku(item.sku);
-
-        router.delete(`/ui/keranjang/${item.sku}`, {
-            preserveScroll: true,
-            onFinish: () => setBusySku(null),
-        });
-    };
-
-    const applyPromo = () => {
-        if (! promo.trim()) {
-            return;
-        }
-
-        setCouponError('');
-
-        router.post(
-            '/ui/keranjang/kupon',
-            { code: promo.trim() },
-            {
-                preserveScroll: true,
-                onSuccess: () => setPromo(''),
-                onError: (errors) => setCouponError(errors.code ?? ''),
-            },
-        );
-    };
-
-    const removePromo = () => {
-        router.delete('/ui/keranjang/kupon', { preserveScroll: true });
-    };
+    const { busySku, promo, setPromo, couponError, changeQuantity, removeItem, applyPromo, removePromo }
+        = useCartActions();
+    const isDesktop = useIsDesktop();
 
     const total = Math.max(cart.subtotal - cart.discount, 0);
+
+    if (isDesktop) {
+        return <DesktopCart cart={cart} />;
+    }
 
     return (
         <MobileLayout
@@ -70,7 +35,7 @@ export default function Cart({ cart }: { cart: {
                     title="Pesanan"
                     tone="brand"
                     actions={
-                        <IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />
+                        <IconLink name="history" href="/order-history" label="Riwayat transaksi" />
                     }
                 />
             }
@@ -108,7 +73,7 @@ export default function Cart({ cart }: { cart: {
                         className="mb-2 flex min-h-[88px] gap-2.5 overflow-hidden rounded-[2px] border border-line bg-white p-2.5"
                     >
                         <Link
-                            href={`/ui/product-detail?id=${item.sku}`}
+                            href={`/product-detail?id=${item.sku}`}
                             className="relative w-[68px] shrink-0"
                         >
                             <img
@@ -119,7 +84,7 @@ export default function Cart({ cart }: { cart: {
                         </Link>
 
                         <Link
-                            href={`/ui/product-detail?id=${item.sku}`}
+                            href={`/product-detail?id=${item.sku}`}
                             className="flex flex-1 flex-col justify-center"
                         >
                             <div className="mb-1 text-[13px] font-semibold text-ink">
@@ -203,7 +168,7 @@ export default function Cart({ cart }: { cart: {
                     </div>
                 ) : (
                     <p className="mb-[18px] text-[11px] text-muted">
-                        <Link href="/ui/signin" className="text-brand">
+                        <Link href="/signin" className="text-brand">
                             Masuk
                         </Link>{' '}
                         untuk memakai kode promo.
@@ -234,7 +199,7 @@ export default function Cart({ cart }: { cart: {
                     </div>
                 </div>
 
-                <Button href={signedIn ? '/ui/checkout' : '/ui/checkout/tamu'} className="mb-2">
+                <Button href={signedIn ? '/checkout' : '/checkout/tamu'} className="mb-2">
                     Lanjut ke Pembayaran
                 </Button>
             </div>

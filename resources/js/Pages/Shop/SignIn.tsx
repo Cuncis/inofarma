@@ -15,11 +15,11 @@ export default function SignIn() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/signin');
+        post('/signin');
     };
 
     return (
-        <AuthScreen title="Masuk" back="/ui/shop" onSubmit={submit}>
+        <AuthScreen title="Masuk" back="/shop" onSubmit={submit}>
             <div className="w-full">
                 <Field
                     type="text"
@@ -53,7 +53,7 @@ export default function SignIn() {
                     label={<span>Ingat saya</span>}
                 />
 
-                <Link href="/ui/forgot-password" className="text-brand">
+                <Link href="/forgot-password" className="text-brand">
                     Lupa kata sandi?
                 </Link>
             </div>
@@ -64,7 +64,7 @@ export default function SignIn() {
 
             <div className="mt-3 flex gap-1 text-xs">
                 <span>Belum punya akun?</span>
-                <Link href="/ui/signup" className="text-brand">
+                <Link href="/signup" className="text-brand">
                     Daftar sekarang
                 </Link>
             </div>

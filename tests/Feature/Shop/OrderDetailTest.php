@@ -51,13 +51,45 @@ class OrderDetailTest extends TestCase
         $order = $this->makePendingOrder($customer);
         $this->actingAs($customer, 'customer');
 
-        $this->get("/ui/pesanan/{$order->number}")->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get("/pesanan/{$order->number}")->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Shop/OrderDetail')
             ->where('order.number', $order->number)
             ->where('order.total', 30000)
             ->has('order.items', 1)
             ->where('order.canPay', true)
             ->where('order.isCancellable', true)
+        );
+    }
+
+    public function test_the_success_page_recaps_the_order_for_the_customer_who_placed_it(): void
+    {
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makePendingOrder($customer);
+        $this->actingAs($customer, 'customer');
+
+        $this->get("/order-successful?nomor={$order->number}")->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Shop/OrderSuccessful')
+            ->where('orderNumber', $order->number)
+            ->where('order.total', 30000)
+            ->has('order.items', 1)
+        );
+    }
+
+    public function test_the_success_page_hides_the_recap_from_everyone_else(): void
+    {
+        $owner = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makePendingOrder($owner);
+
+        $this->get("/order-successful?nomor={$order->number}")->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Shop/OrderSuccessful')
+            ->where('orderNumber', $order->number)
+            ->where('order', null)
+        );
+
+        $this->actingAs(Customer::factory()->create(['status' => 'aktif']), 'customer');
+
+        $this->get("/order-successful?nomor={$order->number}")->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('order', null)
         );
     }
 
@@ -72,10 +104,10 @@ class OrderDetailTest extends TestCase
             'response' => ['payment' => ['token_id' => 'tok_x', 'url' => 'https://sandbox.doku.com/checkout-link-v2/tok_x']],
         ], 200)]);
 
-        $this->post("/ui/pesanan/{$order->number}/bayar")
+        $this->post("/pesanan/{$order->number}/bayar")
             ->assertRedirect('https://sandbox.doku.com/checkout-link-v2/tok_x');
 
-        $this->post("/ui/pesanan/{$order->number}/batalkan")
+        $this->post("/pesanan/{$order->number}/batalkan")
             ->assertSessionHas('success');
 
         $this->assertSame('dibatalkan', $order->fresh()->status);
@@ -88,7 +120,7 @@ class OrderDetailTest extends TestCase
         $order = $this->makePendingOrder($owner);
 
         $this->actingAs($intruder, 'customer');
-        $this->get("/ui/pesanan/{$order->number}")->assertNotFound();
+        $this->get("/pesanan/{$order->number}")->assertNotFound();
     }
 
     public function test_the_doku_checkout_session_points_its_callback_at_the_detail_page(): void
@@ -102,10 +134,10 @@ class OrderDetailTest extends TestCase
             'response' => ['payment' => ['token_id' => 'tok_y', 'url' => 'https://sandbox.doku.com/checkout-link-v2/tok_y']],
         ], 200)]);
 
-        $this->post("/ui/pesanan/{$order->number}/bayar");
+        $this->post("/pesanan/{$order->number}/bayar");
 
         Http::assertSent(fn ($request) => str_contains($request->url(), 'api-sandbox.doku.com')
-            && str_contains($request['order']['callback_url'], "/ui/pesanan/{$order->number}")
+            && str_contains($request['order']['callback_url'], "/pesanan/{$order->number}")
             && ! str_contains($request['order']['callback_url'], 'track-order'));
     }
 }

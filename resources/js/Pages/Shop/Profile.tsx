@@ -8,18 +8,18 @@ import useShopUser from '@/Components/Shop/useShopUser';
 import { asset } from '@/Components/Shop/data';
 
 const menu: { label: string; icon: IconName; href: string }[] = [
-    { label: 'Ubah profil', icon: 'user', href: '/ui/edit-profile' },
-    { label: 'Alamat saya', icon: 'pin', href: '/ui/my-address' },
-    { label: 'Cabang kami', icon: 'pin', href: '/ui/cabang-kami' },
-    { label: 'Kode promo saya', icon: 'promo', href: '/ui/my-promocodes' },
-    { label: 'Riwayat pesanan', icon: 'file', href: '/ui/order-history' },
-    { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/ui/shipping-info' },
-    { label: 'Kebijakan pengembalian dana', icon: 'info', href: '/ui/kebijakan-pengembalian-dana' },
-    { label: 'Syarat & ketentuan', icon: 'info', href: '/ui/syarat-ketentuan' },
-    { label: 'Kebijakan privasi', icon: 'info', href: '/ui/kebijakan-privasi' },
-    { label: 'Privasi saya', icon: 'user', href: '/ui/privasi-saya' },
+    { label: 'Ubah profil', icon: 'user', href: '/edit-profile' },
+    { label: 'Alamat saya', icon: 'pin', href: '/my-address' },
+    { label: 'Cabang kami', icon: 'pin', href: '/cabang-kami' },
+    { label: 'Kode promo saya', icon: 'promo', href: '/my-promocodes' },
+    { label: 'Riwayat pesanan', icon: 'file', href: '/order-history' },
+    { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/shipping-info' },
+    { label: 'Kebijakan pengembalian dana', icon: 'info', href: '/kebijakan-pengembalian-dana' },
+    { label: 'Syarat & ketentuan', icon: 'info', href: '/syarat-ketentuan' },
+    { label: 'Kebijakan privasi', icon: 'info', href: '/kebijakan-privasi' },
+    { label: 'Privasi saya', icon: 'user', href: '/privasi-saya' },
     { label: 'Tentang kami', icon: 'info', href: 'http://info.inofarma.com/' },
-    { label: 'FAQ', icon: 'help', href: '/ui/faq' },
+    { label: 'FAQ', icon: 'help', href: '/faq' },
 ];
 
 export default function Profile() {
@@ -32,7 +32,7 @@ export default function Profile() {
                 <AppBar
                     title="Profil"
                     tone="brand"
-                    actions={<IconLink name="history" href="/ui/order-history" label="Riwayat transaksi" />}
+                    actions={<IconLink name="history" href="/order-history" label="Riwayat transaksi" />}
                 />
             }
             footer={<TabBar active="profile" />}
@@ -83,7 +83,7 @@ export default function Profile() {
                 })}
 
                 <Link
-                    href="/ui/signout"
+                    href="/signout"
                     method="post"
                     as="button"
                     className="mb-[7px] flex w-full items-center gap-3 border border-line bg-white px-3.5 py-[13px] text-left"

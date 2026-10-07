@@ -35,7 +35,7 @@ const sections = [
     {
         title: '7. Hak Anda',
         body: 'Anda berhak mengunduh salinan data Anda dan menghapus akun Anda kapan saja dari halaman "Privasi Saya" tanpa perlu menghubungi kami. Anda juga berhak meminta koreksi data yang keliru lewat "Ubah Profil".',
-        action: { label: 'Buka Privasi Saya', href: '/ui/privasi-saya' },
+        action: { label: 'Buka Privasi Saya', href: '/privasi-saya' },
     },
     {
         title: '8. Keamanan Data',

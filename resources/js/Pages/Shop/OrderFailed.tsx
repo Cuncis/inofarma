@@ -7,7 +7,7 @@ export default function OrderFailed() {
     return (
         <MobileLayout
             title="Pesanan Gagal"
-            header={<AppBar back="/ui/checkout" tone="white" />}
+            header={<AppBar back="/checkout" tone="white" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">
                 <img
@@ -28,11 +28,11 @@ export default function OrderFailed() {
                     untuk melanjutkan pesanan Anda.
                 </p>
 
-                <Button href="/ui/checkout" className="mb-2">
+                <Button href="/checkout" className="mb-2">
                     Coba Lagi
                 </Button>
 
-                <Button href="/ui/profile" variant="outline">
+                <Button href="/profile" variant="outline">
                     Buka Profil Saya
                 </Button>
             </div>

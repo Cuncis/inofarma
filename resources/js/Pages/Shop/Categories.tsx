@@ -33,7 +33,7 @@ export default function Categories() {
                                 onClick={() => setSearching(true)}
                                 label="Cari"
                             />
-                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
+                            <IconLink name="cart" href="/cart" label="Keranjang" badge={cartCount} />
                         </>
                     }
                 />
@@ -47,8 +47,8 @@ export default function Categories() {
                             key={category.name}
                             href={
                                 category.name === 'Semua Produk'
-                                    ? '/ui/shop'
-                                    : `/ui/shop?category=${encodeURIComponent(category.name)}`
+                                    ? '/shop'
+                                    : `/shop?category=${encodeURIComponent(category.name)}`
                             }
                             className="flex h-[130px] flex-col items-center justify-center gap-2.5 rounded-[2px] border border-line bg-white p-3 text-center"
                         >

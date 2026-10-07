@@ -14,12 +14,12 @@ class AddressTest extends TestCase
 
     public function test_addresses_require_signing_in(): void
     {
-        $this->get('/ui/my-address')->assertRedirect(route('ui.signin'));
+        $this->get('/my-address')->assertRedirect(route('ui.signin'));
     }
 
     public function test_edit_profile_requires_signing_in(): void
     {
-        $this->get('/ui/edit-profile')->assertRedirect(route('ui.signin'));
+        $this->get('/edit-profile')->assertRedirect(route('ui.signin'));
     }
 
     public function test_edit_profile_shows_the_customers_saved_addresses(): void
@@ -30,7 +30,7 @@ class AddressTest extends TestCase
 
         $this->actingAs($customer, 'customer');
 
-        $this->get('/ui/edit-profile')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/edit-profile')->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Shop/EditProfile')
             ->has('addresses', 2)
         );
@@ -41,7 +41,7 @@ class AddressTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $this->actingAs($customer, 'customer');
 
-        $this->post('/ui/add-new-address', [
+        $this->post('/add-new-address', [
             'label' => 'Rumah',
             'recipientName' => 'Kirana Wijaya',
             'phone' => '081234567890',
@@ -65,12 +65,12 @@ class AddressTest extends TestCase
 
         $this->actingAs($customer, 'customer');
 
-        $this->post('/ui/add-new-address', [
+        $this->post('/add-new-address', [
             'label' => 'Kantor', 'recipientName' => 'Kirana', 'phone' => '0812',
             'addressLine' => 'Jl. Sudirman', 'kota' => 'Jakarta Selatan', 'provinsi' => 'DKI Jakarta',
         ]);
 
-        $this->get('/ui/my-address')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/my-address')->assertInertia(fn (AssertableInertia $page) => $page
             ->has('addresses', 2)
         );
 
@@ -84,7 +84,7 @@ class AddressTest extends TestCase
         $second = CustomerAddress::factory()->for($customer)->create();
 
         $this->actingAs($customer, 'customer');
-        $this->post("/ui/alamat/{$second->id}/utama")->assertSessionHas('success');
+        $this->post("/alamat/{$second->id}/utama")->assertSessionHas('success');
 
         $this->assertFalse($first->fresh()->is_default);
         $this->assertTrue($second->fresh()->is_default);
@@ -97,7 +97,7 @@ class AddressTest extends TestCase
         $second = CustomerAddress::factory()->for($customer)->create();
 
         $this->actingAs($customer, 'customer');
-        $this->delete("/ui/alamat/{$first->id}")->assertSessionHas('success');
+        $this->delete("/alamat/{$first->id}")->assertSessionHas('success');
 
         $this->assertTrue($second->fresh()->is_default);
     }
@@ -109,7 +109,7 @@ class AddressTest extends TestCase
         $address = CustomerAddress::factory()->for($owner)->create();
 
         $this->actingAs($intruder, 'customer');
-        $this->delete("/ui/alamat/{$address->id}")->assertNotFound();
+        $this->delete("/alamat/{$address->id}")->assertNotFound();
 
         $this->assertDatabaseHas('customer_addresses', ['id' => $address->id]);
     }
@@ -119,7 +119,7 @@ class AddressTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $this->actingAs($customer, 'customer');
 
-        $this->post('/ui/add-new-address', [])
+        $this->post('/add-new-address', [])
             ->assertSessionHasErrors(['label', 'recipientName', 'phone', 'addressLine', 'kota', 'provinsi']);
     }
 }

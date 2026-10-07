@@ -23,17 +23,17 @@ export default function OrderDetail({ order }: { order: {
             return;
         }
 
-        router.post(`/ui/pesanan/${order.number}/batalkan`);
+        router.post(`/pesanan/${order.number}/batalkan`);
     };
 
     const pay = () => {
-        router.post(`/ui/pesanan/${order.number}/bayar`);
+        router.post(`/pesanan/${order.number}/bayar`);
     };
 
     return (
         <MobileLayout
             title="Detail Pesanan"
-            header={<AppBar title="Detail Pesanan" back="/ui/order-history" tone="brand" />}
+            header={<AppBar title="Detail Pesanan" back="/order-history" tone="brand" />}
         >
             <FlashBanner />
 
@@ -51,7 +51,7 @@ export default function OrderDetail({ order }: { order: {
 
                 {order.steps.length > 0 ? (
                     <Link
-                        href={`/ui/track-order/${order.number}`}
+                        href={`/track-order/${order.number}`}
                         className="mb-3.5 flex items-center justify-between rounded-[2px] border border-line bg-white p-3.5 text-xs"
                     >
                         <span className="flex items-center gap-2">

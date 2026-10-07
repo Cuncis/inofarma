@@ -3,15 +3,20 @@ import { Link, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
+import DesktopCheckoutShell, { CheckoutSummary } from '@/Components/Shop/DesktopCheckoutShell';
 import FlashBanner from '@/Components/Shop/FlashBanner';
 import Icon from '@/Components/Shop/Icon';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
+import useShopUser from '@/Components/Shop/useShopUser';
 import { money } from '@/Components/Shop/data';
 
 export default function Checkout({ cart, pickupEtaOptions }: {
-  cart: { branch: CartBranch, address: SavedAddress | null, items: CartLine[], subtotal: number, coupon: CartCoupon | null, discount: number },
+  cart: { branch: CartBranch, address: SavedAddress | null, items: CartPreviewItem[], subtotal: number, coupon: CartCoupon | null, discount: number },
   pickupEtaOptions: string[],
 }) {
     const { branch } = cart;
+    const isDesktop = useIsDesktop();
+    const { name: customerName, email: customerEmail } = useShopUser();
 
     const [fulfilment, setFulfilment] = useState<'antar' | 'ambil'>(
         branch.supportsDelivery ? 'antar' : 'ambil',
@@ -51,7 +56,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
         let cancelled = false;
         setCourierLoading(true);
 
-        fetch('/ui/checkout/ongkir', { headers: { Accept: 'application/json' } })
+        fetch('/checkout/ongkir', { headers: { Accept: 'application/json' } })
             .then((response) => response.json())
             .then((body) => {
                 if (cancelled) {
@@ -87,13 +92,188 @@ export default function Checkout({ cart, pickupEtaOptions }: {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/checkout', { preserveScroll: true });
+        post('/checkout', { preserveScroll: true });
     };
+
+    if (isDesktop) {
+        const shippingLabel = fulfilment === 'ambil' || freeShipping
+            ? 'Gratis'
+            : data.courier ? money(shipping) : 'Pilih alamat dan kurir';
+
+        const choice = (active: boolean) => `flex h-[58px] flex-1 items-center justify-center gap-2 rounded-[2px] text-[14px] font-bold ${
+            active ? 'bg-white shadow-card ring-1 ring-black/10' : 'text-ink'
+        }`;
+        const option = (active: boolean) => `flex w-full items-center justify-between border px-4 py-3.5 text-left text-[13px] ${
+            active ? 'border-2 border-brand' : 'border-line'
+        }`;
+
+        return (
+            <DesktopCheckoutShell
+                title="Checkout"
+                summary={
+                    <CheckoutSummary
+                        items={cart.items}
+                        subtotal={cart.subtotal}
+                        discount={cart.discount}
+                        couponCode={cart.coupon?.code}
+                        shippingLabel={shippingLabel}
+                        total={total}
+                    />
+                }
+            >
+                <FlashBanner />
+
+                <form onSubmit={submit}>
+                    <h2 className="mb-4 font-display text-[22px]">Kontak</h2>
+                    <div className="mb-8 border border-line px-4 py-3.5 text-[13px]">
+                        <div className="font-bold">{customerName}</div>
+                        <div className="text-muted">{customerEmail}</div>
+                    </div>
+
+                    <h2 className="mb-4 font-display text-[22px]">Pengantaran</h2>
+                    <div className="mb-4 flex gap-1 rounded-[2px] bg-[#f5f5f5] p-1">
+                        {branch.supportsDelivery ? (
+                            <button type="button" onClick={() => chooseFulfilment('antar')} className={choice(fulfilment === 'antar')}>
+                                <Icon name="bagSimple" size={18} />
+                                Kirim ke alamat
+                            </button>
+                        ) : null}
+                        {branch.supportsPickup ? (
+                            <button type="button" onClick={() => chooseFulfilment('ambil')} className={choice(fulfilment === 'ambil')}>
+                                <Icon name="pin" size={18} />
+                                Ambil di toko
+                            </button>
+                        ) : null}
+                    </div>
+                    {errors.fulfilment ? <p className="mb-3 text-[12px] text-danger">{errors.fulfilment}</p> : null}
+
+                    {fulfilment === 'antar' ? (
+                        <>
+                            <Link href="/shipping-details" className="mb-6 block border border-line px-4 py-3.5">
+                                <div className="mb-1 flex items-center justify-between text-[13px] font-bold">
+                                    <span>Alamat pengiriman</span>
+                                    <Icon name="edit" size={16} />
+                                </div>
+                                {cart.address ? (
+                                    <span className="text-[13px] text-muted">{cart.address.fullAddress}</span>
+                                ) : (
+                                    <span className="text-[13px] text-link">Pilih alamat pengiriman &rarr;</span>
+                                )}
+                            </Link>
+
+                            {cart.address ? (
+                                <>
+                                    <h2 className="mb-3 font-display text-[18px]">Metode pengiriman</h2>
+                                    {courierLoading ? (
+                                        <p className="mb-6 text-[13px] text-muted">Memuat pilihan kurir…</p>
+                                    ) : courierOptions.length === 0 ? (
+                                        <p className="mb-6 text-[13px] text-danger">
+                                            Tidak ada kurir yang menjangkau alamat ini. Coba alamat lain.
+                                        </p>
+                                    ) : (
+                                        <div className="mb-6 space-y-2">
+                                            {courierOptions.map((courier) => {
+                                                const selected = Boolean(
+                                                    data.courier
+                                                    && data.courier.courierCompany === courier.courierCompany
+                                                    && data.courier.courierType === courier.courierType,
+                                                );
+
+                                                return (
+                                                    <button
+                                                        key={`${courier.courierCompany}-${courier.courierType}`}
+                                                        type="button"
+                                                        onClick={() => setData('courier', courier)}
+                                                        className={option(selected)}
+                                                    >
+                                                        <span>
+                                                            {courier.courierName} {courier.serviceName}
+                                                            {courier.duration ? (
+                                                                <span className="block text-[12px] text-muted">{courier.duration}</span>
+                                                            ) : null}
+                                                        </span>
+                                                        <span>{money(courier.price)}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </>
+                            ) : null}
+                        </>
+                    ) : (
+                        <div className="mb-6 border border-line px-4 py-3.5">
+                            <div className="mb-1 text-[13px] font-bold">Ambil di {branch.name}</div>
+                            <p className="mb-3 text-[13px] text-muted">{branch.fullAddress}</p>
+                            <div className="flex flex-wrap gap-2">
+                                {pickupEtaOptions.map((eta) => (
+                                    <button
+                                        key={eta}
+                                        type="button"
+                                        onClick={() => setData('pickupEta', eta)}
+                                        className={`h-9 px-3.5 text-[12px] ${
+                                            data.pickupEta === eta ? 'border-2 border-brand font-bold text-brand' : 'border border-line text-muted'
+                                        }`}
+                                    >
+                                        {eta}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {errors.address ? <p className="mb-3 text-[12px] text-danger">{errors.address}</p> : null}
+                    {errors.courier ? <p className="mb-3 text-[12px] text-danger">{errors.courier}</p> : null}
+
+                    <h2 className="mb-3 font-display text-[18px]">Metode pembayaran</h2>
+                    {fulfilment === 'ambil' ? (
+                        <div className="mb-6 space-y-2">
+                            <button type="button" onClick={() => setData('paymentMethod', 'online')} className={option(data.paymentMethod === 'online')}>
+                                Bayar Sekarang
+                            </button>
+                            <button type="button" onClick={() => setData('paymentMethod', 'Tunai')} className={option(data.paymentMethod === 'Tunai')}>
+                                Bayar di Tempat
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mb-6 border-2 border-brand px-4 py-3.5 text-[13px]">
+                            <div className="font-bold text-brand">Bayar Online (DOKU)</div>
+                            <p className="mt-1 text-muted">
+                                Anda akan diarahkan ke halaman pembayaran DOKU: transfer bank, e-wallet, atau QRIS.
+                            </p>
+                        </div>
+                    )}
+                    {errors.paymentMethod ? <p className="mb-3 text-[12px] text-danger">{errors.paymentMethod}</p> : null}
+
+                    <textarea
+                        value={data.note}
+                        onChange={(event) => setData('note', event.target.value)}
+                        placeholder="Catatan (opsional)..."
+                        rows={3}
+                        className="mb-6 w-full resize-none border border-line p-3 text-[13px] text-muted placeholder:text-[#bbbbbb] focus:outline-hidden focus:ring-0"
+                    />
+                    {errors.quantity ? <p className="mb-3 text-[12px] text-danger">{errors.quantity}</p> : null}
+
+                    <div className="flex items-center justify-between">
+                        <Link href="/cart" className="text-[13px] text-link">&lsaquo; Kembali ke keranjang</Link>
+                        <button
+                            type="submit"
+                            disabled={processing || (fulfilment === 'antar' && (! cart.address || ! data.courier))}
+                            className="h-[52px] bg-success px-8 text-[14px] font-bold text-white disabled:opacity-60"
+                        >
+                            {processing
+                                ? 'Memproses pesanan…'
+                                : data.paymentMethod === 'online' ? 'Lanjut ke Pembayaran' : 'Konfirmasi Pesanan'}
+                        </button>
+                    </div>
+                </form>
+            </DesktopCheckoutShell>
+        );
+    }
 
     return (
         <MobileLayout
             title="Checkout"
-            header={<AppBar title="Checkout" back="/ui/cart" tone="brand" />}
+            header={<AppBar title="Checkout" back="/cart" tone="brand" />}
         >
             <FlashBanner />
 
@@ -171,7 +351,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                 {fulfilment === 'antar' ? (
                     <>
                         <Link
-                            href="/ui/shipping-details"
+                            href="/shipping-details"
                             className="mb-2 block border border-line bg-lilac p-3.5"
                         >
                             <div className="mb-2 flex items-center justify-between border-b border-line pb-2 font-display text-[13px]">

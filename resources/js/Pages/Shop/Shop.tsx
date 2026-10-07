@@ -83,8 +83,8 @@ export default function Shop() {
                     tone="brand"
                     actions={
                         <>
-                            <IconLink name="tag" href="/ui/filter" label="Filter" />
-                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
+                            <IconLink name="tag" href="/filter" label="Filter" />
+                            <IconLink name="cart" href="/cart" label="Keranjang" badge={cartCount} />
                         </>
                     }
                 />

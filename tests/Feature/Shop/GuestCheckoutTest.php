@@ -30,7 +30,7 @@ class GuestCheckoutTest extends TestCase
 
     private function addToCart(Product $product, Branch $branch, int $quantity = 1): void
     {
-        $this->post('/ui/keranjang', [
+        $this->post('/keranjang', [
             'productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => $quantity,
         ])->assertSessionHasNoErrors();
     }
@@ -75,7 +75,7 @@ class GuestCheckoutTest extends TestCase
         $this->addToCart($product, $branch);
         $this->makeRegionChain();
 
-        $this->get('/ui/checkout/tamu')
+        $this->get('/checkout/tamu')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Shop/GuestCheckout')
@@ -85,7 +85,7 @@ class GuestCheckoutTest extends TestCase
 
     public function test_guest_checkout_redirects_to_cart_when_empty(): void
     {
-        $this->get('/ui/checkout/tamu')->assertRedirect(route('ui.cart'));
+        $this->get('/checkout/tamu')->assertRedirect(route('ui.cart'));
     }
 
     public function test_an_already_signed_in_customer_is_bounced_to_the_real_checkout(): void
@@ -93,7 +93,7 @@ class GuestCheckoutTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $this->actingAs($customer, 'customer');
 
-        $this->get('/ui/checkout/tamu')->assertRedirect(route('ui.checkout'));
+        $this->get('/checkout/tamu')->assertRedirect(route('ui.checkout'));
     }
 
     public function test_submitting_guest_details_creates_an_account_signs_in_and_reaches_checkout(): void
@@ -106,7 +106,7 @@ class GuestCheckoutTest extends TestCase
         $this->addToCart($product, $branch, 2);
         $this->makeRegionChain();
 
-        $this->post('/ui/checkout/tamu', $this->guestDetails())
+        $this->post('/checkout/tamu', $this->guestDetails())
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('ui.checkout'));
 
@@ -132,7 +132,7 @@ class GuestCheckoutTest extends TestCase
 
         // Checkout now behaves exactly like any other signed-in customer's —
         // the address just created is already attached to the cart.
-        $this->get('/ui/checkout')
+        $this->get('/checkout')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('cart.address.id', $address->id)
@@ -149,7 +149,7 @@ class GuestCheckoutTest extends TestCase
         $this->addToCart($product, $branch);
         $this->makeRegionChain();
 
-        $this->post('/ui/checkout/tamu', $this->guestDetails(['email' => 'sudah@example.test']))
+        $this->post('/checkout/tamu', $this->guestDetails(['email' => 'sudah@example.test']))
             ->assertSessionHasErrors('email');
 
         $this->assertFalse(Auth::guard('customer')->check());
@@ -163,7 +163,7 @@ class GuestCheckoutTest extends TestCase
         $this->stock($branch, $product, 10);
         $this->addToCart($product, $branch);
 
-        $this->post('/ui/checkout/tamu', $this->guestDetails(['consent' => false, 'kota' => '', 'provinsi' => '']))
+        $this->post('/checkout/tamu', $this->guestDetails(['consent' => false, 'kota' => '', 'provinsi' => '']))
             ->assertSessionHasErrors(['consent', 'kota', 'provinsi']);
 
         $this->assertSame(0, Customer::count());
@@ -171,7 +171,7 @@ class GuestCheckoutTest extends TestCase
 
     public function test_guest_checkout_store_redirects_to_cart_when_empty(): void
     {
-        $this->post('/ui/checkout/tamu', $this->guestDetails())->assertRedirect(route('ui.cart'));
+        $this->post('/checkout/tamu', $this->guestDetails())->assertRedirect(route('ui.cart'));
 
         $this->assertSame(0, Customer::count());
     }

@@ -25,14 +25,14 @@ export default function AddNewAddress({ provinces }: { provinces: { code: string
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/add-new-address');
+        post('/add-new-address');
     };
 
     return (
         <MobileLayout
             title="Tambah Alamat Baru"
             header={
-                <AppBar title="Tambah Alamat Baru" back="/ui/my-address" tone="brand" />
+                <AppBar title="Tambah Alamat Baru" back="/my-address" tone="brand" />
             }
         >
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-4">

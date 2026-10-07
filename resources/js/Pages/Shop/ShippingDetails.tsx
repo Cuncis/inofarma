@@ -19,7 +19,7 @@ export default function ShippingDetails({ addresses }: { addresses: SavedAddress
         setSubmitting(true);
 
         router.post(
-            '/ui/shipping-details',
+            '/shipping-details',
             { addressId: selected },
             { onFinish: () => setSubmitting(false) },
         );
@@ -28,7 +28,7 @@ export default function ShippingDetails({ addresses }: { addresses: SavedAddress
     return (
         <MobileLayout
             title="Pengiriman"
-            header={<AppBar title="Detail Pengiriman" back="/ui/checkout" tone="brand" />}
+            header={<AppBar title="Detail Pengiriman" back="/checkout" tone="brand" />}
             footer={
                 <div className="border-t border-line p-3.5">
                     <Button onClick={submit} disabled={! selected || submitting}>
@@ -64,7 +64,7 @@ export default function ShippingDetails({ addresses }: { addresses: SavedAddress
                     </p>
                 ) : null}
 
-                <Link href="/ui/add-new-address" className="mt-2 block text-center text-xs text-brand">
+                <Link href="/add-new-address" className="mt-2 block text-center text-xs text-brand">
                     + Tambah alamat baru
                 </Link>
             </div>

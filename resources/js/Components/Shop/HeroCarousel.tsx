@@ -10,9 +10,9 @@ import Carousel from './Carousel';
  * apiece, ~4.8MB total for one home-page load; these are ~250KB each.
  */
 const SLIDES = [
-    { image: '/media/images/hero/hero-banner-1.jpg', href: '/ui/shop', alt: 'Lebih hemat, lebih lengkap, belanja produk kesehatan di Apotek Inofarma' },
-    { image: '/media/images/hero/hero-banner-2.jpg', href: '/ui/signup', alt: 'Gabung Sobat Ino, daftar gratis dan dapatkan harga spesial' },
-    { image: '/media/images/hero/hero-banner-3.jpg', href: '/ui/cabang-kami', alt: 'Inofarma siap antar 24/7' },
+    { image: '/media/images/hero/hero-banner-1.jpg', href: '/shop', alt: 'Lebih hemat, lebih lengkap, belanja produk kesehatan di Apotek Inofarma' },
+    { image: '/media/images/hero/hero-banner-2.jpg', href: '/signup', alt: 'Gabung Sobat Ino, daftar gratis dan dapatkan harga spesial' },
+    { image: '/media/images/hero/hero-banner-3.jpg', href: '/cabang-kami', alt: 'Inofarma siap antar 24/7' },
 ];
 
 export default function HeroCarousel({ className = 'mx-3.5 mt-3.5' }) {

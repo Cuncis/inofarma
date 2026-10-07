@@ -11,14 +11,14 @@ export default function ForgotPassword() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/lupa-sandi');
+        post('/lupa-sandi');
     };
 
     return (
         <MobileLayout
             title="Lupa Kata Sandi"
             background="bg-canvas"
-            header={<AppBar title="Lupa Kata Sandi" back="/ui/signin" tone="brand" />}
+            header={<AppBar title="Lupa Kata Sandi" back="/signin" tone="brand" />}
         >
             <form
                 onSubmit={submit}

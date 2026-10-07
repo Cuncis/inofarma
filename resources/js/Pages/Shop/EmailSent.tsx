@@ -9,7 +9,7 @@ export default function EmailSent() {
         <MobileLayout
             title="Email Terkirim"
             header={
-                <AppBar title="Atur Ulang Sandi" back="/ui/forgot-password" tone="white" />
+                <AppBar title="Atur Ulang Sandi" back="/forgot-password" tone="white" />
             }
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-canvas p-6 text-center">
@@ -27,11 +27,11 @@ export default function EmailSent() {
                     kata sandi ke email Anda.
                 </p>
 
-                <Button href="/ui/new-password">Oke, Mengerti!</Button>
+                <Button href="/new-password">Oke, Mengerti!</Button>
 
                 <div className="mt-2.5 flex gap-1 text-xs">
                     <span>Tidak menerima email?</span>
-                    <Link href="/ui/forgot-password" className="text-brand">
+                    <Link href="/forgot-password" className="text-brand">
                         Kirim ulang
                     </Link>
                 </div>

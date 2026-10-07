@@ -32,7 +32,7 @@ class RegionTest extends TestCase
 
         $this->actingAs(Customer::factory()->create(['status' => 'aktif']), 'customer');
 
-        $this->get('/ui/wilayah')
+        $this->get('/wilayah')
             ->assertOk()
             ->assertJson(['options' => [
                 ['code' => '31', 'name' => 'DKI Jakarta', 'postalCode' => null],
@@ -46,13 +46,13 @@ class RegionTest extends TestCase
 
         $this->actingAs(Customer::factory()->create(['status' => 'aktif']), 'customer');
 
-        $this->get('/ui/wilayah?parent=31')
+        $this->get('/wilayah?parent=31')
             ->assertOk()
             ->assertJson(['options' => [
                 ['code' => '31.71', 'name' => 'Jakarta Pusat', 'postalCode' => null],
             ]]);
 
-        $this->get('/ui/wilayah?parent=31.71.01')
+        $this->get('/wilayah?parent=31.71.01')
             ->assertOk()
             ->assertJson(['options' => [
                 ['code' => '31.71.01.1001', 'name' => 'Gambir', 'postalCode' => '10110'],
@@ -68,7 +68,7 @@ class RegionTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $this->actingAs($customer, 'customer');
 
-        $this->get('/ui/add-new-address')->assertInertia(fn (AssertableInertia $page) => $page
+        $this->get('/add-new-address')->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Shop/AddNewAddress')
             ->has('provinces', 1)
             ->where('provinces.0.code', '31')

@@ -5,7 +5,7 @@ import { useShopCatalog } from './data';
  * Home-page quick-category shortcuts, right below the hero carousel.
  *
  * Reads the real admin-managed categories (`useShopCatalog().categories`)
- * so every badge links straight to `/ui/shop?category=<name>` and lands on
+ * so every badge links straight to `/shop?category=<name>` and lands on
  * that category already filtered, plus one "Semua Produk" tile appended at
  * the end that links to the unfiltered shop. Badge art is self-hosted under
  * `public/media/images/categories/` (same reasoning as the hero carousel and
@@ -35,8 +35,8 @@ export default function CategoryShortcuts({ className = 'mx-3.5 my-3.5' }) {
                     key={category.name}
                     href={
                         category.name === 'Semua Produk'
-                            ? '/ui/shop'
-                            : `/ui/shop?category=${encodeURIComponent(category.name)}`
+                            ? '/shop'
+                            : `/shop?category=${encodeURIComponent(category.name)}`
                     }
                     className="flex flex-col items-center justify-center gap-1.5 border-b border-r border-line px-1.5 py-3.5 text-center"
                 >

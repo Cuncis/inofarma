@@ -110,8 +110,20 @@ $beShopScreens = [
     'kebijakan-pengembalian-dana' => 'RefundPolicy',
 ];
 
-Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
-    Route::get('/', fn () => Inertia::render('Shop/Index'))->name('index');
+/**
+ * The storefront used to live under /ui. Old bookmarks, emails and search
+ * results still point there, so send them to the same page without the prefix.
+ */
+Route::get('ui/{path?}', function (Request $request, ?string $path = null) {
+    $query = $request->getQueryString();
+
+    return redirect('/'.ltrim((string) $path, '/').($query ? '?'.$query : ''), 301);
+})->where('path', '.*');
+
+Route::name('ui.')->group(function () use ($beShopScreens) {
+    // The developer screen index. The storefront no longer lives under /ui,
+    // so it can't take `/` (that is the homepage).
+    Route::get('screens', fn () => Inertia::render('Shop/Index'))->name('index');
 
     foreach ($beShopScreens as $slug => $component) {
         Route::get($slug, fn () => Inertia::render("Shop/{$component}"))->name($slug);
@@ -158,13 +170,12 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
      * signing in.
      */
     Route::get('cart', [CartController::class, 'index'])->name('cart');
+    Route::get('keranjang/ringkas', [CartController::class, 'preview'])->name('keranjang.ringkas');
     Route::post('keranjang', [CartController::class, 'store'])->name('keranjang.store');
     Route::patch('keranjang/{product}', [CartController::class, 'update'])->name('keranjang.update');
     Route::delete('keranjang/{product}', [CartController::class, 'destroy'])->name('keranjang.destroy');
 
-    Route::get('order-successful', fn (Request $request) => Inertia::render('Shop/OrderSuccessful', [
-        'orderNumber' => $request->query('nomor'),
-    ]))->name('order-successful');
+    Route::get('order-successful', [ShopOrderController::class, 'success'])->name('order-successful');
 
     // Public — the Provinsi/Kota/Kecamatan/Kelurahan cascade used by both
     // `Shop/AddNewAddress.tsx` (signed-in) and `Shop/GuestCheckout.tsx`

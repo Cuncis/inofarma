@@ -3,9 +3,9 @@ import Icon, { type IconName } from './Icon';
 
 const tabs: { key: string; label: string; icon: IconName; route: string }[] = [
     { key: 'home', label: 'Beranda', icon: 'home', route: '/' },
-    { key: 'order', label: 'Pesanan', icon: 'bagSimple', route: '/ui/cart' },
-    { key: 'wishlist', label: 'Favorit', icon: 'heart', route: '/ui/wishlist' },
-    { key: 'profile', label: 'Profil', icon: 'user', route: '/ui/profile' },
+    { key: 'order', label: 'Pesanan', icon: 'bagSimple', route: '/cart' },
+    { key: 'wishlist', label: 'Favorit', icon: 'heart', route: '/wishlist' },
+    { key: 'profile', label: 'Profil', icon: 'user', route: '/profile' },
 ];
 
 /**

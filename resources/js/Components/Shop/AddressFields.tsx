@@ -69,7 +69,7 @@ function useRegionOptions(parentCode: string): [RegionOption[], boolean] {
         let cancelled = false;
         setLoading(true);
 
-        fetch(`/ui/wilayah?parent=${parentCode}`, { headers: { Accept: 'application/json' } })
+        fetch(`/wilayah?parent=${parentCode}`, { headers: { Accept: 'application/json' } })
             .then((response) => response.json())
             .then((body) => {
                 if (! cancelled) {

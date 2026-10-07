@@ -35,20 +35,20 @@ export default function OtpCode() {
     const submit = (event: FormEvent) => {
         event.preventDefault();
 
-        post('/ui/otp-code');
+        post('/otp-code');
     };
 
     const resend = () => {
         setDigits(digits.map(() => ''));
         setData('code', '');
-        router.post('/ui/otp-code/kirim-ulang', {}, { preserveScroll: true });
+        router.post('/otp-code/kirim-ulang', {}, { preserveScroll: true });
     };
 
     return (
         <MobileLayout
             title="Kode Verifikasi"
             header={
-                <AppBar title="Verifikasi Nomor HP" back="/ui/verify-phone" tone="brand" />
+                <AppBar title="Verifikasi Nomor HP" back="/verify-phone" tone="brand" />
             }
         >
             <FlashBanner />

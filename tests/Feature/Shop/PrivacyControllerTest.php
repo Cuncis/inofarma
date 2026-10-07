@@ -25,7 +25,7 @@ class PrivacyControllerTest extends TestCase
         CustomerAddress::factory()->for($customer)->create(['address_line' => 'Jl. Melati No. 3']);
         Order::factory()->create(['customer_id' => $customer->id, 'number' => 'INO-TEST-1']);
 
-        $response = $this->actingAs($customer, 'customer')->get('/ui/privasi-saya/unduh');
+        $response = $this->actingAs($customer, 'customer')->get('/privasi-saya/unduh');
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/json');
@@ -44,7 +44,7 @@ class PrivacyControllerTest extends TestCase
         CustomerAddress::factory()->for($customer)->create();
 
         $this->actingAs($customer, 'customer')
-            ->delete('/ui/privasi-saya', ['password' => 'password123'])
+            ->delete('/privasi-saya', ['password' => 'password123'])
             ->assertRedirect(route('home'));
 
         $this->assertFalse(Auth::guard('customer')->check());
@@ -61,7 +61,7 @@ class PrivacyControllerTest extends TestCase
         $customer = Customer::factory()->create(['status' => 'aktif', 'password' => Hash::make('password123')]);
 
         $this->actingAs($customer, 'customer')
-            ->delete('/ui/privasi-saya', ['password' => 'salah'])
+            ->delete('/privasi-saya', ['password' => 'salah'])
             ->assertSessionHasErrors('password');
 
         $this->assertTrue(Auth::guard('customer')->check());
@@ -74,7 +74,7 @@ class PrivacyControllerTest extends TestCase
         $order = Order::factory()->create(['customer_id' => $customer->id]);
 
         $this->actingAs($customer, 'customer')
-            ->delete('/ui/privasi-saya', ['password' => 'password123']);
+            ->delete('/privasi-saya', ['password' => 'password123']);
 
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'customer_id' => $customer->id]);
     }

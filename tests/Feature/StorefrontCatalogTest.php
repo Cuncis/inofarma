@@ -54,7 +54,7 @@ class StorefrontCatalogTest extends TestCase
         // customer-gated, so this needs a signed-in shopper.
         $this->actingAs(Customer::factory()->create(['status' => 'aktif']), 'customer');
 
-        $this->get('/ui/profile')
+        $this->get('/profile')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('catalog.products', self::PRODUCT_COUNT)
             );
@@ -109,7 +109,7 @@ class StorefrontCatalogTest extends TestCase
             ->call('create')
             ->assertHasNoFormErrors();
 
-        $this->get('/ui/shop')
+        $this->get('/shop')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('catalog.products', self::PRODUCT_COUNT + 1)
                 ->where('catalog.products.12.name', 'Ibuprofen 400mg')
@@ -159,7 +159,7 @@ class StorefrontCatalogTest extends TestCase
 
     public function test_category_counts_follow_the_catalogue(): void
     {
-        $this->get('/ui/categories')
+        $this->get('/categories')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('catalog.categories.0.name', 'Kesehatan')
                 ->where('catalog.categories.0.products', 1)

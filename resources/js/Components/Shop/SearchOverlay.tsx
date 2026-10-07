@@ -62,12 +62,12 @@ export default function SearchOverlay({ open, onClose }: { open: boolean, onClos
 
     const seeAll = () => {
         onClose();
-        router.visit(`/ui/shop?q=${encodeURIComponent(query.trim())}`);
+        router.visit(`/shop?q=${encodeURIComponent(query.trim())}`);
     };
 
     const openProduct = () => {
         onClose();
-        router.visit('/ui/product-detail');
+        router.visit('/product-detail');
     };
 
     return (

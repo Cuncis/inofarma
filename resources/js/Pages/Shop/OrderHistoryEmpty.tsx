@@ -7,7 +7,7 @@ export default function OrderHistoryEmpty() {
     return (
         <MobileLayout
             title="Riwayat Pesanan Kosong"
-            header={<AppBar title="Riwayat Pesanan" back="/ui/profile" tone="ink" />}
+            header={<AppBar title="Riwayat Pesanan" back="/profile" tone="ink" />}
         >
             <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-7 text-center">
                 <img
@@ -28,7 +28,7 @@ export default function OrderHistoryEmpty() {
                     Yuk, mulai belanja!
                 </p>
 
-                <Button href="/ui/shop">Mulai Belanja</Button>
+                <Button href="/shop">Mulai Belanja</Button>
             </div>
         </MobileLayout>
     );

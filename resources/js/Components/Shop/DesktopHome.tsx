@@ -16,7 +16,7 @@ function ProductSection({ title, products }: { title: string, products: ProductT
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-display text-[13px] text-brand">{title}</h2>
 
-                <Link href="/ui/shop" className="text-[11px] font-bold text-success">
+                <Link href="/shop" className="text-[11px] font-bold text-success">
                     Lihat semua
                 </Link>
             </div>
