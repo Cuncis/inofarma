@@ -34,7 +34,7 @@ export default function SearchBar({
                 placeholder={placeholder}
                 aria-label={ariaLabel}
                 autoFocus={autoFocus}
-                className="h-11 w-full border border-line bg-white pl-10 pr-10 text-xs text-muted placeholder:text-[#bbbbbb] focus:border-brand focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
+                className="h-11 w-full border border-line bg-white pl-10 pr-10 text-xs text-muted placeholder:text-[#bbbbbb] focus:border-brand focus:outline-hidden focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
             />
 
             {value ? (

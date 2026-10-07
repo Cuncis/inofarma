@@ -63,7 +63,7 @@ export default function PrivacyCenter() {
                         className="mb-3"
                     />
 
-                    <Button type="submit" disabled={processing} className="!bg-danger">
+                    <Button type="submit" disabled={processing} className="bg-danger!">
                         {processing ? 'Menghapus…' : 'Hapus Akun Saya'}
                     </Button>
                 </form>

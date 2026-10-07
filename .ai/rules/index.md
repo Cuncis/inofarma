@@ -12,7 +12,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Controllers/** | .ai/rules/controllers.md |
 | app/Models/Region.php,app/Console/Commands/ImportRegions.php,app/Http/Controllers/Shop/RegionController.php,database/data/** | .ai/rules/data.md |
 | tests/Feature/** | .ai/rules/feature.md |
-| tailwind.config.js | .ai/rules/general.md |
+| resources/css/app.css | .ai/rules/general.md |
 | app/Filament/Resources/Invoices/**,app/Models/Coupon.php,app/Filament/Resources/Coupons/** | .ai/rules/http-controllers-admin.md |
 | app/Models/*.php,app/Http/Middleware/Ensure*IsAuthenticated.php,config/auth.php | .ai/rules/http-middleware.md |
 | app/Support/Inventory/** | .ai/rules/inventory.md |

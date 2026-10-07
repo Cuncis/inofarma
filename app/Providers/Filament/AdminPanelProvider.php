@@ -12,7 +12,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -33,13 +32,17 @@ class AdminPanelProvider extends PanelProvider
             // the same `web` guard. This panel trusts that session instead
             // of shipping its own login page — see the `admin` middleware
             // alias below, the same one guarding that flow.
+            ->brandName('Inofarma')
+            ->font('Inter')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#303030'),
+                'info' => Color::hex('#005bd3'),
             ])
             // Light by default rather than following the OS/browser
             // preference — staff can still switch to dark from the topbar,
             // this only changes what a first-time visitor sees.
             ->defaultThemeMode(ThemeMode::Light)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -48,7 +51,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             // Replaces the legacy admin topbar bell (NotificationController) —
             // App\Notifications\Admin\LowStock already writes to the standard

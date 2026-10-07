@@ -53,7 +53,7 @@ export default function DesktopHeader() {
                             onChange={(event) => setQuery(event.target.value)}
                             placeholder="Cari produk kesehatan di Inofarma"
                             aria-label="Cari produk kesehatan di Inofarma"
-                            className="min-w-0 flex-1 border-0 px-4 text-[13px] text-ink placeholder:text-faint focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
+                            className="min-w-0 flex-1 border-0 px-4 text-[13px] text-ink placeholder:text-faint focus:outline-hidden focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
                         />
 
                         <button

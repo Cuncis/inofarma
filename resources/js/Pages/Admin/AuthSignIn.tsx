@@ -56,7 +56,7 @@ export default function AuthSignIn() {
                             type="checkbox"
                             checked={data.remember}
                             onChange={() => setData('remember', ! data.remember)}
-                            className="h-4 w-4 rounded border-admin-border text-brand focus:ring-brand dark:border-admin-dark-border"
+                            className="h-4 w-4 rounded-sm border-admin-border text-brand focus:ring-brand dark:border-admin-dark-border"
                         />
                         Ingat saya
                     </label>

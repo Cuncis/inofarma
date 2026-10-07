@@ -61,7 +61,7 @@ export default function Field({
                     defaultValue={defaultValue}
                     placeholder={placeholder}
                     onChange={onChange}
-                    className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] text-muted placeholder:text-[#bbbbbb] focus:border-0 focus:outline-none focus:ring-0"
+                    className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] text-muted placeholder:text-[#bbbbbb] focus:border-0 focus:outline-hidden focus:ring-0"
                     {...rest}
                 />
 

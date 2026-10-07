@@ -29,7 +29,7 @@ export default function ProductCell({ product, compact = false, className = '' }
 
                 <div className="text-[9px] uppercase text-muted">{product.brand}</div>
 
-                <div className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-[11px] font-medium leading-5 text-brand">
+                <div className="mt-1.5 line-clamp-2 min-h-10 text-[11px] font-medium leading-5 text-brand">
                     {product.name}
                 </div>
 

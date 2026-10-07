@@ -46,7 +46,7 @@ export default function AddNewAddress({ provinces }: { provinces: { code: string
                         name="label"
                         value={data.label}
                         onChange={(event) => setData('label', event.target.value)}
-                        className={`h-control w-full border bg-white px-3.5 text-[13px] text-muted focus:outline-none focus:ring-0 ${
+                        className={`h-control w-full border bg-white px-3.5 text-[13px] text-muted focus:outline-hidden focus:ring-0 ${
                             errors.label ? 'border-danger' : 'border-blush'
                         }`}
                     >

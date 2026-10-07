@@ -67,7 +67,7 @@ export default function Filter() {
                             <span
                                 className={`h-3.5 w-3.5 rounded-full border-2 ${
                                     range === option.label
-                                        ? 'border-[4px] border-brand'
+                                        ? 'border-4 border-brand'
                                         : 'border-line'
                                 }`}
                             />

@@ -184,7 +184,7 @@ export default function Cart({ cart }: { cart: {
                                     value={promo}
                                     onChange={(event) => setPromo(event.target.value)}
                                     placeholder="Masukkan kode promo"
-                                    className="h-[50px] border border-blush px-3.5 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                                    className="h-[50px] border border-blush px-3.5 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-hidden focus:ring-0"
                                 />
 
                                 <button

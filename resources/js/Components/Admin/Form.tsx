@@ -2,7 +2,7 @@ import type { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes 
 import Icon from './Icon';
 
 const control =
-    'w-full rounded-lg border border-admin-border bg-admin-card px-3 text-[13px] text-admin-body placeholder:text-admin-muted focus:border-brand focus:outline-none focus:ring-0 dark:border-admin-dark-border dark:bg-admin-dark-card dark:text-admin-dark-body';
+    'w-full rounded-lg border border-admin-border bg-admin-card px-3 text-[13px] text-admin-body placeholder:text-admin-muted focus:border-brand focus:outline-hidden focus:ring-0 dark:border-admin-dark-border dark:bg-admin-dark-card dark:text-admin-dark-body';
 
 /**
  * Label + control + optional hint, the row every admin form is built from.

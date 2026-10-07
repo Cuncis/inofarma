@@ -16,7 +16,7 @@ const AUTO_ADVANCE_MS = 5000;
  * promo-banner slot on Home; single-slide callers just render one static
  * slide with no dots.
  */
-export default function Carousel({ slides, aspect = 'aspect-[16/9]', className = '' }: {
+export default function Carousel({ slides, aspect = 'aspect-video', className = '' }: {
   slides: { image: string, href: string, alt: string }[],
   aspect?: string,
   className?: string,

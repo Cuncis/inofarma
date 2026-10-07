@@ -26,7 +26,7 @@ function RegionSelect({ id, label, value, onChange, onFocus, options, placeholde
                 value={value}
                 onChange={onChange}
                 onFocus={onFocus}
-                className={`h-control w-full truncate border bg-white px-3.5 text-[13px] text-muted focus:outline-none focus:ring-0 ${
+                className={`h-control w-full truncate border bg-white px-3.5 text-[13px] text-muted focus:outline-hidden focus:ring-0 ${
                     error ? 'border-danger' : 'border-blush'
                 }`}
             >
@@ -288,7 +288,7 @@ export default function AddressFields<T extends AddressRegionData>({ data, setDa
                         value={data.postalCode}
                         readOnly
                         placeholder="Terisi otomatis"
-                        className="h-control w-full border border-blush bg-white px-3.5 text-[13px] text-muted focus:outline-none focus:ring-0"
+                        className="h-control w-full border border-blush bg-white px-3.5 text-[13px] text-muted focus:outline-hidden focus:ring-0"
                     />
                 </div>
             </div>

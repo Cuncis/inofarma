@@ -1,0 +1,269 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+/*
+ * The admin panel's own stylesheet. Filament's published CSS only contains the
+ * utilities Filament itself uses, so the custom pages in
+ * `resources/views/filament/**` (Hak Akses, Keamanan, ...) get none of their
+ * Tailwind classes unless this theme scans them.
+ */
+@source '../../../../app/Filament/**/*';
+@source '../../../views/filament/**/*';
+
+/*
+ * Shopify-admin look: black top bar, flat light-grey canvas and sidebar,
+ * white rounded cards, Inter type, blue text links. These are plain
+ * (unlayered) rules on purpose, so they win over Filament's own component
+ * layer without needing !important.
+ */
+:root {
+    --shop-canvas: #f1f1f1;
+    --shop-surface: #ffffff;
+    --shop-topbar: #1a1a1a;
+    --shop-text: #303030;
+    --shop-subdued: #616161;
+    --shop-border: #e3e3e3;
+    --shop-link: #005bd3;
+    --shop-card-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 1px 0 rgb(26 26 26 / 0.07);
+}
+
+.fi-body {
+    background-color: var(--shop-canvas);
+    color: var(--shop-text);
+    font-size: 0.8125rem;
+    letter-spacing: -0.005em;
+}
+
+/* Top bar: full-width black strip. */
+.fi-topbar {
+    background-color: var(--shop-topbar);
+    color: #fff;
+    --tw-ring-color: transparent;
+    box-shadow: none;
+    min-height: 3.5rem;
+}
+
+.fi-body {
+    --topbar-height: 3.5rem;
+}
+
+.fi-topbar .fi-icon:not(.fi-dropdown-panel *),
+.fi-topbar .fi-icon-btn:not(.fi-dropdown-panel *),
+.fi-topbar button:not(.fi-dropdown-panel *) {
+    color: rgb(255 255 255 / 0.8);
+}
+
+.fi-topbar .fi-icon-btn:not(.fi-dropdown-panel *):hover,
+.fi-topbar button:not(.fi-dropdown-panel *):hover {
+    background-color: rgb(255 255 255 / 0.12);
+}
+
+.fi-topbar .fi-logo,
+.fi-topbar .fi-user-menu-trigger,
+.fi-topbar [class*='brand'] {
+    color: #fff;
+}
+
+/*
+ * The account and notification menus are children of the black top bar, so
+ * they would otherwise inherit its white text onto their own white panel.
+ */
+.fi-topbar .fi-dropdown-panel {
+    color: var(--shop-text);
+}
+
+.fi-topbar input {
+    background-color: rgb(255 255 255 / 0.16);
+    color: #fff;
+    border-radius: 0.5rem;
+}
+
+.fi-topbar input::placeholder {
+    color: rgb(255 255 255 / 0.7);
+}
+
+/* Sidebar: same grey as the canvas, no divider, pill-shaped items. */
+.fi-sidebar {
+    background-color: var(--shop-canvas);
+}
+
+.fi-sidebar-nav {
+    padding: 0.75rem 0.75rem 1.5rem;
+    gap: 1rem;
+}
+
+.fi-sidebar-group-label {
+    color: var(--shop-subdued);
+    font-size: 0.75rem;
+    font-weight: 550;
+}
+
+.fi-sidebar-item-btn {
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.5rem;
+}
+
+.fi-sidebar-item-label {
+    color: var(--shop-text);
+    font-size: 0.8125rem;
+    font-weight: 550;
+}
+
+.fi-sidebar-item-btn > .fi-icon {
+    color: #4a4a4a;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn:hover {
+    background-color: var(--shop-surface);
+    box-shadow: 0 1px 0 rgb(26 26 26 / 0.07);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    color: var(--shop-text);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover {
+    background-color: rgb(0 0 0 / 0.05);
+}
+
+/* Page heading. */
+.fi-header-heading {
+    color: var(--shop-text);
+    font-size: 1.25rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.fi-header-subheading {
+    color: var(--shop-subdued);
+    font-size: 0.8125rem;
+}
+
+/* Cards: sections, tables, widgets, and the custom pages' panels. */
+.fi-section,
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-wi-chart,
+.fi-in-ctn {
+    background-color: var(--shop-surface);
+    border-radius: 0.75rem;
+    box-shadow: var(--shop-card-shadow);
+    --tw-ring-color: transparent;
+}
+
+.fi-section-header-heading,
+.fi-ta-header-heading {
+    color: var(--shop-text);
+    font-size: 0.875rem;
+    font-weight: 650;
+}
+
+.fi-ta-header-cell,
+.fi-ta-header-cell-label {
+    color: var(--shop-subdued);
+    font-size: 0.75rem;
+    font-weight: 550;
+}
+
+.fi-ta-header-cell {
+    background-color: #f7f7f7;
+}
+
+.fi-ta-text-item,
+.fi-ta-cell {
+    font-size: 0.8125rem;
+}
+
+/* Buttons and inputs: 8px radius, dark primary, flat borders. */
+.fi-btn,
+.fi-input-wrp,
+.fi-dropdown-panel {
+    border-radius: 0.5rem;
+}
+
+.fi-input-wrp {
+    background-color: var(--shop-surface);
+    box-shadow: 0 0 0 1px #8a8a8a;
+    --tw-ring-color: transparent;
+}
+
+.fi-input-wrp:focus-within {
+    box-shadow: 0 0 0 2px var(--shop-link);
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):not(.fi-btn-color-gray) {
+    background-color: #303030;
+    color: #fff;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background-color: #1a1a1a;
+}
+
+/* Text links read as Shopify blue. */
+.fi-link:not(.fi-btn),
+.fi-ta-text-item a,
+.fi-breadcrumbs-item-label {
+    color: var(--shop-link);
+}
+
+/*
+ * Native date/time inputs: the browser's calendar button sits inside the
+ * field, so a narrow filter column squeezed the text under it. Give the
+ * text room and keep the button from shrinking or touching it.
+ */
+/* The wrapper (not the input) carries the minimum width, so the input can
+   never be wider than the box that draws its border. */
+.fi-fo-date-time-picker.fi-input-wrp {
+    min-width: 12rem;
+}
+
+input[type='date'].fi-input,
+input[type='datetime-local'].fi-input,
+input[type='time'].fi-input {
+    min-width: 0;
+    width: 100%;
+    padding-inline-end: 0.5rem;
+}
+
+input[type='date'].fi-input::-webkit-calendar-picker-indicator,
+input[type='datetime-local'].fi-input::-webkit-calendar-picker-indicator,
+input[type='time'].fi-input::-webkit-calendar-picker-indicator {
+    flex-shrink: 0;
+    margin-inline-start: 0.5rem;
+    cursor: pointer;
+}
+
+input[type='date'].fi-input::-webkit-datetime-edit,
+input[type='datetime-local'].fi-input::-webkit-datetime-edit,
+input[type='time'].fi-input::-webkit-datetime-edit {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+/* The top-bar search sits on black: keep its text and placeholder readable. */
+.fi-topbar .fi-input-wrp {
+    background-color: rgb(255 255 255 / 0.16);
+    box-shadow: none;
+}
+
+.fi-topbar .fi-input-wrp:focus-within {
+    background-color: rgb(255 255 255 / 0.24);
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.5);
+}
+
+.fi-topbar .fi-input-wrp input {
+    background-color: transparent;
+    color: #fff;
+}
+
+/*
+ * A table filter that holds several fields (the Dari/Sampai date range) gets
+ * one narrow column of the filter grid. Let its fields wrap onto their own
+ * rows instead of being squeezed side by side.
+ */
+.fi-ta-filters .fi-sc.fi-grid .fi-sc.fi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}

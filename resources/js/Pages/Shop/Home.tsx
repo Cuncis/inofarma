@@ -86,7 +86,7 @@ export default function Home() {
 
                 <Carousel
                     slides={PROMO_SLIDES}
-                    aspect="aspect-[1740/396]"
+                    aspect="aspect-1740/396"
                     className="mx-3.5 mb-3.5 mt-1"
                 />
 
@@ -122,7 +122,7 @@ export default function Home() {
 
                 <Carousel
                     slides={BOTTOM_SLIDES}
-                    aspect="aspect-[1920/601]"
+                    aspect="aspect-1920/601"
                     className="mx-3.5 mt-6"
                 />
 

@@ -389,7 +389,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-end gap-2 p-3.5">
                     {mapError || locateError ? (
-                        <p className="pointer-events-auto w-full rounded-[2px] bg-white p-2.5 text-center text-[11px] text-danger shadow">
+                        <p className="pointer-events-auto w-full rounded-[2px] bg-white p-2.5 text-center text-[11px] text-danger shadow-sm">
                             {mapError || locateError}
                         </p>
                     ) : null}
@@ -398,7 +398,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
                         type="button"
                         onClick={locateMe}
                         disabled={locating}
-                        className="pointer-events-auto flex h-10 items-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-brand shadow disabled:opacity-60"
+                        className="pointer-events-auto flex h-10 items-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-brand shadow-sm disabled:opacity-60"
                     >
                         <Icon name="navigation" size={16} />
                         {locating ? 'Mencari…' : 'Lokasi saya'}
@@ -408,7 +408,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
                         type="button"
                         onClick={() => point && setConfirming(true)}
                         disabled={! point}
-                        className="pointer-events-auto flex h-12 w-full items-center justify-center bg-ink text-xs font-bold uppercase tracking-wider text-white shadow disabled:opacity-40"
+                        className="pointer-events-auto flex h-12 w-full items-center justify-center bg-ink text-xs font-bold uppercase tracking-wider text-white shadow-sm disabled:opacity-40"
                     >
                         {point ? 'Gunakan Titik Ini' : 'Ketuk peta untuk memilih titik'}
                     </button>

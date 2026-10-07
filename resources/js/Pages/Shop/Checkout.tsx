@@ -323,7 +323,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                     onChange={(event) => setData('note', event.target.value)}
                     placeholder="Catatan (opsional)..."
                     rows={3}
-                    className="mb-3.5 w-full resize-none border border-blush p-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                    className="mb-3.5 w-full resize-none border border-blush p-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-hidden focus:ring-0"
                 />
 
                 {errors.quantity ? (

@@ -92,7 +92,7 @@ export default function SearchOverlay({ open, onClose }: { open: boolean, onClos
                         }}
                         placeholder="Cari obat, vitamin, alat kesehatan..."
                         aria-label="Cari produk"
-                        className="h-9 w-full border-0 bg-white pl-8 pr-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
+                        className="h-9 w-full border-0 bg-white pl-8 pr-3 text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-hidden focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
                     />
                 </div>
 

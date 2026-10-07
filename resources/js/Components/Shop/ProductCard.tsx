@@ -34,7 +34,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }: {
 
     return (
         <div className="overflow-hidden rounded-[2px] border border-line bg-white">
-            <div className="relative aspect-[3/4] overflow-hidden bg-white">
+            <div className="relative aspect-3/4 overflow-hidden bg-white">
                 <Link href="/ui/product-detail" className="block h-full w-full">
                     <img
                         src={product.image}

@@ -60,7 +60,7 @@ export default function LeaveAReview() {
                     onChange={(event) => setBody(event.target.value)}
                     placeholder="Tulis ulasan Anda di sini..."
                     rows={3}
-                    className="mb-3.5 w-full resize-none border border-line p-3 text-left text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-none focus:ring-0"
+                    className="mb-3.5 w-full resize-none border border-line p-3 text-left text-xs text-muted placeholder:text-[#bbbbbb] focus:outline-hidden focus:ring-0"
                 />
 
                 <Button type="submit">Kirim Ulasan</Button>

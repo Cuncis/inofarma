@@ -43,13 +43,13 @@ export default function DesktopHome({ promoSlides, bottomSlides }: {
 
             <CategoryShortcuts className="mt-6" />
 
-            <Carousel slides={promoSlides} aspect="aspect-[1740/396]" className="mt-10" />
+            <Carousel slides={promoSlides} aspect="aspect-1740/396" className="mt-10" />
 
             <ProductSection title="Rekomendasi Untukmu" products={recommended} />
             <ProductSection title="Produk Kesehatan Terbaru" products={newArrivals} />
             <ProductSection title="Produk Terlaris Kami" products={trendingProducts} />
 
-            <Carousel slides={bottomSlides} aspect="aspect-[1920/601]" className="mt-12" />
+            <Carousel slides={bottomSlides} aspect="aspect-1920/601" className="mt-12" />
 
             <section className="mt-10">
                 <h2 className="mb-4 font-display text-[19px] text-brand">Brand Terlaris</h2>

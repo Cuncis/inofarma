@@ -1,6 +1,108 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/forms';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    Lato, Figtree, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-shop:
+    Barlow, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-display:
+    Barlow, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --color-brand: #0900aa;
+  --color-brand-lift: #6c63ff;
+
+  --color-blush: #ebebf8;
+  --color-ink: #222222;
+  --color-lilac: #faf9ff;
+  --color-shell: #d8dce3;
+  --color-star: #fe7900;
+  --color-line: #eeeeee;
+  --color-muted: #666666;
+  --color-faint: #999999;
+  --color-sale: #24ce30;
+
+  --color-success: #24ce30;
+  --color-success-deep: #147a1d;
+
+  --color-warning: #fe7900;
+  --color-warning-deep: #b35400;
+
+  --color-cream: #ffefe9;
+  --color-canvas: #f3f5f6;
+
+  --color-admin-bg: #f3f5f6;
+  --color-admin-nav: #ffffff;
+  --color-admin-card: #ffffff;
+  --color-admin-heading: #313b5e;
+  --color-admin-body: #5d7186;
+  --color-admin-muted: #8a99ad;
+  --color-admin-border: #e6e9f0;
+  --color-admin-hover: #f2f3f9;
+
+  --color-admin-dark-bg: #161a25;
+  --color-admin-dark-nav: #1d2231;
+  --color-admin-dark-card: #1d2231;
+  --color-admin-dark-heading: #e6e9f0;
+  --color-admin-dark-body: #a4aec1;
+  --color-admin-dark-muted: #7a869c;
+  --color-admin-dark-border: #2b3245;
+  --color-admin-dark-hover: #252b3c;
+
+  --color-danger: #ef5f5f;
+  --color-danger-deep: #c62828;
+
+  --color-info: #4ecac2;
+  --color-info-deep: #0f766e;
+
+  --container-app: 430px;
+
+  --spacing-appbar: 48px;
+  --spacing-tabbar: 60px;
+  --spacing-control: 52px;
+  --spacing-topbar: 70px;
+  --spacing-sidebar: 280px;
+  --spacing-sidebar-sm: 76px;
+
+  --shadow-card: 0 3px 4px 0 rgba(0, 0, 0, 0.03);
+  --shadow-pop: 0 8px 24px -4px rgba(19, 25, 43, 0.14);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
 
 @layer base {
     /**
@@ -15,7 +117,7 @@
 
 @layer base {
     /**
-     * Barlow, the storefront's typeface (`tailwind.config.js`): headings
+     * Barlow, the storefront's typeface (the `@theme` block above): headings
      * (`font-display`) at Medium, body copy (`font-shop`, applied once on
      * `MobileLayout`'s root) at Regular. A plain weight utility placed
      * alongside either class — `font-display font-bold`, say — still wins,
@@ -27,17 +129,6 @@
 
     .font-shop {
         font-weight: 400;
-    }
-}
-
-@layer utilities {
-    .scrollbar-none {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    .scrollbar-none::-webkit-scrollbar {
-        display: none;
     }
 }
 

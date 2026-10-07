@@ -16,5 +16,5 @@ const SLIDES = [
 ];
 
 export default function HeroCarousel({ className = 'mx-3.5 mt-3.5' }) {
-    return <Carousel slides={SLIDES} aspect="aspect-[16/9]" className={className} />;
+    return <Carousel slides={SLIDES} aspect="aspect-video" className={className} />;
 }

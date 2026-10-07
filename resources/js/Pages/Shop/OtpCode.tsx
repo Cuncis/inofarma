@@ -72,7 +72,7 @@ export default function OtpCode() {
                                 inputMode="numeric"
                                 maxLength={1}
                                 aria-label={`Digit ke-${index + 1}`}
-                                className={`aspect-square min-w-0 flex-1 bg-transparent p-0 text-center text-xl font-bold focus:outline-none focus:ring-0 ${
+                                className={`aspect-square min-w-0 flex-1 bg-transparent p-0 text-center text-xl font-bold focus:outline-hidden focus:ring-0 ${
                                     digit
                                         ? 'border-2 border-ink'
                                         : 'border border-[#dddddd] focus:border-ink'
