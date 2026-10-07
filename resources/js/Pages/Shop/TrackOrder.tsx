@@ -1,7 +1,9 @@
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import FlashBanner from '@/Components/Shop/FlashBanner';
+import DesktopTrackOrder from '@/Components/Shop/DesktopTrackOrder';
 import Icon from '@/Components/Shop/Icon';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { asset } from '@/Components/Shop/data';
 
 /**
@@ -9,12 +11,11 @@ import { asset } from '@/Components/Shop/data';
  * Pembayaran"/"Batalkan Pesanan" live on the order's detail page
  * (`OrderDetail.jsx`), which is what this is reached from.
  */
-export default function TrackOrder({ order }: { order: {
-  number: string, status: string,
-  steps: { label: string, state: string, at: string | null }[],
-  shipment: null | { courierName: string, serviceName: string, waybillId: string | null, trackingLink: string | null, statusLabel: string | null },
-  pickup: null | { code: string, qrSvg: string | null, expiresAt: string },
-} }) {
+export default function TrackOrder({ order }: { order: TrackOrderData }) {
+    if (useIsDesktop()) {
+        return <DesktopTrackOrder order={order} />;
+    }
+
     const cancelled = order.steps.length === 0;
 
     return (

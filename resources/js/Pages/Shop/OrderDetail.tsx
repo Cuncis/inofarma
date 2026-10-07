@@ -4,6 +4,8 @@ import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import FlashBanner from '@/Components/Shop/FlashBanner';
 import Icon from '@/Components/Shop/Icon';
+import DesktopOrderDetail from '@/Components/Shop/DesktopOrderDetail';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { money } from '@/Components/Shop/data';
 
 /**
@@ -11,13 +13,13 @@ import { money } from '@/Components/Shop/data';
  * orders — split from Lacak Pesanan (`TrackOrder.jsx`), which stays a
  * read-only shipment/pickup timeline with no actions of its own.
  */
-export default function OrderDetail({ order }: { order: {
-  number: string, status: string, fulfilment: string, isCancellable: boolean, canPay: boolean,
-  total: number, subtotal: number, discount: number, shipping: number, tax: number,
-  paymentMethod: string, note: string | null, date: string,
-  branch: CartBranch | null, recipientName: string | null, recipientPhone: string | null, shippingAddress: string | null,
-  items: OrderLine[], steps: { label: string, state: string, at: string | null }[],
-} }) {
+export default function OrderDetail({ order }: { order: OrderDetailData }) {
+    const isDesktop = useIsDesktop();
+
+    if (isDesktop) {
+        return <DesktopOrderDetail order={order} />;
+    }
+
     const cancel = () => {
         if (! window.confirm(`Batalkan pesanan #${order.number}?`)) {
             return;

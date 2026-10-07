@@ -2,6 +2,8 @@ import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import FlashBanner from '@/Components/Shop/FlashBanner';
+import DesktopOrderHistory from '@/Components/Shop/DesktopOrderHistory';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { money } from '@/Components/Shop/data';
 
 const toneFor = (status: string) => {
@@ -17,6 +19,10 @@ const toneFor = (status: string) => {
 };
 
 export default function OrderHistory({ orders }: { orders: OrderListItem[] }) {
+    if (useIsDesktop()) {
+        return <DesktopOrderHistory orders={orders} />;
+    }
+
     return (
         <MobileLayout
             title="Riwayat Pesanan"

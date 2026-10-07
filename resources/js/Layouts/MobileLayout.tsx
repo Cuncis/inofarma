@@ -1,5 +1,6 @@
-import { Head } from '@inertiajs/react';
-import { isValidElement } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { isValidElement, type ReactNode } from 'react';
+import AppBar from '@/Components/Shop/AppBar';
 import DesktopHeader from '@/Components/Shop/DesktopHeader';
 import TabBar from '@/Components/Shop/TabBar';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
@@ -22,22 +23,49 @@ export default function MobileLayout({
     header = null,
     footer = null,
     background = 'bg-canvas',
+    wide = false,
 }: {
   title: string,
   children: import('react').ReactNode,
   header?: import('react').ReactNode,
   footer?: import('react').ReactNode,
   background?: string,
+  /** Desktop only: use the full 1152px content width instead of a 672px column. */
+  wide?: boolean,
 }) {
     const isDesktop = useIsDesktop();
 
     if (isDesktop) {
+        // A screen built around an AppBar gets a page heading on desktop
+        // (breadcrumb, title, the bar's actions) instead of a blue phone bar.
+        const bar = isValidElement<{ title?: string; actions?: ReactNode }>(header) && header.type === AppBar
+            ? header
+            : null;
+        const heading = bar ? (bar.props.title ?? title) : null;
+
         return (
-            <DesktopLayout title={title} header={<DesktopHeader />} narrow>
+            <DesktopLayout title={title} header={<DesktopHeader />} narrow={! wide}>
+                {heading ? (
+                    <>
+                        <nav aria-label="Breadcrumb" className={`pb-4 text-[11px] text-muted ${wide ? "pt-5" : ""}`}>
+                            <Link href="/">Beranda</Link>
+                            <span className="mx-2">&rsaquo;</span>
+                            <span>{heading}</span>
+                        </nav>
+
+                        <div className="mb-5 flex items-end justify-between gap-4">
+                            <h1 className="font-display text-[24px] text-brand">{heading}</h1>
+                            {bar?.props.actions ? (
+                                <div className="flex items-center gap-3 text-brand">{bar.props.actions}</div>
+                            ) : null}
+                        </div>
+                    </>
+                ) : null}
+
                 <div
-                    className={`relative flex min-h-[60vh] flex-col overflow-hidden border border-line ${background}`}
+                    className={`relative flex min-h-[40vh] flex-col overflow-hidden border border-line ${background}`}
                 >
-                    {header}
+                    {bar ? null : header}
                     {children}
                     {isValidElement(footer) && footer.type === TabBar ? null : footer}
                 </div>

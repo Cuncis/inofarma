@@ -73,7 +73,7 @@ export default function OurBranches({ branches, areas, hasLocation }: {
     };
 
     return (
-        <MobileLayout title="Cabang Kami" header={<AppBar title="Cabang Kami" back="/profile" tone="brand" />}>
+        <MobileLayout wide title="Cabang Kami" header={<AppBar title="Cabang Kami" back="/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto px-3.5 pb-[90px] pt-3.5">
                 {! hasLocation ? (
                     <div className="mb-3.5 border border-line bg-blush p-3.5">
@@ -122,7 +122,8 @@ export default function OurBranches({ branches, areas, hasLocation }: {
                     </div>
                 ) : null}
 
-                {branches.map((branch) => (
+                <div className="grid gap-x-3 lg:grid-cols-2">
+{branches.map((branch) => (
                     <div key={branch.id} className="mb-2.5 rounded-[2px] border border-line bg-white p-3.5">
                         <div className="mb-1.5 flex items-start justify-between gap-2">
                             <div>
@@ -198,6 +199,7 @@ export default function OurBranches({ branches, areas, hasLocation }: {
                         </div>
                     </div>
                 ))}
+</div>
 
                 {branches.length === 0 ? (
                     <p className="mt-10 text-center text-[13px] text-muted">

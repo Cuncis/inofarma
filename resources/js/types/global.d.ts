@@ -199,3 +199,45 @@ interface CartPreview {
     itemCount: number;
     subtotal: number;
 }
+
+interface OrderStep {
+    label: string;
+    state: string;
+    at: string | null;
+}
+
+interface OrderDetailData {
+    number: string;
+    status: string;
+    fulfilment: string;
+    isCancellable: boolean;
+    canPay: boolean;
+    total: number;
+    subtotal: number;
+    discount: number;
+    shipping: number;
+    tax: number;
+    paymentMethod: string;
+    note: string | null;
+    date: string;
+    branch: CartBranch | null;
+    recipientName: string | null;
+    recipientPhone: string | null;
+    shippingAddress: string | null;
+    items: (OrderLine & { image?: string | null; unitPrice?: number })[];
+    steps: OrderStep[];
+}
+
+interface TrackOrderData {
+    number: string;
+    status: string;
+    steps: OrderStep[];
+    shipment: null | {
+        courierName: string;
+        serviceName: string;
+        waybillId: string | null;
+        trackingLink: string | null;
+        statusLabel: string | null;
+    };
+    pickup: null | { code: string; qrSvg: string | null; expiresAt: string };
+}

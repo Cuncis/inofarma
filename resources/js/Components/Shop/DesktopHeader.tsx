@@ -1,29 +1,22 @@
-import { useState, type FormEvent } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { asset } from './data';
 import CartDropdown from './CartDropdown';
+import HeaderSearch from './HeaderSearch';
 import Icon from './Icon';
 import useShopUser from './useShopUser';
 
 /**
  * Desktop storefront header: a thin announcement strip, the main bar (logo,
  * live search field, account, cart) and the service-notice line underneath.
- * Search submits to the shop listing's existing `?q=` filter.
  */
 export default function DesktopHeader() {
     const { name, signedIn } = useShopUser();
-    const [query, setQuery] = useState('');
-
-    const submit = (event: FormEvent) => {
-        event.preventDefault();
-
-        const needle = query.trim();
-
-        router.visit(needle ? `/shop?q=${encodeURIComponent(needle)}` : '/shop');
-    };
 
     return (
-        <header>
+        // `contents` so the sticky bar below sticks to the whole page, not just to this
+        // header's own height.
+        <header className="contents">
+            <div className="sticky top-0 z-40 shadow-[0_2px_6px_rgba(0,0,0,0.15)]">
             <div className="bg-brand text-white">
                 <div className="mx-auto flex h-9 max-w-6xl items-center justify-between px-6">
                     <span className="text-[11px] font-bold">Belanja di Apotek Inofarma, Lebih Hemat Lebih Lengkap!</span>
@@ -45,24 +38,7 @@ export default function DesktopHeader() {
                         <img src={asset.logo('blue')} alt="Inofarma" className="h-8 w-auto" />
                     </Link>
 
-                    <form onSubmit={submit} role="search" className="flex h-10 flex-1 overflow-hidden bg-white">
-                        <input
-                            type="search"
-                            value={query}
-                            onChange={(event) => setQuery(event.target.value)}
-                            placeholder="Cari produk kesehatan di Inofarma"
-                            aria-label="Cari produk kesehatan di Inofarma"
-                            className="min-w-0 flex-1 border-0 px-4 text-[13px] text-ink placeholder:text-faint focus:outline-hidden focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
-                        />
-
-                        <button
-                            type="submit"
-                            aria-label="Cari"
-                            className="flex w-11 shrink-0 items-center justify-center bg-success text-cream"
-                        >
-                            <Icon name="search" size={18} />
-                        </button>
-                    </form>
+                    <HeaderSearch />
 
                     <Link
                         href={signedIn ? '/profile' : '/signin'}
@@ -76,10 +52,24 @@ export default function DesktopHeader() {
                 </div>
             </div>
 
+            </div>
+
             <div className="border-b border-warning/30 bg-[#FFF8E1]">
                 <p className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-2 text-center text-[11px] text-warning-deep">
-                    <Icon name="info" size={14} />
-                    Layanan pemesanan melalui website saat ini belum beroperasi. Kami mohon maaf atas ketidaknyamanannya.
+                    <Icon name="info" size={14} className="shrink-0" />
+                    <span>
+                        Layanan pemesanan melalui website saat ini belum beroperasi. Kami mohon maaf atas
+                        ketidaknyamanannya. Untuk info seputar Inofarma, silakan kunjungi{' '}
+                        <a
+                            href="http://info.inofarma.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold underline"
+                        >
+                            info.inofarma.com
+                        </a>
+                        .
+                    </span>
                 </p>
             </div>
         </header>

@@ -160,3 +160,39 @@
         box-shadow: 0 0 0 1000px #1d2231 inset;
     }
 }
+
+@layer base {
+    /*
+     * Tailwind's reset gives buttons the default arrow cursor. Anything you can
+     * press should show the pointing hand, and say so when hovered: coloured
+     * buttons darken a little, plain ones dim a little.
+     */
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    summary,
+    select,
+    label:has(input[type='checkbox']),
+    label:has(input[type='radio']) {
+        cursor: pointer;
+    }
+
+    button:disabled {
+        cursor: not-allowed;
+    }
+
+    button,
+    a.bg-success,
+    a.bg-brand,
+    a.bg-ink,
+    a.bg-warning {
+        transition: filter 0.15s ease, background-color 0.15s ease;
+    }
+
+    button:not(:disabled):hover,
+    a.bg-success:hover,
+    a.bg-brand:hover,
+    a.bg-ink:hover,
+    a.bg-warning:hover {
+        filter: brightness(0.92);
+    }
+}

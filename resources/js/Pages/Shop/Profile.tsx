@@ -1,9 +1,11 @@
 import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
+import DesktopPage from '@/Components/Shop/DesktopPage';
 import Icon, { type IconName } from '@/Components/Shop/Icon';
 import IconLink from '@/Components/Shop/IconLink';
 import TabBar from '@/Components/Shop/TabBar';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import useShopUser from '@/Components/Shop/useShopUser';
 import { asset } from '@/Components/Shop/data';
 
@@ -24,6 +26,58 @@ const menu: { label: string; icon: IconName; href: string }[] = [
 
 export default function Profile() {
     const user = useShopUser();
+    const isDesktop = useIsDesktop();
+
+    if (isDesktop) {
+        return (
+            <DesktopPage title="Profil" heading="Akun saya" breadcrumb={[{ label: 'Akun saya' }]}>
+                <div className="grid grid-cols-[300px_1fr] items-start gap-8">
+                    <section className="border border-line bg-white p-8 text-center">
+                        <div className="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full border-4 border-brand">
+                            <img src={asset.user('01')} alt={user.name} className="h-full w-full object-cover" />
+                        </div>
+
+                        <div className="font-display text-[18px]">{user.name}</div>
+                        <div className="mt-1 text-[12px] text-muted">{user.email}</div>
+
+                        <Link
+                            href="/signout"
+                            method="post"
+                            as="button"
+                            className="mt-6 flex h-11 w-full items-center justify-center gap-2 border border-line text-[13px] font-bold text-brand"
+                        >
+                            <Icon name="logout" size={17} />
+                            Keluar
+                        </Link>
+                    </section>
+
+                    <div className="grid grid-cols-3 gap-4">
+                        {menu.map((item) => {
+                            const card = (
+                                <>
+                                    <span className="mb-3 flex h-10 w-10 items-center justify-center bg-blush text-brand">
+                                        <Icon name={item.icon} size={20} />
+                                    </span>
+                                    <span className="text-[13px] font-bold text-ink">{item.label}</span>
+                                </>
+                            );
+                            const cardClass = 'flex flex-col items-start border border-line bg-white p-5 hover:border-brand';
+
+                            return item.href.startsWith('http') ? (
+                                <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className={cardClass}>
+                                    {card}
+                                </a>
+                            ) : (
+                                <Link key={item.label} href={item.href} className={cardClass}>
+                                    {card}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            </DesktopPage>
+        );
+    }
 
     return (
         <MobileLayout

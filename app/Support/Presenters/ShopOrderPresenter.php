@@ -66,6 +66,7 @@ class ShopOrderPresenter
             'items' => $order->items->map(fn ($item) => [
                 'name' => $item->product_name,
                 'sku' => $item->sku,
+                'image' => $item->product?->image_path,
                 'unitPrice' => $item->unit_price,
                 'quantity' => $item->quantity,
                 'lineTotal' => $item->line_total,
