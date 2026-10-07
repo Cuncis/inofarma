@@ -10,7 +10,10 @@ import IconLink from '@/Components/Shop/IconLink';
 import ProductGallery from '@/Components/Shop/ProductGallery';
 import Rating from '@/Components/Shop/Rating';
 import ReviewCard from '@/Components/Shop/ReviewCard';
+import DesktopProductDetail from '@/Components/Shop/DesktopProductDetail';
 import useCartCount from '@/Components/Shop/useCartCount';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
+import { useTrackProductView } from '@/Components/Shop/useRecentlyViewed';
 import { findProduct, money, reviews, useShopCatalog } from '@/Components/Shop/data';
 
 export default function ProductDetail() {
@@ -25,6 +28,9 @@ export default function ProductDetail() {
     const [variant, setVariant] = useState(product?.variants[0]);
     const [liked, setLiked] = useState(false);
     const cartCount = useCartCount();
+    const isDesktop = useIsDesktop();
+
+    useTrackProductView(product?.id);
 
     if (! product) {
         return (
@@ -34,6 +40,10 @@ export default function ProductDetail() {
                 </div>
             </MobileLayout>
         );
+    }
+
+    if (isDesktop) {
+        return <DesktopProductDetail product={product} />;
     }
 
     return (

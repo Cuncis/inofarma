@@ -1,12 +1,19 @@
 import { Head } from '@inertiajs/react';
+import DesktopHeader from '@/Components/Shop/DesktopHeader';
+import TabBar from '@/Components/Shop/TabBar';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
+import DesktopLayout from './DesktopLayout';
 
 /**
- * Mobile-locked app shell.
+ * Storefront screen shell.
  *
- * The frame is capped at `max-w-app` (430px) and centred on every breakpoint, so
- * phones, tablets and desktops all render the exact same layout — desktops just
- * get a neutral gutter either side. The frame owns the viewport height; each
- * screen scrolls inside it rather than scrolling the page.
+ * Below the `lg` breakpoint it is the phone frame: capped at `max-w-app`
+ * (430px) and centred, owning the viewport height, with each screen scrolling
+ * inside it rather than the page scrolling.
+ *
+ * From `lg` up the same screen content is shown as a centred card under the
+ * desktop header instead (see `DesktopLayout`). The bottom `TabBar` is
+ * dropped there; any other footer (an action bar) stays at the card's bottom.
  *
  * @param {{
  *   title: string,
@@ -23,6 +30,22 @@ export default function MobileLayout({
     footer = null,
     background = 'bg-canvas',
 }) {
+    const isDesktop = useIsDesktop();
+
+    if (isDesktop) {
+        return (
+            <DesktopLayout title={title} header={<DesktopHeader />} narrow>
+                <div
+                    className={`relative flex min-h-[60vh] flex-col overflow-hidden border border-line ${background}`}
+                >
+                    {header}
+                    {children}
+                    {footer?.type === TabBar ? null : footer}
+                </div>
+            </DesktopLayout>
+        );
+    }
+
     return (
         <>
             <Head title={title} />

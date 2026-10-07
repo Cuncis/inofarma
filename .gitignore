@@ -28,3 +28,9 @@ Thumbs.db
 deploy.sh
 DEPLOYMENT.md
 artisan
+CLAUDE.md
+AGENTS.md
+ROADMAP.md
+/.claude
+/.ai
+/.agents

@@ -22,7 +22,7 @@ export default function ProductCell({ product, compact = false, className = '' }
 
     return (
         <div className={`flex flex-col border-b border-r border-line bg-white ${compact ? 'p-2.5' : 'p-4'} ${className}`}>
-            <Link href="/ui/product-detail" className="block">
+            <Link href={`/ui/product-detail?id=${product.id}`} className="block">
                 <img
                     src={product.image}
                     alt={product.name}

@@ -7,7 +7,9 @@ import Icon from '@/Components/Shop/Icon';
 import IconLink from '@/Components/Shop/IconLink';
 import ProductCard from '@/Components/Shop/ProductCard';
 import SearchBar from '@/Components/Shop/SearchBar';
+import DesktopShop from '@/Components/Shop/DesktopShop';
 import TabBar from '@/Components/Shop/TabBar';
+import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import useCartCount from '@/Components/Shop/useCartCount';
 import useDragScroll from '@/Components/Shop/useDragScroll';
 import { useShopCatalog } from '@/Components/Shop/data';
@@ -48,6 +50,7 @@ export default function Shop() {
     const [category, setCategory] = useState(() => initialCategory(url, filterCategories));
     const categoryDrag = useDragScroll();
     const activePillRef = useRef(null);
+    const isDesktop = useIsDesktop();
 
     // Keep the chosen pill in view: a category picked from the homepage/
     // "Kategori" shortcuts can land here scrolled far down the strip (or the
@@ -71,6 +74,10 @@ export default function Shop() {
             return matchesCategory && matchesQuery;
         });
     }, [query, category, shopProducts]);
+
+    if (isDesktop) {
+        return <DesktopShop />;
+    }
 
     const searching = query.trim().length > 0 || category !== 'Semua';
 
@@ -146,7 +153,7 @@ export default function Shop() {
                             </Button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                             {results.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}

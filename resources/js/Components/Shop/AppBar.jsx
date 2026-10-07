@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { asset } from './data';
 import Icon from './Icon';
+import useIsDesktop from './useIsDesktop';
 
 /**
  * Fixed 48px screen header: optional back arrow or wordmark on the left, a
@@ -32,9 +33,13 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
     // else (blush, white) gets the dark-on-light variant. See `asset.logo()`.
     const logoTone = tone === 'ink' || tone === 'brand' ? 'blue' : 'white';
 
+    const isDesktop = useIsDesktop();
+
     return (
         <header
-            className={`flex h-appbar shrink-0 items-center px-3.5 ${tones[tone]}`}
+            className={`flex shrink-0 items-center ${
+                isDesktop ? 'h-14 border-b border-line bg-white px-6 text-brand' : `h-appbar px-3.5 ${tones[tone]}`
+            }`}
         >
             <div className="flex min-w-[40px] items-center gap-3">
                 {back ? (
@@ -49,16 +54,16 @@ export default function AppBar({ title, back, brand = false, actions, tone = 'bl
                     )
                 ) : null}
 
-                {brand ? (
+                {brand && ! isDesktop ? (
                     <Link href="/" aria-label="Inofarma" className="flex items-center">
                         <img src={asset.logo(logoTone)} alt="Inofarma" className="h-6 w-auto" />
                     </Link>
                 ) : null}
             </div>
 
-            <div className="flex-1 text-center">
+            <div className={`flex-1 ${isDesktop ? 'text-left' : 'text-center'}`}>
                 {title ? (
-                    <span className="font-display text-sm uppercase tracking-[0.5px]">
+                    <span className={`font-display uppercase tracking-[0.5px] ${isDesktop ? 'text-base' : 'text-sm'}`}>
                         {title}
                     </span>
                 ) : null}

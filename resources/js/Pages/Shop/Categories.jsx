@@ -41,7 +41,7 @@ export default function Categories() {
             footer={<TabBar active="home" />}
         >
             <div className="flex-1 overflow-y-auto px-3.5 pb-[70px] pt-3.5">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                     {tiles.map((category) => (
                         <Link
                             key={category.name}
