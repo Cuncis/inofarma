@@ -33,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'doku/notifikasi',
             'biteship/notifikasi',
+            // A mail app's one-click unsubscribe posts here with no session.
+            'newsletter/berhenti/*',
         ]);
 
         $middleware->alias([

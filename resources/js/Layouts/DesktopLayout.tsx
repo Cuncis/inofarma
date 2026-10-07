@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import NewsletterSignup from '@/Components/Shop/NewsletterSignup';
 
 /**
  * Desktop page shell: a normal scrolling document (unlike `MobileLayout`'s
@@ -20,7 +21,7 @@ export default function DesktopLayout({ title, children, header = null, narrow =
                 <main className={`mx-auto w-full px-6 pb-12 ${narrow ? 'max-w-2xl pt-8' : 'max-w-6xl'}`}>{children}</main>
 
                 <footer className="bg-brand text-white">
-                    <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto] gap-16 px-6 py-12">
+                    <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] gap-16 px-6 py-12">
                         <div>
                             <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[1.5px]">
                                 Tentang Apotek Inofarma
@@ -44,6 +45,8 @@ export default function DesktopLayout({ title, children, header = null, narrow =
                                 <li><Link href="/cabang-kami">Cabang Kami</Link></li>
                             </ul>
                         </nav>
+
+                        <NewsletterSignup />
                     </div>
 
                     <div className="border-t border-white/15 py-4 text-center text-[10px] text-white/60">

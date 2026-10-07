@@ -84,6 +84,18 @@ class AdminOptions
         'Ambil' => 'ambil',
     ];
 
+    public const SUBSCRIBER_STATUSES = [
+        'Berlangganan' => 'berlangganan',
+        'Berhenti' => 'berhenti',
+    ];
+
+    public const NEWSLETTER_STATUSES = [
+        'Draf' => 'draf',
+        'Mengirim' => 'mengirim',
+        'Terkirim' => 'terkirim',
+        'Gagal' => 'gagal',
+    ];
+
     public const BRANCH_STATUSES = [
         'Aktif' => 'aktif',
         'Tutup Sementara' => 'tutup sementara',

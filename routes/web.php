@@ -10,6 +10,8 @@ use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\GuestCheckoutController;
 use App\Http\Controllers\Shop\LocationController;
+use App\Http\Controllers\Shop\NewsletterSubscribeController;
+use App\Http\Controllers\Shop\NewsletterUnsubscribeController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController;
 use App\Http\Controllers\Shop\PrivacyController;
@@ -114,6 +116,15 @@ $beShopScreens = [
  * The storefront used to live under /ui. Old bookmarks, emails and search
  * results still point there, so send them to the same page without the prefix.
  */
+/**
+ * Newsletter opt-out. Public and token-based: the token in the email is the
+ * only thing identifying the subscriber. The POST is exempt from CSRF
+ * (bootstrap/app.php) so a mail app's one-click unsubscribe request works.
+ */
+Route::post('newsletter/berlangganan', NewsletterSubscribeController::class)->middleware('throttle:6,1')->name('newsletter.subscribe');
+Route::get('newsletter/berhenti/{token}', [NewsletterUnsubscribeController::class, 'show'])->name('newsletter.unsubscribe');
+Route::post('newsletter/berhenti/{token}', [NewsletterUnsubscribeController::class, 'destroy'])->name('newsletter.unsubscribe.store');
+
 Route::get('ui/{path?}', function (Request $request, ?string $path = null) {
     $query = $request->getQueryString();
 

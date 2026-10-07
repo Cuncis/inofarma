@@ -201,6 +201,12 @@
     background-color: #1a1a1a;
 }
 
+/* Filament gives the icon of a solid primary button a dark shade meant for its own
+   (light) primary colour; on our near-black button that made the icon vanish. */
+.fi-btn.fi-color-primary:not(.fi-outlined) .fi-icon {
+    color: #fff;
+}
+
 /* Text links read as Shopify blue. */
 .fi-link:not(.fi-btn),
 .fi-ta-text-item a,
