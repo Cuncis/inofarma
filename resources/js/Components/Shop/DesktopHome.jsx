@@ -17,9 +17,9 @@ function ProductSection({ title, products }) {
     return (
         <section className="mt-10">
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-display text-sm text-brand">{title}</h2>
+                <h2 className="font-display text-[13px] text-brand">{title}</h2>
 
-                <Link href="/ui/shop" className="text-xs font-bold text-success">
+                <Link href="/ui/shop" className="text-[11px] font-bold text-success">
                     Lihat semua
                 </Link>
             </div>
@@ -57,17 +57,17 @@ export default function DesktopHome({ promoSlides, bottomSlides }) {
             <Carousel slides={bottomSlides} aspect="aspect-[1920/601]" className="mt-12" />
 
             <section className="mt-10">
-                <h2 className="mb-4 font-display text-xl text-brand">Brand Terlaris</h2>
+                <h2 className="mb-4 font-display text-[19px] text-brand">Brand Terlaris</h2>
                 <BrandStrip className="px-0" spread />
             </section>
 
             <section className="mt-10">
-                <h2 className="mb-4 font-display text-xl text-brand">Testimoni Sobat Ino</h2>
+                <h2 className="mb-4 font-display text-[19px] text-brand">Testimoni Sobat Ino</h2>
                 <Testimonials className="px-0" />
             </section>
 
             <section className="mt-10">
-                <h2 className="mb-4 font-display text-xl text-brand">Keuntungan Belanja di Inofarma</h2>
+                <h2 className="mb-4 font-display text-[19px] text-brand">Keuntungan Belanja di Inofarma</h2>
                 <BenefitsGrid className="grid-cols-9" />
             </section>
         </DesktopLayout>

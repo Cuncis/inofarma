@@ -46,7 +46,7 @@ export default function CategoryShortcuts({ className = 'mx-3.5 my-3.5' }) {
                         className="h-11 w-11 object-contain"
                     />
 
-                    <span className="text-[10px] leading-tight text-ink">{category.name}</span>
+                    <span className="text-[9px] leading-tight text-ink">{category.name}</span>
                 </Link>
             ))}
         </div>

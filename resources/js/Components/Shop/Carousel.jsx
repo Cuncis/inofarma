@@ -140,7 +140,7 @@ export default function Carousel({ slides, aspect = 'aspect-[16/9]', className =
     };
 
     return (
-        <div className={`relative overflow-hidden rounded-lg border border-line ${className}`}>
+        <div className={`relative overflow-hidden rounded-[2px] border border-line ${className}`}>
             <div
                 className="flex cursor-grab select-none transition-transform duration-500 ease-out active:cursor-grabbing"
                 style={{ transform: `translateX(-${index * 100}%)` }}

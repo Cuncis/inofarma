@@ -32,7 +32,7 @@ export default function OrderHistory({ orders }) {
                     <Link
                         key={order.number}
                         href={`/ui/pesanan/${order.number}`}
-                        className="mb-2 block rounded-lg border border-line bg-white p-3.5"
+                        className="mb-2 block rounded-[2px] border border-line bg-white p-3.5"
                     >
                         <div className="mb-[5px] flex justify-between">
                             <span className="font-display text-sm">{order.number}</span>

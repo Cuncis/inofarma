@@ -41,7 +41,7 @@ export default function Testimonials({ className = 'px-3.5' }) {
             {TESTIMONIALS.map((testimonial) => (
                 <div
                     key={testimonial.name}
-                    className="flex w-64 shrink-0 flex-col gap-2 rounded-lg border border-line bg-white p-3.5"
+                    className="flex w-64 shrink-0 flex-col gap-2 rounded-[2px] border border-line bg-white p-3.5"
                 >
                     <div className="flex gap-0.5 text-star">
                         {Array.from({ length: 5 }).map((_, index) => (
@@ -49,13 +49,13 @@ export default function Testimonials({ className = 'px-3.5' }) {
                         ))}
                     </div>
 
-                    <p className="line-clamp-5 text-xs leading-relaxed text-ink">
+                    <p className="line-clamp-5 text-[11px] leading-relaxed text-ink">
                         {testimonial.quote}
                     </p>
 
                     <div className="mt-auto pt-1">
-                        <div className="text-[13px] font-bold text-ink">{testimonial.name}</div>
-                        <div className="text-[11px] text-muted">{testimonial.branch}</div>
+                        <div className="text-[12px] font-bold text-ink">{testimonial.name}</div>
+                        <div className="text-[10px] text-muted">{testimonial.branch}</div>
                     </div>
                 </div>
             ))}

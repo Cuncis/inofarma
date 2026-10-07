@@ -132,7 +132,7 @@ export default function ProductGallery({ images, badge }) {
 
             {showZoom ? (
                 <div
-                    className="pointer-events-none fixed z-50 hidden overflow-hidden rounded-lg border border-line bg-white shadow-pop md:block"
+                    className="pointer-events-none fixed z-50 hidden overflow-hidden rounded-[2px] border border-line bg-white shadow-pop md:block"
                     style={{
                         top: panelPosition.top,
                         left: panelPosition.left,
@@ -155,7 +155,7 @@ export default function ProductGallery({ images, badge }) {
                             onClick={() => setActiveIndex(index)}
                             aria-label={`Lihat foto ${index + 1}`}
                             aria-current={index === activeIndex}
-                            className={`h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 bg-[#f6f6f6] ${
+                            className={`h-14 w-14 shrink-0 overflow-hidden rounded-[2px] border-2 bg-[#f6f6f6] ${
                                 index === activeIndex ? 'border-brand' : 'border-transparent'
                             }`}
                         >

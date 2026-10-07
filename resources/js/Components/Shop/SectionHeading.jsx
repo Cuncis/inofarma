@@ -10,10 +10,10 @@ import { Link } from '@inertiajs/react';
 export default function SectionHeading({ title, action, actionHref = '#', className = '' }) {
     return (
         <div className={`mb-3 mt-6 flex items-center justify-between ${className}`}>
-            <span className="font-display text-[15px] text-brand">{title}</span>
+            <span className="font-display text-[14px] text-brand">{title}</span>
 
             {action ? (
-                <Link href={actionHref} className="text-xs text-brand">
+                <Link href={actionHref} className="text-[11px] text-brand">
                     {action}
                 </Link>
             ) : null}

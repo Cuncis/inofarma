@@ -68,7 +68,7 @@ export default function Home() {
                         brand
                         tone="brand"
                         actions={
-                            <IconLink name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
+                            <IconLink id="cart-icon-target" name="cart" href="/ui/cart" label="Keranjang" badge={cartCount} />
                         }
                     />
 

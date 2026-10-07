@@ -387,7 +387,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-end gap-2 p-3.5">
                     {mapError || locateError ? (
-                        <p className="pointer-events-auto w-full rounded-lg bg-white p-2.5 text-center text-[11px] text-danger shadow">
+                        <p className="pointer-events-auto w-full rounded-[2px] bg-white p-2.5 text-center text-[11px] text-danger shadow">
                             {mapError || locateError}
                         </p>
                     ) : null}
@@ -415,7 +415,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCl
 
             {confirming ? (
                 <div className="absolute inset-0 z-20 flex items-center justify-center bg-ink/50 p-6">
-                    <div className="w-full max-w-[300px] rounded-xl bg-white p-5 shadow-xl">
+                    <div className="w-full max-w-[300px] rounded-[2px] bg-white p-5 shadow-xl">
                         <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blush text-brand">
                             <Icon name="pin" size={22} />
                         </span>

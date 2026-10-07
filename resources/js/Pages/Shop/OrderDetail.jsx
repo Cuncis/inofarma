@@ -40,7 +40,7 @@ export default function OrderDetail({ order }) {
             <FlashBanner />
 
             <div className="flex-1 overflow-y-auto p-3.5">
-                <div className="mb-3.5 flex items-center justify-between rounded-lg border border-line bg-white p-3.5">
+                <div className="mb-3.5 flex items-center justify-between rounded-[2px] border border-line bg-white p-3.5">
                     <div>
                         <div className="font-display text-sm">#{order.number}</div>
                         <div className="mt-0.5 text-[11px] text-muted">{order.date}</div>
@@ -54,7 +54,7 @@ export default function OrderDetail({ order }) {
                 {order.steps.length > 0 ? (
                     <Link
                         href={`/ui/track-order/${order.number}`}
-                        className="mb-3.5 flex items-center justify-between rounded-lg border border-line bg-white p-3.5 text-xs"
+                        className="mb-3.5 flex items-center justify-between rounded-[2px] border border-line bg-white p-3.5 text-xs"
                     >
                         <span className="flex items-center gap-2">
                             <Icon name="navigation" size={15} className="text-brand" />
@@ -65,7 +65,7 @@ export default function OrderDetail({ order }) {
                 ) : null}
 
                 {order.fulfilment === 'Antar' && order.shippingAddress ? (
-                    <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
+                    <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">
                         <div className="mb-1.5 text-[13px] font-display">Dikirim ke</div>
                         <p className="text-xs text-muted">
                             {order.recipientName} · {order.recipientPhone}
@@ -74,7 +74,7 @@ export default function OrderDetail({ order }) {
                     </div>
                 ) : null}
 
-                <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
+                <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">
                     <div className="mb-2 border-b border-line pb-2 font-display text-[13px]">
                         Produk
                     </div>
@@ -87,7 +87,7 @@ export default function OrderDetail({ order }) {
                     ))}
                 </div>
 
-                <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
+                <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">
                     <div className="mb-1.5 flex justify-between text-[13px]">
                         <span>Subtotal</span>
                         <span>{money(order.subtotal)}</span>
@@ -117,7 +117,7 @@ export default function OrderDetail({ order }) {
                 </div>
 
                 {order.note ? (
-                    <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
+                    <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">
                         <div className="mb-1 text-[13px] font-display">Catatan</div>
                         <p className="text-xs text-muted">{order.note}</p>
                     </div>

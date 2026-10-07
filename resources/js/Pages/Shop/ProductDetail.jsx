@@ -81,7 +81,7 @@ export default function ProductDetail() {
             <FlashBanner />
 
             <div className="flex-1 overflow-y-auto p-3.5">
-                <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
+                <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">
                     <div className="mb-2 flex justify-between gap-3">
                         <div className="min-w-0">
                             <h2 className="font-display text-lg leading-tight">{product.name}</h2>
@@ -108,7 +108,7 @@ export default function ProductDetail() {
                     <p className="text-xs leading-relaxed text-muted">{product.blurb}</p>
                 </div>
 
-                <div className="mb-3.5 rounded-lg border border-line bg-white p-3.5">
+                <div className="mb-3.5 rounded-[2px] border border-line bg-white p-3.5">
                     <div className="mb-[7px] text-[13px] font-bold">Kemasan</div>
 
                     <div className="flex flex-wrap gap-[7px]">

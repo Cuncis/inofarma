@@ -26,7 +26,7 @@ export default function BenefitsGrid({ className = 'grid-cols-3 px-3.5' }) {
                     className="flex flex-col items-center gap-1.5 border border-line bg-white px-2 py-3.5 text-center"
                 >
                     <img src={benefit.image} alt={benefit.label} className="h-9 w-9 object-contain" />
-                    <span className="text-[10px] leading-tight text-ink">{benefit.label}</span>
+                    <span className="text-[9px] leading-tight text-ink">{benefit.label}</span>
                 </div>
             ))}
         </div>

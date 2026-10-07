@@ -16,7 +16,7 @@ export default function SearchBarTrigger({ onOpen }) {
             aria-label="Cari produk kesehatan di Inofarma"
             className="flex h-10 w-full items-stretch overflow-hidden bg-white text-left"
         >
-            <span className="flex flex-1 items-center px-3.5 text-xs text-muted">
+            <span className="flex flex-1 items-center px-3.5 text-[11px] text-muted">
                 Cari produk kesehatan di Inofarma
             </span>
 

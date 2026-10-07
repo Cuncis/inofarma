@@ -26,7 +26,7 @@ export default function AdminAuthLayout({
 
             <div className="flex min-h-screen flex-col items-center justify-center bg-admin-bg px-4 py-10 dark:bg-admin-dark-bg">
                 <Link href="/admin" className="mb-6 flex items-center gap-2.5">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand text-white">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-[2px] bg-brand text-white">
                         <Icon name="solar:pill-bold-duotone" size={24} />
                     </span>
                     <span className="text-xl font-bold tracking-tight text-admin-heading dark:text-admin-dark-heading">
@@ -35,7 +35,7 @@ export default function AdminAuthLayout({
                 </Link>
 
                 <div
-                    className={`w-full ${width} rounded-xl border border-admin-border bg-admin-card p-7 shadow-card dark:border-admin-dark-border dark:bg-admin-dark-card`}
+                    className={`w-full ${width} rounded-[2px] border border-admin-border bg-admin-card p-7 shadow-card dark:border-admin-dark-border dark:bg-admin-dark-card`}
                 >
                     {heading ? (
                         <div className="mb-6 text-center">

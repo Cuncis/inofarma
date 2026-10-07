@@ -13,7 +13,7 @@ import Icon from './Icon';
 
 /**
  * Portrait product card used by the grids on Shop and Wishlist — same card
- * treatment (white background, rounded corners, light border) as Home's
+ * treatment (white background, rounded-[2px] corners, light border) as Home's
  * `ProductStrip` tiles, so a product looks the same wherever it shows up.
  *
  * The tile opens the product detail screen; the heart toggles locally and the
@@ -35,7 +35,7 @@ export default function ProductCard({ product, wishlisted = false, onRemove }) {
     };
 
     return (
-        <div className="overflow-hidden rounded-lg border border-line bg-white">
+        <div className="overflow-hidden rounded-[2px] border border-line bg-white">
             <div className="relative aspect-[3/4] overflow-hidden bg-white">
                 <Link href="/ui/product-detail" className="block h-full w-full">
                     <img

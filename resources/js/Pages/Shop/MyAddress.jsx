@@ -28,7 +28,7 @@ export default function MyAddress({ addresses }) {
                 {addresses.map((address) => (
                     <div
                         key={address.id}
-                        className={`mb-2 flex items-start gap-2.5 rounded-lg border bg-white p-3.5 ${
+                        className={`mb-2 flex items-start gap-2.5 rounded-[2px] border bg-white p-3.5 ${
                             address.isDefault ? 'border-brand' : 'border-line'
                         }`}
                     >
@@ -38,7 +38,7 @@ export default function MyAddress({ addresses }) {
                             <div className="mb-0.5 flex items-center gap-1.5 text-sm font-bold">
                                 {address.label}
                                 {address.isDefault ? (
-                                    <span className="rounded-sm bg-brand px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                                    <span className="rounded-[2px] bg-brand px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
                                         Utama
                                     </span>
                                 ) : null}

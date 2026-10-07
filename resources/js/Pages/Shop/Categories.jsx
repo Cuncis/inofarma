@@ -50,7 +50,7 @@ export default function Categories() {
                                     ? '/ui/shop'
                                     : `/ui/shop?category=${encodeURIComponent(category.name)}`
                             }
-                            className="flex h-[130px] flex-col items-center justify-center gap-2.5 rounded-lg border border-line bg-white p-3 text-center"
+                            className="flex h-[130px] flex-col items-center justify-center gap-2.5 rounded-[2px] border border-line bg-white p-3 text-center"
                         >
                             <img
                                 src={category.image}
