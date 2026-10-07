@@ -78,6 +78,25 @@ class InventoryResourceTest extends TestCase
         $this->assertSame($before, $stock->fresh()->quantity);
     }
 
+    public function test_the_adjust_form_shows_the_current_stock(): void
+    {
+        $stock = BranchStock::where('quantity', '>', 5)->firstOrFail();
+
+        Livewire::test(ListBranchStocks::class)
+            ->mountTableAction('sesuaikan', $stock)
+            ->assertMountedActionModalSee('Stok saat ini: '.number_format($stock->quantity, 0, ',', '.'));
+    }
+
+    public function test_the_adjust_form_previews_the_resulting_stock(): void
+    {
+        $stock = BranchStock::where('quantity', '>', 5)->firstOrFail();
+
+        Livewire::test(ListBranchStocks::class)
+            ->mountTableAction('sesuaikan', $stock)
+            ->fillForm(['delta' => -3])
+            ->assertMountedActionModalSee('Stok menjadi: '.number_format($stock->quantity - 3, 0, ',', '.'));
+    }
+
     public function test_adjustment_requires_a_nonzero_delta(): void
     {
         $stock = BranchStock::whereHas('product')->firstOrFail();

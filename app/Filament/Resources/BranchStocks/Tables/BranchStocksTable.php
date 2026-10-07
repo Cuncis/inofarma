@@ -9,6 +9,7 @@ use App\Support\AdminOptions;
 use App\Support\Inventory\InsufficientStockException;
 use App\Support\Inventory\StockAdjuster;
 use App\Support\Inventory\StockAllocator;
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -16,6 +17,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -67,46 +71,8 @@ class BranchStocksTable
                     ->label(__('Sesuaikan'))
                     ->icon(Heroicon::OutlinedAdjustmentsHorizontal)
                     ->visible(fn () => Auth::guard('web')->user()?->can('Inventaris:Sesuaikan Stok'))
-                    ->schema([
-                        TextInput::make('delta')
-                            ->label(__('Jumlah Penyesuaian'))
-                            ->numeric()
-                            ->integer()
-                            ->minValue(-100000)
-                            ->maxValue(100000)
-                            ->rule('not_in:0')
-                            ->validationMessages(['not_in' => __('Jumlah penyesuaian tidak boleh nol.')])
-                            ->helperText(__('Gunakan angka negatif untuk mengurangi stok.'))
-                            ->required(),
-                        Select::make('reason')
-                            ->label(__('Alasan'))
-                            ->options(AdminOptions::options(AdminOptions::ADJUSTMENT_REASONS))
-                            ->required(),
-                        Textarea::make('note')
-                            ->label(__('Catatan'))
-                            ->maxLength(255),
-                    ])
-                    ->action(function (array $data, BranchStock $record) {
-                        try {
-                            (new StockAdjuster)->adjust(
-                                $record->branch,
-                                $record->product,
-                                (int) $data['delta'],
-                                $data['reason'],
-                                Auth::guard('web')->id(),
-                                $data['note'] ?? null,
-                            );
-                        } catch (InsufficientStockException $exception) {
-                            Notification::make()->danger()->title($exception->getMessage())->send();
-
-                            return;
-                        }
-
-                        Notification::make()
-                            ->success()
-                            ->title(__('Stok ":name" di :name2 disesuaikan.', ['name' => $record->product->name, 'name2' => $record->branch->name]))
-                            ->send();
-                    }),
+                    ->schema(fn (BranchStock $record) => self::adjustFields(fn () => $record->quantity))
+                    ->action(fn (array $data, BranchStock $record) => self::adjustStock($record->branch, $record->product, $data)),
                 Action::make('terima')
                     ->label(__('Terima Barang'))
                     ->icon(Heroicon::OutlinedInboxArrowDown)
@@ -114,6 +80,126 @@ class BranchStocksTable
                     ->schema(self::receiveFields())
                     ->action(fn (array $data, BranchStock $record) => self::receiveGoods($record->branch, $record->product, $data)),
             ]);
+    }
+
+    /**
+     * The adjust form. It shows the stock as it is now, and what it will be once
+     * the typed difference is applied, so nobody has to do the sum in their head.
+     *
+     * @param  Closure(Get): ?int  $currentQuantity  Current stock for what is on screen (null while no branch is chosen).
+     * @return list<Component>
+     */
+    public static function adjustFields(Closure $currentQuantity): array
+    {
+        return [
+            Text::make(function (Get $get) use ($currentQuantity) {
+                $current = $currentQuantity($get);
+
+                return $current === null
+                    ? __('Pilih cabang untuk melihat stok saat ini.')
+                    : __('Stok saat ini: :count', ['count' => number_format($current, 0, ',', '.')]);
+            })
+                ->weight(FontWeight::Bold),
+            TextInput::make('delta')
+                ->label(__('Jumlah Penyesuaian'))
+                ->numeric()
+                ->integer()
+                ->minValue(-100000)
+                ->maxValue(100000)
+                ->rule('not_in:0')
+                ->validationMessages(['not_in' => __('Jumlah penyesuaian tidak boleh nol.')])
+                ->helperText(__('Gunakan angka negatif untuk mengurangi stok. Contoh: -3 mengurangi 3.'))
+                ->live(debounce: 300)
+                ->required(),
+            Text::make(function (Get $get) use ($currentQuantity) {
+                $current = $currentQuantity($get);
+                $delta = $get('delta');
+
+                if ($current === null || $delta === null || $delta === '' || ! is_numeric($delta)) {
+                    return '';
+                }
+
+                return __('Stok menjadi: :count', ['count' => number_format($current + (int) $delta, 0, ',', '.')]);
+            })
+                ->color(function (Get $get) use ($currentQuantity) {
+                    $current = $currentQuantity($get);
+                    $delta = $get('delta');
+
+                    return $current !== null && is_numeric($delta) && $current + (int) $delta < 0 ? 'danger' : 'success';
+                }),
+            Select::make('reason')
+                ->label(__('Alasan'))
+                ->options(AdminOptions::options(AdminOptions::ADJUSTMENT_REASONS))
+                ->required(),
+            Textarea::make('note')
+                ->label(__('Catatan'))
+                ->maxLength(255),
+        ];
+    }
+
+    /**
+     * Adds or removes stock by a difference and tells the user. A removal that
+     * would take the shelf below zero is refused with the reason.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public static function adjustStock(Branch $branch, Product $product, array $data): void
+    {
+        try {
+            (new StockAdjuster)->adjust(
+                $branch,
+                $product,
+                (int) $data['delta'],
+                $data['reason'],
+                Auth::guard('web')->id(),
+                $data['note'] ?? null,
+            );
+        } catch (InsufficientStockException $exception) {
+            Notification::make()->danger()->title($exception->getMessage())->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->success()
+            ->title(__('Stok ":name" di :name2 disesuaikan.', ['name' => $product->name, 'name2' => $branch->name]))
+            ->send();
+    }
+
+    /**
+     * Branches the signed-in user may book stock into. Staff tied to one branch
+     * only get that one. With `$onlyWithStock`, only branches where the product
+     * already has a stock row (you cannot adjust what was never received).
+     *
+     * @return array<int, string>
+     */
+    public static function branchOptions(?Product $product = null, bool $onlyWithStock = false): array
+    {
+        $branchId = Auth::guard('web')->user()?->branch_id;
+
+        return Branch::query()
+            ->when($branchId, fn (Builder $query) => $query->whereKey($branchId))
+            ->when($onlyWithStock && $product, fn (Builder $query) => $query->whereHas(
+                'stocks',
+                fn (Builder $stocks) => $stocks->withoutGlobalScopes()->where('product_id', $product->id),
+            ))
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /**
+     * Staff tied to one branch may only book stock into that branch.
+     */
+    public static function mustBeOwnBranch(): Closure
+    {
+        return function (string $attribute, $value, Closure $fail) {
+            $branchId = Auth::guard('web')->user()?->branch_id;
+
+            if ($branchId !== null && $branchId !== (int) $value) {
+                $fail(__('Anda hanya bisa menambah stok di cabang Anda sendiri.'));
+            }
+        };
     }
 
     /**

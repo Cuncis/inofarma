@@ -6,7 +6,6 @@ use App\Filament\Resources\BranchStocks\BranchStockResource;
 use App\Filament\Resources\BranchStocks\Tables\BranchStocksTable;
 use App\Models\Branch;
 use App\Models\Product;
-use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
@@ -34,11 +33,11 @@ class ListBranchStocks extends ListRecords
                 ->schema([
                     Select::make('branchId')
                         ->label(__('Cabang'))
-                        ->options(fn () => self::branchOptions())
+                        ->options(fn () => BranchStocksTable::branchOptions())
                         ->default(fn () => Auth::guard('web')->user()?->branch_id)
                         ->searchable()
                         ->required()
-                        ->rule(fn () => self::mustBeOwnBranch()),
+                        ->rule(fn () => BranchStocksTable::mustBeOwnBranch()),
                     Select::make('productId')
                         ->label(__('Produk'))
                         ->searchable()
@@ -60,20 +59,6 @@ class ListBranchStocks extends ListRecords
     /**
      * @return array<int, string>
      */
-    private static function branchOptions(): array
-    {
-        $branchId = Auth::guard('web')->user()?->branch_id;
-
-        return Branch::query()
-            ->when($branchId, fn ($query) => $query->whereKey($branchId))
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->all();
-    }
-
-    /**
-     * @return array<int, string>
-     */
     private static function productOptions(string $search): array
     {
         return Product::query()
@@ -84,19 +69,5 @@ class ListBranchStocks extends ListRecords
             ->get()
             ->mapWithKeys(fn (Product $product) => [$product->id => "{$product->sku} · {$product->name}"])
             ->all();
-    }
-
-    /**
-     * Staff tied to one branch may only book stock into that branch.
-     */
-    private static function mustBeOwnBranch(): Closure
-    {
-        return function (string $attribute, $value, Closure $fail) {
-            $branchId = Auth::guard('web')->user()?->branch_id;
-
-            if ($branchId !== null && $branchId !== (int) $value) {
-                $fail(__('Anda hanya bisa menambah stok di cabang Anda sendiri.'));
-            }
-        };
     }
 }

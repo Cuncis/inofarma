@@ -66,23 +66,26 @@ class ProductForm
                             ->maxValue(1000000000)
                             ->gt('price')
                             ->validationMessages(['gt' => __('Harga coret harus lebih besar dari harga jual.')]),
-                        FileUpload::make('photos')
-                            ->label(__('Foto Produk'))
-                            ->helperText(__('Opsional. Foto pertama menjadi foto utama. Foto bisa ditambah atau diurutkan lagi nanti di tab Gambar.'))
-                            ->image()
-                            ->multiple()
-                            ->reorderable()
-                            ->maxFiles(8)
-                            ->maxSize(5120)
-                            ->storeFiles(false)
-                            ->visibleOn('create')
-                            ->columnSpanFull(),
                         Textarea::make('blurb')
                             ->label(__('Deskripsi'))
                             ->helperText(__('Tulis komposisi, indikasi, aturan pakai, efek samping, produsen, nomor izin edar, dan kondisi penyimpanan di sini.'))
                             ->rows(10)
                             ->maxLength(5000)
                             ->columnSpanFull(),
+                    ]),
+                Section::make(__('Foto Produk'))
+                    ->columnSpanFull()
+                    ->visibleOn('create')
+                    ->schema([
+                        FileUpload::make('photos')
+                            ->hiddenLabel()
+                            ->helperText(__('Opsional. Foto pertama menjadi foto utama. Foto bisa ditambah atau diurutkan lagi nanti di tab Gambar.'))
+                            ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->maxFiles(8)
+                            ->maxSize(5120)
+                            ->storeFiles(false),
                     ]),
             ]);
     }

@@ -2,11 +2,14 @@
 
 namespace Tests\Feature\Admin\Filament;
 
+use App\Filament\Resources\BranchStocks\Tables\BranchStocksTable;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Pages\ViewProduct;
 use App\Filament\Resources\Products\RelationManagers\ImagesRelationManager;
+use App\Models\Branch;
+use App\Models\BranchStock;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -320,6 +323,94 @@ class ProductResourceTest extends TestCase
             ->assertHasFormErrors(['photos']);
 
         $this->assertDatabaseMissing('products', ['name' => 'Produk Salah Berkas']);
+    }
+
+    public function test_the_product_page_shows_the_photos_under_the_details_and_above_the_stock(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+
+        $this->get('/admin/produk/'.$product->getKey())
+            ->assertOk()
+            ->assertSeeInOrder(['Produk', 'Upload Gambar', 'Stok per Cabang']);
+    }
+
+    public function test_goods_can_be_received_from_the_product_page(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        $branch = Branch::where('code', 'CB-001')->firstOrFail();
+        $before = BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->value('quantity');
+
+        Livewire::test(ViewProduct::class, ['record' => $product->getKey()])
+            ->callAction('terimaBarang', data: [
+                'branchId' => $branch->id, 'batchNumber' => 'B-HALAMAN-1',
+                'expiresAt' => now()->addYear()->toDateString(), 'quantity' => 25,
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame($before + 25, BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->value('quantity'));
+        $this->assertDatabaseHas('inventory_batches', ['batch_number' => 'B-HALAMAN-1', 'product_id' => $product->id]);
+    }
+
+    public function test_receiving_from_the_product_page_gives_a_new_product_its_first_stock(): void
+    {
+        $product = Product::factory()->create(['status' => 'nonaktif']);
+        $branch = Branch::where('code', 'CB-001')->firstOrFail();
+
+        Livewire::test(ViewProduct::class, ['record' => $product->getKey()])
+            ->callAction('terimaBarang', data: [
+                'branchId' => $branch->id, 'batchNumber' => 'B-BARU-1',
+                'expiresAt' => now()->addYear()->toDateString(), 'quantity' => 12,
+            ]);
+
+        $this->assertSame(12, BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->value('quantity'));
+    }
+
+    public function test_stock_can_be_adjusted_from_the_product_page_by_a_difference(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        $stock = BranchStock::where('product_id', $product->id)->where('quantity', '>', 5)->firstOrFail();
+        $before = $stock->quantity;
+
+        Livewire::test(ViewProduct::class, ['record' => $product->getKey()])
+            ->callAction('sesuaikanStok', data: [
+                'branchId' => $stock->branch_id, 'delta' => -3, 'reason' => 'rusak', 'note' => 'Pecah',
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame($before - 3, $stock->fresh()->quantity);
+    }
+
+    public function test_the_adjust_branch_list_only_has_branches_that_hold_the_product(): void
+    {
+        $product = Product::factory()->create();
+
+        $this->assertSame([], BranchStocksTable::branchOptions($product, onlyWithStock: true));
+    }
+
+    public function test_the_product_page_adjust_form_shows_the_chosen_branchs_current_stock(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        $stock = BranchStock::where('product_id', $product->id)->where('quantity', '>', 5)->firstOrFail();
+
+        Livewire::test(ViewProduct::class, ['record' => $product->getKey()])
+            ->mountAction('sesuaikanStok')
+            ->assertMountedActionModalSee('Pilih cabang untuk melihat stok saat ini.')
+            ->fillForm(['branchId' => $stock->branch_id])
+            ->assertMountedActionModalSee('Stok saat ini: '.number_format($stock->quantity, 0, ',', '.'));
+    }
+
+    public function test_an_adjustment_cannot_take_stock_below_zero(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        $stock = BranchStock::where('product_id', $product->id)->firstOrFail();
+        $before = $stock->quantity;
+
+        Livewire::test(ViewProduct::class, ['record' => $product->getKey()])
+            ->callAction('sesuaikanStok', data: [
+                'branchId' => $stock->branch_id, 'delta' => -($before + 50), 'reason' => 'penyesuaian',
+            ]);
+
+        $this->assertSame($before, $stock->fresh()->quantity);
     }
 
     // --- Images (ImagesRelationManager) ---

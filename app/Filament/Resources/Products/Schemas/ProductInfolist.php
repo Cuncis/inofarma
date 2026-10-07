@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Filament\Resources\Products\RelationManagers\ImagesRelationManager;
 use App\Models\Product;
 use App\Support\AdminOptions;
 use App\Support\Money;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -18,6 +20,7 @@ class ProductInfolist
         return $schema
             ->components([
                 Section::make(__('Produk'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)
                             ->schema([
@@ -40,7 +43,17 @@ class ProductInfolist
                                     ->formatStateUsing(fn (bool $state) => $state ? __('Ya') : __('Tidak')),
                             ]),
                     ]),
+                // The photos sit right under the product details, above the stock. The
+                // same table the Gambar tab shows on the edit page, so uploading,
+                // choosing the main photo, reordering and deleting all work here too.
+                Livewire::make(
+                    ImagesRelationManager::class,
+                    fn (Product $record, $livewire): array => ['ownerRecord' => $record, 'pageClass' => $livewire::class],
+                )
+                    ->key('product-images')
+                    ->columnSpanFull(),
                 Section::make(__('Stok per Cabang'))
+                    ->columnSpanFull()
                     ->schema([
                         RepeatableEntry::make('stocks')
                             ->label('')
