@@ -4,9 +4,8 @@
     "plural:Faktur": "Faktur",
     "plural:Kategori": "Kategori",
     "plural:Kupon": "Kupon",
-    "plural:Newsletter": "Newsletter",
+    "plural:Newsletter": "Newsletters",
     "plural:Pelanggan": "Pelanggan",
-    "plural:Pelanggan Newsletter": "Pelanggan Newsletter",
     "plural:Pemasok": "Pemasok",
     "plural:Pengambilan": "Pengambilan",
     "plural:Peran": "Peran",
@@ -15,5 +14,6 @@
     "plural:Rekonsiliasi": "Rekonsiliasi",
     "plural:Staf": "Staf",
     "plural:Stok": "Stok",
+    "plural:Subscriber": "Subscribers",
     "plural:Transfer": "Transfer"
 }

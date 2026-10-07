@@ -84,13 +84,13 @@ class NewsletterActions
     public static function send(?Closure $beforeSend = null): Action
     {
         return Action::make('send')
-            ->label(__('Kirim ke Pelanggan'))
+            ->label(__('Kirim ke Subscriber'))
             ->icon(Heroicon::OutlinedPaperAirplane)
             ->color('primary')
             ->visible(fn (Newsletter $record) => $record->isDraft())
             ->requiresConfirmation()
             ->modalHeading(__('Kirim newsletter sekarang?'))
-            ->modalDescription(fn () => __('Newsletter akan dikirim ke :count pelanggan yang berlangganan. Setelah dikirim, tindakan ini tidak bisa dibatalkan.', [
+            ->modalDescription(fn () => __('Newsletter akan dikirim ke :count subscriber. Setelah dikirim, tindakan ini tidak bisa dibatalkan.', [
                 'count' => number_format(Subscriber::query()->subscribed()->count(), 0, ',', '.'),
             ]))
             ->modalSubmitActionLabel(__('Ya, Kirim Sekarang'))
@@ -103,7 +103,7 @@ class NewsletterActions
                 $recipients = Subscriber::query()->subscribed()->count();
 
                 if ($recipients === 0) {
-                    Notification::make()->danger()->title(__('Belum ada pelanggan yang berlangganan.'))->send();
+                    Notification::make()->danger()->title(__('Belum ada subscriber yang berlangganan.'))->send();
 
                     return;
                 }
@@ -121,7 +121,7 @@ class NewsletterActions
 
                 Notification::make()
                     ->success()
-                    ->title(__('Newsletter sedang dikirim ke :count pelanggan.', ['count' => $recipients]))
+                    ->title(__('Newsletter sedang dikirim ke :count subscriber.', ['count' => $recipients]))
                     ->send();
             });
     }

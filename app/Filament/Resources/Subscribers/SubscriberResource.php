@@ -19,7 +19,7 @@ class SubscriberResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'email';
 
-    protected static ?string $slug = 'pelanggan-newsletter';
+    protected static ?string $slug = 'subscriber';
 
     protected static ?int $navigationSort = 1;
 
@@ -30,12 +30,12 @@ class SubscriberResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('Pelanggan Newsletter');
+        return __('Subscriber');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('plural:Pelanggan Newsletter');
+        return __('plural:Subscriber');
     }
 
     public static function table(Table $table): Table
