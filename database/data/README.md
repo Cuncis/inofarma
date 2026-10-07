@@ -9,7 +9,7 @@ region code regulation available at the time.
 
 `php artisan regions:import` parses these into the `regions` table that
 backs the Provinsi/Kota/Kecamatan/Kelurahan dropdowns on
-`Shop/AddNewAddress.jsx`. To refresh the data later (a regazetting, a new
+`Shop/AddNewAddress.tsx`. To refresh the data later (a regazetting, a new
 regency split off an existing one, etc.), replace these two files with
 newer dumps from the same repos and re-run the command — it truncates and
 reloads `regions` from scratch, so it's safe to run repeatedly.

@@ -24,7 +24,7 @@ use Inertia\Response;
  * downstream machinery — `CheckoutController`, DOKU payment, order
  * tracking, order history, the admin's own customer view — runs completely
  * unchanged for what started as a "guest" order. A signed-in customer never
- * sees this screen; `Shop/Cart.jsx`'s checkout button skips straight to
+ * sees this screen; `Shop/Cart.tsx`'s checkout button skips straight to
  * `ui.checkout` for them, which already prefills from their saved default
  * address (Fase 0's "boleh checkout sebagai tamu?" — this is that decision,
  * made).

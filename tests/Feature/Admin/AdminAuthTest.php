@@ -61,7 +61,7 @@ class AdminAuthTest extends TestCase
 
     /**
      * `/admin` is the Filament panel, not an Inertia page — a real Inertia
-     * client-side visit (the browser form on Admin/AuthSignIn.jsx) must land
+     * client-side visit (the browser form on Admin/AuthSignIn.tsx) must land
      * there via `X-Inertia-Location` (a 409), not a plain 3xx `Location`
      * redirect. A plain redirect gets followed by Inertia's own client-side
      * fetch instead of triggering a real browser navigation, which renders

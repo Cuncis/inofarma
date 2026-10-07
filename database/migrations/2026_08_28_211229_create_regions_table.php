@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Indonesia's administrative regions (provinsi/kota-kabupaten/kecamatan/
  * kelurahan-desa) plus postal codes, for the cascading dropdowns on
- * `Shop/AddNewAddress.jsx`. Immutable reference data, populated by
+ * `Shop/AddNewAddress.tsx`. Immutable reference data, populated by
  * `php artisan regions:import` from the bundled dumps under
  * `database/data/` — see that command's docblock for the source and how to
  * refresh it. Never written to at request time.

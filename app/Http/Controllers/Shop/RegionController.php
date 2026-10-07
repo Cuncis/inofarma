@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 /**
  * The cascading Provinsi/Kota/Kecamatan/Kelurahan dropdowns on
- * `Shop/AddNewAddress.jsx` — a plain JSON endpoint, same shape as
+ * `Shop/AddNewAddress.tsx` — a plain JSON endpoint, same shape as
  * `ShippingController::rates()`, reading from `regions` (see
  * `regions:import`). Provinsi (level 1) is the only level with no parent to
  * filter by; every other level requires `parent`.

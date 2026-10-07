@@ -10,7 +10,7 @@ use RuntimeException;
 
 /**
  * Live courier quotes for the checkout screen's "antar" picker — a plain
- * JSON endpoint rather than an Inertia page, called from `Shop/Checkout.jsx`
+ * JSON endpoint rather than an Inertia page, called from `Shop/Checkout.tsx`
  * once a branch and address are both known. `CheckoutController::store()`
  * never trusts whatever price this returned; it re-quotes on its own before
  * writing an order's money columns.

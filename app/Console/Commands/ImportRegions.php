@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  * newest gazetted region-code regulation at the time these were bundled
  * (2026-08-28). That's the same "self-host, don't depend on a third party
  * staying up" call this app already makes for storefront images: the
- * cascading dropdowns on `Shop/AddNewAddress.jsx` read `regions` from our
+ * cascading dropdowns on `Shop/AddNewAddress.tsx` read `regions` from our
  * own database, never a live external API.
  *
  * The dumps are parsed here rather than executed as SQL — they're plain

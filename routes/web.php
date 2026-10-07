@@ -106,7 +106,6 @@ $beShopScreens = [
     'syarat-ketentuan' => 'Terms',
     'kebijakan-privasi' => 'PrivacyPolicy',
     'kebijakan-pengembalian-dana' => 'RefundPolicy',
-    'tentang-kami' => 'AboutUs',
 ];
 
 Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
@@ -166,7 +165,7 @@ Route::prefix('ui')->name('ui.')->group(function () use ($beShopScreens) {
     ]))->name('order-successful');
 
     // Public — the Provinsi/Kota/Kecamatan/Kelurahan cascade used by both
-    // `Shop/AddNewAddress.jsx` (signed-in) and `Shop/GuestCheckout.jsx`
+    // `Shop/AddNewAddress.tsx` (signed-in) and `Shop/GuestCheckout.tsx`
     // (not yet signed in), and open government region data either way.
     Route::get('wilayah', [RegionController::class, 'children'])->name('wilayah');
 

@@ -5,7 +5,7 @@ namespace App\Support;
 /**
  * The single list of permissions the admin's Peran/Hak Akses screens render
  * and `RolePermissionSeeder` seeds — one flat "Module:Ability" string per
- * permission, matching how `RoleController`/`Permissions.jsx` key their grid.
+ * permission, matching how `RoleController`/`Permissions.tsx` key their grid.
  */
 class PermissionCatalog
 {
