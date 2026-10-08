@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Subscribers;
 
+use App\Filament\Resources\Newsletters\NewsletterResource;
 use App\Filament\Resources\Subscribers\Pages\ListSubscribers;
 use App\Filament\Resources\Subscribers\Tables\SubscribersTable;
 use App\Models\Subscriber;
@@ -9,7 +10,6 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class SubscriberResource extends Resource
 {
@@ -23,9 +23,9 @@ class SubscriberResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationParentItem(): ?string
     {
-        return __('Pemasaran');
+        return NewsletterResource::getNavigationLabel();
     }
 
     public static function getModelLabel(): string

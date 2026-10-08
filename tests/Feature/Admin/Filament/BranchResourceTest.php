@@ -55,7 +55,7 @@ class BranchResourceTest extends TestCase
         ], $overrides);
     }
 
-    public function test_the_list_is_seeded_with_the_ten_branches(): void
+    public function test_the_list_is_seeded_with_the_four_branches(): void
     {
         Livewire::test(ListBranches::class)
             ->assertCanSeeTableRecords(Branch::all());
@@ -73,7 +73,7 @@ class BranchResourceTest extends TestCase
         $this->assertSame(self::BRANCH_COUNT + 1, Branch::count());
 
         $branch = Branch::where('name', 'Apotek Inofarma Cinere')->firstOrFail();
-        $this->assertSame('CB-011', $branch->code);
+        $this->assertSame('CB-005', $branch->code);
         $this->assertSame(-6.3167, (float) $branch->latitude);
         $this->assertNotNull($branch->maps_url);
         $this->assertNotEmpty($branch->operating_hours);

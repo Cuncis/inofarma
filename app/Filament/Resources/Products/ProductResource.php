@@ -31,6 +31,8 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
+    protected static ?int $navigationSort = -8;
+
     public static function getModelLabel(): string
     {
         return __('Produk');

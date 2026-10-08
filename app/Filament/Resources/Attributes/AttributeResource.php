@@ -7,6 +7,7 @@ use App\Filament\Resources\Attributes\Pages\EditAttribute;
 use App\Filament\Resources\Attributes\Pages\ListAttributes;
 use App\Filament\Resources\Attributes\Schemas\AttributeForm;
 use App\Filament\Resources\Attributes\Tables\AttributesTable;
+use App\Filament\Resources\Products\ProductResource;
 use App\Models\Attribute;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -21,6 +22,13 @@ class AttributeResource extends Resource
     protected static ?string $model = Attribute::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return ProductResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

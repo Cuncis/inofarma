@@ -6,6 +6,7 @@ use App\Filament\Resources\Invoices\Pages\ListInvoices;
 use App\Filament\Resources\Invoices\Pages\ViewInvoice;
 use App\Filament\Resources\Invoices\Schemas\InvoiceInfolist;
 use App\Filament\Resources\Invoices\Tables\InvoicesTable;
+use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -25,6 +26,13 @@ class InvoiceResource extends Resource
     protected static ?string $model = Order::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return OrderResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

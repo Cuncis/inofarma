@@ -30,6 +30,8 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
+    protected static ?int $navigationSort = -9;
+
     public static function getModelLabel(): string
     {
         return __('Pesanan');

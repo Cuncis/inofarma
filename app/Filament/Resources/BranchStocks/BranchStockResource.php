@@ -4,13 +4,13 @@ namespace App\Filament\Resources\BranchStocks;
 
 use App\Filament\Resources\BranchStocks\Pages\ListBranchStocks;
 use App\Filament\Resources\BranchStocks\Tables\BranchStocksTable;
+use App\Filament\Resources\Products\ProductResource;
 use App\Models\BranchStock;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use UnitEnum;
 
 /**
  * Per-branch stock: view what one branch is holding, correct it, or receive
@@ -28,9 +28,11 @@ class BranchStockResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    protected static ?int $navigationSort = 4;
+
+    public static function getNavigationParentItem(): ?string
     {
-        return __('Inventaris');
+        return ProductResource::getNavigationLabel();
     }
 
     public static function getNavigationLabel(): string

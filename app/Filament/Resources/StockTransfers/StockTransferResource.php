@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StockTransfers;
 
+use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\StockTransfers\Pages\CreateStockTransfer;
 use App\Filament\Resources\StockTransfers\Pages\ListStockTransfers;
 use App\Filament\Resources\StockTransfers\Pages\ViewStockTransfer;
@@ -15,7 +16,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use UnitEnum;
 
 /**
  * Moving stock between branches — see StockTransferManager for the
@@ -28,9 +28,11 @@ class StockTransferResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    protected static ?int $navigationSort = 6;
+
+    public static function getNavigationParentItem(): ?string
     {
-        return __('Inventaris');
+        return ProductResource::getNavigationLabel();
     }
 
     public static function getNavigationLabel(): string

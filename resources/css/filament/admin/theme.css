@@ -123,6 +123,52 @@
     color: var(--shop-text);
 }
 
+/* Sub-items slide open and fade in one after another when their parent opens,
+   like Shopify's sidebar. They are rendered only for the active parent, so the
+   animation plays each time the page lands on a parent or one of its children. */
+.fi-sidebar-item-btn {
+    transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+
+.fi-sidebar-sub-group-items {
+    overflow: hidden;
+    animation: shop-sidebar-open 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fi-sidebar-sub-group-items > li {
+    animation: shop-sidebar-item 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fi-sidebar-sub-group-items > li:nth-child(2) { animation-delay: 30ms; }
+.fi-sidebar-sub-group-items > li:nth-child(3) { animation-delay: 60ms; }
+.fi-sidebar-sub-group-items > li:nth-child(4) { animation-delay: 90ms; }
+.fi-sidebar-sub-group-items > li:nth-child(5) { animation-delay: 120ms; }
+.fi-sidebar-sub-group-items > li:nth-child(n + 6) { animation-delay: 150ms; }
+
+@keyframes shop-sidebar-open {
+    from { max-height: 0; opacity: 0; }
+    to { max-height: 24rem; opacity: 1; }
+}
+
+@keyframes shop-sidebar-item {
+    from { opacity: 0; transform: translateY(-0.375rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* A parent that was already open before the click (moving between its own
+   children) stays put instead of replaying the animation. */
+@media (prefers-reduced-motion: reduce) {
+    .fi-sidebar-sub-group-items,
+    .fi-sidebar-sub-group-items > li {
+        animation: none;
+    }
+}
+
+.fi-sidebar-sub-group-items[data-static],
+.fi-sidebar-sub-group-items[data-static] > li {
+    animation: none;
+}
+
 .fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover {
     background-color: rgb(0 0 0 / 0.05);
 }

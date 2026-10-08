@@ -13,7 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use UnitEnum;
 
 class NewsletterResource extends Resource
 {
@@ -25,12 +24,7 @@ class NewsletterResource extends Resource
 
     protected static ?string $slug = 'newsletter';
 
-    protected static ?int $navigationSort = 2;
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('Pemasaran');
-    }
+    protected static ?int $navigationSort = -5;
 
     public static function getModelLabel(): string
     {

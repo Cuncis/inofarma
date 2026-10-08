@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Suppliers;
 
+use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Resources\Suppliers\Pages\CreateSupplier;
 use App\Filament\Resources\Suppliers\Pages\EditSupplier;
 use App\Filament\Resources\Suppliers\Pages\ListSuppliers;
@@ -21,6 +22,13 @@ class SupplierResource extends Resource
     protected static ?string $model = Supplier::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTruck;
+
+    protected static ?int $navigationSort = 3;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return ProductResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

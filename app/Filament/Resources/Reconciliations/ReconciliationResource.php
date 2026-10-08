@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reconciliations;
 
+use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Reconciliations\Pages\ListReconciliations;
 use App\Filament\Resources\Reconciliations\Tables\ReconciliationsTable;
 use App\Models\Payment;
@@ -23,6 +24,13 @@ class ReconciliationResource extends Resource
     protected static ?string $model = Payment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+
+    protected static ?int $navigationSort = 3;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return OrderResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

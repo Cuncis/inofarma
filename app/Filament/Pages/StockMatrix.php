@@ -2,13 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Widgets\StockMatrixWidget;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
-use UnitEnum;
 
 /**
  * One product × every branch, at a glance — read-only, see
@@ -21,9 +21,11 @@ class StockMatrix extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTableCells;
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    protected static ?int $navigationSort = 5;
+
+    public static function getNavigationParentItem(): ?string
     {
-        return __('Inventaris');
+        return ProductResource::getNavigationLabel();
     }
 
     public static function getNavigationLabel(): string

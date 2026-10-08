@@ -10,6 +10,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Support/Auth/**,app/Http/Controllers/Admin/**,app/Filament/Resources/BranchStocks/**,app/Filament/Resources/StockTransfers/** | .ai/rules/controllers-admin.md |
 | resources/js/Pages/Shop/OrderDetail.tsx,resources/js/Pages/Shop/TrackOrder.tsx,app/Http/Controllers/Shop/OrderController.php | .ai/rules/controllers-shop.md |
 | app/Http/Controllers/** | .ai/rules/controllers.md |
+| app/Support/CsvTemplates/** | .ai/rules/csv-templates.md |
 | app/Models/Region.php,app/Console/Commands/ImportRegions.php,app/Http/Controllers/Shop/RegionController.php,database/data/** | .ai/rules/data.md |
 | tests/Feature/** | .ai/rules/feature.md |
 | resources/css/app.css | .ai/rules/general.md |

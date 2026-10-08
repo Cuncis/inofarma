@@ -7,6 +7,7 @@ use App\Filament\Resources\Roles\Pages\EditRole;
 use App\Filament\Resources\Roles\Pages\ListRoles;
 use App\Filament\Resources\Roles\Schemas\RoleForm;
 use App\Filament\Resources\Roles\Tables\RolesTable;
+use App\Filament\Resources\Staff\StaffResource;
 use App\Models\Role;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -25,6 +26,13 @@ class RoleResource extends Resource
     protected static ?string $model = Role::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return StaffResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

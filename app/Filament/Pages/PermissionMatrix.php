@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\Staff\StaffResource;
 use App\Models\Role;
 use App\Support\AuditLogger;
 use App\Support\PermissionCatalog;
@@ -26,6 +27,13 @@ class PermissionMatrix extends Page
     protected string $view = 'filament.pages.permission-matrix';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return StaffResource::getNavigationLabel();
+    }
 
     public static function getNavigationLabel(): string
     {

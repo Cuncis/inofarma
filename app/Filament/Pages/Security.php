@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\Staff\StaffResource;
 use App\Models\User;
 use App\Support\AuditLogger;
 use BackedEnum;
@@ -27,6 +28,13 @@ class Security extends Page
     protected string $view = 'filament.pages.security';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldExclamation;
+
+    protected static ?int $navigationSort = 3;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return StaffResource::getNavigationLabel();
+    }
 
     public static function getNavigationLabel(): string
     {

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pickups;
 
+use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\Pickups\Pages\ListPickups;
 use App\Filament\Resources\Pickups\Tables\PickupsTable;
 use App\Models\Order;
@@ -22,6 +23,13 @@ class PickupResource extends Resource
     protected static ?string $model = Order::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQrCode;
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return OrderResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

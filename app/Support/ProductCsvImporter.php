@@ -2,11 +2,7 @@
 
 namespace App\Support;
 
-use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Http\Client\Response;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
@@ -56,13 +52,15 @@ class ProductCsvImporter
         'Dus' => 'Box',
     ];
 
-    private const IMAGE_CONCURRENCY = 10;
+    private CategoryResolver $categories;
 
-    /** @var array<string, int> */
-    private array $categoryCache = [];
+    private ProductImageFetcher $images;
 
-    /** @var array<int, array{product: Product, url: string}> */
-    private array $pendingImages = [];
+    public function __construct()
+    {
+        $this->categories = new CategoryResolver;
+        $this->images = new ProductImageFetcher;
+    }
 
     /**
      * @return array{created: int, updated: int, warnedInactive: int, imagesFailed: list<string>, failed: list<array{row: int, message: string}>}
@@ -88,7 +86,7 @@ class ProductCsvImporter
 
         fclose($handle);
 
-        $this->attachPendingImages($summary);
+        $this->images->fetch($summary);
 
         return $summary;
     }
@@ -124,7 +122,7 @@ class ProductCsvImporter
         $product->fill([
             'name' => $title,
             'slug' => trim($row[$index['Handle']] ?? '') ?: Str::slug($title !== '' ? $title : $sku),
-            'category_id' => $this->categoryId($tags['category']),
+            'category_id' => $this->categories->id($tags['category']),
             'unit' => $this->guessUnit($body['kemasan']),
             'status' => $needsWarning ? 'nonaktif' : 'aktif',
             'price' => (int) round((float) ($row[$index['Variant Price']] ?? 0)),
@@ -152,45 +150,8 @@ class ProductCsvImporter
         $imageUrl = trim($row[$index['Image Src']] ?? '');
 
         if ($imageUrl !== '' && ! $product->images()->exists()) {
-            $this->pendingImages[$product->id] = ['product' => $product, 'url' => $imageUrl];
+            $this->images->queue($product, [$imageUrl]);
         }
-    }
-
-    /**
-     * Downloads are done after all rows are saved, several at a time. Fetching
-     * ~300 images one by one took longer than the request's time limit and
-     * killed the import halfway through.
-     *
-     * @param  array{created: int, updated: int, warnedInactive: int, imagesFailed: list<string>, failed: array}  $summary
-     */
-    private function attachPendingImages(array &$summary): void
-    {
-        foreach (array_chunk($this->pendingImages, self::IMAGE_CONCURRENCY, preserve_keys: true) as $chunk) {
-            $responses = Http::pool(function ($pool) use ($chunk) {
-                foreach ($chunk as $id => $pending) {
-                    $pool->as((string) $id)
-                        ->withHeaders(['User-Agent' => 'Inofarma-ProductImport/1.0 (internal catalogue import)'])
-                        ->timeout(20)
-                        ->get($pending['url']);
-                }
-            });
-
-            foreach ($chunk as $id => $pending) {
-                try {
-                    $response = $responses[(string) $id] ?? null;
-
-                    if (! $response instanceof Response || ! $response->successful()) {
-                        throw new \RuntimeException("Gagal mengunduh gambar: {$pending['url']}");
-                    }
-
-                    $this->storeImage($pending['product'], $pending['url'], $response);
-                } catch (\Throwable) {
-                    $summary['imagesFailed'][] = $pending['product']->sku;
-                }
-            }
-        }
-
-        $this->pendingImages = [];
     }
 
     /**
@@ -294,75 +255,10 @@ class ProductCsvImporter
         return ['category' => $category, 'maxQty' => $maxQty];
     }
 
-    private function categoryId(string $name): int
-    {
-        if (isset($this->categoryCache[$name])) {
-            return $this->categoryCache[$name];
-        }
-
-        $category = Category::withTrashed()->where('name', $name)->first();
-
-        if ($category && $category->trashed()) {
-            $category->restore();
-        }
-
-        $category ??= Category::create([
-            'name' => $name,
-            'slug' => Slug::unique(Category::withTrashed(), $name),
-            'status' => 'aktif',
-            'position' => (int) Category::max('position') + 1,
-            'image_path' => '/media/images/small/img-'.(Category::count() % 12 + 1).'.jpg',
-        ]);
-
-        $curatedIcon = $this->curatedCategoryIcon($category->slug);
-
-        if ($curatedIcon !== null && $category->image_path !== $curatedIcon
-            && (! $category->image_path || str_starts_with($category->image_path, '/media/images/small/'))) {
-            $category->update(['image_path' => $curatedIcon]);
-        }
-
-        return $this->categoryCache[$name] = $category->id;
-    }
-
-    /** The storefront's artwork for a category lives at `public/media/images/categories/{slug}.png`. */
-    private function curatedCategoryIcon(string $slug): ?string
-    {
-        $path = "/media/images/categories/{$slug}.png";
-
-        return file_exists(public_path($path)) ? $path : null;
-    }
-
     private function nullableInt(?string $value): ?int
     {
         $value = trim((string) $value);
 
         return $value === '' || (float) $value <= 0 ? null : (int) round((float) $value);
-    }
-
-    private function storeImage(Product $product, string $url, Response $response): void
-    {
-        $extension = pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION) ?: 'jpg';
-        $tempPath = tempnam(sys_get_temp_dir(), 'csvimg');
-        file_put_contents($tempPath, $response->body());
-
-        try {
-            $file = new UploadedFile(
-                $tempPath,
-                "import.{$extension}",
-                $response->header('Content-Type') ?: 'image/jpeg',
-                null,
-                true,
-            );
-
-            $upload = ProductImageUploader::store($file, $product->id);
-
-            $product->images()->create([
-                'path' => $upload['path'],
-                'position' => 1,
-                'is_primary' => true,
-            ]);
-        } finally {
-            @unlink($tempPath);
-        }
     }
 }

@@ -7,6 +7,7 @@ use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Filament\Resources\Categories\Tables\CategoriesTable;
+use App\Filament\Resources\Products\ProductResource;
 use App\Models\Category;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -26,6 +27,13 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return ProductResource::getNavigationLabel();
+    }
 
     public static function getModelLabel(): string
     {

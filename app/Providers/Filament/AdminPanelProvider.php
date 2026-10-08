@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\EnsureAdminIsAuthenticated;
 use App\Http\Middleware\SetAdminLocale;
 use App\Support\AdminFlags;
@@ -10,10 +11,10 @@ use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -44,6 +45,10 @@ class AdminPanelProvider extends PanelProvider
             // preference — staff can still switch to dark from the topbar,
             // this only changes what a first-time visitor sees.
             ->defaultThemeMode(ThemeMode::Light)
+            // Livewire SPA navigation: clicking a menu item swaps the page in place
+            // instead of reloading it, so the sidebar and its animation stay smooth.
+            ->spa()
+            ->renderHook(PanelsRenderHook::HEAD_END, fn () => view('filament.hooks.sidebar-smooth'))
             ->viteTheme('resources/css/filament/admin/theme.css')
             // Language switch in the profile menu: two flags on one row. The
             // active language is outlined; labels stay for screen readers.
