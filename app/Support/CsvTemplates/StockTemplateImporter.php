@@ -55,27 +55,65 @@ class StockTemplateImporter
         CsvTable::assertColumns($header, StockTemplate::REQUIRED);
 
         $summary = ['kind' => 'stok', 'groups' => 0, 'batches' => 0, 'zeroed' => 0, 'failed' => []];
-
-        /** @var array<string, array{firstLine: int, branch: ?Branch, product: ?Product, entries: list<array<string, mixed>>, settings: array<string, mixed>, seen: array<string, true>, broken: bool}> $groups */
         $groups = [];
 
         foreach ($rows as ['line' => $line, 'cells' => $cells]) {
-            $groupKey = mb_strtolower($cells['branch_code'].'|'.$cells['sku']);
-            $group = &$groups[$groupKey];
-            $group ??= ['firstLine' => $line, 'branch' => null, 'product' => null, 'entries' => [], 'settings' => [], 'seen' => [], 'broken' => false];
-
             try {
-                $this->collectRow($cells, $header, $group);
+                $this->collect($cells, $header, $groups, $line);
             } catch (RuntimeException $e) {
-                $group['broken'] = true;
                 $summary['failed'][] = ['row' => $line, 'message' => $e->getMessage()];
             }
-
-            unset($group);
         }
 
-        $note = "Impor stok CSV ({$fileName})";
+        $this->applyGroups($groups, $summary, "Impor stok CSV ({$fileName})");
 
+        return $summary;
+    }
+
+    /**
+     * Adds one stock row to its product + branch group.
+     *
+     * Rows are grouped by the branch and product they resolve to, so a branch
+     * written once as its name and once as its code still lands in one group.
+     * A row that fails after its group is known marks the whole group broken.
+     *
+     * @param  array<string, string>  $cells  keyed `sku`, `branch_code` (a code or a name), `batch_number`, ...
+     * @param  list<string>  $header
+     * @param  array<string, array<string, mixed>>  $groups
+     *
+     * @throws RuntimeException
+     */
+    public function collect(array $cells, array $header, array &$groups, int $line): void
+    {
+        foreach (['sku', 'branch_code'] as $required) {
+            if (($cells[$required] ?? '') === '') {
+                throw new RuntimeException("Kolom {$required} wajib diisi.");
+            }
+        }
+
+        $branch = $this->branch($cells['branch_code']);
+        $product = $this->product($cells['sku']);
+        $key = "{$branch->id}-{$product->id}";
+
+        $groups[$key] ??= ['firstLine' => $line, 'branch' => $branch, 'product' => $product, 'entries' => [], 'settings' => [], 'seen' => [], 'broken' => false];
+
+        try {
+            $this->collectRow($cells, $header, $groups[$key]);
+        } catch (RuntimeException $e) {
+            $groups[$key]['broken'] = true;
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Replaces the stock of every collected group, all or nothing per group.
+     *
+     * @param  array<string, array<string, mixed>>  $groups
+     * @param  array{groups: int, batches: int, zeroed: int, failed: list<array{row: int, message: string}>}  $summary
+     */
+    public function applyGroups(array $groups, array &$summary, string $note): void
+    {
         foreach ($groups as $group) {
             if ($group['broken']) {
                 $summary['failed'][] = [
@@ -100,8 +138,6 @@ class StockTemplateImporter
             $summary['batches'] += $result['batches'];
             $summary['zeroed'] += $result['zeroed'];
         }
-
-        return $summary;
     }
 
     /**
@@ -112,8 +148,6 @@ class StockTemplateImporter
     private function collectRow(array $cells, array $header, array &$group): void
     {
         $validator = Validator::make($cells, [
-            'sku' => ['required'],
-            'branch_code' => ['required'],
             'batch_number' => ['required', 'max:60'],
             'expires_at' => ['required'],
             'quantity' => ['required', 'regex:/^\d+$/'],
@@ -130,12 +164,6 @@ class StockTemplateImporter
             throw new RuntimeException($validator->errors()->first());
         }
 
-        $branch = $this->branch($cells['branch_code']);
-        $product = $this->product($cells['sku']);
-
-        $group['branch'] = $branch;
-        $group['product'] = $product;
-
         $batchKey = mb_strtolower($cells['batch_number']);
 
         if (isset($group['seen'][$batchKey])) {
@@ -148,11 +176,11 @@ class StockTemplateImporter
             'quantity' => (int) $cells['quantity'],
         ];
 
-        if (in_array('batch_cost_price', $header, true) && $cells['batch_cost_price'] !== '') {
+        if (in_array('batch_cost_price', $header, true) && ($cells['batch_cost_price'] ?? '') !== '') {
             $entry['cost_price'] = (int) $cells['batch_cost_price'];
         }
 
-        if (in_array('received_at', $header, true) && $cells['received_at'] !== '') {
+        if (in_array('received_at', $header, true) && ($cells['received_at'] ?? '') !== '') {
             $entry['received_at'] = $this->date($cells['received_at'], 'received_at');
         }
 
@@ -173,12 +201,12 @@ class StockTemplateImporter
     private function collectSettings(array $cells, array $header, array &$settings): void
     {
         foreach (['reorder_point', 'price_override'] as $column) {
-            if (in_array($column, $header, true) && $cells[$column] !== '' && ! isset($settings[$column])) {
+            if (in_array($column, $header, true) && ($cells[$column] ?? '') !== '' && ! isset($settings[$column])) {
                 $settings[$column] = (int) $cells[$column];
             }
         }
 
-        if (in_array('is_listed', $header, true) && $cells['is_listed'] !== '' && ! isset($settings['is_listed'])) {
+        if (in_array('is_listed', $header, true) && ($cells['is_listed'] ?? '') !== '' && ! isset($settings['is_listed'])) {
             $value = mb_strtolower($cells['is_listed']);
 
             if (! in_array($value, [...self::TRUE_VALUES, ...self::FALSE_VALUES], true)) {
@@ -189,20 +217,20 @@ class StockTemplateImporter
         }
     }
 
-    private function branch(string $code): Branch
+    private function branch(string $codeOrName): Branch
     {
-        $key = mb_strtolower($code);
+        $key = mb_strtolower($codeOrName);
 
-        $this->branches[$key] ??= Branch::where('code', $code)->first();
+        $this->branches[$key] ??= Branch::where('code', $codeOrName)->orWhere('name', $codeOrName)->first();
 
         $branch = $this->branches[$key];
 
         if ($branch === null) {
-            throw new RuntimeException("Cabang dengan kode \"{$code}\" tidak ditemukan.");
+            throw new RuntimeException("Cabang \"{$codeOrName}\" tidak ditemukan (isi dengan kode atau nama cabang).");
         }
 
         if ($this->restrictToBranchId !== null && $branch->id !== $this->restrictToBranchId) {
-            throw new RuntimeException("Anda tidak punya akses ke cabang \"{$code}\".");
+            throw new RuntimeException("Anda tidak punya akses ke cabang \"{$codeOrName}\".");
         }
 
         return $branch;

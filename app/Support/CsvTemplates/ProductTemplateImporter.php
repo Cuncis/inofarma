@@ -68,17 +68,34 @@ class ProductTemplateImporter
             }
         }
 
-        $this->images->fetch($summary);
+        $this->finishImages($summary);
 
         return $summary;
     }
 
     /**
+     * Downloads the images queued by {@see importRow()}. {@see import()} calls
+     * this itself; a caller driving `importRow()` directly calls it at the end.
+     *
+     * @param  array{imagesFailed: list<string>}  $summary
+     */
+    public function finishImages(array &$summary): void
+    {
+        $this->images->fetch($summary);
+    }
+
+    /**
+     * Saves one product row.
+     *
+     * With `$partial` (the combined product + stock file), a product that
+     * already exists needs only `sku` plus whichever columns should change; a
+     * new product still needs every required column.
+     *
      * @param  array<string, string>  $cells
-     * @param  list<string>  $header
+     * @param  list<string>  $header  the columns `$cells` really carries; others are left alone
      * @param  array{created: int, updated: int, warnedInactive: int}  $summary
      */
-    private function importRow(array $cells, array $header, array &$summary): void
+    public function importRow(array $cells, array $header, array &$summary, bool $partial = false): void
     {
         foreach (['drug_class', 'storage', 'status', 'requires_prescription'] as $column) {
             if (isset($cells[$column])) {
@@ -86,10 +103,11 @@ class ProductTemplateImporter
             }
         }
 
-        $this->validate($cells);
-
-        $product = Product::withTrashed()->where('sku', $cells['sku'])->first();
+        $product = Product::withTrashed()->where('sku', $cells['sku'] ?? '')->first();
         $isNew = $product === null;
+
+        $this->validate($cells, enforceRequired: ! $partial || $isNew);
+
         $product ??= new Product(['sku' => $cells['sku']]);
 
         if ($product->trashed()) {
@@ -98,14 +116,23 @@ class ProductTemplateImporter
 
         $has = fn (string $column) => in_array($column, $header, true);
 
-        $attributes = [
-            'name' => $cells['name'],
-            'category_id' => $this->categories->id($cells['category']),
-            'unit' => $cells['unit'],
-            'price' => (int) $cells['price'],
-            'drug_class' => $cells['drug_class'],
-            'weight_grams' => (int) $cells['weight_grams'],
-        ];
+        $attributes = [];
+
+        foreach (['name', 'unit', 'drug_class'] as $column) {
+            if ($has($column)) {
+                $attributes[$column] = $cells[$column];
+            }
+        }
+
+        if ($has('category')) {
+            $attributes['category_id'] = $this->categories->id($cells['category']);
+        }
+
+        foreach (['price', 'weight_grams'] as $column) {
+            if ($has($column)) {
+                $attributes[$column] = (int) $cells[$column];
+            }
+        }
 
         foreach (self::TEXT_COLUMNS as $column) {
             if ($has($column)) {
@@ -138,11 +165,15 @@ class ProductTemplateImporter
             $attributes['requires_prescription'] = in_array($cells['requires_prescription'], self::TRUE_VALUES, true);
         }
 
-        $attributes['slug'] = $this->slugFor($product, $cells, $has('slug'));
+        if ($isNew || $has('slug') || $has('name')) {
+            $attributes['slug'] = $this->slugFor($product, $cells, $has('slug'));
+        }
 
         $product->fill($attributes);
 
-        if ($product->needs_warning_label && blank($product->warning)) {
+        $touchesWarningRules = ! $partial || $isNew || $has('drug_class') || $has('warning') || $has('status');
+
+        if ($touchesWarningRules && $product->needs_warning_label && blank($product->warning)) {
             $product->status = 'nonaktif';
             $summary['warnedInactive']++;
         }
@@ -161,11 +192,11 @@ class ProductTemplateImporter
     /**
      * @param  array<string, string>  $cells
      */
-    private function validate(array $cells): void
+    private function validate(array $cells, bool $enforceRequired = true): void
     {
         $digits = 'regex:/^\d+$/';
 
-        $validator = Validator::make($cells, [
+        $rules = [
             'sku' => ['required', 'string', 'max:40'],
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'max:255'],
@@ -185,7 +216,15 @@ class ProductTemplateImporter
             'weight_grams' => ['required', $digits],
             'max_qty_per_order' => ['nullable', $digits, 'max:65535'],
             'status' => ['nullable', 'in:'.implode(',', ProductTemplate::STATUSES)],
-        ], [
+        ];
+
+        if (! $enforceRequired) {
+            foreach ($rules as $column => $columnRules) {
+                $rules[$column] = array_map(fn ($rule) => $rule === 'required' && $column !== 'sku' ? 'sometimes' : $rule, $columnRules);
+            }
+        }
+
+        $validator = Validator::make($cells, $rules, [
             'regex' => 'Kolom :attribute harus berupa bilangan bulat tanpa titik, koma, atau "Rp" (contoh: 15000).',
             'slug.regex' => 'Kolom slug hanya boleh huruf kecil, angka, dan tanda hubung.',
             'in' => 'Kolom :attribute berisi nilai yang tidak dikenal.',

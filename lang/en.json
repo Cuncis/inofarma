@@ -431,5 +431,15 @@
     "Baris produk dengan SKU yang sudah ada akan diperbarui, bukan diduplikasi. Import stok mengganti jumlah batch sesuai file.": "Product rows with an existing SKU are updated, not duplicated. Stock import replaces batch quantities with the file.",
     "Produk per Cabang Diperbarui": "Product-Branch Pairs Updated",
     "Batch Diterapkan": "Batches Applied",
-    "Batch Lama Dinolkan": "Old Batches Zeroed"
+    "Batch Lama Dinolkan": "Old Batches Zeroed",
+    "Import Produk & Stok": "Import Products & Stock",
+    "Satu file untuk produk dan stok. Stok per produk dan cabang diganti sesuai file: batch yang tidak ada di file menjadi 0. Produk dan cabang yang tidak ada di file tidak berubah.": "One file for products and stock. Stock per product and branch is replaced by the file: batches not in the file become 0. Products and branches not in the file are unchanged.",
+    "Import selesai: :created produk baru, :updated diperbarui, :groups stok produk per cabang diperbarui.": "Import finished: :created new products, :updated updated, :groups product-branch stock entries updated.",
+    "Export Produk & Stok": "Export Products & Stock",
+    "Unduh Template": "Download Template",
+    "Unduh template lewat tombol Export & Template, isi, lalu import. Produk dan stok ada dalam satu file: satu baris per produk, cabang, dan batch.": "Download a template with the Export & Template button, fill it in, then import. Products and stock are in one file: one row per product, branch and batch.",
+    "SKU yang sudah ada diperbarui, bukan diduplikasi. Untuk produk yang sudah ada, cukup isi sku dan kolom stok. Stok per produk dan cabang diganti sesuai file.": "Existing SKUs are updated, not duplicated. For an existing product, only sku and the stock columns are needed. Stock per product and branch is replaced by the file.",
+    ":count baris": ":count rows",
+    "Baris :rows": "Rows :rows",
+    "dan :count lainnya": "and :count more"
 }

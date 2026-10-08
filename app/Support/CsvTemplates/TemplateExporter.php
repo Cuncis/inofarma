@@ -64,6 +64,71 @@ class TemplateExporter
         });
     }
 
+    /**
+     * The combined file: one row per batch, with the product columns repeated;
+     * a product with no stock gets a single row with empty stock cells.
+     * `$includeStock` false (no permission to see stock) leaves the stock cells empty.
+     */
+    public function catalog(bool $includeStock = true): StreamedResponse
+    {
+        $columns = CatalogTemplate::columns();
+
+        return $this->download('produk-stok-'.now()->format('Ymd-His').'.csv', $columns, function ($out) use ($columns, $includeStock) {
+            $settings = $includeStock
+                ? BranchStock::query()->get()->keyBy(fn (BranchStock $row) => "{$row->branch_id}-{$row->product_id}")
+                : collect();
+
+            Product::query()
+                ->with(['category', 'supplier', 'images'])
+                ->orderBy('sku')
+                ->chunk(500, function ($products) use ($out, $columns, $includeStock, $settings) {
+                    $batches = $includeStock
+                        ? InventoryBatch::query()
+                            ->with('branch')
+                            ->whereIn('product_id', $products->modelKeys())
+                            ->where('quantity', '>', 0)
+                            ->orderBy('branch_id')
+                            ->orderBy('expires_at')
+                            ->get()
+                            ->filter(fn (InventoryBatch $batch) => $batch->branch !== null)
+                            ->groupBy('product_id')
+                        : collect();
+
+                    foreach ($products as $product) {
+                        $row = $this->productRow($product);
+                        $productBatches = $batches->get($product->id, collect());
+
+                        if ($productBatches->isEmpty()) {
+                            $this->writeRow($out, $columns, $row);
+
+                            continue;
+                        }
+
+                        foreach ($productBatches as $batch) {
+                            $branchStock = $settings->get("{$batch->branch_id}-{$batch->product_id}");
+
+                            $this->writeRow($out, $columns, $row + [
+                                'branch' => $batch->branch->code,
+                                'batch_number' => $batch->batch_number,
+                                'expires_at' => $batch->expires_at->toDateString(),
+                                'quantity' => $batch->quantity,
+                                'batch_cost_price' => $batch->cost_price,
+                                'received_at' => $batch->received_at?->toDateString(),
+                                'reorder_point' => $branchStock?->reorder_point,
+                                'price_override' => $branchStock?->price_override,
+                                'is_listed' => $branchStock === null ? null : (int) $branchStock->is_listed,
+                            ]);
+                        }
+                    }
+                });
+        });
+    }
+
+    public function catalogSample(): StreamedResponse
+    {
+        return $this->sample('template-produk-stok.csv', CatalogTemplate::columns(), CatalogTemplate::sampleRows());
+    }
+
     public function productSample(): StreamedResponse
     {
         return $this->sample('template-produk.csv', ProductTemplate::COLUMNS, ProductTemplate::sampleRows());

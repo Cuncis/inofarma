@@ -3,8 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
-use App\Support\CsvTemplates\ProductTemplateImporter;
-use App\Support\CsvTemplates\StockTemplateImporter;
+use App\Support\CsvTemplates\CatalogTemplateImporter;
 use App\Support\CsvTemplates\TemplateExporter;
 use App\Support\ProductCsvImporter;
 use BackedEnum;
@@ -21,9 +20,10 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 /**
  * Bulk import and export of the catalogue and its stock as CSV.
  *
- * The house template is two files, `produk.csv` and `stok.csv` (see
- * ProductTemplateImporter and StockTemplateImporter); both can be exported,
- * edited and imported back, and sample templates are downloadable here. The
+ * The house template is one file, `produk-stok.csv`: product and stock together,
+ * one row per product, branch and batch (see
+ * CatalogTemplateImporter); it can be exported, edited and imported back, and a
+ * sample template is downloadable here. The
  * older Shopify-format import (ProductCsvImporter) stays as `import`. Not in
  * the main navigation: reached from the Produk list's "Import CSV" header
  * action.
@@ -51,6 +51,28 @@ class ProductImport extends Page
     /** @var array<string, mixed>|null */
     public ?array $result = null;
 
+    /**
+     * The failed rows folded by message, so one cause that hits hundreds of
+     * rows (an unknown branch, say) shows once with its row numbers.
+     *
+     * @return list<array{message: string, count: int, rows: list<int>, more: int}>
+     */
+    public function groupedFailures(): array
+    {
+        $groups = [];
+
+        foreach ($this->result['failed'] ?? [] as $failure) {
+            $groups[$failure['message']][] = $failure['row'];
+        }
+
+        return array_values(array_map(fn (string $message) => [
+            'message' => $message,
+            'count' => count($groups[$message]),
+            'rows' => array_slice($groups[$message], 0, 10),
+            'more' => max(0, count($groups[$message]) - 10),
+        ], array_keys($groups)));
+    }
+
     public static function canAccess(): bool
     {
         return (bool) Auth::guard('web')->user()?->can('Produk:Lihat');
@@ -61,53 +83,38 @@ class ProductImport extends Page
         $user = fn () => Auth::guard('web')->user();
 
         return [
-            Action::make('importProducts')
-                ->label(__('Import Produk'))
+            Action::make('importCatalog')
+                ->label(__('Import Produk & Stok'))
                 ->icon(Heroicon::OutlinedArrowUpTray)
-                ->visible(fn () => (bool) $user()?->can('Produk:Ubah'))
-                ->schema([$this->csvUpload()])
-                ->action(function (array $data) {
-                    $this->runImport(function () use ($data) {
-                        set_time_limit(300);
-
-                        $result = (new ProductTemplateImporter)->import($data['file']);
-
-                        $this->notifyDone(__('Import selesai: :created produk baru, :updated diperbarui.', ['created' => $result['created'], 'updated' => $result['updated']]));
-
-                        return $result;
-                    });
-                }),
-            Action::make('importStock')
-                ->label(__('Import Stok'))
-                ->icon(Heroicon::OutlinedArrowUpTray)
-                ->color('gray')
-                ->visible(fn () => (bool) $user()?->can('Inventaris:Sesuaikan Stok'))
-                ->modalDescription(__('Stok yang ada diganti sesuai file: batch yang tidak ada di file menjadi 0. Produk dan cabang yang tidak ada di file tidak berubah.'))
+                ->visible(fn () => (bool) ($user()?->can('Produk:Ubah') || $user()?->can('Inventaris:Sesuaikan Stok')))
+                ->modalDescription(__('Satu file untuk produk dan stok. Stok per produk dan cabang diganti sesuai file: batch yang tidak ada di file menjadi 0. Produk dan cabang yang tidak ada di file tidak berubah.'))
                 ->schema([$this->csvUpload()])
                 ->action(function (array $data) use ($user) {
                     $this->runImport(function () use ($data, $user) {
-                        $result = (new StockTemplateImporter($user()?->branch_id, $user()?->id))->import($data['file']);
+                        set_time_limit(300);
 
-                        $this->notifyDone(__('Import stok selesai: :groups produk per cabang diperbarui.', ['groups' => $result['groups']]));
+                        $result = (new CatalogTemplateImporter(
+                            restrictToBranchId: $user()?->branch_id,
+                            userId: $user()?->id,
+                            canEditProducts: (bool) $user()?->can('Produk:Ubah'),
+                            canAdjustStock: (bool) $user()?->can('Inventaris:Sesuaikan Stok'),
+                        ))->import($data['file']);
+
+                        $this->notifyDone(__('Import selesai: :created produk baru, :updated diperbarui, :groups stok produk per cabang diperbarui.', [
+                            'created' => $result['created'], 'updated' => $result['updated'], 'groups' => $result['groups'],
+                        ]));
 
                         return $result;
                     });
                 }),
             ActionGroup::make([
-                Action::make('exportProducts')
-                    ->label(__('Export Produk'))
-                    ->visible(fn () => (bool) $user()?->can('Produk:Lihat'))
-                    ->action(fn () => (new TemplateExporter)->products()),
-                Action::make('exportStock')
-                    ->label(__('Export Stok'))
-                    ->visible(fn () => (bool) $user()?->can('Inventaris:Lihat'))
-                    ->action(fn () => (new TemplateExporter)->stock()),
-                Action::make('downloadProductTemplate')
-                    ->label(__('Unduh Template Produk'))
-                    ->action(fn () => (new TemplateExporter)->productSample()),
-                Action::make('downloadStockTemplate')
-                    ->label(__('Unduh Template Stok'))
-                    ->action(fn () => (new TemplateExporter)->stockSample()),
+                Action::make('exportCatalog')
+                    ->label(__('Export Produk & Stok'))
+                    ->visible(fn () => (bool) ($user()?->can('Produk:Lihat') || $user()?->can('Inventaris:Lihat')))
+                    ->action(fn () => (new TemplateExporter)->catalog((bool) $user()?->can('Inventaris:Lihat'))),
+                Action::make('downloadCatalogTemplate')
+                    ->label(__('Unduh Template'))
+                    ->action(fn () => (new TemplateExporter)->catalogSample()),
             ])
                 ->label(__('Export & Template'))
                 ->icon(Heroicon::OutlinedArrowDownTray)
