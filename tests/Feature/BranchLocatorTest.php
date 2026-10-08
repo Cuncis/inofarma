@@ -22,6 +22,13 @@ class BranchLocatorTest extends TestCase
         parent::setUp();
 
         $this->seed();
+
+        // The seeded branches have no coordinates until an admin fills them in.
+        // Place them around Jakarta so the distance tests have something to rank.
+        Branch::orderBy('id')->get()->each(fn (Branch $branch, int $index) => $branch->update([
+            'latitude' => -6.20 - $index * 0.03,
+            'longitude' => 106.85 + $index * 0.03,
+        ]));
     }
 
     public function test_our_branches_page_lists_every_active_branch(): void

@@ -10,7 +10,7 @@ namespace Tests\Concerns;
  */
 trait SeedsDemoCatalogue
 {
-    protected const BRANCH_COUNT = 10;
+    protected const BRANCH_COUNT = 4;
 
     protected const CATEGORY_COUNT = 7;
 
