@@ -24,7 +24,7 @@ class NewsletterResource extends Resource
 
     protected static ?string $slug = 'newsletter';
 
-    protected static ?int $navigationSort = -5;
+    protected static ?int $navigationSort = -4;
 
     public static function getModelLabel(): string
     {

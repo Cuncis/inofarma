@@ -42,6 +42,33 @@ class Subscriber extends Model
         });
     }
 
+    /**
+     * Signs an address up for the newsletter on the person's own request (the
+     * footer form, or the chat's opt-in box). Someone already subscribed is left
+     * alone, and someone who earlier unsubscribed and asks again is choosing to
+     * come back, which is consent, so they are re-subscribed (unlike a CSV
+     * import, which can never do that).
+     */
+    public static function subscribeEmail(string $email): self
+    {
+        $email = Str::lower(trim($email));
+        $subscriber = static::where('email', $email)->first();
+
+        if (! $subscriber) {
+            return static::create(['email' => $email, 'status' => self::SUBSCRIBED]);
+        }
+
+        if (! $subscriber->isSubscribed()) {
+            $subscriber->update([
+                'status' => self::SUBSCRIBED,
+                'subscribed_at' => now(),
+                'unsubscribed_at' => null,
+            ]);
+        }
+
+        return $subscriber;
+    }
+
     public function deliveries(): HasMany
     {
         return $this->hasMany(NewsletterDelivery::class);

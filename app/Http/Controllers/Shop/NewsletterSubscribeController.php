@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Subscriber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 /**
  * The footer's "Berlangganan" form. Anyone can sign up with just an email.
@@ -28,18 +27,7 @@ class NewsletterSubscribeController extends Controller
             'email.email' => 'Alamat email tidak valid.',
         ]);
 
-        $email = Str::lower(trim($data['email']));
-        $subscriber = Subscriber::where('email', $email)->first();
-
-        if (! $subscriber) {
-            Subscriber::create(['email' => $email, 'status' => Subscriber::SUBSCRIBED]);
-        } elseif (! $subscriber->isSubscribed()) {
-            $subscriber->update([
-                'status' => Subscriber::SUBSCRIBED,
-                'subscribed_at' => now(),
-                'unsubscribed_at' => null,
-            ]);
-        }
+        Subscriber::subscribeEmail($data['email']);
 
         return back()->with('success', 'Terima kasih! Anda sudah berlangganan info sehat dan hemat dari Inofarma.');
     }

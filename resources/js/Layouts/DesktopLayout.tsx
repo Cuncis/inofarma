@@ -1,10 +1,13 @@
 import { Head, Link } from '@inertiajs/react';
+import ChatWidget from '@/Components/Shop/ChatWidget';
 import NewsletterSignup from '@/Components/Shop/NewsletterSignup';
 
 /**
  * Desktop page shell: a normal scrolling document (unlike `MobileLayout`'s
  * fixed-height phone frame) with a full-bleed header and a centred content
  * column and the site footer. There is deliberately no bottom tab bar here.
+ * It also owns the chat bubble, because the desktop home, shop, cart and product
+ * pages render this layout directly rather than through `MobileLayout`.
  */
 export default function DesktopLayout({ title, children, header = null, narrow = false }: {
   title: string,
@@ -54,6 +57,8 @@ export default function DesktopLayout({ title, children, header = null, narrow =
                     </div>
                 </footer>
             </div>
+
+            <ChatWidget placement="viewport" />
         </>
     );
 }

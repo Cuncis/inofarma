@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { isValidElement, type ReactNode } from 'react';
 import AppBar from '@/Components/Shop/AppBar';
+import ChatWidget from '@/Components/Shop/ChatWidget';
 import DesktopHeader from '@/Components/Shop/DesktopHeader';
 import TabBar from '@/Components/Shop/TabBar';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
@@ -73,6 +74,9 @@ export default function MobileLayout({
         );
     }
 
+    // A screen with its own action bar (cart, checkout) keeps the corner free.
+    const hasActionBar = footer !== null && ! (isValidElement(footer) && footer.type === TabBar);
+
     return (
         <>
             <Head title={title} />
@@ -84,6 +88,7 @@ export default function MobileLayout({
                     {header}
                     {children}
                     {footer}
+                    <ChatWidget placement="frame" showLauncher={! hasActionBar} />
                 </div>
             </div>
         </>

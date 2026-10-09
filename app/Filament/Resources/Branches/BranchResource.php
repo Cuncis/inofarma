@@ -23,7 +23,7 @@ class BranchResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
-    protected static ?int $navigationSort = -4;
+    protected static ?int $navigationSort = -3;
 
     public static function getModelLabel(): string
     {
