@@ -145,7 +145,7 @@ class AdminOptions
      */
     public static function paymentMethods(): array
     {
-        return ['Transfer Bank', 'GoPay', 'OVO', 'DANA', 'Tunai'];
+        return ['Transfer Bank', 'GoPay', 'OVO', 'DANA'];
     }
 
     /**

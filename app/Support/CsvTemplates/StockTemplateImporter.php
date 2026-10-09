@@ -51,7 +51,7 @@ class StockTemplateImporter
      */
     public function import(string $path, string $fileName = 'stok.csv'): array
     {
-        ['header' => $header, 'rows' => $rows] = CsvTable::read($path);
+        ['header' => $header, 'rows' => $rows] = CsvTable::read($path, ['branch' => 'branch_code']);
         CsvTable::assertColumns($header, StockTemplate::REQUIRED);
 
         $summary = ['kind' => 'stok', 'groups' => 0, 'batches' => 0, 'zeroed' => 0, 'failed' => []];

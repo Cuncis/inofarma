@@ -34,7 +34,7 @@ class OrderSeeder extends Seeder
             ['PRD-005' => 5, 'PRD-012' => 4]],
         ['INO-2448', 'bagas.saputra@mail.com', '2025-08-13', 'DANA', 'dibatalkan', 'antar', 12000,
             ['PRD-008' => 2, 'PRD-010' => 1]],
-        ['INO-2447', 'sari.wulandari@mail.com', '2025-08-12', 'Tunai', 'selesai', 'ambil', 0,
+        ['INO-2447', 'sari.wulandari@mail.com', '2025-08-12', 'Transfer Bank', 'selesai', 'ambil', 0,
             ['PRD-011' => 5, 'PRD-006' => 1]],
         ['INO-2446', 'kirana.wijaya@mail.com', '2025-08-10', 'Transfer Bank', 'selesai', 'antar', 18000,
             ['PRD-002' => 5, 'PRD-001' => 8]],

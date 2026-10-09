@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
 
 /**
  * "Konfirmasi pesanan" (ROADMAP.md Fase 8) — fired by `App\Observers\OrderObserver::created()`
- * for every order, `antar` or `ambil`, `online` or `Tunai` alike.
+ * for every order, `antar` or `ambil`, paid online or entered by staff alike.
  */
 class OrderConfirmed extends Notification implements ShouldQueue
 {

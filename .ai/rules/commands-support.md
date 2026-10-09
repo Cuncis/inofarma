@@ -5,7 +5,7 @@ paths:
 
 # Commands Support
 
-## DOKU payment integration — webhook is truth, hand-rolled client, cash-at-pickup only for ambil
+## DOKU payment integration — webhook is truth, hand-rolled client, online is the only way to pay
 Fase 6, hand-rolled against DOKU's real API docs (developers.doku.com) rather than an unofficial Packagist package — see `DokuClient`'s docblock.
 
 **Webhook is the only source of truth for payment status**, never the browser callback. `callback_url`/`callback_url_cancel`/`callback_url_result` (all pointed at `ui.pesanan.show` — the order detail page with the Bayar/Batalkan actions, not `ui.track-order`'s read-only shipment timeline) only decide where the customer's browser lands — they write nothing. Only `POST /doku/notifikasi` (`DokuWebhookController`) writes `Payment`/`Order` state, and only after `DokuSignature::verify()` passes. That route is CSRF-exempted in `bootstrap/app.php` and its path is duplicated in `services.doku.notification_path` — the two must always match, since the path is itself signed.
@@ -14,7 +14,7 @@ Fase 6, hand-rolled against DOKU's real API docs (developers.doku.com) rather th
 
 **Stock consumption timing didn't change for Fase 6** — still immediate at order creation via `StockAllocator::consume()` (Fase 5), not held in `reserved_quantity`. `OrderCancellation::apply()` (extracted from Fase 5's cancel flow) is the one place that returns stock, called by: customer cancel, `pesanan:kadaluwarsakan` (scheduled every 5 min, 24h window), and DOKU's own EXPIRED notification.
 
-**"online" vs "Tunai" is the only payment_method choice at checkout** (`CheckoutController`) — not the old Transfer Bank/GoPay/OVO/DANA list (that stayed as `AdminOptions::paymentMethods()` for the *admin's own* manual order form only, unrelated to shop checkout now). DOKU's hosted Checkout page is where a shopper actually picks VA/e-wallet/QRIS/card. "Tunai" (cash at pickup) is rejected for `fulfilment: antar` — no COD. `orders.payment_method` starts as literal `'online'` and gets overwritten with the real DOKU channel id (e.g. `VIRTUAL_ACCOUNT_BCA`) once the webhook reports success.
+**"online" is the only payment_method at checkout** (`CheckoutController` validates `in:online`). There is no cash on delivery and no cash at pickup ("Tunai" / "Bayar di tempat" were removed; a posted `Tunai` is a `paymentMethod` validation error for both `antar` and `ambil`). Old orders that still say `Tunai` are history and were left alone. DOKU's hosted Checkout page is where a shopper actually picks VA/e-wallet/QRIS/card. `AdminOptions::paymentMethods()` (Transfer Bank/GoPay/OVO/DANA) is only the *admin's own* manual order form, unrelated to shop checkout. `orders.payment_method` starts as literal `'online'` and gets overwritten with the real DOKU channel id (e.g. `VIRTUAL_ACCOUNT_BCA`) once the webhook reports success.
 
 **Refund is recorded, never called via DOKU's API** (`InvoiceController::refund()`, permission `Pesanan:Refund`) — DOKU's refund endpoint only covers card payments, not VA/e-wallet/QRIS, so there's no single API call that generalizes across channels DOKU Checkout actually offers. An admin marks it refunded with a note after returning funds by whatever means actually applies; stock is *not* auto-returned (a refund often happens post-fulfillment).
 

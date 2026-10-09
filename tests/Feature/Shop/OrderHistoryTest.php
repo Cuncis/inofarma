@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\InventoryBatch;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
@@ -20,8 +21,17 @@ class OrderHistoryTest extends TestCase
         BranchStock::factory()->for($branch)->for($product)->create(['quantity' => 10]);
         InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 10, 'expires_at' => now()->addYear()]);
 
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'test-secret']);
+        Http::fake(['api-sandbox.doku.com/*' => Http::response([
+            'message' => ['SUCCESS'],
+            'response' => [
+                'order' => ['amount' => '0', 'invoice_number' => 'x', 'session_id' => 'sess'],
+                'payment' => ['token_id' => 'tok', 'url' => 'https://sandbox.doku.com/checkout-link-v2/tok', 'expired_date' => '20260101000000'],
+            ],
+        ], 200)]);
+
         $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'Tunai', 'pickupEta' => 'Hari ini']);
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
 
         return $customer->orders()->latest('id')->value('number');
     }

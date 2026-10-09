@@ -36,9 +36,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  *
  * Payment (Fase 6): "online" opens a DOKU Checkout session and sends the
  * customer's browser there — DOKU's own hosted page is where a shopper
- * actually picks VA/e-wallet/QRIS/card, not a picker built here. "Tunai" is
- * cash at pickup, only offered for `fulfilment: ambil` — see `.ai/rules` for
- * why delivery orders can't choose it.
+ * actually picks VA/e-wallet/QRIS/card, not a picker built here. Online is the
+ * only way to pay: there is no cash on delivery and no cash at pickup.
  */
 class CheckoutController extends Controller
 {
@@ -66,19 +65,9 @@ class CheckoutController extends Controller
     {
         $customer = $request->user('customer');
 
-        // Checked against the raw request, ahead of `$request->validate()` —
-        // Tunai+antar is invalid regardless of whether a courier was ever
-        // picked, and this way it reports as a `paymentMethod` error rather
-        // than colliding with the address/courier checks further down.
-        if ($request->input('fulfilment') === 'antar' && $request->input('paymentMethod') === 'Tunai') {
-            throw ValidationException::withMessages([
-                'paymentMethod' => 'Bayar di tempat hanya tersedia untuk pesanan Ambil di Toko.',
-            ]);
-        }
-
         $validated = $request->validate([
             'fulfilment' => ['required', 'in:antar,ambil'],
-            'paymentMethod' => ['required', 'in:online,Tunai'],
+            'paymentMethod' => ['required', 'in:online'],
             'pickupEta' => ['required_if:fulfilment,ambil', 'nullable', 'in:'.implode(',', self::PICKUP_ETA_OPTIONS)],
             'courier' => ['nullable', 'array'],
             'courier.courierCompany' => ['nullable', 'string'],
@@ -142,12 +131,6 @@ class CheckoutController extends Controller
         $order = DB::transaction(fn () => $this->placeOrder($customer, $data, $branch, $validated));
 
         $cart->clear();
-
-        if ($validated['paymentMethod'] === 'Tunai') {
-            return redirect()
-                ->route('ui.order-successful', ['nomor' => $order->number])
-                ->with('success', "Pesanan #{$order->number} berhasil dibuat.");
-        }
 
         try {
             $payment = DokuPaymentService::make()->createForOrder($order);

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
 use App\Support\CsvTemplates\CatalogTemplateImporter;
+use App\Support\CsvTemplates\ImportFailures;
 use App\Support\CsvTemplates\TemplateExporter;
 use App\Support\ProductCsvImporter;
 use BackedEnum;
@@ -53,24 +54,13 @@ class ProductImport extends Page
 
     /**
      * The failed rows folded by message, so one cause that hits hundreds of
-     * rows (an unknown branch, say) shows once with its row numbers.
+     * rows shows once with its row numbers.
      *
      * @return list<array{message: string, count: int, rows: list<int>, more: int}>
      */
     public function groupedFailures(): array
     {
-        $groups = [];
-
-        foreach ($this->result['failed'] ?? [] as $failure) {
-            $groups[$failure['message']][] = $failure['row'];
-        }
-
-        return array_values(array_map(fn (string $message) => [
-            'message' => $message,
-            'count' => count($groups[$message]),
-            'rows' => array_slice($groups[$message], 0, 10),
-            'more' => max(0, count($groups[$message]) - 10),
-        ], array_keys($groups)));
+        return ImportFailures::group($this->result['failed'] ?? []);
     }
 
     public static function canAccess(): bool

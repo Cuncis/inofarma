@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notification;
 /**
  * "Bukti bayar" (ROADMAP.md Fase 8) — fired by `App\Observers\OrderObserver::updated()`
  * the moment `payment_status` becomes `lunas`, whichever path got it there:
- * DOKU's webhook (Fase 6), or a Tunai order settled by staff.
+ * DOKU's webhook (Fase 6), or staff marking an admin-entered order done.
  */
 class PaymentReceived extends Notification implements ShouldQueue
 {

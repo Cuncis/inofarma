@@ -383,7 +383,6 @@
     "Transfer :code diterima di :name.": "Transfer :code was received at :name.",
     "Transfer Bank": "Bank Transfer",
     "Tulis komposisi, indikasi, aturan pakai, efek samping, produsen, nomor izin edar, dan kondisi penyimpanan di sini.": "Write the composition, indications, directions for use, side effects, manufacturer, marketing authorisation number and storage conditions here.",
-    "Tunai": "Cash",
     "Tutup Permanen": "Permanently Closed",
     "Tutup Sementara": "Temporarily Closed",
     "Ubah": "Edit",
@@ -464,5 +463,6 @@
     "Dikirim lewat email": "Sent by email",
     "Tulis balasan": "Write a reply",
     "Balasan muncul di jendela chat pengunjung. Bila mereka tidak membukanya, balasan dikirim lewat email.": "The reply appears in the visitor's chat window. If they have left, it is sent by email.",
-    "Kirim Balasan": "Send Reply"
+    "Kirim Balasan": "Send Reply",
+    "Satu baris per produk, cabang, dan batch. Unduh templatenya lewat tombol Export & Template.": "One row per product, branch and batch. Download the template with the Export & Template button."
 }

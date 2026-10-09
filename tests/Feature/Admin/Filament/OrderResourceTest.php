@@ -135,7 +135,7 @@ class OrderResourceTest extends TestCase
                 'customer_id' => $customer->id,
                 'branch_id' => $branch->id,
                 'fulfilment' => 'ambil',
-                'payment_method' => 'Tunai',
+                'payment_method' => 'Transfer Bank',
                 'status' => 'selesai',
                 'shipping_total' => 0,
                 'items' => [

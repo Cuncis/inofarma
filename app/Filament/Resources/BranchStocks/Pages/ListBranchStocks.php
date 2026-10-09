@@ -6,11 +6,18 @@ use App\Filament\Resources\BranchStocks\BranchStockResource;
 use App\Filament\Resources\BranchStocks\Tables\BranchStocksTable;
 use App\Models\Branch;
 use App\Models\Product;
+use App\Support\CsvTemplates\ImportFailures;
+use App\Support\CsvTemplates\StockTemplateImporter;
+use App\Support\CsvTemplates\TemplateExporter;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ListBranchStocks extends ListRecords
 {
@@ -53,7 +60,76 @@ class ListBranchStocks extends ListRecords
 
                     BranchStocksTable::receiveGoods($branch, $product, $data);
                 }),
+            Action::make('importStock')
+                ->label(__('Import Stok'))
+                ->icon(Heroicon::OutlinedArrowUpTray)
+                ->color('gray')
+                ->visible(fn () => (bool) Auth::guard('web')->user()?->can('Inventaris:Sesuaikan Stok'))
+                ->modalHeading(__('Import Stok'))
+                ->modalDescription(__('Stok yang ada diganti sesuai file: batch yang tidak ada di file menjadi 0. Produk dan cabang yang tidak ada di file tidak berubah.'))
+                ->modalSubmitActionLabel(__('Import'))
+                ->schema([
+                    FileUpload::make('file')
+                        ->label(__('File CSV'))
+                        ->required()
+                        ->acceptedFileTypes(['text/csv', 'text/plain', 'application/vnd.ms-excel'])
+                        ->maxSize(10240)
+                        ->storeFiles(false)
+                        ->helperText(__('Satu baris per produk, cabang, dan batch. Unduh templatenya lewat tombol Export & Template.')),
+                ])
+                ->action(fn (array $data) => self::importStock($data['file'])),
+            ActionGroup::make([
+                Action::make('exportStock')
+                    ->label(__('Export Stok'))
+                    ->action(fn () => (new TemplateExporter)->stock()),
+                Action::make('downloadStockTemplate')
+                    ->label(__('Unduh Template Stok'))
+                    ->action(fn () => (new TemplateExporter)->stockSample()),
+            ])
+                ->label(__('Export & Template'))
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->button(),
         ];
+    }
+
+    /**
+     * Replaces batch stock from the uploaded CSV, as the signed-in staff member:
+     * a branch-confined user can only import their own branch.
+     */
+    private static function importStock(TemporaryUploadedFile $file): void
+    {
+        $user = Auth::guard('web')->user();
+
+        try {
+            $result = (new StockTemplateImporter($user?->branch_id, $user?->id))
+                ->import($file->getRealPath(), $file->getClientOriginalName());
+        } catch (\RuntimeException $exception) {
+            Notification::make()->danger()->title(__('Import gagal'))->body($exception->getMessage())->send();
+
+            return;
+        }
+
+        $failures = ImportFailures::group($result['failed']);
+
+        $notification = Notification::make()
+            ->title(__('Import stok selesai: :groups produk per cabang diperbarui.', ['groups' => $result['groups']]));
+
+        if ($failures === []) {
+            $notification->success()->send();
+
+            return;
+        }
+
+        $notification->warning()->persistent()->body(
+            collect($failures)->take(5)->map(fn (array $failure) => sprintf(
+                '%s (%s: %s%s)',
+                $failure['message'],
+                __(':count baris', ['count' => $failure['count']]),
+                __('Baris :rows', ['rows' => implode(', ', $failure['rows'])]),
+                $failure['more'] > 0 ? ', '.__('dan :count lainnya', ['count' => $failure['more']]) : '',
+            ))->implode("\n"),
+        )->send();
     }
 
     /**

@@ -37,8 +37,6 @@ export default function Checkout({ cart, pickupEtaOptions }: {
         setData((current) => ({
             ...current,
             fulfilment: next,
-            // Bayar di tempat only makes sense for a pickup order.
-            paymentMethod: next === 'antar' ? 'online' : current.paymentMethod,
         }));
     };
 
@@ -225,23 +223,12 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                     {errors.courier ? <p className="mb-3 text-[12px] text-danger">{errors.courier}</p> : null}
 
                     <h2 className="mb-3 font-display text-[18px]">Metode pembayaran</h2>
-                    {fulfilment === 'ambil' ? (
-                        <div className="mb-6 space-y-2">
-                            <button type="button" onClick={() => setData('paymentMethod', 'online')} className={option(data.paymentMethod === 'online')}>
-                                Bayar Sekarang
-                            </button>
-                            <button type="button" onClick={() => setData('paymentMethod', 'Tunai')} className={option(data.paymentMethod === 'Tunai')}>
-                                Bayar di Tempat
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="mb-6 border-2 border-brand px-4 py-3.5 text-[13px]">
-                            <div className="font-bold text-brand">Bayar Online (DOKU)</div>
-                            <p className="mt-1 text-muted">
-                                Anda akan diarahkan ke halaman pembayaran DOKU: transfer bank, e-wallet, atau QRIS.
-                            </p>
-                        </div>
-                    )}
+                    <div className="mb-6 border-2 border-brand px-4 py-3.5 text-[13px]">
+                        <div className="font-bold text-brand">Bayar Online (DOKU)</div>
+                        <p className="mt-1 text-muted">
+                            Anda akan diarahkan ke halaman pembayaran DOKU: transfer bank, e-wallet, atau QRIS.
+                        </p>
+                    </div>
                     {errors.paymentMethod ? <p className="mb-3 text-[12px] text-danger">{errors.paymentMethod}</p> : null}
 
                     <textarea
@@ -260,9 +247,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                             disabled={processing || (fulfilment === 'antar' && (! cart.address || ! data.courier))}
                             className="h-[52px] bg-success px-8 text-[14px] font-bold text-white disabled:opacity-60"
                         >
-                            {processing
-                                ? 'Memproses pesanan…'
-                                : data.paymentMethod === 'online' ? 'Lanjut ke Pembayaran' : 'Konfirmasi Pesanan'}
+                            {processing ? 'Memproses pesanan…' : 'Lanjut ke Pembayaran'}
                         </button>
                     </div>
                 </form>
@@ -451,47 +436,17 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                         Metode pembayaran
                     </div>
 
-                    {fulfilment === 'ambil' ? (
-                        <div className="flex flex-wrap gap-[7px]">
-                            <button
-                                type="button"
-                                onClick={() => setData('paymentMethod', 'online')}
-                                className={`h-8 px-3 text-[11px] ${
-                                    data.paymentMethod === 'online'
-                                        ? 'border-2 border-brand font-bold text-brand'
-                                        : 'border border-line text-muted'
-                                }`}
-                            >
-                                Bayar Sekarang
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setData('paymentMethod', 'Tunai')}
-                                className={`h-8 px-3 text-[11px] ${
-                                    data.paymentMethod === 'Tunai'
-                                        ? 'border-2 border-brand font-bold text-brand'
-                                        : 'border border-line text-muted'
-                                }`}
-                            >
-                                Bayar di Tempat
-                            </button>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex flex-wrap gap-[7px]">
-                                <span className="flex h-8 items-center gap-1.5 border-2 border-brand px-3 text-[11px] font-bold text-brand">
-                                    <Icon name="check" size={12} />
-                                    Bayar Online (DOKU)
-                                </span>
-                            </div>
+                    <div className="flex flex-wrap gap-[7px]">
+                        <span className="flex h-8 items-center gap-1.5 border-2 border-brand px-3 text-[11px] font-bold text-brand">
+                            <Icon name="check" size={12} />
+                            Bayar Online (DOKU)
+                        </span>
+                    </div>
 
-                            <p className="mt-1.5 text-xs text-muted">
-                                Satu-satunya metode untuk pesanan Antar. Anda akan diarahkan ke
-                                halaman pembayaran DOKU, pilih transfer bank, e-wallet, atau
-                                QRIS di sana.
-                            </p>
-                        </>
-                    )}
+                    <p className="mt-1.5 text-xs text-muted">
+                        Anda akan diarahkan ke halaman pembayaran DOKU, pilih transfer bank,
+                        e-wallet, atau QRIS di sana.
+                    </p>
 
                     {errors.paymentMethod ? (
                         <p className="mt-1.5 text-[11px] text-danger">{errors.paymentMethod}</p>
@@ -515,11 +470,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                     disabled={processing || (fulfilment === 'antar' && (! cart.address || ! data.courier))}
                     className="mb-2"
                 >
-                    {processing
-                        ? 'Memproses pesanan…'
-                        : data.paymentMethod === 'online'
-                          ? `Lanjut ke Pembayaran (${money(total)})`
-                          : `Konfirmasi Pesanan (${money(total)})`}
+                    {processing ? 'Memproses pesanan…' : `Lanjut ke Pembayaran (${money(total)})`}
                 </Button>
             </form>
         </MobileLayout>

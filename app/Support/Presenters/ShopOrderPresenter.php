@@ -59,7 +59,7 @@ class ShopOrderPresenter
             'note' => $order->note,
             'isCancellable' => $order->is_cancellable_by_customer,
             // "online" is the only payment_method that ever routes through
-            // DOKU — a "Tunai" order is settled at the counter, never here.
+            // DOKU — an order an admin entered by hand never opens a session.
             'canPay' => $order->status === 'menunggu pembayaran'
                 && $order->payment_status === 'belum bayar'
                 && $order->payment_method === 'online',

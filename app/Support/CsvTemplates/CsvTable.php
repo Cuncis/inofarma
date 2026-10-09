@@ -16,9 +16,10 @@ use RuntimeException;
 class CsvTable
 {
     /**
+     * @param  array<string, string>  $aliases  header name in the file => name the importer expects
      * @return array{header: list<string>, rows: list<array{line: int, cells: array<string, string>}>}
      */
-    public static function read(string $path): array
+    public static function read(string $path, array $aliases = []): array
     {
         $content = file_get_contents($path);
 
@@ -35,7 +36,7 @@ class CsvTable
         rewind($stream);
 
         $header = array_map(
-            fn (?string $name) => strtolower(trim((string) $name)),
+            fn (?string $name) => $aliases[strtolower(trim((string) $name))] ?? strtolower(trim((string) $name)),
             fgetcsv($stream, separator: $delimiter, escape: '\\') ?: [],
         );
 
