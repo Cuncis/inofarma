@@ -55,8 +55,8 @@ export default function DesktopHeader() {
             </div>
 
             <div className="border-b border-warning/30 bg-[#FFF8E1]">
-                <p className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-2 text-center text-[11px] text-warning-deep">
-                    <Icon name="info" size={14} className="shrink-0" />
+                <p className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-2.5 text-center text-[13px] text-warning-deep">
+                    <Icon name="info" size={16} className="shrink-0" />
                     <span>
                         Layanan pemesanan melalui website saat ini belum beroperasi. Kami mohon maaf atas
                         ketidaknyamanannya. Untuk info seputar Inofarma, silakan kunjungi{' '}
