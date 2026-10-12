@@ -86,6 +86,9 @@ export default function Checkout({ cart, pickupEtaOptions, pickupBranches }: {
     // this specific branch's own coordinates.
     const [courierOptions, setCourierOptions] = useState<CourierOption[]>([]);
     const [courierLoading, setCourierLoading] = useState(false);
+    // Why there are no options, when the server says so (missing map point, the
+    // courier service failing), instead of always claiming no courier reaches.
+    const [courierError, setCourierError] = useState<string | null>(null);
 
     useEffect(() => {
         if (fulfilment !== 'antar' || ! cart.address) {
@@ -95,8 +98,10 @@ export default function Checkout({ cart, pickupEtaOptions, pickupBranches }: {
         let cancelled = false;
         setCourierLoading(true);
 
+        setCourierError(null);
+
         fetch('/checkout/ongkir', { headers: { Accept: 'application/json' } })
-            .then((response) => response.json())
+            .then((response) => response.json().catch(() => ({ error: 'Gagal memuat ongkos kirim. Coba lagi.' })))
             .then((body) => {
                 if (cancelled) {
                     return;
@@ -104,7 +109,15 @@ export default function Checkout({ cart, pickupEtaOptions, pickupBranches }: {
 
                 const options = body.options ?? [];
                 setCourierOptions(options);
+                setCourierError(options.length === 0 ? (body.error ?? null) : null);
                 setData('courier', options[0] ?? null);
+            })
+            .catch(() => {
+                if (! cancelled) {
+                    setCourierOptions([]);
+                    setCourierError('Tidak bisa memuat ongkos kirim. Periksa koneksi Anda, lalu coba lagi.');
+                    setData('courier', null);
+                }
             })
             .finally(() => {
                 if (! cancelled) {
@@ -207,7 +220,7 @@ export default function Checkout({ cart, pickupEtaOptions, pickupBranches }: {
                                         <p className="mb-6 text-[13px] text-muted">Memuat pilihan kurir…</p>
                                     ) : courierOptions.length === 0 ? (
                                         <p className="mb-6 text-[13px] text-danger">
-                                            Tidak ada kurir yang menjangkau alamat ini. Coba alamat lain.
+                                            {courierError ?? 'Tidak ada kurir yang menjangkau alamat ini. Coba alamat lain.'}
                                         </p>
                                     ) : (
                                         <div className="mb-6 space-y-2">
@@ -402,7 +415,7 @@ export default function Checkout({ cart, pickupEtaOptions, pickupBranches }: {
                                     <p className="text-xs text-muted">Memuat pilihan kurir…</p>
                                 ) : courierOptions.length === 0 ? (
                                     <p className="text-xs text-danger">
-                                        Tidak ada kurir yang menjangkau alamat ini. Coba alamat lain.
+                                        {courierError ?? 'Tidak ada kurir yang menjangkau alamat ini. Coba alamat lain.'}
                                     </p>
                                 ) : (
                                     <div className="space-y-1.5">

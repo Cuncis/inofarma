@@ -92,11 +92,12 @@ class BranchSeeder extends Seeder
             ],
             [
                 'name' => 'Apotek Inofarma Pisangan Lama',
-                'address_line' => 'Alamat belum diisi (Pisangan Lama)',
-                'kelurahan' => 'Pisangan Lama',
+                'address_line' => 'Jalan Pisangan Lama III No.2, RT.8/RW.4',
+                'kelurahan' => 'Pisangan Timur',
                 'kecamatan' => 'Pulo Gadung',
                 'kota' => 'Jakarta Timur',
                 'provinsi' => 'DKI Jakarta',
+                'postal_code' => '13230',
             ],
         ];
     }
