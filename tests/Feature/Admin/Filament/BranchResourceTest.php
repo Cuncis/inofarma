@@ -94,10 +94,20 @@ class BranchResourceTest extends TestCase
         $this->assertSame('tutup sementara', $branch->fresh()->status);
     }
 
-    public function test_coordinates_may_be_left_blank(): void
+    public function test_a_branch_that_delivers_must_have_coordinates(): void
     {
         Livewire::test(CreateBranch::class)
-            ->fillForm($this->validPayload(['latitude' => null, 'longitude' => null]))
+            ->fillForm($this->validPayload(['supports_delivery' => true, 'latitude' => null, 'longitude' => null]))
+            ->call('create')
+            ->assertHasFormErrors(['latitude' => 'required', 'longitude' => 'required']);
+
+        $this->assertDatabaseMissing('branches', ['name' => 'Apotek Inofarma Cinere']);
+    }
+
+    public function test_coordinates_may_be_left_blank_for_a_pickup_only_branch(): void
+    {
+        Livewire::test(CreateBranch::class)
+            ->fillForm($this->validPayload(['supports_delivery' => false, 'latitude' => null, 'longitude' => null]))
             ->call('create')
             ->assertHasNoFormErrors();
 

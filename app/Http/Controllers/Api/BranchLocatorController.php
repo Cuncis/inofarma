@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Product;
+use App\Support\Geocoding\PostalCodeGeocoder;
 use App\Support\LocationPreference;
 use App\Support\Presenters\StorefrontBranchPresenter;
 use Illuminate\Http\JsonResponse;
@@ -38,6 +39,22 @@ class BranchLocatorController extends Controller
     }
 
     /**
+     * Looks a postal code up and answers with its point, for the pickup
+     * location popup. It only answers; saving the point as the shopper's
+     * location is the existing `POST /lokasi`.
+     */
+    public function postalCode(Request $request, PostalCodeGeocoder $geocoder): JsonResponse
+    {
+        $code = (string) $request->validate(['kode' => ['required', 'digits:5']])['kode'];
+
+        $point = $geocoder->find($code);
+
+        abort_if($point === null, 404, 'Kode pos tidak ditemukan.');
+
+        return response()->json($point);
+    }
+
+    /**
      * Every active branch carrying a product, nearest first, sorted so a
      * shopper sees the closest branch that actually has it before one further
      * away with nothing on the shelf.
@@ -53,11 +70,12 @@ class BranchLocatorController extends Controller
             ->active()
             ->with(['stocks' => fn ($stocks) => $stocks->where('product_id', $productModel->id)]);
 
+        // Every branch stays in the list; one without coordinates just has no distance.
         if ($coordinates) {
-            $query->nearest($coordinates['lat'], $coordinates['lng']);
-        } else {
-            $query->orderBy('kota')->orderBy('name');
+            $query->withDistanceFrom($coordinates['lat'], $coordinates['lng']);
         }
+
+        $query->orderBy('kota')->orderBy('name');
 
         $branches = StorefrontBranchPresenter::forProduct($query->get());
 
@@ -65,10 +83,10 @@ class BranchLocatorController extends Controller
         // can see the product at all wants to know where they can buy it.
         // `distanceKm` is null with no coordinates, which sorts first; that's
         // fine, every row is null together and the tiebreak below still holds.
-        $ordered = collect($branches)->sortBy([
-            ['selectable', 'desc'],
-            ['distanceKm', 'asc'],
-        ])->values()->all();
+        $ordered = collect($branches)
+            ->sort(fn (array $a, array $b) => [! $a['selectable'], $a['distanceKm'] ?? INF] <=> [! $b['selectable'], $b['distanceKm'] ?? INF])
+            ->values()
+            ->all();
 
         return response()->json(['branches' => $ordered]);
     }

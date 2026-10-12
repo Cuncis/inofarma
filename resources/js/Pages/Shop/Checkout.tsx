@@ -1,18 +1,20 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import DesktopCheckoutShell, { CheckoutSummary } from '@/Components/Shop/DesktopCheckoutShell';
 import FlashBanner from '@/Components/Shop/FlashBanner';
+import PickupLocationModal from '@/Components/Shop/PickupLocationModal';
 import Icon from '@/Components/Shop/Icon';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import useShopUser from '@/Components/Shop/useShopUser';
 import { money } from '@/Components/Shop/data';
 
-export default function Checkout({ cart, pickupEtaOptions }: {
+export default function Checkout({ cart, pickupEtaOptions, pickupBranches }: {
   cart: { branch: CartBranch, address: SavedAddress | null, items: CartPreviewItem[], subtotal: number, coupon: CartCoupon | null, discount: number },
   pickupEtaOptions: string[],
+  pickupBranches: ProductBranch[],
 }) {
     const { branch } = cart;
     const isDesktop = useIsDesktop();
@@ -21,16 +23,55 @@ export default function Checkout({ cart, pickupEtaOptions }: {
     const [fulfilment, setFulfilment] = useState<'antar' | 'ambil'>(
         branch.supportsDelivery ? 'antar' : 'ambil',
     );
+    const [locationOpen, setLocationOpen] = useState(false);
+    const canPickup = pickupBranches.length > 0;
 
     const { data, setData, post, processing, errors: formErrors } = useForm({
         fulfilment,
         paymentMethod: 'online',
+        // Pickup is chosen here: the cart's own branch if it can fill the order, else the first that can.
+        pickupBranchId: (pickupBranches.find((candidate) => candidate.id === branch.id && candidate.selectable)
+            ?? pickupBranches.find((candidate) => candidate.selectable))?.id ?? '',
         pickupEta: pickupEtaOptions[0],
         courier: null as CourierOption | null,
         note: '',
     });
 
-    const errors = formErrors as typeof formErrors & { address?: string; quantity?: string };
+    const errors = formErrors as typeof formErrors & { address?: string; quantity?: string; pickupBranchId?: string };
+    const selectedPickup = pickupBranches.find((candidate) => candidate.id === data.pickupBranchId) ?? null;
+
+    // After the shopper shares a location or a postal code, only the branch
+    // list is fetched again, so distances appear without losing the form.
+    const reloadPickupBranches = () => new Promise<void>((resolve) => {
+        router.reload({ only: ['pickupBranches'], onFinish: () => resolve() });
+    });
+
+    const pickupDetails = (
+        <>
+            <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[13px] font-bold">Ambil di {selectedPickup?.name ?? 'toko'}</span>
+                <button type="button" onClick={() => setLocationOpen(true)} className="shrink-0 text-[12px] text-link underline">
+                    Ubah lokasi
+                </button>
+            </div>
+            <p className="mt-1 text-[13px] text-muted">{selectedPickup?.fullAddress}</p>
+            <p className="mb-3 mt-1 text-[12px] text-muted">
+                Biasanya siap dalam 1 jam
+                {selectedPickup?.distanceKm != null ? ` · Estimasi jarak ${selectedPickup.distanceKm} km` : ''}
+            </p>
+            {errors.pickupBranchId ? <p className="mb-2 text-[12px] text-danger">{errors.pickupBranchId}</p> : null}
+        </>
+    );
+
+    const locationModal = locationOpen ? (
+        <PickupLocationModal
+            branches={pickupBranches}
+            selectedId={data.pickupBranchId || null}
+            onSave={(id) => setData('pickupBranchId', id)}
+            onClose={() => setLocationOpen(false)}
+            onLocated={reloadPickupBranches}
+        />
+    ) : null;
 
     const chooseFulfilment = (next: 'antar' | 'ambil') => {
         setFulfilment(next);
@@ -136,7 +177,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                                 Kirim ke alamat
                             </button>
                         ) : null}
-                        {branch.supportsPickup ? (
+                        {canPickup ? (
                             <button type="button" onClick={() => chooseFulfilment('ambil')} className={choice(fulfilment === 'ambil')}>
                                 <Icon name="pin" size={18} />
                                 Ambil di toko
@@ -201,8 +242,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                         </>
                     ) : (
                         <div className="mb-6 border border-line px-4 py-3.5">
-                            <div className="mb-1 text-[13px] font-bold">Ambil di {branch.name}</div>
-                            <p className="mb-3 text-[13px] text-muted">{branch.fullAddress}</p>
+                            {pickupDetails}
                             <div className="flex flex-wrap gap-2">
                                 {pickupEtaOptions.map((eta) => (
                                     <button
@@ -251,6 +291,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                         </button>
                     </div>
                 </form>
+                {locationModal}
             </DesktopCheckoutShell>
         );
     }
@@ -314,7 +355,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                         </button>
                     ) : null}
 
-                    {branch.supportsPickup ? (
+                    {canPickup ? (
                         <button
                             type="button"
                             onClick={() => chooseFulfilment('ambil')}
@@ -400,11 +441,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                     </>
                 ) : (
                     <div className="mb-2 border border-line bg-lilac p-3.5">
-                        <div className="mb-2 flex items-center justify-between border-b border-line pb-2 font-display text-[13px]">
-                            <span>Ambil di {branch.name}</span>
-                        </div>
-
-                        <p className="mb-2 text-xs text-muted">{branch.fullAddress}</p>
+                        {pickupDetails}
 
                         <div className="flex flex-wrap gap-[7px]">
                             {pickupEtaOptions.map((option) => (
@@ -473,6 +510,7 @@ export default function Checkout({ cart, pickupEtaOptions }: {
                     {processing ? 'Memproses pesanan…' : `Lanjut ke Pembayaran (${money(total)})`}
                 </Button>
             </form>
+            {locationModal}
         </MobileLayout>
     );
 }

@@ -31,7 +31,7 @@ class OrderHistoryTest extends TestCase
         ], 200)]);
 
         $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $branch->code]);
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini']);
 
         return $customer->orders()->latest('id')->value('number');
     }

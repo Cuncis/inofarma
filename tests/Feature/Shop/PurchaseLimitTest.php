@@ -76,7 +76,7 @@ class PurchaseLimitTest extends TestCase
     {
         [$customer, $branch, $product] = $this->shopperWithProduct(3);
 
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
             ->assertSessionHasErrors(['quantity' => Product::OVER_LIMIT_MESSAGE]);
 
         $this->assertSame(0, Order::where('customer_id', $customer->id)->count());
@@ -85,10 +85,10 @@ class PurchaseLimitTest extends TestCase
 
     public function test_checkout_accepts_exactly_the_limit(): void
     {
-        [$customer] = $this->shopperWithProduct(2);
+        [$customer, $branch] = $this->shopperWithProduct(2);
         $this->fakeDoku();
 
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
             ->assertSessionHasNoErrors();
 
         $this->assertSame(1, Order::where('customer_id', $customer->id)->count());
@@ -102,7 +102,7 @@ class PurchaseLimitTest extends TestCase
         InventoryBatch::factory()->for($branch)->for($other)->create(['quantity' => 20, 'expires_at' => now()->addYear()]);
         $this->post('/keranjang', ['productId' => $other->sku, 'branchId' => $branch->code, 'quantity' => 3])->assertSessionHasNoErrors();
 
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
             ->assertSessionHasErrors('quantity');
 
         $this->assertSame(0, Order::where('customer_id', $customer->id)->count());

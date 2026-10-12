@@ -16,6 +16,10 @@ use Illuminate\Support\Str;
  * Cabang di admin. Selama koordinat kosong, cabang ini dilewati saat mengurutkan
  * "cabang terdekat" dan menghitung radius pengantaran.
  *
+ * Untuk saat ini hanya Pisangan Lama yang mengantar pesanan; tiga cabang lain
+ * hanya tempat pengambilan (`supports_delivery` false, bisa diaktifkan lagi di
+ * admin).
+ *
  * Aman dijalankan ulang, termasuk di produksi: cabang dikenali dari namanya dan
  * hanya DIBUAT bila belum ada, tidak pernah menimpa data yang sudah dikoreksi di
  * admin dan tidak menghapus cabang lain. Kode cabang baru melanjutkan urutan yang
@@ -41,11 +45,11 @@ class BranchSeeder extends Seeder
             }
 
             Branch::create([
-                ...$branch,
+                ...collect($branch)->except('supports_delivery')->all(),
                 'code' => CodeSequence::next(Branch::withTrashed(), 'code', 'CB-'),
                 'slug' => Slug::unique(Branch::withTrashed(), Str::after($branch['name'], 'Apotek Inofarma ')),
                 'operating_hours' => $hours,
-                'supports_delivery' => true,
+                'supports_delivery' => $branch['supports_delivery'] ?? true,
                 'supports_pickup' => true,
                 'delivery_radius_km' => 10,
                 'status' => 'aktif',
@@ -61,6 +65,7 @@ class BranchSeeder extends Seeder
         return [
             [
                 'name' => 'Apotek Inofarma Jengki',
+                'supports_delivery' => false,
                 'address_line' => 'Alamat belum diisi (Jengki)',
                 'kelurahan' => null,
                 'kecamatan' => null,
@@ -69,6 +74,7 @@ class BranchSeeder extends Seeder
             ],
             [
                 'name' => 'Apotek Inofarma Kalisari',
+                'supports_delivery' => false,
                 'address_line' => 'Alamat belum diisi (Kalisari)',
                 'kelurahan' => 'Kalisari',
                 'kecamatan' => 'Pasar Rebo',
@@ -77,6 +83,7 @@ class BranchSeeder extends Seeder
             ],
             [
                 'name' => 'Apotek Inofarma Kayu Manis',
+                'supports_delivery' => false,
                 'address_line' => 'Alamat belum diisi (Kayu Manis)',
                 'kelurahan' => 'Kayu Manis',
                 'kecamatan' => 'Matraman',

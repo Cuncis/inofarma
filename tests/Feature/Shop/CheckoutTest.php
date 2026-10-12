@@ -156,6 +156,7 @@ class CheckoutTest extends TestCase
         $this->post('/checkout', [
             'fulfilment' => 'ambil',
             'paymentMethod' => 'online',
+            'pickupBranchId' => $pickupBranch->code,
             'pickupEta' => 'Hari ini',
         ])->assertSessionHasNoErrors();
 
@@ -198,7 +199,7 @@ class CheckoutTest extends TestCase
 
         $this->withHeaders(['X-Inertia' => 'true'])
             ->post('/checkout', [
-                'fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini',
+                'fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini',
             ])
             ->assertStatus(409)
             ->assertHeader('X-Inertia-Location', 'https://sandbox.doku.com/checkout-link-v2/tok_123');
@@ -251,8 +252,8 @@ class CheckoutTest extends TestCase
         $this->actingAs($customer, 'customer');
         $this->addToCart($product, $branch);
 
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
-            ->assertSessionHasErrors('fulfilment');
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
+            ->assertSessionHasErrors('pickupBranchId');
     }
 
     public function test_paying_in_cash_is_not_accepted_for_any_order(): void
@@ -272,7 +273,7 @@ class CheckoutTest extends TestCase
         foreach (['Tunai', 'COD', 'cash'] as $method) {
             $this->post('/checkout', ['fulfilment' => 'antar', 'paymentMethod' => $method])
                 ->assertSessionHasErrors('paymentMethod');
-            $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => $method, 'pickupEta' => 'Hari ini'])
+            $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => $method, 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
                 ->assertSessionHasErrors('paymentMethod');
         }
 
@@ -324,7 +325,7 @@ class CheckoutTest extends TestCase
         $this->addToCart($product, $branch);
         $this->post('/keranjang/kupon', ['code' => 'SEKALI'])->assertSessionHasNoErrors();
         $this->fakeDoku();
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
             ->assertSessionHasNoErrors();
 
         $this->addToCart($product, $branch);
@@ -346,8 +347,8 @@ class CheckoutTest extends TestCase
         $stock->update(['quantity' => 1]);
         InventoryBatch::where('branch_id', $branch->id)->where('product_id', $product->id)->update(['quantity' => 1]);
 
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
-            ->assertSessionHasErrors('quantity');
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
+            ->assertSessionHasErrors('pickupBranchId');
 
         $this->assertSame(0, $customer->orders()->count());
         $this->assertSame(1, $stock->fresh()->quantity);
@@ -363,7 +364,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($customer, 'customer');
         $this->addToCart($product, $branch, 2);
         $this->fakeDoku();
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini']);
 
         $order = $customer->orders()->first();
         $this->assertSame(8, $product->stockAt($branch)->fresh()->quantity);
@@ -385,7 +386,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($customer, 'customer');
         $this->addToCart($product, $branch, 1);
         $this->fakeDoku();
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini']);
 
         $order = $customer->orders()->first();
         $order->update(['status' => 'pembayaran diterima']);
@@ -406,7 +407,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($owner, 'customer');
         $this->addToCart($product, $branch, 1);
         $this->fakeDoku();
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini']);
         $order = $owner->orders()->first();
 
         $this->actingAs($intruder, 'customer');

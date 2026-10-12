@@ -2,6 +2,7 @@
 
 namespace App\Support\Shipping;
 
+use App\Models\Branch;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Support\Shipping\Biteship\BiteshipClient;
@@ -43,6 +44,8 @@ class ShipmentService
         }
 
         $branch = $order->branch;
+
+        $this->assertBookable($order, $branch);
 
         $response = $this->client->createOrder([
             'origin_contact_name' => $branch->name,
@@ -92,6 +95,42 @@ class ShipmentService
         $order->update(['status' => 'dikirim', 'ready_at' => now()]);
 
         return $shipment->fresh();
+    }
+
+    /**
+     * Biteship answers a missing pickup or drop-off point with "invalid or
+     * missing postal code", which tells staff nothing. Check what we send first.
+     *
+     * @throws ShippingUnavailableException
+     */
+    private function assertBookable(Order $order, Branch $branch): void
+    {
+        $problems = [];
+
+        if ($branch->latitude === null || $branch->longitude === null) {
+            $problems[] = "koordinat {$branch->name} belum diisi";
+        }
+
+        if (blank($branch->address_line) || str_starts_with((string) $branch->address_line, 'Alamat belum diisi')) {
+            $problems[] = "alamat {$branch->name} belum diisi";
+        }
+
+        if (blank($branch->phone ?: $branch->whatsapp)) {
+            $problems[] = "telepon {$branch->name} belum diisi";
+        }
+
+        if ($order->shipping_latitude === null || $order->shipping_longitude === null) {
+            $problems[] = 'alamat pelanggan tidak punya titik peta';
+        }
+
+        if ($problems !== []) {
+            $reason = ucfirst(implode(', ', $problems)).'.';
+
+            throw new ShippingUnavailableException(
+                "Resi pesanan #{$order->number} belum bisa dibuat: {$reason} Lengkapi di admin (Cabang > Ubah).",
+                $reason,
+            );
+        }
     }
 
     /**

@@ -22,6 +22,10 @@ Route::middleware('web')->prefix('cabang')->name('api.cabang.')->group(function 
     Route::get('untuk-produk/{product}', [BranchLocatorController::class, 'forProduct'])->name('untuk-produk');
 });
 
+Route::get('lokasi/kode-pos', [BranchLocatorController::class, 'postalCode'])
+    ->middleware('throttle:20,1')
+    ->name('api.lokasi.kode-pos');
+
 /*
  * The chat widget. Stateless like the rest of the api group: the visitor is
  * identified by the token header, not a session. The limiters are defined in

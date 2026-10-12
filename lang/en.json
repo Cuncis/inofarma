@@ -178,7 +178,6 @@
     "Kondisi Penyimpanan": "Storage Conditions",
     "Konfirmasi": "Confirm",
     "Konfirmasi Kata Sandi": "Confirm Password",
-    "Kosongkan bila belum diketahui — cabang tidak akan muncul di pencarian terdekat.": "Leave empty if unknown. The branch will not appear in nearest-branch searches.",
     "Kosongkan bila tidak ada.": "Leave empty if none.",
     "Kosongkan bila tidak dibatasi.": "Leave empty for no limit.",
     "Kosongkan untuk membuat otomatis dari nama.": "Leave empty to generate it from the name.",
@@ -467,5 +466,6 @@
     "Pembayaran Diterima": "Payment Received",
     "Siap Dikirim": "Ready to Ship",
     "Tandai Siap Dikirim": "Mark Ready to Ship",
-    "Pesanan #:number siap dikirim.": "Order #:number is ready to ship."
+    "Pesanan #:number siap dikirim.": "Order #:number is ready to ship.",
+    "Wajib bila cabang melayani antar: dipakai untuk ongkos kirim dan resi. Bila kosong, cabang tidak muncul di pencarian terdekat.": "Required when the branch delivers: used for shipping cost and waybills. If empty, the branch does not appear in nearest-branch search."
 }

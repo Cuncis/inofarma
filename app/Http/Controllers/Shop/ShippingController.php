@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Support\Cart\CartManager;
 use App\Support\Shipping\ShippingQuoteService;
+use App\Support\Shipping\ShippingUnavailableException;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
@@ -27,6 +28,10 @@ class ShippingController extends Controller
 
         try {
             $options = ShippingQuoteService::make()->quote($data['branch'], $data['address'], $data['lines']);
+        } catch (ShippingUnavailableException $exception) {
+            report($exception);
+
+            return response()->json(['options' => [], 'error' => $exception->customerMessage], 422);
         } catch (RuntimeException $exception) {
             report($exception);
 

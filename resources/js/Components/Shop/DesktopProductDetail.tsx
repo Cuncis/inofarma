@@ -7,6 +7,8 @@ import DesktopHeader from './DesktopHeader';
 import ProductGrid from './ProductGrid';
 import RecentlyViewed from './RecentlyViewed';
 import flyToCart from './flyToCart';
+import ProductFulfilment from './ProductFulfilment';
+import useProductBranches, { originBranch } from './useProductBranches';
 import { money, useShopCatalog } from './data';
 
 function Gallery({ product }: { product: CatalogProduct }) {
@@ -41,50 +43,21 @@ function Gallery({ product }: { product: CatalogProduct }) {
 
 /**
  * Branch + quantity + add-to-cart panel. Same endpoint and branch-conflict
- * handling as the phone `BranchPicker`, just laid out as the desktop buy box:
- * the nearest branch with stock is preselected and can be swapped from a
- * dropdown.
+ * handling as the phone `BranchPicker`, just laid out as the desktop buy box.
+ * There is no branch dropdown: every product is added from the one delivering
+ * branch ("Dikirim dari"), and the pickup location is chosen at checkout.
  */
 function BuyBox({ product }: { product: CatalogProduct }) {
-    const [branches, setBranches] = useState<ProductBranch[] | null>(null);
-    const [selectedId, setSelectedId] = useState('');
+    const { branches, error: loadError } = useProductBranches(product.id);
     const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
-    const [loadError, setLoadError] = useState('');
     const buttonRef = useRef<HTMLButtonElement>(null);
 
     const { transform, post, processing, errors: formErrors } = useForm({});
 
-    useEffect(() => {
-        let cancelled = false;
-
-        fetch(`/api/cabang/untuk-produk/${product.id}`, { headers: { Accept: 'application/json' } })
-            .then((response) => {
-                if (! response.ok) {
-                    throw new Error('gagal memuat');
-                }
-
-                return response.json();
-            })
-            .then((body: { branches: ProductBranch[] }) => {
-                if (! cancelled) {
-                    setBranches(body.branches);
-                    setSelectedId(body.branches.find((branch) => branch.selectable)?.id ?? '');
-                }
-            })
-            .catch(() => {
-                if (! cancelled) {
-                    setLoadError('Tidak bisa memuat daftar cabang. Coba lagi nanti.');
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [product.id]);
-
     const errors = formErrors as Record<string, string | undefined>;
-    const selected = branches?.find((branch) => branch.id === selectedId) ?? null;
+    const origin = branches ? originBranch(branches) : null;
+    const selected = origin?.selectable ? origin : null;
     const maxQuantity = selected?.available ?? Infinity;
     const overLimit = isOverLimit(quantity, product);
 
@@ -110,33 +83,15 @@ function BuyBox({ product }: { product: CatalogProduct }) {
             <h1 className="font-display text-2xl text-brand">{product.name}</h1>
             <p className="mt-1 text-[11px] text-faint">{product.category}</p>
 
-            <div className="mt-4 text-[11px]">
-                <span className="text-muted">Dikirim dari:</span>
-
+            <div className="mt-4">
                 {loadError ? (
-                    <p className="mt-1 text-danger">{loadError}</p>
+                    <p className="text-[12px] text-danger">{loadError}</p>
                 ) : ! branches ? (
-                    <div className="mt-1 h-4 w-48 animate-pulse bg-[#f5f5f5]" aria-hidden="true" />
+                    <div className="h-4 w-48 animate-pulse bg-[#f5f5f5]" aria-hidden="true" />
                 ) : branches.length === 0 ? (
-                    <p className="mt-1 text-muted">Belum ada cabang yang menjual produk ini.</p>
+                    <p className="text-[12px] text-muted">Belum ada cabang yang menjual produk ini.</p>
                 ) : (
-                    <select
-                        value={selectedId}
-                        onChange={(event) => {
-                            setSelectedId(event.target.value);
-                            setQuantity(1);
-                        }}
-                        aria-label="Pilih cabang"
-                        className="mt-1 block w-full max-w-sm border border-line bg-white py-1.5 pl-2 pr-8 text-[11px] uppercase text-success-deep focus:border-brand focus:ring-0"
-                    >
-                        {branches.map((branch) => (
-                            <option key={branch.id} value={branch.id} disabled={! branch.selectable}>
-                                {branch.name}
-                                {branch.distanceKm !== null ? ` (${branch.distanceKm} km)` : ''}
-                                {branch.selectable ? '' : ' - stok kosong'}
-                            </option>
-                        ))}
-                    </select>
+                    <ProductFulfilment origin={origin} />
                 )}
             </div>
 

@@ -43,6 +43,9 @@ class BiteshipClient
      * (or deactivated) is picked up automatically, same principle as never
      * hardcoding DOKU's payment channels.
      *
+     * Biteship lists one entry per courier *service*, so a company appears many
+     * times; the codes are de-duplicated.
+     *
      * @return list<string> courier company codes, e.g. ["jne", "jnt", "gojek"]
      */
     public function courierCodes(): array
@@ -50,7 +53,7 @@ class BiteshipClient
         $response = $this->request()->get($this->baseUrl.'/couriers');
         $body = $this->decode($response);
 
-        return collect($body['couriers'] ?? [])->pluck('courier_code')->filter()->values()->all();
+        return collect($body['couriers'] ?? [])->pluck('courier_code')->filter()->unique()->values()->all();
     }
 
     /**

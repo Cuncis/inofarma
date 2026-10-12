@@ -17,9 +17,10 @@ Before planning or editing, find the row whose globs match the file's path and r
 | tests/Feature/** | .ai/rules/feature.md |
 | resources/css/app.css | .ai/rules/general.md |
 | app/Filament/Resources/Invoices/**,app/Models/Coupon.php,app/Filament/Resources/Coupons/** | .ai/rules/http-controllers-admin.md |
+| app/Http/Controllers/Shop/CheckoutController.php | .ai/rules/http-controllers-shop.md |
 | app/Models/*.php,app/Http/Middleware/Ensure*IsAuthenticated.php,config/auth.php | .ai/rules/http-middleware.md |
 | app/Support/Inventory/** | .ai/rules/inventory.md |
-| resources/js/lib/catalog.ts, resources/js/lib/media.ts, resources/js/Components/Shop/data.ts | .ai/rules/lib.md |
+| resources/js/lib/catalog.ts, resources/js/lib/media.ts, resources/js/Components/Shop/data.ts, resources/js/Components/Shop/ProductFulfilment.tsx | .ai/rules/lib.md |
 | app/Http/Middleware/EnsureAdminIsAuthenticated.php | .ai/rules/middleware.md |
 | database/migrations/** | .ai/rules/migrations.md |
 | app/Support/Cart/**,app/Http/Controllers/Shop/CartController.php,app/Http/Controllers/Shop/CheckoutController.php,app/Models/Cart.php,app/Models/CartItem.php | .ai/rules/models-models.md |
@@ -30,6 +31,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Observers/**,app/Notifications/**,app/Support/Notifications/**,app/Support/Money.php,app/Console/Commands/NotifyExpiringBatches.php,app/Console/Commands/NotifyApproachingPickupDeadlines.php,app/Providers/Filament/AdminPanelProvider.php | .ai/rules/presenters.md |
 | public/** | .ai/rules/public.md |
 | app/Support/Shipping/**,app/Filament/Resources/Orders/** | .ai/rules/shipping-http-controllers-admin.md |
+| app/Support/Shipping/** | .ai/rules/shipping.md |
 | app/Http/Controllers/Shop/PrivacyController.php,app/Http/Controllers/Shop/AuthController.php,app/Support/Money.php,resources/js/Components/Shop/useLocationConsent.ts,resources/js/Pages/Shop/Terms.tsx,resources/js/Pages/Shop/PrivacyPolicy.tsx,resources/js/Pages/Shop/RefundPolicy.tsx,resources/js/Pages/Shop/ShippingInfo.tsx,app/Filament/Resources/Products/** | .ai/rules/shop-http-controllers-admin.md |
 | resources/js/{Pages,Components}/Shop/** | .ai/rules/shop.md |
 | app/Support/ProductCsvImporter.php,app/Filament/Pages/ProductImport.php | .ai/rules/support-http-controllers-admin.md |

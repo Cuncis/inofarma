@@ -83,6 +83,20 @@ class Branch extends Model
             ->orderBy('distance_km');
     }
 
+    /**
+     * Adds `distance_km` like {@see scopeNearest()} but keeps every branch: one
+     * whose coordinates are not filled in yet simply has a null distance
+     * instead of dropping out of the list.
+     */
+    public function scopeWithDistanceFrom(Builder $query, float $latitude, float $longitude): Builder
+    {
+        return $query->selectRaw('branches.*, CASE WHEN latitude IS NULL OR longitude IS NULL THEN NULL ELSE (6371 * acos(
+                cos(radians(?)) * cos(radians(latitude)) *
+                cos(radians(longitude) - radians(?)) +
+                sin(radians(?)) * sin(radians(latitude))
+            )) END AS distance_km', [$latitude, $longitude, $latitude]);
+    }
+
     public function getFullAddressAttribute(): string
     {
         return collect([

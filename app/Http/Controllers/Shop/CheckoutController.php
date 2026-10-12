@@ -9,14 +9,18 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\Product;
+use App\Support\Auth\Scopes\BranchScope;
 use App\Support\Cart\CartManager;
 use App\Support\Cart\DeliveryPricing;
 use App\Support\Inventory\InsufficientStockException;
 use App\Support\Inventory\StockAllocator;
+use App\Support\LocationPreference;
 use App\Support\OrderNumber;
 use App\Support\Payments\DokuPaymentService;
 use App\Support\Presenters\CartPresenter;
+use App\Support\Presenters\StorefrontBranchPresenter;
 use App\Support\Shipping\ShippingQuoteService;
+use App\Support\Shipping\ShippingUnavailableException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +51,7 @@ class CheckoutController extends Controller
     /** A stand-in for real pickup-time scheduling (Fase 7); a shopper just says roughly when. */
     private const PICKUP_ETA_OPTIONS = ['Hari ini', 'Besok'];
 
-    public function show(CartManager $cart): Response|RedirectResponse
+    public function show(Request $request, CartManager $cart): Response|RedirectResponse
     {
         $data = $cart->current();
 
@@ -62,6 +66,9 @@ class CheckoutController extends Controller
         return Inertia::render('Shop/Checkout', [
             'cart' => CartPresenter::toArray($data),
             'pickupEtaOptions' => self::PICKUP_ETA_OPTIONS,
+            // A function, so a partial reload after the shopper shares a location
+            // (see PickupLocationModal) re-sorts the branches by distance.
+            'pickupBranches' => fn () => $this->pickupBranches($request, $data['lines']),
         ]);
     }
 
@@ -72,6 +79,7 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'fulfilment' => ['required', 'in:antar,ambil'],
             'paymentMethod' => ['required', 'in:online'],
+            'pickupBranchId' => ['required_if:fulfilment,ambil', 'nullable', 'string'],
             'pickupEta' => ['required_if:fulfilment,ambil', 'nullable', 'in:'.implode(',', self::PICKUP_ETA_OPTIONS)],
             'courier' => ['nullable', 'array'],
             'courier.courierCompany' => ['nullable', 'string'],
@@ -113,6 +121,10 @@ class CheckoutController extends Controller
             // may no longer be the cheapest, or may no longer exist at all.
             try {
                 $quotes = ShippingQuoteService::make()->quote($branch, $data['address'], $data['lines']);
+            } catch (ShippingUnavailableException $exception) {
+                report($exception);
+
+                throw ValidationException::withMessages(['courier' => $exception->customerMessage]);
             } catch (RuntimeException $exception) {
                 report($exception);
                 $quotes = [];
@@ -130,8 +142,11 @@ class CheckoutController extends Controller
             }
 
             $validated['courierQuote'] = $chosen;
-        } elseif (! $branch->supports_pickup) {
-            throw ValidationException::withMessages(['fulfilment' => "{$branch->name} tidak melayani ambil di tempat."]);
+        } else {
+            // Pickup is chosen here, not on the product page: the order is placed
+            // at the branch the shopper collects it from, which may not be the
+            // branch the cart was started with.
+            $branch = $this->pickupBranchFor($validated['pickupBranchId'], $data['lines']);
         }
 
         $order = DB::transaction(fn () => $this->placeOrder($customer, $data, $branch, $validated));
@@ -149,6 +164,56 @@ class CheckoutController extends Controller
         }
 
         return Inertia::location($payment->checkout_url);
+    }
+
+    /**
+     * The branches an order for these lines could be collected from.
+     *
+     * @param  list<array{product: Product, quantity: int}>  $lines
+     * @return list<array<string, mixed>>
+     */
+    private function pickupBranches(Request $request, array $lines): array
+    {
+        $coordinates = LocationPreference::coordinates($request);
+
+        $query = Branch::query()
+            ->active()
+            ->where('supports_pickup', true)
+            ->with(['stocks' => fn ($stocks) => $stocks
+                ->withoutGlobalScope(BranchScope::class)
+                ->whereIn('product_id', collect($lines)->pluck('product.id'))]);
+
+        if ($coordinates) {
+            $query->withDistanceFrom($coordinates['lat'], $coordinates['lng']);
+        }
+
+        return StorefrontBranchPresenter::forPickup($query->get(), $lines);
+    }
+
+    /**
+     * @param  list<array{product: Product, quantity: int}>  $lines
+     *
+     * @throws ValidationException
+     */
+    private function pickupBranchFor(string $code, array $lines): Branch
+    {
+        $branch = Branch::active()->where('supports_pickup', true)->where('code', $code)->first();
+
+        if (! $branch) {
+            throw ValidationException::withMessages(['pickupBranchId' => 'Lokasi pengambilan tidak tersedia. Pilih lokasi lain.']);
+        }
+
+        foreach ($lines as $line) {
+            $stock = $line['product']->stockAt($branch);
+
+            if (! $stock || ! $stock->is_listed || $stock->available < $line['quantity']) {
+                throw ValidationException::withMessages([
+                    'pickupBranchId' => "Stok {$line['product']->name} di {$branch->name} tidak mencukupi. Pilih lokasi lain.",
+                ]);
+            }
+        }
+
+        return $branch;
     }
 
     /**

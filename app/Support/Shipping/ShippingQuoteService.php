@@ -30,6 +30,20 @@ class ShippingQuoteService
      */
     public function quote(Branch $branch, CustomerAddress $address, array $lines): array
     {
+        if ($branch->latitude === null || $branch->longitude === null) {
+            throw new ShippingUnavailableException(
+                "Koordinat {$branch->name} belum diisi, jadi ongkos kirim tidak bisa dihitung. Isi di admin: Cabang > Ubah.",
+                'Pengiriman dari cabang ini belum tersedia. Pilih Ambil di toko atau coba lagi nanti.',
+            );
+        }
+
+        if ($address->latitude === null || $address->longitude === null) {
+            throw new ShippingUnavailableException(
+                "Alamat pengiriman #{$address->id} belum punya titik peta (latitude/longitude).",
+                'Alamat ini belum punya titik lokasi di peta. Perbarui alamat dengan "Gunakan lokasi saya", lalu coba lagi.',
+            );
+        }
+
         $pricing = $this->client->rates([
             'origin_latitude' => (float) $branch->latitude,
             'origin_longitude' => (float) $branch->longitude,

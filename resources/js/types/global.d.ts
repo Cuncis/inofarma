@@ -100,6 +100,7 @@ interface ProductBranch {
     name: string;
     kota: string;
     distanceKm: number | null;
+    fullAddress?: string;
     available: number;
     selectable: boolean;
     supportsDelivery: boolean;

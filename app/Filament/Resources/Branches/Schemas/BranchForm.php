@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class BranchForm
@@ -69,13 +70,15 @@ class BranchForm
                             ->placeholder('-6.200000')
                             ->minValue(-90)
                             ->maxValue(90)
-                            ->helperText(__('Kosongkan bila belum diketahui — cabang tidak akan muncul di pencarian terdekat.')),
+                            ->required(fn (Get $get) => (bool) $get('supports_delivery'))
+                            ->helperText(__('Wajib bila cabang melayani antar: dipakai untuk ongkos kirim dan resi. Bila kosong, cabang tidak muncul di pencarian terdekat.')),
                         TextInput::make('longitude')
                             ->label(__('Bujur (Longitude)'))
                             ->numeric()
                             ->placeholder('106.816666')
                             ->minValue(-180)
-                            ->maxValue(180),
+                            ->maxValue(180)
+                            ->required(fn (Get $get) => (bool) $get('supports_delivery')),
                     ]),
 
                 Section::make(__('Perizinan'))
@@ -99,6 +102,7 @@ class BranchForm
                         Toggle::make('supports_delivery')
                             ->label(__('Melayani antar'))
                             ->default(true)
+                            ->live()
                             ->required(),
                         Toggle::make('supports_pickup')
                             ->label(__('Melayani ambil di tempat'))
