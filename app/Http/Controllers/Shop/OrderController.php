@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Support\OrderCancellation;
+use App\Support\Payments\DokuPaymentService;
 use App\Support\Presenters\ShopOrderPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 /**
  * A signed-in customer's own orders — history, tracking, and self-service
@@ -32,7 +34,6 @@ class OrderController extends Controller
         ]);
     }
 
-    /** Items, total, and the Bayar/Batalkan actions — the page an order's own row (or a payment redirect) lands on. */
     /**
      * The "thank you" page after checkout. The order recap only appears for
      * the signed-in customer who placed it; anyone else just sees the number.
@@ -63,10 +64,29 @@ class OrderController extends Controller
         ]);
     }
 
+    /** Items, total, and the Bayar/Batalkan actions: the page an order's own row (or a payment redirect) lands on. */
     public function show(Request $request, string $order): Response
     {
+        $record = $this->find($request, $order);
+
+        // DOKU sends the shopper back here after paying, often before (or
+        // without, in local development) its webhook arrives. Asking DOKU for
+        // the status folds the result in through the same path as the webhook.
+        if ($record->payment_status === 'belum bayar' && $record->status === 'menunggu pembayaran') {
+            $pending = $record->payments()->where('status', 'pending')->latest('id')->first();
+
+            if ($pending) {
+                try {
+                    DokuPaymentService::make()->reconcile($pending);
+                    $record->refresh();
+                } catch (RuntimeException $exception) {
+                    report($exception);
+                }
+            }
+        }
+
         return Inertia::render('Shop/OrderDetail', [
-            'order' => ShopOrderPresenter::toArray($this->find($request, $order)),
+            'order' => ShopOrderPresenter::toArray($record),
         ]);
     }
 

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import Icon from './Icon';
 import useCartCount from './useCartCount';
-import useShopUser from './useShopUser';
 import { money } from './data';
 
 /**
@@ -17,7 +16,6 @@ import { money } from './data';
  */
 export default function CartDropdown() {
     const cartCount = useCartCount();
-    const { signedIn } = useShopUser();
     const [open, setOpen] = useState(false);
     const [cart, setCart] = useState<CartPreview | null>(null);
     const [busySku, setBusySku] = useState<string | null>(null);
@@ -209,7 +207,7 @@ export default function CartDropdown() {
                                         </span>
                                     ) : (
                                         <Link
-                                            href={signedIn ? '/checkout' : '/checkout/tamu'}
+                                            href={'/checkout'}
                                             className="flex h-11 items-center justify-center bg-success text-[13px] font-bold text-white"
                                         >
                                             Check-out

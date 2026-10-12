@@ -186,7 +186,7 @@ export default function DesktopCart({ cart }: {
                             </span>
                         ) : (
                             <Link
-                                href={signedIn ? '/checkout' : '/checkout/tamu'}
+                                href={'/checkout'}
                                 className="flex h-[52px] items-center justify-center bg-success text-[14px] font-bold text-white"
                             >
                                 Check-out

@@ -1,15 +1,17 @@
 ---
 paths:
-  - 'app/Http/Controllers/Shop/GuestCheckoutController.php,app/Http/Controllers/Shop/CheckoutController.php,app/Support/Cart/**,resources/js/Pages/Shop/GuestCheckout.tsx,resources/js/Pages/Shop/Cart.tsx'
+  - 'app/Http/Controllers/Shop/CheckoutController.php,app/Support/Cart/**,resources/js/Pages/Shop/Checkout.tsx,resources/js/Pages/Shop/Cart.tsx'
 ---
 
 # Pages Shop
 
 ## Guest checkout ships: it silently creates a real Customer account, no schema change
-Fase 0's "boleh checkout sebagai tamu?" is decided: yes. `GuestCheckoutController` (public routes `ui.checkout.tamu` / `.store`, and `ui.wilayah` is now public too since the address cascade needs it pre-login) collects name/phone/email/consent + a full address from a guest in one form (`Shop/GuestCheckout.tsx`), then on submit: creates a real `Customer` row (random unusable password — `ForgotPassword` is how they'd set a real one later), logs them in via `Auth::guard('customer')->login()`, merges their session cart in (`CartManager::mergeGuestIntoCustomer()`), creates+attaches a default `CustomerAddress` from the submitted fields, and redirects to the normal `ui.checkout` — which now Just Works, unchanged, because the shopper is a real signed-in customer by the time they reach it.
+Fase 0's "boleh checkout sebagai tamu?" is decided: yes, and there is ONE checkout page for everyone (`Shop/Checkout.tsx`, `ui.checkout`, public along with `ui.checkout.ongkir` and `ui.wilayah`). `/checkout/tamu` only redirects there; the old GuestCheckoutController and page are gone. A guest fills email/name/phone/consent, the address (AddressFields cascade), delivery or pickup, and pays, all in one form and one POST. A shopper without a saved address (`cart.address` null) types it inline; one with a saved address sees the saved-address card.
 
-This means `orders.customer_id` stayed NOT NULL and `CheckoutController`/`placeOrder()` needed zero changes — every downstream thing (DOKU payment, order tracking, order history, coupon one-per-customer dedup, admin's customer view) already assumed a real `Customer` and still does. If the email a guest enters is already registered, they get a validation error pointing them to sign in instead (existing login flow already merges the guest cart, so nothing is lost).
+`CheckoutController::store()` validates everything first (address, courier re-quote, pickup stock) and only then, for a guest, `registerGuest()` creates the real `Customer` (random unusable password), logs in, merges the session cart and saves the typed address as default, so a refused order never leaves a stray account. Email already registered is a validation error pointing to sign in. Address is required only for `antar`; for `ambil` it is optional (it only feeds the distance).
 
-`AuthController::CONSENT_VERSION` is `public` (was `private`) so `GuestCheckoutController` can stamp the same PDP consent version — keep them in sync if it's ever bumped.
+An unsaved address is a `DraftAddress` (app/Support/Cart): no coordinates means a postal-code geocode (Nominatim, cached) so Biteship can quote. `GET /checkout/ongkir` accepts `postalCode`/`latitude`/`longitude` for an address not saved yet. Pickup distance: once the address has a 5-digit postal code or a map pin, Checkout.tsx POSTs `/lokasi` then reloads only `pickupBranches`; a saved address's coordinates are the fallback in `CheckoutController::pickupBranches()`.
 
-`Shop/AddressFields.tsx` is the shared Provinsi/Kota/Kecamatan/Kelurahan/Kode Pos cascade + "Gunakan lokasi saya" block, extracted so both `AddNewAddress.tsx` (signed-in) and `GuestCheckout.tsx` (not yet signed in) use one implementation.
+`AuthController::CONSENT_VERSION` is `public` so `CheckoutController` can stamp the same PDP consent version for guests, keep them in sync if it's ever bumped.
+
+`Shop/AddressFields.tsx` is the shared Provinsi/Kota/Kecamatan/Kelurahan/Kode Pos cascade + "Gunakan lokasi saya" block, extracted so both `AddNewAddress.tsx` (signed-in) and `Checkout.tsx` (not yet signed in) use one implementation.

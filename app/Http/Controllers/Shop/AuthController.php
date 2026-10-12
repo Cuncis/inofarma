@@ -27,7 +27,7 @@ class AuthController extends Controller
 {
     /**
      * Bumped whenever `Shop/PrivacyPolicy.tsx`'s substance changes materially
-     * (Fase 9.2). Public — `GuestCheckoutController` stamps the same version
+     * (Fase 9.2). Public — `CheckoutController` stamps the same version
      * on the account it silently creates for a guest at checkout.
      */
     public const CONSENT_VERSION = '1.0';

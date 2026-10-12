@@ -216,7 +216,7 @@ class CheckoutTest extends TestCase
         $this->addToCart($product, $branch);
 
         $this->post('/checkout', ['fulfilment' => 'antar', 'paymentMethod' => 'online'])
-            ->assertSessionHasErrors('address');
+            ->assertSessionHasErrors(['addressLine', 'kota', 'provinsi']);
 
         $this->assertSame(0, $customer->orders()->count());
     }

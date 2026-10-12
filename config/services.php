@@ -49,6 +49,13 @@ return [
             ? 'https://api.doku.com'
             : 'https://api-sandbox.doku.com',
         'notification_path' => '/doku/notifikasi',
+        // Only these appear on DOKU's payment page: virtual accounts, QRIS and
+        // e-wallets (no cards, retail or paylater). A comma list in .env
+        // overrides it, e.g. when a channel is not enabled on the account.
+        'payment_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env(
+            'DOKU_PAYMENT_METHODS',
+            'VIRTUAL_ACCOUNT_BCA,VIRTUAL_ACCOUNT_BANK_MANDIRI,VIRTUAL_ACCOUNT_BRI,VIRTUAL_ACCOUNT_BNI,VIRTUAL_ACCOUNT_BANK_PERMATA,VIRTUAL_ACCOUNT_DOKU,QRIS,EMONEY_OVO,EMONEY_DANA,EMONEY_SHOPEEPAY',
+        ))))),
     ],
 
     /*

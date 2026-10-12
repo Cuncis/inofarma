@@ -8,7 +8,6 @@ use App\Http\Controllers\Shop\AuthController as ShopAuthController;
 use App\Http\Controllers\Shop\BranchController as ShopBranchController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
-use App\Http\Controllers\Shop\GuestCheckoutController;
 use App\Http\Controllers\Shop\LocationController;
 use App\Http\Controllers\Shop\NewsletterSubscribeController;
 use App\Http\Controllers\Shop\NewsletterUnsubscribeController;
@@ -189,29 +188,26 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
     Route::get('order-successful', [ShopOrderController::class, 'success'])->name('order-successful');
 
     // Public — the Provinsi/Kota/Kecamatan/Kelurahan cascade used by both
-    // `Shop/AddNewAddress.tsx` (signed-in) and `Shop/GuestCheckout.tsx`
+    // `Shop/AddNewAddress.tsx` (signed-in) and the checkout page
     // (not yet signed in), and open government region data either way.
     Route::get('wilayah', [RegionController::class, 'children'])->name('wilayah');
 
     /**
-     * Checkout without an account (Fase 0's "boleh checkout sebagai tamu?",
-     * decided: yes). Public on purpose — `GuestCheckoutController` creates
-     * and signs the guest in itself, then hands off to the normal
-     * `customer`-gated checkout below. A signed-in customer redirected here
-     * bounces straight back to `ui.checkout`.
+     * Checkout is open to guests (Fase 0's "boleh checkout sebagai tamu?",
+     * decided: yes). One page and one submit for everyone: a guest's contact
+     * details and address are part of the same form, and `CheckoutController`
+     * creates and signs in their account only once the order is valid.
      */
-    Route::get('checkout/tamu', [GuestCheckoutController::class, 'create'])->name('checkout.tamu');
-    Route::post('checkout/tamu', [GuestCheckoutController::class, 'store'])->name('checkout.tamu.store');
+    Route::get('checkout/tamu', fn () => redirect()->route('ui.checkout'))->name('checkout.tamu');
+    Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout');
+    Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('checkout/ongkir', [ShippingController::class, 'rates'])->name('checkout.ongkir');
 
     Route::middleware('customer')->group(function () {
         Route::get('profile', fn () => Inertia::render('Shop/Profile'))->name('profile');
 
         Route::post('keranjang/kupon', [CartController::class, 'applyCoupon'])->name('keranjang.kupon.store');
         Route::delete('keranjang/kupon', [CartController::class, 'removeCoupon'])->name('keranjang.kupon.destroy');
-
-        Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout');
-        Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-        Route::get('checkout/ongkir', [ShippingController::class, 'rates'])->name('checkout.ongkir');
 
         Route::get('shipping-details', [AddressController::class, 'forCheckout'])->name('shipping-details');
         Route::post('shipping-details', [AddressController::class, 'selectForCheckout'])->name('shipping-details.store');

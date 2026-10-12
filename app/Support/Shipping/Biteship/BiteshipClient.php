@@ -119,12 +119,37 @@ class BiteshipClient
         try {
             $response->throw();
         } catch (RequestException $exception) {
-            throw new RuntimeException(
-                'Biteship menolak permintaan: '.($response->json('error') ?? $response->body()),
-                previous: $exception,
-            );
+            $reason = (string) ($response->json('error') ?? $response->body());
+
+            throw new RuntimeException(self::explain($reason, $this->apiKey), previous: $exception);
         }
 
         return $response->json() ?? [];
+    }
+
+    /**
+     * Biteship's own wording is terse English. The two refusals staff can fix
+     * themselves in the Biteship dashboard get a plain-Indonesian next step;
+     * anything else keeps Biteship's text so nothing is hidden.
+     */
+    public static function explain(string $reason, string $apiKey = ''): string
+    {
+        $lower = strtolower($reason);
+
+        if (str_contains($lower, 'not been activated')) {
+            $hint = str_starts_with($apiKey, 'biteship_test')
+                ? 'Key yang dipakai adalah key TEST. Di dashboard Biteship nyalakan Testing Mode, buat key di sana (Pengaturan > API Key, berlabel Development), lalu pasang di .env.'
+                : (str_starts_with($apiKey, 'biteship_live')
+                    ? 'Key yang dipakai adalah key LIVE, yang belum diaktifkan Biteship untuk membuat resi. Ajukan aktivasi (Go Live) di dashboard Biteship, atau pakai key TEST di .env selama masih uji coba.'
+                    : 'Jenis key tidak dikenali (harus diawali biteship_test atau biteship_live).');
+
+            return 'Biteship menolak: API key belum diaktifkan untuk membuat resi. '.$hint.' Setelah mengganti key jalankan php artisan config:clear. Pesan asli: '.$reason;
+        }
+
+        if (str_contains($lower, 'balance') || str_contains($lower, 'saldo')) {
+            return 'Biteship menolak: saldo Biteship tidak cukup untuk membuat resi. Isi saldo di dashboard Biteship, lalu coba lagi. Pesan asli: '.$reason;
+        }
+
+        return 'Biteship menolak permintaan: '.$reason;
     }
 }

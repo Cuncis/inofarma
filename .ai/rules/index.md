@@ -27,7 +27,8 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Support/ProductImageUploader.php,app/Filament/Resources/Products/RelationManagers/ImagesRelationManager.php,app/Models/ProductImage.php | .ai/rules/models.md |
 | app/Filament/Resources/Newsletters/** | .ai/rules/newsletters.md |
 | app/Observers/ChatMessageObserver.php | .ai/rules/observers.md |
-| app/Http/Controllers/Shop/GuestCheckoutController.php,app/Http/Controllers/Shop/CheckoutController.php,app/Support/Cart/**,resources/js/Pages/Shop/GuestCheckout.tsx,resources/js/Pages/Shop/Cart.tsx | .ai/rules/pages-shop.md |
+| app/Http/Controllers/Shop/CheckoutController.php,app/Support/Cart/**,resources/js/Pages/Shop/Checkout.tsx,resources/js/Pages/Shop/Cart.tsx | .ai/rules/pages-shop.md |
+| app/Support/Payments/** | .ai/rules/payments.md |
 | app/Observers/**,app/Notifications/**,app/Support/Notifications/**,app/Support/Money.php,app/Console/Commands/NotifyExpiringBatches.php,app/Console/Commands/NotifyApproachingPickupDeadlines.php,app/Providers/Filament/AdminPanelProvider.php | .ai/rules/presenters.md |
 | public/** | .ai/rules/public.md |
 | app/Support/Shipping/**,app/Filament/Resources/Orders/** | .ai/rules/shipping-http-controllers-admin.md |

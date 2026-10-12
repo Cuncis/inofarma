@@ -9,9 +9,12 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Region;
 use App\Support\Auth\Scopes\BranchScope;
 use App\Support\Cart\CartManager;
 use App\Support\Cart\DeliveryPricing;
+use App\Support\Cart\DraftAddress;
+use App\Support\CodeSequence;
 use App\Support\Inventory\InsufficientStockException;
 use App\Support\Inventory\StockAllocator;
 use App\Support\LocationPreference;
@@ -23,7 +26,11 @@ use App\Support\Shipping\ShippingQuoteService;
 use App\Support\Shipping\ShippingUnavailableException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -48,9 +55,6 @@ class CheckoutController extends Controller
     /** Fase 0's PPN rate/exemptions are still an open decision — no tax is charged until that lands. */
     private const TAX_RATE = 0;
 
-    /** A stand-in for real pickup-time scheduling (Fase 7); a shopper just says roughly when. */
-    private const PICKUP_ETA_OPTIONS = ['Hari ini', 'Besok'];
-
     public function show(Request $request, CartManager $cart): Response|RedirectResponse
     {
         $data = $cart->current();
@@ -65,27 +69,18 @@ class CheckoutController extends Controller
 
         return Inertia::render('Shop/Checkout', [
             'cart' => CartPresenter::toArray($data),
-            'pickupEtaOptions' => self::PICKUP_ETA_OPTIONS,
+            'isGuest' => ! $request->user('customer'),
+            'provinces' => fn () => Region::query()->where('level', 1)->orderBy('name')->get(['code', 'name'])
+                ->map(fn (Region $region) => ['code' => $region->code, 'name' => $region->name]),
             // A function, so a partial reload after the shopper shares a location
             // (see PickupLocationModal) re-sorts the branches by distance.
-            'pickupBranches' => fn () => $this->pickupBranches($request, $data['lines']),
+            'pickupBranches' => fn () => $this->pickupBranches($request, $data['lines'], $data['address']),
         ]);
     }
 
     public function store(Request $request, CartManager $cart): RedirectResponse|SymfonyResponse
     {
         $customer = $request->user('customer');
-
-        $validated = $request->validate([
-            'fulfilment' => ['required', 'in:antar,ambil'],
-            'paymentMethod' => ['required', 'in:online'],
-            'pickupBranchId' => ['required_if:fulfilment,ambil', 'nullable', 'string'],
-            'pickupEta' => ['required_if:fulfilment,ambil', 'nullable', 'in:'.implode(',', self::PICKUP_ETA_OPTIONS)],
-            'courier' => ['nullable', 'array'],
-            'courier.courierCompany' => ['nullable', 'string'],
-            'courier.courierType' => ['nullable', 'string'],
-            'note' => ['nullable', 'string', 'max:500'],
-        ]);
 
         $data = $cart->current();
         $branch = $data['branch'];
@@ -94,18 +89,63 @@ class CheckoutController extends Controller
             return redirect()->route('ui.cart')->with('error', 'Keranjang Anda masih kosong.');
         }
 
+        // One form for everyone: a guest also fills in who they are and agrees
+        // to the privacy policy (an account is created for them below), and
+        // anyone without a saved address types one right here.
+        $isGuest = ! $customer;
+        $needsAddress = ! $data['address'];
+        $addressRequired = Rule::requiredIf($needsAddress && $request->input('fulfilment') === 'antar');
+
+        $validated = $request->validate([
+            'fulfilment' => ['required', 'in:antar,ambil'],
+            'paymentMethod' => ['required', 'in:online'],
+            'pickupBranchId' => ['required_if:fulfilment,ambil', 'nullable', 'string'],
+            'courier' => ['nullable', 'array'],
+            'courier.courierCompany' => ['nullable', 'string'],
+            'courier.courierType' => ['nullable', 'string'],
+            'note' => ['nullable', 'string', 'max:500'],
+            'name' => [Rule::requiredIf($isGuest), 'nullable', 'string', 'max:255'],
+            'phone' => [Rule::requiredIf($isGuest), 'nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s()]+$/'],
+            'email' => [Rule::requiredIf($isGuest), 'nullable', 'email', 'max:255', 'unique:customers,email'],
+            'consent' => $isGuest ? ['accepted'] : ['nullable'],
+            'addressLine' => [$addressRequired, 'nullable', 'string', 'max:255'],
+            'kelurahan' => ['nullable', 'string', 'max:255'],
+            'kecamatan' => ['nullable', 'string', 'max:255'],
+            'kota' => [$addressRequired, 'nullable', 'string', 'max:255'],
+            'provinsi' => [$addressRequired, 'nullable', 'string', 'max:255'],
+            'postalCode' => ['nullable', 'string', 'max:10'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+        ], [
+            'phone.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).',
+            'email.unique' => 'Email ini sudah terdaftar. Silakan masuk untuk melanjutkan.',
+            'consent.accepted' => 'Anda harus menyetujui Kebijakan Privasi untuk melanjutkan.',
+        ], [
+            'addressLine' => 'alamat lengkap', 'kota' => 'kota/kabupaten', 'provinsi' => 'provinsi',
+        ]);
+
         CartManager::assertWithinPurchaseLimit($data['lines']);
+
+        $address = $data['address'];
+
+        if (! $address && DraftAddress::isComplete($validated)) {
+            $address = DraftAddress::make([
+                ...$validated,
+                'recipientName' => $customer?->name ?? $validated['name'],
+                'recipientPhone' => $customer?->phone ?? $validated['phone'],
+            ]);
+        }
 
         if ($validated['fulfilment'] === 'antar') {
             if (! $branch->supports_delivery) {
                 throw ValidationException::withMessages(['fulfilment' => "{$branch->name} tidak melayani antar."]);
             }
 
-            if (! $data['address']) {
-                throw ValidationException::withMessages(['address' => 'Pilih alamat pengiriman terlebih dahulu.']);
+            if (! $address) {
+                throw ValidationException::withMessages(['address' => 'Isi alamat pengiriman terlebih dahulu.']);
             }
 
-            if (! DeliveryPricing::isWithinRadius($branch, $data['address'])) {
+            if (! DeliveryPricing::isWithinRadius($branch, $address)) {
                 throw ValidationException::withMessages([
                     'address' => "Alamat ini di luar radius antar {$branch->name} ({$branch->delivery_radius_km} km).",
                 ]);
@@ -120,7 +160,7 @@ class CheckoutController extends Controller
             // taken from a form field. A price a customer saw a minute ago
             // may no longer be the cheapest, or may no longer exist at all.
             try {
-                $quotes = ShippingQuoteService::make()->quote($branch, $data['address'], $data['lines']);
+                $quotes = ShippingQuoteService::make()->quote($branch, $address, $data['lines']);
             } catch (ShippingUnavailableException $exception) {
                 report($exception);
 
@@ -137,7 +177,7 @@ class CheckoutController extends Controller
 
             if (! $chosen) {
                 throw ValidationException::withMessages([
-                    'courier' => 'Pilihan kurir tidak lagi tersedia — muat ulang halaman checkout.',
+                    'courier' => 'Pilihan kurir tidak lagi tersedia, muat ulang halaman checkout.',
                 ]);
             }
 
@@ -148,6 +188,27 @@ class CheckoutController extends Controller
             // branch the cart was started with.
             $branch = $this->pickupBranchFor($validated['pickupBranchId'], $data['lines']);
         }
+
+        // Everything that can be refused has been; only now does a guest become
+        // a real account, so a bad address never leaves a stray customer behind.
+        if ($isGuest) {
+            $customer = $this->registerGuest($request, $cart, $validated);
+        }
+
+        if ($address && ! $address->exists) {
+            $address->forceFill([
+                'customer_id' => $customer->id,
+                'recipient_name' => $customer->name,
+                'phone' => $customer->phone,
+                'is_default' => ! $customer->addresses()->exists(),
+            ])->save();
+        }
+
+        if ($address) {
+            $cart->setAddress($address);
+        }
+
+        $data = $cart->current();
 
         $order = DB::transaction(fn () => $this->placeOrder($customer, $data, $branch, $validated));
 
@@ -167,14 +228,49 @@ class CheckoutController extends Controller
     }
 
     /**
+     * A guest checkout silently creates a real Customer (random, never-shown
+     * password; Lupa Password is how they would set one later) and signs them
+     * in, so payment, tracking and order history all treat the order like any
+     * other. The guest's session cart is carried over.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function registerGuest(Request $request, CartManager $cart, array $validated): Customer
+    {
+        $customer = Customer::create([
+            'code' => CodeSequence::next(Customer::withTrashed(), 'code', 'CUS-'),
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'],
+            'password' => Hash::make(Str::random(40)),
+            'status' => 'aktif',
+            'consent_at' => now(),
+            'consent_version' => AuthController::CONSENT_VERSION,
+        ]);
+
+        Auth::guard('customer')->login($customer);
+        $request->session()->regenerate();
+        $cart->mergeGuestIntoCustomer($customer);
+
+        $customer->sendEmailVerificationNotification();
+
+        return $customer;
+    }
+
+    /**
      * The branches an order for these lines could be collected from.
      *
      * @param  list<array{product: Product, quantity: int}>  $lines
      * @return list<array<string, mixed>>
      */
-    private function pickupBranches(Request $request, array $lines): array
+    private function pickupBranches(Request $request, array $lines, ?CustomerAddress $address): array
     {
-        $coordinates = LocationPreference::coordinates($request);
+        // A location the shopper shared wins; otherwise the delivery address
+        // (saved, or just typed) is where the distance is measured from.
+        $coordinates = LocationPreference::coordinates($request)
+            ?? ($address?->latitude !== null && $address?->longitude !== null
+                ? ['lat' => (float) $address->latitude, 'lng' => (float) $address->longitude]
+                : null);
 
         $query = Branch::query()
             ->active()
@@ -218,7 +314,7 @@ class CheckoutController extends Controller
 
     /**
      * @param  array{branch: Branch, address: ?CustomerAddress, coupon: ?Coupon, lines: list<array{product: Product, quantity: int}>}  $data
-     * @param  array{fulfilment: string, paymentMethod: string, pickupEta: ?string, note: ?string, courierQuote?: array{courierCompany: string, courierType: string, courierName: string, serviceName: string, price: int}}  $validated
+     * @param  array{fulfilment: string, paymentMethod: string, note: ?string, courierQuote?: array{courierCompany: string, courierType: string, courierName: string, serviceName: string, price: int}}  $validated
      */
     private function placeOrder(Customer $customer, array $data, Branch $branch, array $validated): Order
     {
@@ -231,7 +327,7 @@ class CheckoutController extends Controller
         $grandTotal = max($subtotal - $discount + $shipping + $tax, 0);
 
         $address = $data['address'];
-        $note = trim(($validated['note'] ?? '').($validated['fulfilment'] === 'ambil' ? "\nPerkiraan ambil: {$validated['pickupEta']}" : ''));
+        $note = trim($validated['note'] ?? '');
 
         $order = Order::create([
             'number' => OrderNumber::generate($branch),

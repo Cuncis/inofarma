@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Support\Cart\CartManager;
+use App\Support\Cart\DraftAddress;
 use App\Support\Shipping\ShippingQuoteService;
 use App\Support\Shipping\ShippingUnavailableException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use RuntimeException;
 
 /**
@@ -18,16 +20,26 @@ use RuntimeException;
  */
 class ShippingController extends Controller
 {
-    public function rates(CartManager $cart): JsonResponse
+    public function rates(Request $request, CartManager $cart): JsonResponse
     {
         $data = $cart->current();
 
-        if (! $data['branch'] || ! $data['address']) {
+        // A saved address wins; otherwise the address still being typed into
+        // the checkout form arrives as query fields.
+        $address = $data['address'] ?? ($request->filled('postalCode') || $request->filled('latitude')
+            ? DraftAddress::make($request->validate([
+                'postalCode' => ['nullable', 'string', 'max:10'],
+                'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+                'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            ]))
+            : null);
+
+        if (! $data['branch'] || ! $address) {
             return response()->json(['options' => []]);
         }
 
         try {
-            $options = ShippingQuoteService::make()->quote($data['branch'], $data['address'], $data['lines']);
+            $options = ShippingQuoteService::make()->quote($data['branch'], $address, $data['lines']);
         } catch (ShippingUnavailableException $exception) {
             report($exception);
 

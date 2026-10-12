@@ -94,7 +94,7 @@ function useRegionOptions(parentCode: string): [RegionOption[], boolean] {
  * The Provinsi/Kota/Kecamatan/Kelurahan/Kode Pos cascade plus the "Gunakan
  * lokasi saya" geolocation button — the whole region-picking block shared by
  * `Shop/AddNewAddress.jsx` (a signed-in customer's saved-address form) and
- * `Shop/GuestCheckout.jsx` (a guest's one-time checkout details). Owns the
+ * `Shop/Checkout.tsx` (the address typed into checkout). Owns the
  * cascade's region-code state internally; writes the plain names/postal
  * code/coordinates the caller's form actually submits back through `setData`
  * (an Inertia `useForm` setter, called in its functional-updater form so

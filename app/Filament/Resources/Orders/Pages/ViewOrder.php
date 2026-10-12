@@ -52,7 +52,7 @@ class ViewOrder extends ViewRecord
                     try {
                         ShipmentService::make()->bookForOrder($record);
                     } catch (RuntimeException $exception) {
-                        Notification::make()->danger()->title($exception->getMessage())->send();
+                        Notification::make()->danger()->title('Gagal membuat resi')->body($exception->getMessage())->persistent()->send();
 
                         return;
                     }

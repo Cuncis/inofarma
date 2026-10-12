@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -55,6 +56,91 @@ class PaymentRetryTest extends TestCase
             'grand_total' => 30000, 'number' => 'INO-'.$branch->code.'-RETRY',
             'expires_at' => now()->addDay(),
         ]);
+    }
+
+    public function test_the_doku_page_is_limited_to_virtual_account_qris_and_e_wallets(): void
+    {
+        $this->fakeDoku();
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makeUnpaidOrder($customer);
+
+        $this->actingAs($customer, 'customer')->post("/pesanan/{$order->number}/bayar");
+
+        Http::assertSent(function ($request) {
+            $methods = $request->data()['payment']['payment_method_types'] ?? [];
+
+            return str_contains($request->url(), '/checkout/v1/payment')
+                && in_array('QRIS', $methods, true)
+                && in_array('VIRTUAL_ACCOUNT_BCA', $methods, true)
+                && in_array('EMONEY_OVO', $methods, true)
+                && ! in_array('CREDIT_CARD', $methods, true);
+        });
+    }
+
+    public function test_the_line_items_always_add_up_to_the_amount_doku_is_asked_to_charge(): void
+    {
+        $this->fakeDoku();
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makeUnpaidOrder($customer);
+        $order->items()->create([
+            'product_id' => Product::first()->id, 'product_name' => 'Obat', 'sku' => 'SKU-1',
+            'unit_price' => 20000, 'quantity' => 2, 'line_total' => 40000, 'batches_consumed' => [],
+        ]);
+        $order->update(['subtotal' => 40000, 'shipping_total' => 10000, 'discount_total' => 0, 'grand_total' => 50000]);
+
+        $this->actingAs($customer, 'customer')->post("/pesanan/{$order->number}/bayar");
+
+        Http::assertSent(function ($request) {
+            $order = $request->data()['order'] ?? null;
+
+            return $order
+                && $order['amount'] === 50000
+                && collect($order['line_items'])->sum(fn ($line) => $line['price'] * $line['quantity']) === 50000
+                && collect($order['line_items'])->contains(fn ($line) => $line['name'] === 'Ongkos kirim');
+        });
+
+        $order->update(['discount_total' => 5000, 'grand_total' => 45000]);
+        Http::fake();
+        $this->fakeDoku();
+        $this->actingAs($customer, 'customer')->post("/pesanan/{$order->number}/bayar");
+
+        Http::assertSent(fn ($request) => ($request->data()['order']['amount'] ?? null) === 45000
+            && count($request->data()['order']['line_items']) === 1
+            && $request->data()['order']['line_items'][0]['price'] === 45000);
+    }
+
+    public function test_returning_from_doku_marks_the_order_paid_even_if_the_webhook_is_late(): void
+    {
+        $this->fakeDoku();
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makeUnpaidOrder($customer);
+        $this->actingAs($customer, 'customer')->post("/pesanan/{$order->number}/bayar");
+
+        Http::swap(new Factory);
+        Http::fake(['api-sandbox.doku.com/orders/v1/status/*' => Http::response([
+            'order' => ['invoice_number' => $order->number],
+            'transaction' => ['status' => 'SUCCESS'],
+            'channel' => ['id' => 'QRIS'],
+        ], 200)]);
+
+        $this->get("/pesanan/{$order->number}")->assertOk();
+
+        $this->assertSame('lunas', $order->fresh()->payment_status);
+        $this->assertSame('pembayaran diterima', $order->fresh()->status);
+    }
+
+    public function test_the_order_page_still_opens_when_doku_cannot_be_reached(): void
+    {
+        $this->fakeDoku();
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $order = $this->makeUnpaidOrder($customer);
+        $this->actingAs($customer, 'customer')->post("/pesanan/{$order->number}/bayar");
+
+        Http::swap(new Factory);
+        Http::fake(['api-sandbox.doku.com/orders/v1/status/*' => Http::response(['message' => ['ERR']], 500)]);
+
+        $this->get("/pesanan/{$order->number}")->assertOk();
+        $this->assertSame('belum bayar', $order->fresh()->payment_status);
     }
 
     public function test_a_customer_can_reopen_a_payment_session_for_their_own_order(): void

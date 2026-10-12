@@ -54,16 +54,11 @@ class DokuPaymentService
                 'callback_url' => route('ui.pesanan.show', $order->number),
                 'callback_url_cancel' => route('ui.pesanan.show', $order->number),
                 'callback_url_result' => route('ui.pesanan.show', $order->number),
-                'line_items' => $order->items->map(fn ($item) => [
-                    'id' => (string) $item->id,
-                    'name' => $item->product_name,
-                    'quantity' => $item->quantity,
-                    'price' => $item->unit_price,
-                    'sku' => $item->sku,
-                ])->all(),
+                'line_items' => $this->lineItems($order),
             ],
             'payment' => [
                 'payment_due_date' => min($minutes, 999999),
+                'payment_method_types' => config('services.doku.payment_methods'),
             ],
             'customer' => [
                 'id' => $order->customer->code,
@@ -90,6 +85,40 @@ class DokuPaymentService
             'expires_at' => $order->expires_at,
             'raw_response' => $response,
         ]);
+    }
+
+    /**
+     * DOKU rejects a session ("AMOUNT NOT MATCH") unless the line items add up
+     * to exactly `order.amount`. The order total also carries shipping, tax and
+     * any discount, so shipping and tax are listed as lines of their own; a
+     * discount cannot be a negative line, so then (or whenever the sum still
+     * disagrees) the whole order goes as one line for the full amount.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function lineItems(Order $order): array
+    {
+        $lines = $order->items->map(fn ($item) => [
+            'id' => (string) $item->id,
+            'name' => $item->product_name,
+            'quantity' => $item->quantity,
+            'price' => $item->unit_price,
+            'sku' => $item->sku,
+        ])->all();
+
+        foreach (['shipping_total' => 'Ongkos kirim', 'tax_total' => 'Pajak'] as $column => $name) {
+            if ($order->{$column} > 0) {
+                $lines[] = ['id' => $column, 'name' => $name, 'quantity' => 1, 'price' => (int) $order->{$column}, 'sku' => $column];
+            }
+        }
+
+        $sum = collect($lines)->sum(fn (array $line) => $line['price'] * $line['quantity']);
+
+        if ($sum === (int) $order->grand_total) {
+            return $lines;
+        }
+
+        return [['id' => (string) $order->id, 'name' => "Pesanan {$order->number}", 'quantity' => 1, 'price' => (int) $order->grand_total, 'sku' => $order->number]];
     }
 
     /**

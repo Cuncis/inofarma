@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import geolocationErrorMessage from './geolocationError';
+import { pointForPostalCode, saveShopperLocation } from './saveShopperLocation';
 import useLocationConsent from './useLocationConsent';
 
 /**
@@ -42,16 +43,7 @@ export default function PickupLocationModal({
     }, [onClose]);
 
     async function saveLocation(lat: number, lng: number) {
-        await fetch('/lokasi', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ''),
-            },
-            body: JSON.stringify({ lat, lng }),
-        });
-
+        await saveShopperLocation(lat, lng);
         await onLocated();
     }
 
@@ -66,19 +58,14 @@ export default function PickupLocationModal({
         setMessage('');
 
         try {
-            const response = await fetch(`/api/lokasi/kode-pos?kode=${postalCode}`, { headers: { Accept: 'application/json' } });
+            const point = await pointForPostalCode(postalCode);
 
-            if (response.status === 404) {
+            if (! point) {
                 setMessage('Kode pos tidak ditemukan. Periksa kembali, atau pakai lokasi Anda.');
 
                 return;
             }
 
-            if (! response.ok) {
-                throw new Error('gagal');
-            }
-
-            const point: { lat: number; lng: number } = await response.json();
             await saveLocation(point.lat, point.lng);
         } catch {
             setMessage('Tidak bisa mencari kode pos sekarang. Coba lagi nanti.');
