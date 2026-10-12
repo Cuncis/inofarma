@@ -1,3 +1,4 @@
+import { DISABLED_ACTION_CLASSES, OVER_LIMIT_MESSAGE, hasOverLimit, isOverLimit } from '@/lib/purchaseLimit';
 import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
@@ -96,6 +97,11 @@ export default function Cart({ cart }: { cart: {
                             {item.quantity > item.available ? (
                                 <div className="mt-1 text-[10px] font-semibold text-danger">
                                     Stok tersisa {item.available}
+                                </div>
+                            ) : null}
+                            {isOverLimit(item.quantity, item) ? (
+                                <div role="alert" className="mt-1 text-[12px] font-semibold leading-snug text-danger">
+                                    {OVER_LIMIT_MESSAGE}
                                 </div>
                             ) : null}
                         </Link>
@@ -199,9 +205,15 @@ export default function Cart({ cart }: { cart: {
                     </div>
                 </div>
 
-                <Button href={signedIn ? '/checkout' : '/checkout/tamu'} className="mb-2">
-                    Lanjut ke Pembayaran
-                </Button>
+                {hasOverLimit(cart.items) ? (
+                    <Button disabled className={`mb-2 ${DISABLED_ACTION_CLASSES}`}>
+                        Lanjut ke Pembayaran
+                    </Button>
+                ) : (
+                    <Button href={signedIn ? '/checkout' : '/checkout/tamu'} className="mb-2">
+                        Lanjut ke Pembayaran
+                    </Button>
+                )}
             </div>
         </MobileLayout>
     );

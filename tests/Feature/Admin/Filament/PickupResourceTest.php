@@ -41,7 +41,7 @@ class PickupResourceTest extends TestCase
         InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 10, 'expires_at' => now()->addYear()]);
 
         $order = Order::factory()->pickup()->create([
-            'branch_id' => $branch->id, 'customer_id' => $customer->id, 'status' => 'diproses',
+            'branch_id' => $branch->id, 'customer_id' => $customer->id, 'status' => 'pembayaran diterima',
         ]);
 
         $manifest = (new StockAllocator)->consume($branch, $product, 1, 'penjualan', $order);

@@ -22,6 +22,47 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * The happy path of an order, in order. Delivery goes through a packing and
+     * a shipping step; pickup goes straight from paid to ready for collection.
+     * Either can instead end as `dibatalkan`, or `kedaluwarsa` when a payment or
+     * pickup deadline ran out.
+     */
+    public const FLOW_DELIVERY = ['menunggu pembayaran', 'pembayaran diterima', 'siap dikirim', 'dikirim', 'selesai'];
+
+    public const FLOW_PICKUP = ['menunggu pembayaran', 'pembayaran diterima', 'siap diambil', 'selesai'];
+
+    /** Statuses that only exist once the customer has paid. */
+    public const PAID_STATUSES = ['pembayaran diterima', 'siap dikirim', 'siap diambil', 'dikirim', 'selesai'];
+
+    public const END_STATUSES = ['dibatalkan', 'kedaluwarsa'];
+
+    /**
+     * The statuses an order can be in, for one way of receiving it.
+     *
+     * @return list<string>
+     */
+    public static function statusesFor(string $fulfilment): array
+    {
+        return [...($fulfilment === 'ambil' ? self::FLOW_PICKUP : self::FLOW_DELIVERY), ...self::END_STATUSES];
+    }
+
+    /**
+     * What `payment_status` an order in `$status` must have when staff set the
+     * status by hand. Anything past "menunggu pembayaran" is paid; a refund is
+     * never undone by an edit, and a cancelled or expired order keeps whatever
+     * its payment was.
+     */
+    public static function paymentStatusFor(string $status, ?string $current = null): string
+    {
+        return match (true) {
+            $current === 'refund' => 'refund',
+            in_array($status, self::PAID_STATUSES, true) => 'lunas',
+            in_array($status, self::END_STATUSES, true) => $current ?? 'belum bayar',
+            default => 'belum bayar',
+        };
+    }
+
     protected static function booted(): void
     {
         static::addGlobalScope(new BranchScope);
@@ -124,7 +165,7 @@ class Order extends Model
 
     /**
      * Pelanggan hanya boleh membatalkan sendiri sebelum apotek mulai
-     * memprosesnya — begitu berstatus "diproses" barang sudah mulai disiapkan.
+     * memprosesnya — begitu pembayaran diterima barang sudah mulai disiapkan.
      */
     public function getIsCancellableByCustomerAttribute(): bool
     {

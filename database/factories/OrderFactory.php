@@ -25,7 +25,7 @@ class OrderFactory extends Factory
             'branch_id' => Branch::factory(),
             'customer_id' => Customer::factory(),
             'fulfilment' => 'antar',
-            'status' => 'diproses',
+            'status' => 'pembayaran diterima',
             'payment_method' => 'Transfer Bank',
             'payment_status' => 'belum bayar',
             'subtotal' => 0,

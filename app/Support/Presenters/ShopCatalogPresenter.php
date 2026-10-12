@@ -93,6 +93,7 @@ class ShopCatalogPresenter
             'warning' => $product->warning,
             'manufacturer' => $product->manufacturer,
             'maxQtyPerOrder' => $product->max_qty_per_order,
+            'purchaseLimit' => $product->purchaseLimit(),
             'storage' => AdminOptions::toLabel(AdminOptions::STORAGE_CONDITIONS, $product->storage),
         ];
     }

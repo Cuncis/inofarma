@@ -48,6 +48,8 @@ interface CatalogProduct {
     warning?: string;
     manufacturer?: string;
     maxQtyPerOrder?: number;
+    /** The most of this product one order may hold (the same cap for every product). */
+    purchaseLimit?: number;
     /** Suhu Ruang | Sejuk (15-25°C) | Dingin/Kulkas (2-8°C). */
     storage?: string;
 }
@@ -132,6 +134,7 @@ interface CartLine {
     unitPrice: number;
     lineTotal: number;
     available: number;
+    purchaseLimit?: number;
 }
 
 interface CartCoupon {

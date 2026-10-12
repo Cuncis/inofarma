@@ -41,7 +41,7 @@ class EditOrder extends EditRecord
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $data['payment_status'] = $data['status'] === 'selesai' ? 'lunas' : 'belum bayar';
+        $data['payment_status'] = Order::paymentStatusFor($data['status'], $this->record->payment_status);
 
         return $data;
     }

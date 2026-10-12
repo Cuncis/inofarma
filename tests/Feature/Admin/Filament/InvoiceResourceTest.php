@@ -86,7 +86,7 @@ class InvoiceResourceTest extends TestCase
     {
         $order = Order::factory()->create([
             'customer_id' => Customer::factory(),
-            'status' => 'diproses',
+            'status' => 'pembayaran diterima',
             'payment_status' => 'lunas',
         ]);
         Payment::factory()->for($order)->success()->create();

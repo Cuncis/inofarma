@@ -165,7 +165,7 @@ class DokuPaymentService
                 'payment_status' => 'lunas',
                 'payment_method' => $channel ?? $order->payment_method,
                 'paid_at' => $order->paid_at ?? now(),
-                'status' => $order->status === 'menunggu pembayaran' ? 'diproses' : $order->status,
+                'status' => $order->status === 'menunggu pembayaran' ? 'pembayaran diterima' : $order->status,
             ]),
             // A session DOKU itself expired before the customer paid — same
             // treatment as our own scheduled sweep (`pesanan:kadaluwarsakan`),

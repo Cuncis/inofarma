@@ -90,7 +90,6 @@
     "Dipakai untuk menautkan riwayat pesanan.": "Used to link order history.",
     "Diperbarui": "Updated",
     "Dipesan": "Ordered",
-    "Diproses": "Processing",
     "Diskon": "Discount",
     "Diterbitkan": "Issued",
     "Diterima": "Received",
@@ -464,5 +463,9 @@
     "Tulis balasan": "Write a reply",
     "Balasan muncul di jendela chat pengunjung. Bila mereka tidak membukanya, balasan dikirim lewat email.": "The reply appears in the visitor's chat window. If they have left, it is sent by email.",
     "Kirim Balasan": "Send Reply",
-    "Satu baris per produk, cabang, dan batch. Unduh templatenya lewat tombol Export & Template.": "One row per product, branch and batch. Download the template with the Export & Template button."
+    "Satu baris per produk, cabang, dan batch. Unduh templatenya lewat tombol Export & Template.": "One row per product, branch and batch. Download the template with the Export & Template button.",
+    "Pembayaran Diterima": "Payment Received",
+    "Siap Dikirim": "Ready to Ship",
+    "Tandai Siap Dikirim": "Mark Ready to Ship",
+    "Pesanan #:number siap dikirim.": "Order #:number is ready to ship."
 }

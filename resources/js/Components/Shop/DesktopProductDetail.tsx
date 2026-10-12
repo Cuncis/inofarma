@@ -1,3 +1,4 @@
+import { DISABLED_ACTION_CLASSES, OVER_LIMIT_MESSAGE, isOverLimit } from '@/lib/purchaseLimit';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import DesktopLayout from '@/Layouts/DesktopLayout';
@@ -84,10 +85,8 @@ function BuyBox({ product }: { product: CatalogProduct }) {
 
     const errors = formErrors as Record<string, string | undefined>;
     const selected = branches?.find((branch) => branch.id === selectedId) ?? null;
-    const maxQuantity = Math.min(
-        selected?.available ?? Infinity,
-        product.maxQtyPerOrder ?? Infinity,
-    );
+    const maxQuantity = selected?.available ?? Infinity;
+    const overLimit = isOverLimit(quantity, product);
 
     const addToCart = (switchBranch = false) => {
         if (! selected) {
@@ -185,8 +184,10 @@ function BuyBox({ product }: { product: CatalogProduct }) {
                 </div>
             </dl>
 
-            {product.maxQtyPerOrder ? (
-                <p className="mt-2 text-[10px] text-muted">Maksimal {product.maxQtyPerOrder} per transaksi.</p>
+            {overLimit ? (
+                <p role="alert" className="mt-2 max-w-sm text-[13px] font-semibold leading-snug text-danger">
+                    {OVER_LIMIT_MESSAGE}
+                </p>
             ) : null}
 
             {errors.quantity ? <p className="mt-2 text-[11px] text-danger">{errors.quantity}</p> : null}
@@ -208,8 +209,10 @@ function BuyBox({ product }: { product: CatalogProduct }) {
                     ref={buttonRef}
                     type="button"
                     onClick={() => addToCart(false)}
-                    disabled={! selected || processing}
-                    className="mt-5 flex h-11 w-full max-w-sm items-center justify-center bg-success text-xs font-bold text-white disabled:opacity-60"
+                    disabled={! selected || processing || overLimit}
+                    className={`mt-5 flex h-11 w-full max-w-sm items-center justify-center text-xs font-bold text-white ${
+                        overLimit ? DISABLED_ACTION_CLASSES : 'bg-success disabled:opacity-60'
+                    }`}
                 >
                     {added ? 'Ditambahkan ✓' : 'Tambahkan ke keranjang'}
                 </button>

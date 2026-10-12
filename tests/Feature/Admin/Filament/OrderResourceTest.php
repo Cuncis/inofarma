@@ -13,6 +13,7 @@ use App\Models\InventoryBatch;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shipment;
+use App\Support\AdminOptions;
 use App\Support\Inventory\StockAllocator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -48,7 +49,7 @@ class OrderResourceTest extends TestCase
 
         $order = Order::factory()->create([
             'branch_id' => $branch->id, 'customer_id' => $customer->id,
-            'fulfilment' => 'antar', 'status' => 'diproses',
+            'fulfilment' => 'antar', 'status' => 'siap dikirim',
             'recipient_name' => 'Budi', 'recipient_phone' => '0812',
             'shipping_address' => 'Jl. Contoh No. 1', 'shipping_latitude' => -6.2, 'shipping_longitude' => 106.8,
         ]);
@@ -73,7 +74,7 @@ class OrderResourceTest extends TestCase
         InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 10, 'expires_at' => now()->addYear()]);
 
         $order = Order::factory()->pickup()->create([
-            'branch_id' => $branch->id, 'customer_id' => $customer->id, 'status' => 'diproses',
+            'branch_id' => $branch->id, 'customer_id' => $customer->id, 'status' => 'pembayaran diterima',
         ]);
 
         $manifest = (new StockAllocator)->consume($branch, $product, 1, 'penjualan', $order);
@@ -105,7 +106,7 @@ class OrderResourceTest extends TestCase
                 'branch_id' => $branch->id,
                 'fulfilment' => 'antar',
                 'payment_method' => 'GoPay',
-                'status' => 'diproses',
+                'status' => 'menunggu pembayaran',
                 'shipping_total' => 20000,
                 'note' => 'Titip di pos satpam.',
                 'items' => [
@@ -160,7 +161,7 @@ class OrderResourceTest extends TestCase
                 'branch_id' => $order->branch_id,
                 'fulfilment' => 'antar',
                 'payment_method' => 'GoPay',
-                'status' => 'diproses',
+                'status' => 'pembayaran diterima',
                 'shipping_total' => 0,
                 'items' => [
                     ['product_id' => $product->id, 'quantity' => 2],
@@ -247,7 +248,7 @@ class OrderResourceTest extends TestCase
                 'branch_id' => $branch->id,
                 'fulfilment' => 'antar',
                 'payment_method' => 'GoPay',
-                'status' => 'diproses',
+                'status' => 'pembayaran diterima',
                 'shipping_total' => 0,
                 'items' => [],
             ])
@@ -300,7 +301,7 @@ class OrderResourceTest extends TestCase
 
     public function test_shipping_a_pickup_order_that_has_no_shipment_quote_is_refused(): void
     {
-        $order = Order::factory()->pickup()->create(['status' => 'diproses']);
+        $order = Order::factory()->pickup()->create(['status' => 'pembayaran diterima']);
 
         Livewire::test(ViewOrder::class, ['record' => $order->getKey()])
             ->assertActionHidden('ship');
@@ -354,9 +355,100 @@ class OrderResourceTest extends TestCase
 
     public function test_a_delivery_order_has_no_mark_ready_action(): void
     {
-        $order = Order::factory()->create(['status' => 'diproses', 'fulfilment' => 'antar']);
+        $order = Order::factory()->create(['status' => 'pembayaran diterima', 'fulfilment' => 'antar']);
 
         Livewire::test(ViewOrder::class, ['record' => $order->getKey()])
             ->assertActionHidden('markReady');
+    }
+
+    public function test_a_paid_delivery_order_is_marked_ready_to_ship_before_a_waybill_can_be_booked(): void
+    {
+        $order = Order::factory()->create(['status' => 'pembayaran diterima', 'fulfilment' => 'antar']);
+        Shipment::factory()->for($order)->create();
+
+        Livewire::test(ViewOrder::class, ['record' => $order->getKey()])
+            ->assertActionVisible('markReadyToShip')
+            ->assertActionHidden('ship')
+            ->callAction('markReadyToShip');
+
+        $this->assertSame('siap dikirim', $order->fresh()->status);
+
+        Livewire::test(ViewOrder::class, ['record' => $order->getKey()])
+            ->assertActionHidden('markReadyToShip')
+            ->assertActionVisible('ship');
+    }
+
+    public function test_ready_to_ship_is_only_for_paid_delivery_orders(): void
+    {
+        $pickup = Order::factory()->pickup()->create(['status' => 'pembayaran diterima']);
+        $unpaid = Order::factory()->create(['status' => 'menunggu pembayaran', 'fulfilment' => 'antar']);
+
+        Livewire::test(ViewOrder::class, ['record' => $pickup->getKey()])->assertActionHidden('markReadyToShip');
+        Livewire::test(ViewOrder::class, ['record' => $unpaid->getKey()])->assertActionHidden('markReadyToShip');
+    }
+
+    public function test_a_pickup_order_can_only_be_marked_ready_for_pickup_once_payment_is_received(): void
+    {
+        $unpaid = Order::factory()->pickup()->create(['status' => 'menunggu pembayaran']);
+        $paid = Order::factory()->pickup()->create(['status' => 'pembayaran diterima']);
+
+        Livewire::test(ViewOrder::class, ['record' => $unpaid->getKey()])->assertActionHidden('markReady');
+        Livewire::test(ViewOrder::class, ['record' => $paid->getKey()])->assertActionVisible('markReady');
+    }
+
+    public function test_the_status_choices_follow_how_the_order_is_received(): void
+    {
+        $this->assertSame(
+            ['menunggu pembayaran', 'pembayaran diterima', 'siap dikirim', 'dikirim', 'selesai', 'dibatalkan', 'kedaluwarsa'],
+            array_values(AdminOptions::orderStatusesFor('antar')),
+        );
+        $this->assertSame(
+            ['menunggu pembayaran', 'pembayaran diterima', 'siap diambil', 'selesai', 'dibatalkan', 'kedaluwarsa'],
+            array_values(AdminOptions::orderStatusesFor('ambil')),
+        );
+    }
+
+    public function test_a_pickup_order_cannot_be_given_a_shipping_status(): void
+    {
+        $customer = Customer::where('email', 'anisa.rahmawati@mail.com')->firstOrFail();
+        $branch = Branch::where('code', 'CB-001')->firstOrFail();
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+
+        Livewire::test(CreateOrder::class)
+            ->fillForm([
+                'customer_id' => $customer->id,
+                'branch_id' => $branch->id,
+                'fulfilment' => 'ambil',
+                'payment_method' => 'GoPay',
+                'status' => 'dikirim',
+                'shipping_total' => 0,
+                'items' => [['product_id' => $product->id, 'quantity' => 1]],
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['status']);
+    }
+
+    public function test_a_status_past_waiting_for_payment_is_saved_as_paid_and_an_edit_never_unpays_an_order(): void
+    {
+        $order = Order::factory()->create(['status' => 'pembayaran diterima', 'payment_status' => 'lunas', 'fulfilment' => 'antar']);
+
+        $this->assertSame('lunas', Order::paymentStatusFor('siap dikirim'));
+        $this->assertSame('lunas', Order::paymentStatusFor('selesai'));
+        $this->assertSame('belum bayar', Order::paymentStatusFor('menunggu pembayaran'));
+        $this->assertSame('lunas', Order::paymentStatusFor('dibatalkan', 'lunas'));
+        $this->assertSame('belum bayar', Order::paymentStatusFor('kedaluwarsa'));
+        $this->assertSame('refund', Order::paymentStatusFor('selesai', 'refund'));
+
+        $product = Product::where('sku', 'PRD-003')->firstOrFail();
+
+        Livewire::test(EditOrder::class, ['record' => $order->getKey()])
+            ->fillForm([
+                'note' => 'Hanya ganti catatan',
+                'items' => [['product_id' => $product->id, 'quantity' => 1]],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('lunas', $order->fresh()->payment_status);
     }
 }

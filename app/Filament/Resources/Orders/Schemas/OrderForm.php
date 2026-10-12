@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use App\Models\Order;
 use App\Models\Product;
 use App\Support\AdminOptions;
 use Filament\Forms\Components\Repeater;
@@ -9,6 +10,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class OrderForm
@@ -35,14 +38,22 @@ class OrderForm
                         Select::make('fulfilment')
                             ->label(__('Cara Terima'))
                             ->options(AdminOptions::options(AdminOptions::FULFILMENTS))
-                            ->required(),
+                            ->required()
+                            ->live()
+                            // Delivery and pickup have different steps: a status the
+                            // new way of receiving does not have goes back to the start.
+                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                if ($state && ! in_array($get('status'), Order::statusesFor($state), true)) {
+                                    $set('status', 'menunggu pembayaran');
+                                }
+                            }),
                         Select::make('payment_method')
                             ->label(__('Metode Pembayaran'))
                             ->options(AdminOptions::listOptions(AdminOptions::paymentMethods()))
                             ->required(),
                         Select::make('status')
                             ->label(__('Status'))
-                            ->options(AdminOptions::options(AdminOptions::ORDER_STATUSES))
+                            ->options(fn (Get $get) => AdminOptions::options(AdminOptions::orderStatusesFor($get('fulfilment') ?: 'antar')))
                             ->required(),
                         TextInput::make('shipping_total')
                             ->label(__('Ongkos Kirim'))

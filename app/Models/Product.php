@@ -21,6 +21,12 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /** The most of one product a shopper may buy in a single order. The same for every product. */
+    public const MAX_QUANTITY_PER_ORDER = 2;
+
+    /** Shown wherever a quantity goes over {@see MAX_QUANTITY_PER_ORDER}. The storefront has the same text in `lib/purchaseLimit.ts`. */
+    public const OVER_LIMIT_MESSAGE = 'Produk ini memiliki maksimum jumlah pembelian untuk pemakaian 3 hari';
+
     protected $fillable = [
         'sku', 'name', 'slug', 'category_id', 'supplier_id',
         'price', 'old_price', 'cost_price', 'unit', 'blurb', 'description',
@@ -45,6 +51,17 @@ class Product extends Model
             'requires_prescription' => 'boolean',
             'max_qty_per_order' => 'integer',
         ];
+    }
+
+    /**
+     * How many of this product one order may hold. Every product shares the
+     * same cap; a product with its own, lower `max_qty_per_order` keeps it.
+     */
+    public function purchaseLimit(): int
+    {
+        return $this->max_qty_per_order
+            ? min(self::MAX_QUANTITY_PER_ORDER, $this->max_qty_per_order)
+            : self::MAX_QUANTITY_PER_ORDER;
     }
 
     /**

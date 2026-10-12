@@ -20,6 +20,23 @@ class ViewOrder extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            // Delivery: the order is paid and the branch has packed it. The next
+            // step, "Buat Resi", books the courier.
+            Action::make('markReadyToShip')
+                ->label(__('Tandai Siap Dikirim'))
+                ->icon(Heroicon::OutlinedArchiveBox)
+                ->visible(fn (Order $record) => $record->fulfilment === 'antar'
+                    && $record->status === 'pembayaran diterima'
+                    && Auth::guard('web')->user()?->can('Pesanan:Proses'))
+                ->action(function (Order $record) {
+                    $record->update(['status' => 'siap dikirim']);
+
+                    Notification::make()
+                        ->success()
+                        ->title(__('Pesanan #:number siap dikirim.', ['number' => $record->number]))
+                        ->send();
+                }),
+
             // "Buat label dan resi dari admin cabang" (ROADMAP.md 7.1) —
             // books the real Biteship waybill for the courier already
             // quoted at checkout. See ShipmentService::bookForOrder().
@@ -27,7 +44,7 @@ class ViewOrder extends ViewRecord
                 ->label(__('Buat Resi'))
                 ->icon(Heroicon::OutlinedTruck)
                 ->visible(fn (Order $record) => $record->fulfilment === 'antar'
-                    && $record->status === 'diproses'
+                    && $record->status === 'siap dikirim'
                     && $record->shipment
                     && ! $record->shipment->is_booked
                     && Auth::guard('web')->user()?->can('Pesanan:Proses'))
@@ -52,7 +69,7 @@ class ViewOrder extends ViewRecord
                 ->label(__('Tandai Siap Diambil'))
                 ->icon(Heroicon::OutlinedCheckCircle)
                 ->visible(fn (Order $record) => $record->fulfilment === 'ambil'
-                    && $record->status === 'diproses'
+                    && $record->status === 'pembayaran diterima'
                     && Auth::guard('web')->user()?->can('Pesanan:Proses'))
                 ->action(function (Order $record) {
                     $record = PickupCodeService::issue($record);

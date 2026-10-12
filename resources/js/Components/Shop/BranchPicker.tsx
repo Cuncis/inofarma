@@ -1,3 +1,4 @@
+import { DISABLED_ACTION_CLASSES, OVER_LIMIT_MESSAGE, isOverLimit } from '@/lib/purchaseLimit';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import Icon from './Icon';
@@ -18,7 +19,7 @@ import useDragScroll from './useDragScroll';
  * different branch, the server refuses with a `branch` error and this asks
  * whether to empty the cart and switch instead of failing silently.
  */
-export default function BranchPicker({ productId, productName, maxQtyPerOrder }: { productId: string, productName: string, maxQtyPerOrder: number | null }) {
+export default function BranchPicker({ productId, productName, purchaseLimit }: { productId: string, productName: string, purchaseLimit: number }) {
     const [branches, setBranches] = useState<ProductBranch[] | null>(null);
     const [error, setError] = useState('');
     const [selected, setSelected] = useState<ProductBranch | null>(null);
@@ -27,6 +28,7 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder }:
     const [added, setAdded] = useState(false);
     const branchDrag = useDragScroll();
     const addButtonRef = useRef<HTMLDivElement>(null);
+    const overLimit = isOverLimit(quantity, { purchaseLimit });
 
     const { transform, post, processing, errors: formErrors, clearErrors } = useForm({});
 
@@ -219,11 +221,7 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder }:
                             <span className="min-w-[16px] text-center text-xs">{quantity}</span>
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setQuantity((qty) =>
-                                        maxQtyPerOrder ? Math.min(maxQtyPerOrder, qty + 1) : qty + 1,
-                                    )
-                                }
+                                onClick={() => setQuantity((qty) => Math.min(selected?.available ?? Infinity, qty + 1))}
                                 aria-label={`Tambah jumlah ${productName}`}
                                 className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none"
                             >
@@ -232,9 +230,9 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder }:
                         </div>
                     </div>
 
-                    {maxQtyPerOrder ? (
-                        <p className="mt-1 text-right text-[10px] text-muted">
-                            Maksimal {maxQtyPerOrder} per transaksi.
+                    {overLimit ? (
+                        <p role="alert" className="mt-1.5 text-[12px] font-semibold leading-snug text-danger">
+                            {OVER_LIMIT_MESSAGE}
                         </p>
                     ) : null}
 
@@ -259,7 +257,8 @@ export default function BranchPicker({ productId, productName, maxQtyPerOrder }:
                             <Button
                                 type="button"
                                 onClick={() => addToCart(false)}
-                                disabled={processing}
+                                disabled={processing || overLimit}
+                                className={overLimit ? DISABLED_ACTION_CLASSES : ''}
                             >
                                 {added ? 'Ditambahkan ✓' : 'Masukkan ke Keranjang'}
                             </Button>

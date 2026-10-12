@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\Order;
+
 /**
  * Vocabulary shared between the admin screens and the database.
  *
@@ -81,13 +83,30 @@ class AdminOptions
 
     public const ORDER_STATUSES = [
         'Menunggu Pembayaran' => 'menunggu pembayaran',
-        'Diproses' => 'diproses',
+        'Pembayaran Diterima' => 'pembayaran diterima',
+        'Siap Dikirim' => 'siap dikirim',
         'Siap Diambil' => 'siap diambil',
         'Dikirim' => 'dikirim',
         'Selesai' => 'selesai',
         'Dibatalkan' => 'dibatalkan',
         'Kedaluwarsa' => 'kedaluwarsa',
     ];
+
+    /**
+     * The order statuses that make sense for one way of receiving the order,
+     * in flow order: label => stored value.
+     *
+     * @return array<string, string>
+     */
+    public static function orderStatusesFor(string $fulfilment): array
+    {
+        $allowed = Order::statusesFor($fulfilment);
+
+        return collect(self::ORDER_STATUSES)
+            ->filter(fn (string $value) => in_array($value, $allowed, true))
+            ->sortBy(fn (string $value) => array_search($value, $allowed, true))
+            ->all();
+    }
 
     /** How the customer receives the order: delivered, or collected at a branch. */
     public const FULFILMENTS = [

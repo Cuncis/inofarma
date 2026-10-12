@@ -145,16 +145,20 @@ class ShopOrderPresenter
 
         $pickup = $order->fulfilment === 'ambil';
 
-        $definitions = [
-            ['status' => 'menunggu pembayaran', 'label' => 'Pesanan Dibuat', 'at' => $order->created_at],
-            ['status' => 'diproses', 'label' => 'Diproses', 'at' => null],
-            [
-                'status' => $pickup ? 'siap diambil' : 'dikirim',
-                'label' => $pickup ? 'Siap Diambil' : 'Dikirim',
-                'at' => $order->ready_at,
-            ],
-            ['status' => 'selesai', 'label' => $pickup ? 'Diambil' : 'Diterima', 'at' => $order->completed_at],
-        ];
+        $definitions = $pickup
+            ? [
+                ['status' => 'menunggu pembayaran', 'label' => 'Pesanan Dibuat', 'at' => $order->created_at],
+                ['status' => 'pembayaran diterima', 'label' => 'Pembayaran Diterima', 'at' => $order->paid_at],
+                ['status' => 'siap diambil', 'label' => 'Siap Diambil', 'at' => $order->ready_at],
+                ['status' => 'selesai', 'label' => 'Diambil', 'at' => $order->completed_at],
+            ]
+            : [
+                ['status' => 'menunggu pembayaran', 'label' => 'Pesanan Dibuat', 'at' => $order->created_at],
+                ['status' => 'pembayaran diterima', 'label' => 'Pembayaran Diterima', 'at' => $order->paid_at],
+                ['status' => 'siap dikirim', 'label' => 'Siap Dikirim', 'at' => null],
+                ['status' => 'dikirim', 'label' => 'Dikirim', 'at' => $order->ready_at],
+                ['status' => 'selesai', 'label' => 'Diterima', 'at' => $order->completed_at],
+            ];
 
         $statuses = array_column($definitions, 'status');
         $currentIndex = array_search($order->status, $statuses, true);

@@ -123,7 +123,7 @@ class OrderNotificationTest extends TestCase
         ], 200)]);
 
         $order = $this->makeOrder([
-            'fulfilment' => 'antar', 'status' => 'diproses',
+            'fulfilment' => 'antar', 'status' => 'pembayaran diterima',
             'shipping_address' => 'Jl. Contoh', 'shipping_latitude' => -6.2, 'shipping_longitude' => 106.8,
         ]);
         Shipment::factory()->for($order)->create();
@@ -137,7 +137,7 @@ class OrderNotificationTest extends TestCase
     {
         Notification::fake();
 
-        $order = $this->makeOrder(['fulfilment' => 'ambil', 'status' => 'diproses']);
+        $order = $this->makeOrder(['fulfilment' => 'ambil', 'status' => 'pembayaran diterima']);
         PickupCodeService::issue($order);
 
         Notification::assertSentTo(
@@ -151,7 +151,7 @@ class OrderNotificationTest extends TestCase
     {
         Notification::fake();
 
-        $order = $this->makeOrder(['fulfilment' => 'ambil', 'status' => 'diproses']);
+        $order = $this->makeOrder(['fulfilment' => 'ambil', 'status' => 'pembayaran diterima']);
         PickupCodeService::issue($order);
         $order->refresh();
         PickupCodeService::handOver($order, $order->pickup_code, User::factory()->create());

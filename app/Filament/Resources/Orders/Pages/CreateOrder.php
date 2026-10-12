@@ -18,7 +18,7 @@ class CreateOrder extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['number'] = CodeSequence::next(Order::withTrashed(), 'number', 'INO-', 0, 2450);
-        $data['payment_status'] = $data['status'] === 'selesai' ? 'lunas' : 'belum bayar';
+        $data['payment_status'] = Order::paymentStatusFor($data['status']);
 
         return $data;
     }

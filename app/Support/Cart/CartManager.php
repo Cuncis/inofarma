@@ -278,8 +278,7 @@ class CartManager
             // what is actually purchasable instead of throwing.
             $stock = $product->stockAt($branch);
             $available = $stock ? max($stock->quantity - $stock->reserved_quantity, 0) : 0;
-            $cap = $product->max_qty_per_order ? min($available, $product->max_qty_per_order) : $available;
-            $total = min($total, max($cap, 0));
+            $total = min($total, max($available, 0));
 
             if ($total > 0) {
                 $cart->items()->updateOrCreate(['product_id' => $product->id], ['quantity' => $total]);
@@ -363,12 +362,9 @@ class CartManager
      */
     private function assertPurchasable(Product $product, Branch $branch, int $totalRequested): void
     {
-        if ($product->max_qty_per_order && $totalRequested > $product->max_qty_per_order) {
-            throw ValidationException::withMessages([
-                'quantity' => "Maksimal pembelian {$product->name} adalah {$product->max_qty_per_order} per transaksi.",
-            ]);
-        }
-
+        // The per-order cap is not checked here on purpose: a cart may hold more
+        // than the limit so the shopper sees which line is over and why. It is
+        // enforced where it counts, at checkout (assertWithinPurchaseLimit).
         $stock = $product->stockAt($branch);
         $available = $stock ? max($stock->quantity - $stock->reserved_quantity, 0) : 0;
 
@@ -376,6 +372,22 @@ class CartManager
             throw ValidationException::withMessages([
                 'quantity' => "Stok {$product->name} di {$branch->name} hanya tersisa {$available}.",
             ]);
+        }
+    }
+
+    /**
+     * Refuses an order that holds more of any product than its limit.
+     *
+     * @param  list<array{product: Product, quantity: int}>  $lines
+     *
+     * @throws ValidationException
+     */
+    public static function assertWithinPurchaseLimit(array $lines): void
+    {
+        foreach ($lines as $line) {
+            if ($line['quantity'] > $line['product']->purchaseLimit()) {
+                throw ValidationException::withMessages(['quantity' => Product::OVER_LIMIT_MESSAGE]);
+            }
         }
     }
 

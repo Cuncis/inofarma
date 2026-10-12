@@ -55,8 +55,7 @@ class OrdersTable
                     ->formatStateUsing(fn (string $state) => AdminOptions::toLabel(AdminOptions::ORDER_STATUSES, $state))
                     ->color(fn (string $state) => match ($state) {
                         'selesai' => 'success',
-                        'diproses' => 'warning',
-                        'siap diambil', 'dikirim' => 'info',
+                        'pembayaran diterima', 'siap dikirim', 'siap diambil', 'dikirim' => 'info',
                         'dibatalkan', 'kedaluwarsa' => 'danger',
                         default => 'warning',
                     }),

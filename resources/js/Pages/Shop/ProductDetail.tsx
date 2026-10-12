@@ -137,7 +137,7 @@ export default function ProductDetail() {
                 <BranchPicker
                     productId={product.id}
                     productName={product.name}
-                    maxQtyPerOrder={product.maxQtyPerOrder ?? null}
+                    purchaseLimit={product.purchaseLimit ?? 2}
                 />
 
                 <div className="mb-2.5 mt-4 flex justify-between border-t border-line pt-2.5">

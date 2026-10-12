@@ -55,6 +55,10 @@ class CheckoutController extends Controller
             return redirect()->route('ui.cart')->with('error', 'Keranjang Anda masih kosong.');
         }
 
+        if (collect($data['lines'])->contains(fn (array $line) => $line['quantity'] > $line['product']->purchaseLimit())) {
+            return redirect()->route('ui.cart')->with('error', Product::OVER_LIMIT_MESSAGE);
+        }
+
         return Inertia::render('Shop/Checkout', [
             'cart' => CartPresenter::toArray($data),
             'pickupEtaOptions' => self::PICKUP_ETA_OPTIONS,
@@ -81,6 +85,8 @@ class CheckoutController extends Controller
         if (! $branch || count($data['lines']) === 0) {
             return redirect()->route('ui.cart')->with('error', 'Keranjang Anda masih kosong.');
         }
+
+        CartManager::assertWithinPurchaseLimit($data['lines']);
 
         if ($validated['fulfilment'] === 'antar') {
             if (! $branch->supports_delivery) {

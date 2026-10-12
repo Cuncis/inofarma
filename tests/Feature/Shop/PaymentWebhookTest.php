@@ -120,7 +120,7 @@ class PaymentWebhookTest extends TestCase
 
         $order = $payment->order->fresh();
         $this->assertSame('lunas', $order->payment_status);
-        $this->assertSame('diproses', $order->status);
+        $this->assertSame('pembayaran diterima', $order->status);
         $this->assertSame('VIRTUAL_ACCOUNT_BCA', $order->payment_method);
         $this->assertNotNull($order->paid_at);
         $this->assertSame('success', $payment->fresh()->status);

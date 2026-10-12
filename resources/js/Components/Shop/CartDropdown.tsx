@@ -1,3 +1,4 @@
+import { DISABLED_ACTION_CLASSES, OVER_LIMIT_MESSAGE, hasOverLimit, isOverLimit } from '@/lib/purchaseLimit';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import Icon from './Icon';
@@ -137,6 +138,11 @@ export default function CartDropdown() {
                                                 {item.name}
                                             </Link>
                                             <div className="mt-1 text-[12px] text-success">{money(item.unitPrice)}</div>
+                                            {isOverLimit(item.quantity, item) ? (
+                                                <div role="alert" className="mt-1.5 text-[12px] font-semibold leading-snug text-danger">
+                                                    {OVER_LIMIT_MESSAGE}
+                                                </div>
+                                            ) : null}
                                         </div>
 
                                         <div className="flex shrink-0 flex-col items-center gap-2">
@@ -155,10 +161,7 @@ export default function CartDropdown() {
                                                 </span>
                                                 <button
                                                     type="button"
-                                                    disabled={
-                                                        busySku === item.sku
-                                                        || item.quantity >= Math.min(item.available, item.maxQtyPerOrder ?? Infinity)
-                                                    }
+                                                    disabled={busySku === item.sku || item.quantity >= item.available}
                                                     onClick={() => changeQuantity(item, item.quantity + 1)}
                                                     aria-label={`Tambah jumlah ${item.name}`}
                                                     className="flex h-8 w-8 items-center justify-center disabled:opacity-40"
@@ -197,12 +200,21 @@ export default function CartDropdown() {
                                     >
                                         Lihat keranjang
                                     </Link>
-                                    <Link
-                                        href={signedIn ? '/checkout' : '/checkout/tamu'}
-                                        className="flex h-11 items-center justify-center bg-success text-[13px] font-bold text-white"
-                                    >
-                                        Check-out
-                                    </Link>
+                                    {hasOverLimit(cart?.items ?? []) ? (
+                                        <span
+                                            aria-disabled="true"
+                                            className={`flex h-11 items-center justify-center text-[13px] font-bold ${DISABLED_ACTION_CLASSES}`}
+                                        >
+                                            Check-out
+                                        </span>
+                                    ) : (
+                                        <Link
+                                            href={signedIn ? '/checkout' : '/checkout/tamu'}
+                                            className="flex h-11 items-center justify-center bg-success text-[13px] font-bold text-white"
+                                        >
+                                            Check-out
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         </>

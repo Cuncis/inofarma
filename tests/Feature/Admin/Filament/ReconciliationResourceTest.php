@@ -46,7 +46,7 @@ class ReconciliationResourceTest extends TestCase
 
         $order = Order::factory()->create([
             'branch_id' => $branch->id, 'customer_id' => $customer->id,
-            'status' => 'diproses', 'payment_status' => 'lunas',
+            'status' => 'pembayaran diterima', 'payment_status' => 'lunas',
             'grand_total' => 75000, 'paid_at' => $paidAt ?? now(),
         ]);
 

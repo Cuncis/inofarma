@@ -151,7 +151,7 @@ class CheckoutTest extends TestCase
         $product2 = Product::factory()->create(['price' => 15000]);
         $this->stock($pickupBranch, $product2, 10);
 
-        $this->addToCart($product2, $pickupBranch, 3);
+        $this->addToCart($product2, $pickupBranch, 2);
 
         $this->post('/checkout', [
             'fulfilment' => 'ambil',
@@ -166,8 +166,8 @@ class CheckoutTest extends TestCase
         $this->assertSame('ambil', $order2->fulfilment);
         $this->assertSame($pickupBranch->id, $order2->branch_id);
         $this->assertSame(0, $order2->shipping_total);
-        $this->assertSame(45000, $order2->grand_total);
-        $this->assertSame(7, $product2->stockAt($pickupBranch)->fresh()->quantity);
+        $this->assertSame(30000, $order2->grand_total);
+        $this->assertSame(8, $product2->stockAt($pickupBranch)->fresh()->quantity);
 
         // Different branches, different, non-sequential-looking numbers.
         $this->assertNotSame($order1->number, $order2->number);
@@ -339,18 +339,18 @@ class CheckoutTest extends TestCase
         $stock = $this->stock($branch, $product, 5);
 
         $this->actingAs($customer, 'customer');
-        $this->addToCart($product, $branch, 5);
+        $this->addToCart($product, $branch, 2);
 
         // Stock disappears from under the cart between add-to-cart and checkout
         // (an admin adjustment, another order, etc.) — checkout must catch it.
-        $stock->update(['quantity' => 2]);
-        InventoryBatch::where('branch_id', $branch->id)->where('product_id', $product->id)->update(['quantity' => 2]);
+        $stock->update(['quantity' => 1]);
+        InventoryBatch::where('branch_id', $branch->id)->where('product_id', $product->id)->update(['quantity' => 1]);
 
         $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini'])
             ->assertSessionHasErrors('quantity');
 
         $this->assertSame(0, $customer->orders()->count());
-        $this->assertSame(2, $stock->fresh()->quantity);
+        $this->assertSame(1, $stock->fresh()->quantity);
     }
 
     public function test_a_customer_can_cancel_an_order_before_it_is_processed_and_stock_is_returned(): void
@@ -361,12 +361,12 @@ class CheckoutTest extends TestCase
         $this->stock($branch, $product, 10);
 
         $this->actingAs($customer, 'customer');
-        $this->addToCart($product, $branch, 4);
+        $this->addToCart($product, $branch, 2);
         $this->fakeDoku();
         $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
 
         $order = $customer->orders()->first();
-        $this->assertSame(6, $product->stockAt($branch)->fresh()->quantity);
+        $this->assertSame(8, $product->stockAt($branch)->fresh()->quantity);
 
         $this->post("/pesanan/{$order->number}/batalkan")->assertSessionHas('success');
 
@@ -388,11 +388,11 @@ class CheckoutTest extends TestCase
         $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupEta' => 'Hari ini']);
 
         $order = $customer->orders()->first();
-        $order->update(['status' => 'diproses']);
+        $order->update(['status' => 'pembayaran diterima']);
 
         $this->post("/pesanan/{$order->number}/batalkan")->assertSessionHas('error');
 
-        $this->assertSame('diproses', $order->fresh()->status);
+        $this->assertSame('pembayaran diterima', $order->fresh()->status);
     }
 
     public function test_a_customer_cannot_see_or_cancel_another_customers_order(): void

@@ -43,7 +43,7 @@ export function DrugInfoSection({ product }: { product: CatalogProduct }) {
         ['Produsen', product.manufacturer],
         ['Nomor Izin Edar (NIE)', product.nie],
         ['Kondisi Penyimpanan', product.storage],
-        ['Batas Pembelian', product.maxQtyPerOrder ? `${product.maxQtyPerOrder} per transaksi` : null],
+        ['Batas Pembelian', `${product.purchaseLimit ?? 2} per transaksi`],
     ].filter(([, value]) => Boolean(value));
 
     if (! rows.length && ! product.needsWarningLabel) {

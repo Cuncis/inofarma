@@ -1,3 +1,4 @@
+import { DISABLED_ACTION_CLASSES, OVER_LIMIT_MESSAGE, hasOverLimit, isOverLimit } from '@/lib/purchaseLimit';
 import { Link } from '@inertiajs/react';
 import DesktopLayout from '@/Layouts/DesktopLayout';
 import DesktopHeader from './DesktopHeader';
@@ -64,6 +65,11 @@ export default function DesktopCart({ cart }: {
                                     {item.quantity > item.available ? (
                                         <div className="mt-1 text-[11px] text-danger">Stok tersisa {item.available}</div>
                                     ) : null}
+                                    {isOverLimit(item.quantity, item) ? (
+                                        <div role="alert" className="mt-1.5 max-w-sm text-[13px] font-semibold leading-snug text-danger">
+                                            {OVER_LIMIT_MESSAGE}
+                                        </div>
+                                    ) : null}
                                 </div>
                             </div>
 
@@ -83,10 +89,7 @@ export default function DesktopCart({ cart }: {
                                     </span>
                                     <button
                                         type="button"
-                                        disabled={
-                                            busySku === item.sku
-                                            || item.quantity >= Math.min(item.available, item.maxQtyPerOrder ?? Infinity)
-                                        }
+                                        disabled={busySku === item.sku || item.quantity >= item.available}
                                         onClick={() => changeQuantity(item, item.quantity + 1)}
                                         aria-label={`Tambah jumlah ${item.name}`}
                                         className="flex h-9 w-9 items-center justify-center disabled:opacity-40"
@@ -174,12 +177,21 @@ export default function DesktopCart({ cart }: {
                             Pajak dan ongkos kirim dihitung saat pembayaran
                         </p>
 
-                        <Link
-                            href={signedIn ? '/checkout' : '/checkout/tamu'}
-                            className="flex h-[52px] items-center justify-center bg-success text-[14px] font-bold text-white"
-                        >
-                            Check-out
-                        </Link>
+                        {hasOverLimit(cart.items) ? (
+                            <span
+                                aria-disabled="true"
+                                className={`flex h-[52px] items-center justify-center text-[14px] font-bold ${DISABLED_ACTION_CLASSES}`}
+                            >
+                                Check-out
+                            </span>
+                        ) : (
+                            <Link
+                                href={signedIn ? '/checkout' : '/checkout/tamu'}
+                                className="flex h-[52px] items-center justify-center bg-success text-[14px] font-bold text-white"
+                            >
+                                Check-out
+                            </Link>
+                        )}
                     </div>
 
                     <p className="mt-6 flex items-center justify-center gap-2 text-[13px] font-medium text-muted">

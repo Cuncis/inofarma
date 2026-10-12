@@ -62,11 +62,11 @@ class ExpireUnpaidOrdersTest extends TestCase
 
     public function test_a_paid_order_past_its_expiry_is_left_alone(): void
     {
-        $order = $this->makeOrder(['payment_status' => 'lunas', 'status' => 'diproses']);
+        $order = $this->makeOrder(['payment_status' => 'lunas', 'status' => 'pembayaran diterima']);
 
         $this->artisan('pesanan:kadaluwarsakan');
 
-        $this->assertSame('diproses', $order->fresh()->status);
+        $this->assertSame('pembayaran diterima', $order->fresh()->status);
     }
 
     public function test_an_order_still_within_its_window_is_left_alone(): void

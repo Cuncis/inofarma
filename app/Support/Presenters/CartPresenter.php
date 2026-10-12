@@ -64,6 +64,7 @@ class CartPresenter
             'lineTotal' => $price * $quantity,
             'available' => $available,
             'maxQtyPerOrder' => $product->max_qty_per_order,
+            'purchaseLimit' => $product->purchaseLimit(),
             'needsWarningLabel' => $product->needs_warning_label,
             'prescription' => $product->requires_prescription,
         ];

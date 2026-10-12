@@ -129,15 +129,20 @@ class CartTest extends TestCase
         ])->assertSessionHasErrors('quantity');
     }
 
-    public function test_a_product_cannot_be_added_beyond_its_purchase_limit(): void
+    public function test_a_cart_may_hold_more_than_the_purchase_limit_so_the_shopper_can_see_which_line_is_over(): void
     {
         $branch = Branch::factory()->create();
-        $product = Product::factory()->create(['max_qty_per_order' => 2]);
+        $product = Product::factory()->create(['max_qty_per_order' => 1]);
         $this->stock($branch, $product, 50);
 
         $this->post('/keranjang', [
             'productId' => $product->sku, 'branchId' => $branch->code, 'quantity' => 3,
-        ])->assertSessionHasErrors('quantity');
+        ])->assertSessionHasNoErrors();
+
+        $this->getJson('/keranjang/ringkas')
+            ->assertOk()
+            ->assertJsonPath('items.0.quantity', 3)
+            ->assertJsonPath('items.0.purchaseLimit', 1);
     }
 
     public function test_quantity_can_be_updated_and_dropping_to_zero_removes_the_line(): void
