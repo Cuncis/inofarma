@@ -1,6 +1,7 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import Icon from './Icon';
 import LocationPickerModal from './LocationPickerModal';
+import { SelectField, TextField } from './ShopifyCheckout';
 import useLocationConsent from './useLocationConsent';
 
 /**
@@ -111,11 +112,13 @@ interface AddressRegionData {
     longitude: number | null;
 }
 
-export default function AddressFields<T extends AddressRegionData>({ data, setData, errors, provinces }: {
+export default function AddressFields<T extends AddressRegionData>({ data, setData, errors, provinces, variant = 'default' }: {
   data: T,
   setData: (updater: (current: T) => T) => void,
   errors: { provinsi?: string, kota?: string },
   provinces: { code: string, name: string }[],
+  /** `shopify` draws the fields like the checkout page's (see ShopifyCheckout.tsx). */
+  variant?: 'default' | 'shopify',
 }) {
     // The cascade is driven by region *codes*, kept separate from `data`
     // (which holds the plain names/postal code that actually get submitted
@@ -210,6 +213,100 @@ export default function AddressFields<T extends AddressRegionData>({ data, setDa
         setData((current) => ({ ...current, latitude: lat, longitude: lng }));
         setPickerOpen(false);
     };
+
+    if (variant === 'shopify') {
+        const options = (list: { code: string, name: string }[]) => list.map((option) => (
+            <option key={option.code} value={option.code}>{option.name}</option>
+        ));
+
+        return (
+            <>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <SelectField id="provinsi" label="Provinsi" value={provinsiCode} onChange={chooseProvinsi} error={errors.provinsi}>
+                        <option value="">Pilih provinsi</option>
+                        {options(provinces)}
+                    </SelectField>
+                    <SelectField
+                        id="kota"
+                        label="Kota / Kabupaten"
+                        value={kotaCode}
+                        onChange={chooseKota}
+                        onFocus={() => setKotaTouchedEarly(! provinsiCode)}
+                        error={errors.kota ?? (kotaTouchedEarly && ! provinsiCode ? 'Pilih provinsi terlebih dahulu.' : undefined)}
+                    >
+                        <option value="">{kotaLoading ? 'Memuat…' : 'Pilih kota/kabupaten'}</option>
+                        {options(kotaOptions)}
+                    </SelectField>
+                    <SelectField
+                        id="kecamatan"
+                        label="Kecamatan"
+                        value={kecamatanCode}
+                        onChange={chooseKecamatan}
+                        onFocus={() => setKecamatanTouchedEarly(! kotaCode)}
+                        error={kecamatanTouchedEarly && ! kotaCode ? 'Pilih kota/kabupaten terlebih dahulu.' : undefined}
+                    >
+                        <option value="">{kecamatanLoading ? 'Memuat…' : 'Pilih kecamatan'}</option>
+                        {options(kecamatanOptions)}
+                    </SelectField>
+                    <SelectField
+                        id="kelurahan"
+                        label="Kelurahan"
+                        value={kelurahanCode}
+                        onChange={chooseKelurahan}
+                        onFocus={() => setKelurahanTouchedEarly(! kecamatanCode)}
+                        error={kelurahanTouchedEarly && ! kecamatanCode ? 'Pilih kecamatan terlebih dahulu.' : undefined}
+                    >
+                        <option value="">{kelurahanLoading ? 'Memuat…' : 'Pilih kelurahan'}</option>
+                        {options(kelurahanOptions)}
+                    </SelectField>
+                </div>
+
+                <TextField id="postalCode" label="Kode pos (terisi otomatis)" value={data.postalCode} readOnly className="mt-3" />
+
+                {! consented ? (
+                    <label className="mt-3 flex items-start gap-2.5 text-[13px] leading-5 text-[#707070]">
+                        <input
+                            type="checkbox"
+                            checked={consented}
+                            onChange={(event) => (event.target.checked ? consent() : null)}
+                            className="mt-0.5 h-4 w-4 rounded-[3px] border-[#b5b5b5] text-[#1773b0] focus:ring-[#1773b0]"
+                        />
+                        <span>Saya setuju berbagi lokasi perangkat saya untuk mengisi alamat ini.</span>
+                    </label>
+                ) : null}
+
+                {data.latitude && data.longitude ? (
+                    <img
+                        src={`https://maps.googleapis.com/maps/api/staticmap?center=${data.latitude},${data.longitude}&zoom=16&size=600x260&scale=2&markers=color:0x1773b0%7C${data.latitude},${data.longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`}
+                        alt="Pratinjau lokasi alamat di peta"
+                        className="mt-3 h-32 w-full rounded-[10px] border border-[#d9d9d9] object-cover"
+                    />
+                ) : null}
+
+                <button
+                    type="button"
+                    onClick={openLocationPicker}
+                    disabled={! consented}
+                    className="mt-3 flex w-full items-center gap-3 rounded-[10px] border border-[#d9d9d9] bg-white px-3 py-3 text-left disabled:opacity-60"
+                >
+                    <Icon name="navigation" size={18} className="shrink-0 text-[#1773b0]" />
+                    <span className="min-w-0 flex-1">
+                        <span className="block text-[14px]">{data.latitude ? 'Lokasi tersimpan, perbarui' : 'Gunakan lokasi saya'}</span>
+                        <span className="block text-[13px] text-[#707070]">Membantu menghitung ongkir dan radius antar dari cabang.</span>
+                    </span>
+                    {data.latitude ? <Icon name="check" size={16} className="shrink-0 text-[#1773b0]" /> : null}
+                </button>
+
+                <LocationPickerModal
+                    open={pickerOpen}
+                    initialLat={data.latitude}
+                    initialLng={data.longitude}
+                    onClose={() => setPickerOpen(false)}
+                    onConfirm={confirmLocation}
+                />
+            </>
+        );
+    }
 
     return (
         <>

@@ -196,3 +196,14 @@
         filter: brightness(0.92);
     }
 }
+
+@layer base {
+    /* The checkout copies Shopify's default checkout, which uses the system font stack. */
+    .shopify-checkout {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .shopify-checkout a:not([class*='text-']) {
+        color: #1773b0;
+    }
+}
