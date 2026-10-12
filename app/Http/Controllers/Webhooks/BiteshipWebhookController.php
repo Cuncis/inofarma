@@ -18,12 +18,21 @@ use Illuminate\Support\Facades\Log;
  * endpoint" themselves, so `?token=` is that: a secret generated here and
  * pasted into the Notification URL configured in the Biteship dashboard.
  * It is the entire security boundary for this endpoint — see
- * `services.biteship.webhook_token`.
+ * `services.biteship.webhook_token`. The one exception is an empty request,
+ * Biteship's check when the URL is installed in its dashboard.
  */
 class BiteshipWebhookController extends Controller
 {
     public function handle(Request $request): JsonResponse
     {
+        // Biteship checks a new webhook URL by sending an empty request and wants
+        // a plain 200 back, before any token could be in play. An empty body
+        // carries no event and changes nothing, so it is answered without the
+        // token; anything with a payload still has to present it.
+        if ($request->all() === []) {
+            return response()->json(['message' => 'ok']);
+        }
+
         $expected = (string) config('services.biteship.webhook_token');
 
         if (! $expected || ! hash_equals($expected, (string) $request->query('token'))) {

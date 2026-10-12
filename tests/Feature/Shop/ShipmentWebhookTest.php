@@ -45,6 +45,26 @@ class ShipmentWebhookTest extends TestCase
         $this->assertSame('confirmed', $shipment->fresh()->status);
     }
 
+    public function test_the_empty_request_biteship_sends_when_the_url_is_installed_gets_a_200(): void
+    {
+        $this->postJson('/biteship/notifikasi')->assertOk()->assertJson(['message' => 'ok']);
+        $this->postJson('/biteship/notifikasi', [])->assertOk();
+        $this->post('/biteship/notifikasi')->assertOk();
+        $this->postJson('/biteship/notifikasi?token='.self::TOKEN)->assertOk();
+    }
+
+    public function test_an_empty_request_changes_nothing_and_a_payload_without_the_token_is_still_refused(): void
+    {
+        $shipment = $this->makeBookedShipment();
+
+        $this->postJson('/biteship/notifikasi')->assertOk();
+        $this->assertSame('confirmed', $shipment->fresh()->status);
+
+        $this->postJson('/biteship/notifikasi', ['order_id' => $shipment->biteship_order_id, 'status' => 'delivered'])
+            ->assertStatus(401);
+        $this->assertSame('confirmed', $shipment->fresh()->status);
+    }
+
     public function test_a_notification_with_the_wrong_token_is_rejected(): void
     {
         $shipment = $this->makeBookedShipment();
