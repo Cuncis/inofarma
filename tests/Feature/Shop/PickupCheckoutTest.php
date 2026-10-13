@@ -134,4 +134,33 @@ class PickupCheckoutTest extends TestCase
             ->has('pickupBranches.0.fullAddress')
         );
     }
+
+    public function test_a_cart_started_at_a_pickup_only_branch_can_still_be_delivered_from_the_delivering_branch(): void
+    {
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        $deliverer = Branch::factory()->create(['supports_delivery' => true, 'supports_pickup' => true]);
+        $pickupOnly = Branch::factory()->create(['supports_delivery' => false, 'supports_pickup' => true]);
+        $product = Product::factory()->create();
+        $this->stock($deliverer, $product, 10);
+        $this->stock($pickupOnly, $product, 10);
+
+        $this->actingAs($customer, 'customer');
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $pickupOnly->code, 'quantity' => 1])->assertSessionHasNoErrors();
+
+        $this->get('/checkout')->assertInertia(fn (AssertableInertia $page) => $page->where('canDeliver', true));
+    }
+
+    public function test_delivery_is_not_offered_when_no_delivering_branch_has_the_stock(): void
+    {
+        $customer = Customer::factory()->create(['status' => 'aktif']);
+        Branch::factory()->create(['supports_delivery' => true, 'supports_pickup' => true]);
+        $pickupOnly = Branch::factory()->create(['supports_delivery' => false, 'supports_pickup' => true]);
+        $product = Product::factory()->create();
+        $this->stock($pickupOnly, $product, 10);
+
+        $this->actingAs($customer, 'customer');
+        $this->post('/keranjang', ['productId' => $product->sku, 'branchId' => $pickupOnly->code, 'quantity' => 1])->assertSessionHasNoErrors();
+
+        $this->get('/checkout')->assertInertia(fn (AssertableInertia $page) => $page->where('canDeliver', false));
+    }
 }

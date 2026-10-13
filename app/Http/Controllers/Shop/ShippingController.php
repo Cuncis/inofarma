@@ -38,8 +38,14 @@ class ShippingController extends Controller
             return response()->json(['options' => []]);
         }
 
+        $origin = CartManager::deliveryBranch($data['branch'], $data['lines']);
+
+        if (! $origin) {
+            return response()->json(['options' => []]);
+        }
+
         try {
-            $options = ShippingQuoteService::make()->quote($data['branch'], $address, $data['lines']);
+            $options = ShippingQuoteService::make()->quote($origin, $address, $data['lines']);
         } catch (ShippingUnavailableException $exception) {
             report($exception);
 

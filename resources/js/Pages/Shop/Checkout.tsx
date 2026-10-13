@@ -18,9 +18,10 @@ import { money } from '@/Components/Shop/data';
  * on submit (`CheckoutController::registerGuest()`), and a shopper without a
  * saved address types one here instead of leaving for another screen.
  */
-export default function Checkout({ cart, pickupBranches, isGuest, provinces }: {
+export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, provinces }: {
   cart: { branch: CartBranch, address: SavedAddress | null, items: CartPreviewItem[], subtotal: number, coupon: CartCoupon | null, discount: number },
   pickupBranches: ProductBranch[],
+  canDeliver: boolean,
   isGuest: boolean,
   provinces: { code: string, name: string }[],
 }) {
@@ -28,7 +29,7 @@ export default function Checkout({ cart, pickupBranches, isGuest, provinces }: {
     const { name: customerName, email: customerEmail } = useShopUser();
 
     const [fulfilment, setFulfilment] = useState<'antar' | 'ambil'>(
-        branch.supportsDelivery ? 'antar' : 'ambil',
+        canDeliver ? 'antar' : 'ambil',
     );
     const [locationOpen, setLocationOpen] = useState(false);
     const canPickup = pickupBranches.length > 0;
@@ -221,7 +222,7 @@ export default function Checkout({ cart, pickupBranches, isGuest, provinces }: {
         ? 'Gratis'
         : data.courier ? money(shipping) : 'Masukkan alamat pengiriman';
 
-    const showDeliveryChoice = branch.supportsDelivery && canPickup;
+    const showDeliveryChoice = canDeliver && canPickup;
 
     return (
         <CheckoutFrame

@@ -435,6 +435,31 @@ class CartManager
     }
 
     /**
+     * The branch a delivery order is fulfilled from: the cart's own branch when
+     * it delivers, otherwise the active delivering branch that lists every line
+     * with enough stock (a cart started at a pickup-only branch can still be
+     * delivered). Null when no branch can deliver this cart.
+     *
+     * @param  list<array{product: Product, quantity: int}>  $lines
+     */
+    public static function deliveryBranch(Branch $cartBranch, array $lines): ?Branch
+    {
+        if ($cartBranch->supports_delivery) {
+            return $cartBranch;
+        }
+
+        return Branch::query()
+            ->active()
+            ->where('supports_delivery', true)
+            ->get()
+            ->first(fn (Branch $candidate) => collect($lines)->every(function (array $line) use ($candidate) {
+                $stock = $line['product']->stockAt($candidate);
+
+                return $stock && $stock->is_listed && $stock->available >= $line['quantity'];
+            }));
+    }
+
+    /**
      * @param  list<array{product: Product, quantity: int}>  $lines
      */
     public static function subtotal(Branch $branch, array $lines): int

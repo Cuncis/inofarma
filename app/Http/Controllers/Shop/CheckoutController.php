@@ -70,6 +70,7 @@ class CheckoutController extends Controller
         return Inertia::render('Shop/Checkout', [
             'cart' => CartPresenter::toArray($data),
             'isGuest' => ! $request->user('customer'),
+            'canDeliver' => CartManager::deliveryBranch($data['branch'], $data['lines']) !== null,
             'provinces' => fn () => Region::query()->where('level', 1)->orderBy('name')->get(['code', 'name'])
                 ->map(fn (Region $region) => ['code' => $region->code, 'name' => $region->name]),
             // A function, so a partial reload after the shopper shares a location
@@ -137,8 +138,10 @@ class CheckoutController extends Controller
         }
 
         if ($validated['fulfilment'] === 'antar') {
-            if (! $branch->supports_delivery) {
-                throw ValidationException::withMessages(['fulfilment' => "{$branch->name} tidak melayani antar."]);
+            $branch = CartManager::deliveryBranch($branch, $data['lines']);
+
+            if (! $branch) {
+                throw ValidationException::withMessages(['fulfilment' => 'Pesanan ini belum bisa diantar. Pilih ambil di toko.']);
             }
 
             if (! $address) {
