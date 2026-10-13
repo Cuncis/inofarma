@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, router } from '@inertiajs/react';
 import Icon from './Icon';
-import { money, useShopCatalog } from './data';
+import { money, productMatchesSearch, useShopCatalog } from './data';
 
 const PAGES: { label: string; href: string }[] = [
     { label: 'Cabang Kami', href: '/cabang-kami' },
@@ -65,9 +65,14 @@ export default function HeaderSearch() {
 
         // Word-start matches are what people mean first; a match buried in the
         // middle of a name still counts, just lower down.
+        // Products matched only through their description rank after name matches.
+        const inName = (product: CatalogProduct) => product.name.toLowerCase().includes(needle);
         const matched = products
-            .filter((product) => product.name.toLowerCase().includes(needle))
-            .sort((a, b) => Number(startsWord(b.name)) - Number(startsWord(a.name)));
+            .filter((product) => productMatchesSearch(product, needle))
+            .sort(
+                (a, b) =>
+                    Number(inName(b)) - Number(inName(a)) || Number(startsWord(b.name)) - Number(startsWord(a.name)),
+            );
 
         const suggestions: string[] = [];
         const add = (term: string) => {

@@ -82,16 +82,16 @@ export default function BranchPicker({ productId, productName, purchaseLimit }: 
                                 type="button"
                                 onClick={() => setQuantity((qty) => Math.max(1, qty - 1))}
                                 aria-label={`Kurangi jumlah ${productName}`}
-                                className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none"
+                                className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none hover:text-brand"
                             >
                                 −
                             </button>
-                            <span className="min-w-[16px] text-center text-xs">{quantity}</span>
+                            <span className="min-w-[16px] text-center text-xs text-brand">{quantity}</span>
                             <button
                                 type="button"
                                 onClick={() => setQuantity((qty) => Math.min(selected?.available ?? Infinity, qty + 1))}
                                 aria-label={`Tambah jumlah ${productName}`}
-                                className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none"
+                                className="flex h-6 w-6 items-center justify-center border border-line text-sm leading-none hover:text-brand"
                             >
                                 +
                             </button>

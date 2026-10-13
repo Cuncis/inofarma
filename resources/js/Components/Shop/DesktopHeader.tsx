@@ -42,7 +42,7 @@ export default function DesktopHeader() {
 
                     <Link
                         href={signedIn ? '/profile' : '/signin'}
-                        className="flex shrink-0 flex-col text-[11px] leading-tight"
+                        className="flex shrink-0 flex-col text-[13px] leading-tight"
                     >
                         <span className="text-white/70">{signedIn ? 'Halo,' : 'Masuk / Daftar'}</span>
                         <span className="font-bold">{signedIn ? name : 'Akun saya'}</span>

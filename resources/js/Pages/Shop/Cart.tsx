@@ -112,12 +112,12 @@ export default function Cart({ cart }: { cart: {
                                 disabled={busySku === item.sku}
                                 onClick={() => changeQuantity(item, item.quantity + 1)}
                                 aria-label={`Tambah jumlah ${item.name}`}
-                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none disabled:opacity-40"
+                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none disabled:opacity-40 enabled:hover:text-brand"
                             >
                                 +
                             </button>
 
-                            <span className="text-xs">{item.quantity}</span>
+                            <span className="text-xs text-brand">{item.quantity}</span>
 
                             <button
                                 type="button"
@@ -128,7 +128,7 @@ export default function Cart({ cart }: { cart: {
                                         : changeQuantity(item, item.quantity - 1)
                                 }
                                 aria-label={`Kurangi jumlah ${item.name}`}
-                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none disabled:opacity-40"
+                                className="flex h-[22px] w-[22px] items-center justify-center border border-line text-sm leading-none disabled:opacity-40 enabled:hover:text-brand"
                             >
                                 −
                             </button>

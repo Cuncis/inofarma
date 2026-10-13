@@ -12,7 +12,10 @@ type Profile = { name: string; email: string };
 
 const TOKEN_KEY = 'inofarma-chat-token';
 const PROFILE_KEY = 'inofarma-chat-profile';
+const ACTIVITY_KEY = 'inofarma-chat-last-activity';
 const MAX_LENGTH = 1000;
+/** A chat untouched for this long is forgotten by the browser, so a new visit starts fresh. */
+const CHAT_EXPIRY_MS = 24 * 60 * 60 * 1000;
 const POLL_OPEN_MS = 5000;
 const POLL_CLOSED_MS = 30000;
 
@@ -44,6 +47,17 @@ function readProfile(): Profile | null {
     } catch {
         return null;
     }
+}
+
+function markActivity() {
+    writeStorage(ACTIVITY_KEY, String(Date.now()));
+}
+
+function isExpired(): boolean {
+    const lastActivity = Number(readStorage(ACTIVITY_KEY));
+
+    // No timestamp (a chat saved before expiry existed) counts as expired.
+    return ! lastActivity || Date.now() - lastActivity > CHAT_EXPIRY_MS;
 }
 
 function formatTime(iso: string): string {
@@ -95,9 +109,15 @@ export default function ChatWidget({
 
         if (fromLink && fromLink.length === 40) {
             writeStorage(TOKEN_KEY, fromLink);
+            markActivity();
             url.searchParams.delete('chat');
             window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
             setOpen(true);
+        }
+
+        if (readStorage(TOKEN_KEY) && isExpired()) {
+            writeStorage(TOKEN_KEY, null);
+            writeStorage(ACTIVITY_KEY, null);
         }
 
         setToken(readStorage(TOKEN_KEY));
@@ -112,6 +132,7 @@ export default function ChatWidget({
 
     const forgetChat = useCallback(() => {
         writeStorage(TOKEN_KEY, null);
+        writeStorage(ACTIVITY_KEY, null);
         setToken(null);
         setMessages([]);
         setUnread(0);
@@ -139,6 +160,7 @@ export default function ChatWidget({
         }
 
         try {
+            const isFirstLoad = lastIdRef.current === 0;
             const response = await fetch(`/api/chat?after=${lastIdRef.current}&open=${open ? 1 : 0}`, {
                 headers: { Accept: 'application/json', 'X-Chat-Token': token },
             });
@@ -154,6 +176,11 @@ export default function ChatWidget({
             }
 
             const data: { messages: Message[]; unread: number } = await response.json();
+
+            // Loading the saved history is not activity; only a new message is.
+            if (! isFirstLoad && data.messages.length > 0) {
+                markActivity();
+            }
 
             merge(data.messages);
             setUnread(open ? 0 : data.unread);
@@ -230,6 +257,7 @@ export default function ChatWidget({
             const saved = { name: name.trim(), email: email.trim() };
 
             writeStorage(TOKEN_KEY, data.token);
+            markActivity();
             writeStorage(PROFILE_KEY, JSON.stringify(saved));
             setProfile(saved);
             setToken(data.token);
@@ -275,6 +303,7 @@ export default function ChatWidget({
             const data: { message: Message } = await response.json();
 
             setDraft('');
+            markActivity();
             merge([data.message]);
         } catch {
             setError('Tidak bisa terhubung. Periksa koneksi Anda.');

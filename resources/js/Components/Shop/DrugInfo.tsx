@@ -1,39 +1,8 @@
 /**
- * The Indonesian pharmacy classification mark (logo golongan obat) and the
- * regulatory info block shown on a product's detail page — NIE, composition,
+ * The regulatory info block shown on a product's detail page — NIE, composition,
  * dosage, side effects, and the P1–P6 warning that is mandatory for
  * "Bebas Terbatas" products (Fase 4.2 / 9.3).
- *
- * Rendered as plain colour + text rather than the official BPOM artwork:
- * there is no licensed copy of that artwork in this repo to self-host, and
- * the circle + label convention (green/blue/red) is the same information a
- * shopper actually reads off the mark.
  */
-const CLASS_STYLE: Record<string, { ring: string; label: string; mark?: string }> = {
-    Bebas: { ring: 'border-[#2fa84f] bg-[#2fa84f]', label: 'Obat Bebas' },
-    'Bebas Terbatas': { ring: 'border-ink bg-[#1e6fd9]', label: 'Obat Bebas Terbatas' },
-    Keras: { ring: 'border-[#d61f26] bg-white', label: 'Obat Keras', mark: 'K' },
-};
-
-export function DrugClassBadge({ drugClass }: { drugClass?: string }) {
-    const style = drugClass ? CLASS_STYLE[drugClass] : undefined;
-
-    if (! style) {
-        return null;
-    }
-
-    return (
-        <div className="flex items-center gap-1.5">
-            <span
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold ${style.ring} ${style.mark ? 'text-[#d61f26]' : 'text-white'}`}
-            >
-                {style.mark ?? ''}
-            </span>
-            <span className="text-[11px] font-semibold text-ink">{style.label}</span>
-        </div>
-    );
-}
-
 export function DrugInfoSection({ product }: { product: CatalogProduct }) {
     const rows = [
         ['Komposisi', product.composition],
@@ -52,10 +21,7 @@ export function DrugInfoSection({ product }: { product: CatalogProduct }) {
 
     return (
         <div className="mb-3.5 space-y-3 rounded-[2px] border border-line bg-white p-3.5">
-            <div className="flex items-center justify-between">
-                <span className="text-[13px] font-bold">Informasi Obat</span>
-                <DrugClassBadge drugClass={product.drugClass} />
-            </div>
+            <span className="text-[13px] font-bold">Informasi Obat</span>
 
             {product.needsWarningLabel && product.warning ? (
                 <div className="border-2 border-ink bg-[#eaf2fc] px-2.5 py-2 text-[11px] font-semibold leading-relaxed text-ink">

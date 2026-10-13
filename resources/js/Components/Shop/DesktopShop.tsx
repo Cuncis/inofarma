@@ -5,7 +5,7 @@ import Checkbox from './Checkbox';
 import DesktopHeader from './DesktopHeader';
 import ProductCell from './ProductCell';
 import RecentlyViewed from './RecentlyViewed';
-import { priceRanges, useShopCatalog } from './data';
+import { priceRanges, productMatchesSearch, useShopCatalog } from './data';
 
 const PER_PAGE_OPTIONS = [12, 24, 48];
 
@@ -82,8 +82,7 @@ export default function DesktopShop() {
             .filter(({ raw, tile }) => {
                 const matchesQuery =
                     ! query ||
-                    raw.name.toLowerCase().includes(query) ||
-                    raw.category.toLowerCase().includes(query);
+                    productMatchesSearch(raw, query);
                 const matchesCategory = ! categories.length || categories.includes(raw.category);
                 const matchesAvailability =
                     ! availability.length || availability.includes(tile.soldOut ? 'habis' : 'tersedia');

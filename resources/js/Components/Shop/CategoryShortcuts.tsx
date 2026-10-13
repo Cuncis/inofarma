@@ -38,15 +38,15 @@ export default function CategoryShortcuts({ className = 'mx-3.5 my-3.5' }) {
                             ? '/shop'
                             : `/shop?category=${encodeURIComponent(category.name)}`
                     }
-                    className="flex flex-col items-center justify-center gap-1.5 border-b border-r border-line px-1.5 py-3.5 text-center"
+                    className="group flex flex-col items-center justify-center gap-1.5 border-b border-r border-line px-1.5 py-3.5 text-center"
                 >
                     <img
                         src={category.image}
                         alt={category.name}
-                        className="h-11 w-11 object-contain"
+                        className="h-11 w-11 object-contain transition-transform duration-500 ease-out group-hover:scale-110"
                     />
 
-                    <span className="text-[9px] leading-tight text-ink">{category.name}</span>
+                    <span className="text-[11px] leading-tight text-ink">{category.name}</span>
                 </Link>
             ))}
         </div>

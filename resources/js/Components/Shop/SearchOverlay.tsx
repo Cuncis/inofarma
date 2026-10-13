@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { router } from '@inertiajs/react';
 import Icon from './Icon';
-import { useShopCatalog } from './data';
+import { productMatchesSearch, useShopCatalog } from './data';
 
 /**
  * Full-frame search.
@@ -11,7 +11,7 @@ import { useShopCatalog } from './data';
  * Closing returns to whichever screen opened it.
  */
 export default function SearchOverlay({ open, onClose }: { open: boolean, onClose: () => void }) {
-    const { shopProducts } = useShopCatalog();
+    const { products, shopProducts } = useShopCatalog();
     const [query, setQuery] = useState('');
     const field = useRef<HTMLInputElement>(null);
 
@@ -47,12 +47,9 @@ export default function SearchOverlay({ open, onClose }: { open: boolean, onClos
             return [];
         }
 
-        return shopProducts.filter(
-            (product) =>
-                product.name.toLowerCase().includes(needle) ||
-                product.category.toLowerCase().includes(needle),
-        );
-    }, [query, shopProducts]);
+        // `shopProducts` is `products` mapped one to one, so the index lines them up.
+        return shopProducts.filter((_, index) => productMatchesSearch(products[index], needle));
+    }, [query, products, shopProducts]);
 
     if (! open) {
         return null;

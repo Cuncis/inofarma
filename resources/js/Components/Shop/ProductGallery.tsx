@@ -78,7 +78,7 @@ export default function ProductGallery({ images, badge }: {
         setPanelPosition(
             spaceRight >= PANEL_SIZE + PANEL_GAP || spaceRight >= spaceLeft
                 ? { top: rect.top, left: rect.right + PANEL_GAP }
-                : { top: rect.top, left: rect.left - PANEL_GAP - PANEL_SIZE },
+                : { top: rect.top, left: Math.max(8, rect.left - PANEL_GAP - PANEL_SIZE) },
         );
 
         setHovering(true);
@@ -130,7 +130,7 @@ export default function ProductGallery({ images, badge }: {
 
             {showZoom ? (
                 <div
-                    className="pointer-events-none fixed z-50 hidden overflow-hidden rounded-[2px] border border-line bg-white shadow-pop md:block"
+                    className="pointer-events-none fixed z-50 overflow-hidden rounded-[2px] border border-line bg-white shadow-pop"
                     style={{
                         top: panelPosition.top,
                         left: panelPosition.left,

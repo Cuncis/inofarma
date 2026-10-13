@@ -15,6 +15,31 @@ const illustrations = '/media/images/other';
  * Decorative artwork for the empty/success screens. Product and people imagery
  * comes from `media` so the storefront and admin show the same pictures.
  */
+/**
+ * Whether a storefront search `needle` (already trimmed and lower-cased)
+ * matches a product: its name or category, or its description text (blurb,
+ * indication, composition), so "sariawan" finds a product whose name does not
+ * mention it.
+ *
+ * Shoppers often prefix the generic word "obat" ("obat sariawan"), which a
+ * description rarely repeats. So when other words are typed, "obat" is ignored
+ * and every remaining word must match somewhere in the product. The exact
+ * phrase still matches too, so a title containing "obat" is found as before.
+ */
+export function productMatchesSearch(product: CatalogProduct, needle: string): boolean {
+    const texts = [product.name, product.category, product.blurb, product.indication, product.composition]
+        .map((text) => (text ?? '').toLowerCase());
+    const contains = (term: string) => texts.some((text) => text.includes(term));
+
+    if (contains(needle)) {
+        return true;
+    }
+
+    const words = needle.split(/\s+/).filter((word) => word !== 'obat');
+
+    return words.length > 0 && words.length < needle.split(/\s+/).length && words.every(contains);
+}
+
 export const asset = {
     other: (n: string) => `${illustrations}/${n}.png`,
     user: (n: string | number) => media.user(Number(n)),
