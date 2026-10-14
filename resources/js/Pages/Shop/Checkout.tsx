@@ -154,7 +154,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
     const [courierError, setCourierError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (fulfilment !== 'antar' || (! cart.address && ! postalReady && ! hasPin)) {
+        if (fulfilment !== 'antar' || (! cart.address && ! postalReady)) {
             return;
         }
 
@@ -165,7 +165,6 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
 
         const query = cart.address ? '' : `?${new URLSearchParams({
             postalCode: data.postalCode,
-            ...(hasPin ? { latitude: String(data.latitude), longitude: String(data.longitude) } : {}),
         })}`;
 
         fetch(`/checkout/ongkir${query}`, { headers: { Accept: 'application/json' } })
@@ -197,14 +196,14 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
             cancelled = true;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fulfilment, cart.address?.id, branch.id, data.postalCode, data.latitude, data.longitude]);
+    }, [fulfilment, cart.address?.id, branch.id, data.postalCode]);
 
     const freeShipping = Boolean(cart.coupon?.freeShipping);
     const shippingQuote = fulfilment === 'antar' ? data.courier?.price ?? 0 : 0;
     const shipping = freeShipping ? 0 : shippingQuote;
     const total = Math.max(cart.subtotal - cart.discount, 0) + shipping;
 
-    const addressReady = Boolean(cart.address) || postalReady || hasPin;
+    const addressReady = Boolean(cart.address) || postalReady;
     const cannotSubmit = processing
         || (isGuest && ! data.consent)
         || (fulfilment === 'antar' && (! addressReady || ! data.courier));
@@ -370,7 +369,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                                     onChange={(event) => setData('addressLine', event.target.value)}
                                     error={addressErrors.addressLine}
                                 />
-                                <AddressFields data={data} setData={setData} errors={addressErrors} provinces={provinces} variant="shopify" />
+                                <AddressFields data={data} setData={setData} errors={addressErrors} provinces={provinces} variant="shopify" showLocation={fulfilment === 'ambil'} />
                             </>
                         ) : (
                             <div className="flex items-start justify-between gap-4 rounded-[10px] border border-[#d9d9d9] px-3 py-2.5">

@@ -112,13 +112,15 @@ interface AddressRegionData {
     longitude: number | null;
 }
 
-export default function AddressFields<T extends AddressRegionData>({ data, setData, errors, provinces, variant = 'default' }: {
+export default function AddressFields<T extends AddressRegionData>({ data, setData, errors, provinces, variant = 'default', showLocation = true }: {
   data: T,
   setData: (updater: (current: T) => T) => void,
   errors: { provinsi?: string, kota?: string },
   provinces: { code: string, name: string }[],
   /** `shopify` draws the fields like the checkout page's (see ShopifyCheckout.tsx). */
   variant?: 'default' | 'shopify',
+  /** Hides the consent, map preview and "Gunakan lokasi saya" block (shopify variant only). */
+  showLocation?: boolean,
 }) {
     // The cascade is driven by region *codes*, kept separate from `data`
     // (which holds the plain names/postal code that actually get submitted
@@ -263,6 +265,8 @@ export default function AddressFields<T extends AddressRegionData>({ data, setDa
 
                 <TextField id="postalCode" label="Kode pos (terisi otomatis)" value={data.postalCode} readOnly className="mt-3" />
 
+                {showLocation ? (
+                    <>
                 {! consented ? (
                     <label className="mt-3 flex items-start gap-2.5 text-[13px] leading-5 text-[#707070]">
                         <input
@@ -296,6 +300,8 @@ export default function AddressFields<T extends AddressRegionData>({ data, setDa
                     </span>
                     {data.latitude ? <Icon name="check" size={16} className="shrink-0 text-[#1773b0]" /> : null}
                 </button>
+                    </>
+                ) : null}
 
                 <LocationPickerModal
                     open={pickerOpen}
