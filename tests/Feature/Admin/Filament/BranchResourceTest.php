@@ -94,6 +94,26 @@ class BranchResourceTest extends TestCase
         $this->assertSame('tutup sementara', $branch->fresh()->status);
     }
 
+    public function test_editing_a_delivering_branch_without_coordinates_saves_them(): void
+    {
+        $branch = Branch::where('code', 'CB-001')->firstOrFail();
+        $branch->forceFill(['supports_delivery' => true, 'latitude' => null, 'longitude' => null])->save();
+
+        Livewire::test(EditBranch::class, ['record' => $branch->getKey()])
+            ->fillForm($this->validPayload([
+                'name' => $branch->name,
+                'supports_delivery' => true,
+                'latitude' => -6.2099284,
+                'longitude' => 106.8787117,
+            ]))
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $branch = $branch->fresh();
+        $this->assertSame(-6.2099284, (float) $branch->latitude);
+        $this->assertSame(106.8787117, (float) $branch->longitude);
+    }
+
     public function test_a_branch_that_delivers_must_have_coordinates(): void
     {
         Livewire::test(CreateBranch::class)
