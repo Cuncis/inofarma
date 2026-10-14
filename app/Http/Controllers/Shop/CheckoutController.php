@@ -10,7 +10,6 @@ use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Region;
-use App\Support\Auth\Scopes\BranchScope;
 use App\Support\Cart\CartManager;
 use App\Support\Cart\DeliveryPricing;
 use App\Support\Cart\DraftAddress;
@@ -75,7 +74,7 @@ class CheckoutController extends Controller
                 ->map(fn (Region $region) => ['code' => $region->code, 'name' => $region->name]),
             // A function, so a partial reload after the shopper shares a location
             // (see PickupLocationModal) re-sorts the branches by distance.
-            'pickupBranches' => fn () => $this->pickupBranches($request, $data['lines'], $data['address']),
+            'pickupBranches' => fn () => $this->pickupBranches($request, $data['address']),
         ]);
     }
 
@@ -189,7 +188,7 @@ class CheckoutController extends Controller
             // Pickup is chosen here, not on the product page: the order is placed
             // at the branch the shopper collects it from, which may not be the
             // branch the cart was started with.
-            $branch = $this->pickupBranchFor($validated['pickupBranchId'], $data['lines']);
+            $branch = $this->pickupBranchFor($validated['pickupBranchId']);
         }
 
         // Everything that can be refused has been; only now does a guest become
@@ -261,12 +260,11 @@ class CheckoutController extends Controller
     }
 
     /**
-     * The branches an order for these lines could be collected from.
+     * The branches an order could be collected from.
      *
-     * @param  list<array{product: Product, quantity: int}>  $lines
      * @return list<array<string, mixed>>
      */
-    private function pickupBranches(Request $request, array $lines, ?CustomerAddress $address): array
+    private function pickupBranches(Request $request, ?CustomerAddress $address): array
     {
         // A location the shopper shared wins; otherwise the delivery address
         // (saved, or just typed) is where the distance is measured from.
@@ -277,39 +275,24 @@ class CheckoutController extends Controller
 
         $query = Branch::query()
             ->active()
-            ->where('supports_pickup', true)
-            ->with(['stocks' => fn ($stocks) => $stocks
-                ->withoutGlobalScope(BranchScope::class)
-                ->whereIn('product_id', collect($lines)->pluck('product.id'))]);
+            ->where('supports_pickup', true);
 
         if ($coordinates) {
             $query->withDistanceFrom($coordinates['lat'], $coordinates['lng']);
         }
 
-        return StorefrontBranchPresenter::forPickup($query->get(), $lines);
+        return StorefrontBranchPresenter::forPickup($query->get());
     }
 
     /**
-     * @param  list<array{product: Product, quantity: int}>  $lines
-     *
      * @throws ValidationException
      */
-    private function pickupBranchFor(string $code, array $lines): Branch
+    private function pickupBranchFor(string $code): Branch
     {
         $branch = Branch::active()->where('supports_pickup', true)->where('code', $code)->first();
 
         if (! $branch) {
             throw ValidationException::withMessages(['pickupBranchId' => 'Lokasi pengambilan tidak tersedia. Pilih lokasi lain.']);
-        }
-
-        foreach ($lines as $line) {
-            $stock = $line['product']->stockAt($branch);
-
-            if (! $stock || ! $stock->is_listed || $stock->available < $line['quantity']) {
-                throw ValidationException::withMessages([
-                    'pickupBranchId' => "Stok {$line['product']->name} di {$branch->name} tidak mencukupi. Pilih lokasi lain.",
-                ]);
-            }
         }
 
         return $branch;
@@ -375,9 +358,15 @@ class CheckoutController extends Controller
             try {
                 $manifest = $allocator->consume($branch, $product, $line['quantity'], 'penjualan', $order);
             } catch (InsufficientStockException $exception) {
-                throw ValidationException::withMessages([
-                    'quantity' => "Stok {$product->name} baru saja berubah: tersisa {$exception->available}, diminta {$exception->requested}.",
-                ]);
+                if ($validated['fulfilment'] === 'ambil') {
+                    // Pickup is open to every branch regardless of stock; the
+                    // company covers the gap, so nothing is deducted here.
+                    $manifest = [];
+                } else {
+                    throw ValidationException::withMessages([
+                        'quantity' => "Stok {$product->name} baru saja berubah: tersisa {$exception->available}, diminta {$exception->requested}.",
+                    ]);
+                }
             }
 
             $order->items()->create([

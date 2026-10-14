@@ -332,7 +332,7 @@ class CheckoutTest extends TestCase
         $this->post('/keranjang/kupon', ['code' => 'SEKALI'])->assertSessionHasErrors('code');
     }
 
-    public function test_checkout_revalidates_stock_and_rejects_an_order_that_no_longer_fits(): void
+    public function test_a_pickup_order_still_goes_through_when_the_branch_stock_ran_out_after_add_to_cart(): void
     {
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $branch = Branch::factory()->create(['supports_pickup' => true]);
@@ -343,14 +343,16 @@ class CheckoutTest extends TestCase
         $this->addToCart($product, $branch, 2);
 
         // Stock disappears from under the cart between add-to-cart and checkout
-        // (an admin adjustment, another order, etc.) — checkout must catch it.
+        // (an admin adjustment, another order, etc.); pickup is open to every
+        // branch regardless of stock, so the order is still placed.
         $stock->update(['quantity' => 1]);
         InventoryBatch::where('branch_id', $branch->id)->where('product_id', $product->id)->update(['quantity' => 1]);
 
+        $this->fakeDoku();
         $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
-            ->assertSessionHasErrors('pickupBranchId');
+            ->assertSessionHasNoErrors();
 
-        $this->assertSame(0, $customer->orders()->count());
+        $this->assertSame(1, $customer->orders()->count());
         $this->assertSame(1, $stock->fresh()->quantity);
     }
 

@@ -79,16 +79,18 @@ class PickupCheckoutTest extends TestCase
             ->assertSessionHasErrors('pickupBranchId');
     }
 
-    public function test_a_branch_without_enough_stock_cannot_be_chosen_and_nothing_is_taken(): void
+    public function test_a_branch_without_enough_stock_can_still_be_chosen_and_nothing_is_taken(): void
     {
         [$customer, $origin, $other, $product] = $this->shopper(2);
         $thin = Branch::factory()->create(['supports_pickup' => true]);
         $this->stock($thin, $product, 1);
 
-        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $thin->code, 'pickupEta' => 'Hari ini'])
-            ->assertSessionHasErrors('pickupBranchId');
+        $this->fakeDoku();
 
-        $this->assertSame(0, Order::where('customer_id', $customer->id)->count());
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $thin->code, 'pickupEta' => 'Hari ini'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($thin->id, Order::where('customer_id', $customer->id)->firstOrFail()->branch_id);
         $this->assertSame(1, $product->stockAt($thin)->fresh()->quantity);
     }
 
@@ -117,7 +119,7 @@ class PickupCheckoutTest extends TestCase
             ->assertSessionDoesntHaveErrors('pickupBranchId');
     }
 
-    public function test_the_checkout_page_lists_the_pickup_branches_with_those_that_can_fill_the_order_first(): void
+    public function test_the_checkout_page_lists_every_open_pickup_branch_as_selectable_whatever_its_stock(): void
     {
         [, $origin, $other, $product] = $this->shopper(3 - 1);
         $thin = Branch::factory()->create(['supports_pickup' => true, 'name' => 'Stok Tipis']);
@@ -130,7 +132,7 @@ class PickupCheckoutTest extends TestCase
             ->where('pickupBranches.0.selectable', true)
             ->where('pickupBranches.1.selectable', true)
             ->where('pickupBranches.2.name', 'Stok Tipis')
-            ->where('pickupBranches.2.selectable', false)
+            ->where('pickupBranches.2.selectable', true)
             ->has('pickupBranches.0.fullAddress')
         );
     }

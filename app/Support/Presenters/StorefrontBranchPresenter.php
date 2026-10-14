@@ -64,31 +64,22 @@ class StorefrontBranchPresenter
     }
 
     /**
-     * Pickup branches at checkout: every one can collect the order, but only a
-     * branch holding the full quantity of every line is `selectable`.
+     * Pickup branches at checkout: every open branch can collect the order,
+     * whatever its stock. All branches belong to one company, so an empty
+     * shelf at the chosen branch is the company's to sort out, not the
+     * shopper's to be blocked by.
      *
-     * @param  iterable<Branch>  $branches  each with `stocks` eager-loaded, filtered to the cart's products
-     * @param  list<array{product: Product, quantity: int}>  $lines
+     * @param  iterable<Branch>  $branches
      * @return list<array<string, mixed>>
      */
-    public static function forPickup(iterable $branches, array $lines): array
+    public static function forPickup(iterable $branches): array
     {
-        return collect($branches)->map(function (Branch $branch) use ($lines) {
-            $stocks = $branch->stocks->keyBy('product_id');
-
-            $enough = collect($lines)->every(function (array $line) use ($stocks) {
-                $stock = $stocks->get($line['product']->id);
-
-                return $stock && $stock->is_listed && max($stock->quantity - $stock->reserved_quantity, 0) >= $line['quantity'];
-            });
-
-            return [
-                ...self::base($branch),
-                'fullAddress' => $branch->full_address,
-                'available' => $enough ? 1 : 0,
-                'selectable' => $enough && $branch->status === 'aktif',
-            ];
-        })->sort(fn (array $a, array $b) => [! $a['selectable'], $a['distanceKm'] ?? INF, $a['name']] <=> [! $b['selectable'], $b['distanceKm'] ?? INF, $b['name']])
+        return collect($branches)->map(fn (Branch $branch) => [
+            ...self::base($branch),
+            'fullAddress' => $branch->full_address,
+            'available' => 1,
+            'selectable' => $branch->status === 'aktif',
+        ])->sort(fn (array $a, array $b) => [! $a['selectable'], $a['distanceKm'] ?? INF, $a['name']] <=> [! $b['selectable'], $b['distanceKm'] ?? INF, $b['name']])
             ->values()
             ->all();
     }

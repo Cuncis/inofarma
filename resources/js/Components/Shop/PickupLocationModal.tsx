@@ -174,7 +174,7 @@ export default function PickupLocationModal({
                 {message ? <p role="alert" className="mt-2 text-[13px] text-danger">{message}</p> : null}
 
                 <p className="mb-2 mt-4 text-[14px] text-muted">
-                    {available > 0 ? `Ada ${available} lokasi yang memiliki item Anda` : 'Belum ada lokasi yang memiliki item Anda'}
+                    {available > 0 ? `Ada ${available} lokasi pengambilan` : 'Belum ada lokasi pengambilan yang buka'}
                 </p>
 
                 <div role="radiogroup" aria-label="Lokasi pengambilan" className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-[#d6d6d6]">
@@ -205,13 +205,7 @@ export default function PickupLocationModal({
                                     </span>
                                     <span className="mt-0.5 block text-[14px] leading-snug">{branch.fullAddress}</span>
                                     <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12.5px] text-muted">
-                                        <span className="flex items-center gap-1.5">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-                                                <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                                            </svg>
-                                            {branch.selectable ? 'Biasanya siap dalam 1 jam' : 'Stok kosong'}
-                                        </span>
+                                        {! branch.selectable ? <span>Sedang tutup</span> : null}
                                         {branch.distanceKm !== null ? <span>Estimasi jarak {branch.distanceKm} km</span> : null}
                                     </span>
                                 </span>

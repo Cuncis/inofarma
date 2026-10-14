@@ -3,6 +3,8 @@ import { Link, router, useForm } from '@inertiajs/react';
 import AddressFields from '@/Components/Shop/AddressFields';
 import FlashBanner from '@/Components/Shop/FlashBanner';
 import Icon from '@/Components/Shop/Icon';
+import LegalModal from '@/Components/Shop/LegalModal';
+import type { LegalDocumentKey } from '@/Components/Shop/legalDocuments';
 import PickupLocationModal from '@/Components/Shop/PickupLocationModal';
 import {
     CheckoutCheckbox, CheckoutFrame, FieldError, OptionGroup, OptionRow, OrderSummary, PayButton,
@@ -60,6 +62,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
     const typingAddress = ! cart.address;
 
     const errors = formErrors as typeof formErrors & { address?: string; quantity?: string; pickupBranchId?: string };
+    const [legalOpen, setLegalOpen] = useState<LegalDocumentKey | null>(null);
     const pickedPickupByHand = useRef(false);
     const selectedPickup = pickupBranches.find((candidate) => candidate.id === data.pickupBranchId) ?? null;
 
@@ -283,13 +286,34 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                     ) : null}
                     <FieldError message={errors.fulfilment} />
 
+                    {isGuest && fulfilment === 'ambil' ? (
+                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <TextField
+                                id="name"
+                                label="Nama lengkap"
+                                value={data.name}
+                                onChange={(event) => setData('name', event.target.value)}
+                                error={addressErrors.name}
+                                autoComplete="off"
+                            />
+                            <TextField
+                                id="phone"
+                                type="tel"
+                                label="Telepon"
+                                value={data.phone}
+                                onChange={(event) => setData('phone', event.target.value)}
+                                error={addressErrors.phone}
+                                autoComplete="off"
+                            />
+                        </div>
+                    ) : null}
                     {fulfilment === 'ambil' ? (
                         <div className="mt-4">
                             <div className="mb-2 flex items-center justify-between gap-3 text-[14px]">
                                 <span className="text-[#707070]">
                                     {pickupBranches.some((candidate) => candidate.selectable)
-                                        ? `Ada ${pickupBranches.filter((candidate) => candidate.selectable).length} lokasi yang memiliki item Anda`
-                                        : 'Belum ada lokasi yang memiliki item Anda'}
+                                        ? `Ada ${pickupBranches.filter((candidate) => candidate.selectable).length} lokasi pengambilan`
+                                        : 'Belum ada lokasi pengambilan yang buka'}
                                 </span>
                                 <button type="button" onClick={() => setLocationOpen(true)} className="flex shrink-0 items-center gap-1 text-[#1773b0]">
                                     <Icon name="navigation" size={14} />
@@ -306,11 +330,9 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                                     {selectedPickup ? (
                                         <>
                                             <p className="mt-0.5 text-[14px] leading-5">{selectedPickup.fullAddress}</p>
-                                            <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-[#555]">
-                                                <Icon name="clock" size={13} />
-                                                Biasanya siap dalam 1 jam
-                                                {selectedPickup.distanceKm != null ? ` · Estimasi jarak ${selectedPickup.distanceKm} km` : ''}
-                                            </p>
+                                            {selectedPickup.distanceKm != null ? (
+                                                <p className="mt-1.5 text-[12px] text-[#555]">Estimasi jarak {selectedPickup.distanceKm} km</p>
+                                            ) : null}
                                         </>
                                     ) : null}
                                 </div>
@@ -325,20 +347,22 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                                     </button>
                                 ) : null}
                             </div>
-                            {typingAddress && selectedPickup?.distanceKm == null ? (
-                                <p className="mt-2 text-[13px] text-[#707070]">Lengkapi alamat sampai kode pos untuk melihat estimasi jarak.</p>
+                            {selectedPickup?.distanceKm == null ? (
+                                <p className="mt-2 text-[13px] text-[#707070]">Pilih "Ubah lokasi" untuk melihat estimasi jarak.</p>
                             ) : null}
                             <FieldError message={errors.pickupBranchId} />
                         </div>
                     ) : null}
 
                     <div className="mt-4 space-y-3">
-                        <div className="relative">
-                            <div className="h-[48px] rounded-[10px] border border-[#d9d9d9] bg-white px-3 pt-[18px] text-[14px]">Indonesia</div>
-                            <span className="pointer-events-none absolute left-3 top-[7px] text-[12px] leading-4 text-[#707070]">Negara/wilayah</span>
-                        </div>
+                        {fulfilment === 'antar' ? (
+                            <div className="relative">
+                                <div className="h-[48px] rounded-[10px] border border-[#d9d9d9] bg-white px-3 pt-[18px] text-[14px]">Indonesia</div>
+                                <span className="pointer-events-none absolute left-3 top-[7px] text-[12px] leading-4 text-[#707070]">Negara/wilayah</span>
+                            </div>
+                        ) : null}
 
-                        {isGuest ? (
+                        {isGuest && fulfilment === 'antar' ? (
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <TextField
                                     id="name"
@@ -360,7 +384,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                             </div>
                         ) : null}
 
-                        {typingAddress ? (
+                        {fulfilment === 'ambil' ? null : typingAddress ? (
                             <>
                                 <TextField
                                     id="addressLine"
@@ -369,7 +393,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                                     onChange={(event) => setData('addressLine', event.target.value)}
                                     error={addressErrors.addressLine}
                                 />
-                                <AddressFields data={data} setData={setData} errors={addressErrors} provinces={provinces} variant="shopify" showLocation={fulfilment === 'ambil'} />
+                                <AddressFields data={data} setData={setData} errors={addressErrors} provinces={provinces} variant="shopify" showLocation={false} />
                             </>
                         ) : (
                             <div className="flex items-start justify-between gap-4 rounded-[10px] border border-[#d9d9d9] px-3 py-2.5">
@@ -381,7 +405,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                             </div>
                         )}
                     </div>
-                    <FieldError message={errors.address} />
+                    {fulfilment === 'antar' ? <FieldError message={errors.address} /> : null}
                 </section>
 
                 {fulfilment === 'antar' ? (
@@ -456,8 +480,8 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                     <div className="mt-6">
                         <CheckoutCheckbox checked={data.consent} onChange={(event) => setData('consent', event.target.checked)}>
                             Saya sudah membaca dan menyetujui{' '}
-                            <Link href="/syarat-ketentuan" className="underline">Syarat &amp; Ketentuan</Link> dan{' '}
-                            <Link href="/kebijakan-privasi" className="underline">Kebijakan Privasi</Link> Inofarma.
+                            <button type="button" onClick={() => setLegalOpen('terms')} className="underline">Syarat &amp; Ketentuan</button> dan{' '}
+                            <button type="button" onClick={() => setLegalOpen('privacy')} className="underline">Kebijakan Privasi</button> Inofarma.
                         </CheckoutCheckbox>
                         <FieldError message={addressErrors.consent} />
                     </div>
@@ -473,11 +497,12 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                 <footer className="mt-10 flex flex-wrap gap-x-4 gap-y-1 border-t border-[#d9d9d9] pt-4 text-[13px]">
                     <Link href="/kebijakan-pengembalian-dana" className="underline">Kebijakan pengembalian</Link>
                     <Link href="/shipping-info" className="underline">Pengiriman</Link>
-                    <Link href="/kebijakan-privasi" className="underline">Kebijakan privasi</Link>
-                    <Link href="/syarat-ketentuan" className="underline">Syarat &amp; ketentuan</Link>
+                    <button type="button" onClick={() => setLegalOpen('privacy')} className="underline">Kebijakan privasi</button>
+                    <button type="button" onClick={() => setLegalOpen('terms')} className="underline">Syarat &amp; ketentuan</button>
                 </footer>
             </form>
             {locationModal}
+            {legalOpen ? <LegalModal document={legalOpen} onClose={() => setLegalOpen(null)} /> : null}
         </CheckoutFrame>
     );
 }
