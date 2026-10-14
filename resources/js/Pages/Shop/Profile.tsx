@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
@@ -8,8 +9,11 @@ import TabBar from '@/Components/Shop/TabBar';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import useShopUser from '@/Components/Shop/useShopUser';
 import { asset } from '@/Components/Shop/data';
+import LegalModal from '@/Components/Shop/LegalModal';
+import type { LegalDocumentKey } from '@/Components/Shop/legalDocuments';
 
-const menu: { label: string; icon: IconName; href: string }[] = [
+/** An entry either links to a page (`href`) or opens a legal popup (`legal`). */
+const menu: { label: string; icon: IconName; href?: string; legal?: LegalDocumentKey }[] = [
     { label: 'Ubah profil', icon: 'user', href: '/edit-profile' },
     { label: 'Alamat saya', icon: 'pin', href: '/my-address' },
     { label: 'Cabang kami', icon: 'pin', href: '/cabang-kami' },
@@ -17,8 +21,8 @@ const menu: { label: string; icon: IconName; href: string }[] = [
     { label: 'Riwayat pesanan', icon: 'file', href: '/order-history' },
     { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/shipping-info' },
     { label: 'Kebijakan pengembalian dana', icon: 'info', href: '/kebijakan-pengembalian-dana' },
-    { label: 'Syarat & ketentuan', icon: 'info', href: '/syarat-ketentuan' },
-    { label: 'Kebijakan privasi', icon: 'info', href: '/kebijakan-privasi' },
+    { label: 'Syarat & ketentuan', icon: 'info', legal: 'terms' },
+    { label: 'Kebijakan privasi', icon: 'info', legal: 'privacy' },
     { label: 'Privasi saya', icon: 'user', href: '/privasi-saya' },
     { label: 'Tentang kami', icon: 'info', href: 'http://info.inofarma.com/' },
     { label: 'FAQ', icon: 'help', href: '/faq' },
@@ -27,6 +31,8 @@ const menu: { label: string; icon: IconName; href: string }[] = [
 export default function Profile() {
     const user = useShopUser();
     const isDesktop = useIsDesktop();
+    const [legalOpen, setLegalOpen] = useState<LegalDocumentKey | null>(null);
+    const legalModal = legalOpen ? <LegalModal document={legalOpen} onClose={() => setLegalOpen(null)} /> : null;
 
     if (isDesktop) {
         return (
@@ -63,18 +69,29 @@ export default function Profile() {
                             );
                             const cardClass = 'flex flex-col items-start border border-line bg-white p-5 hover:border-brand';
 
-                            return item.href.startsWith('http') ? (
+                            if (item.legal) {
+                                const legal = item.legal;
+
+                                return (
+                                    <button key={item.label} type="button" onClick={() => setLegalOpen(legal)} className={`${cardClass} text-left`}>
+                                        {card}
+                                    </button>
+                                );
+                            }
+
+                            return item.href?.startsWith('http') ? (
                                 <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className={cardClass}>
                                     {card}
                                 </a>
                             ) : (
-                                <Link key={item.label} href={item.href} className={cardClass}>
+                                <Link key={item.label} href={item.href ?? '#'} className={cardClass}>
                                     {card}
                                 </Link>
                             );
                         })}
                     </div>
                 </div>
+                {legalModal}
             </DesktopPage>
         );
     }
@@ -119,7 +136,17 @@ export default function Profile() {
                         </>
                     );
 
-                    return item.href.startsWith('http') ? (
+                    if (item.legal) {
+                        const legal = item.legal;
+
+                        return (
+                            <button key={item.label} type="button" onClick={() => setLegalOpen(legal)} className={`${rowClass} w-full text-left`}>
+                                {row}
+                            </button>
+                        );
+                    }
+
+                    return item.href?.startsWith('http') ? (
                         <a
                             key={item.label}
                             href={item.href}
@@ -130,7 +157,7 @@ export default function Profile() {
                             {row}
                         </a>
                     ) : (
-                        <Link key={item.label} href={item.href} className={rowClass}>
+                        <Link key={item.label} href={item.href ?? '#'} className={rowClass}>
                             {row}
                         </Link>
                     );
@@ -151,6 +178,7 @@ export default function Profile() {
                     <Icon name="chevronRight" size={14} className="text-[#cccccc]" />
                 </Link>
             </div>
+            {legalModal}
         </MobileLayout>
     );
 }

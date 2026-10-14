@@ -105,9 +105,8 @@ $beShopScreens = [
     'reviews' => 'Reviews',
     'leave-a-review' => 'LeaveAReview',
 
-    // Fase 9.1 — legal pages, public (a visitor reads these before signing up).
-    'syarat-ketentuan' => 'Terms',
-    'kebijakan-privasi' => 'PrivacyPolicy',
+    // Fase 9.1 — legal page, public. Syarat & Ketentuan and Kebijakan Privasi are
+    // popups (Components/Shop/LegalModal.tsx), not pages.
     'kebijakan-pengembalian-dana' => 'RefundPolicy',
 ];
 

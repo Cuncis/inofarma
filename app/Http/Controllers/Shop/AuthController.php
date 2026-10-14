@@ -26,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Bumped whenever `Shop/PrivacyPolicy.tsx`'s substance changes materially
+     * Bumped whenever the privacy policy text in `Components/Shop/legalDocuments.ts` changes materially
      * (Fase 9.2). Public — `CheckoutController` stamps the same version
      * on the account it silently creates for a guest at checkout.
      */
@@ -88,7 +88,7 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', PasswordRule::defaults()],
             // PDP (UU 27/2022) requires an explicit, affirmative action — a
             // pre-ticked or implied checkbox doesn't count as consent. See
-            // `Shop/SignUp.tsx` and `Shop/PrivacyPolicy.tsx`.
+            // `Shop/SignUp.tsx` and `Components/Shop/legalDocuments.ts`.
             'consent' => ['accepted'],
         ], [
             'phone.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).',

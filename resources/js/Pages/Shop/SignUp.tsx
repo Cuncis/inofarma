@@ -1,14 +1,13 @@
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import AuthScreen from '@/Components/Shop/AuthScreen';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
+import LegalModal from '@/Components/Shop/LegalModal';
+import type { LegalDocumentKey } from '@/Components/Shop/legalDocuments';
 
 export default function SignUp() {
-    // Keyed so the in-progress form survives a trip to Syarat & Ketentuan /
-    // Kebijakan Privasi and back — Inertia persists remembered data in
-    // browser history state, restored on the back navigation `AppBar`
-    // triggers from those pages.
+    const [legalOpen, setLegalOpen] = useState<LegalDocumentKey | null>(null);
     const { data, setData, post, processing, errors } = useForm('signup-form', {
         name: '',
         phone: '',
@@ -90,13 +89,13 @@ export default function SignUp() {
                     />
                     <span>
                         Saya sudah membaca dan menyetujui{' '}
-                        <Link href="/syarat-ketentuan" className="text-brand underline">
+                        <button type="button" onClick={() => setLegalOpen('terms')} className="text-brand underline">
                             Syarat &amp; Ketentuan
-                        </Link>{' '}
+                        </button>{' '}
                         dan{' '}
-                        <Link href="/kebijakan-privasi" className="text-brand underline">
+                        <button type="button" onClick={() => setLegalOpen('privacy')} className="text-brand underline">
                             Kebijakan Privasi
-                        </Link>{' '}
+                        </button>{' '}
                         Inofarma.
                     </span>
                 </label>
@@ -115,6 +114,7 @@ export default function SignUp() {
                     </Link>
                 </div>
             </div>
+            {legalOpen ? <LegalModal document={legalOpen} onClose={() => setLegalOpen(null)} /> : null}
         </AuthScreen>
     );
 }

@@ -7,8 +7,6 @@ const PAGES: { label: string; href: string }[] = [
     { label: 'Cabang Kami', href: '/cabang-kami' },
     { label: 'Info Pengiriman', href: '/shipping-info' },
     { label: 'Pertanyaan Umum (FAQ)', href: '/faq' },
-    { label: 'Syarat & Ketentuan', href: '/syarat-ketentuan' },
-    { label: 'Kebijakan Privasi', href: '/kebijakan-privasi' },
     { label: 'Kebijakan Pengembalian Dana', href: '/kebijakan-pengembalian-dana' },
 ];
 
