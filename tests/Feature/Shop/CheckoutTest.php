@@ -221,7 +221,7 @@ class CheckoutTest extends TestCase
         $this->assertSame(0, $customer->orders()->count());
     }
 
-    public function test_delivery_is_refused_outside_the_branchs_radius(): void
+    public function test_delivery_is_not_refused_for_an_address_outside_the_branchs_radius(): void
     {
         $customer = Customer::factory()->create(['status' => 'aktif']);
         $branch = Branch::factory()->create([
@@ -231,7 +231,8 @@ class CheckoutTest extends TestCase
         $product = Product::factory()->create();
         $this->stock($branch, $product, 10);
 
-        // Roughly 100km+ away — well outside a 5km radius.
+        // Roughly 100km+ away, outside a 5km radius. Distance no longer blocks
+        // delivery; the courier quote prices it.
         $address = CustomerAddress::factory()->for($customer)->create(['latitude' => -7.2, 'longitude' => 107.8]);
 
         $this->actingAs($customer, 'customer');
@@ -239,7 +240,7 @@ class CheckoutTest extends TestCase
         $this->post('/shipping-details', ['addressId' => $address->id]);
 
         $this->post('/checkout', ['fulfilment' => 'antar', 'paymentMethod' => 'online'])
-            ->assertSessionHasErrors('address');
+            ->assertSessionDoesntHaveErrors('address');
     }
 
     public function test_a_branch_that_does_not_support_pickup_refuses_an_ambil_order(): void

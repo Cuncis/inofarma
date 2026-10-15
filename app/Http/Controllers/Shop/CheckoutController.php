@@ -11,7 +11,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Region;
 use App\Support\Cart\CartManager;
-use App\Support\Cart\DeliveryPricing;
 use App\Support\Cart\DraftAddress;
 use App\Support\CodeSequence;
 use App\Support\Inventory\InsufficientStockException;
@@ -145,12 +144,6 @@ class CheckoutController extends Controller
 
             if (! $address) {
                 throw ValidationException::withMessages(['address' => 'Isi alamat pengiriman terlebih dahulu.']);
-            }
-
-            if (! DeliveryPricing::isWithinRadius($branch, $address)) {
-                throw ValidationException::withMessages([
-                    'address' => "Alamat ini di luar radius antar {$branch->name} ({$branch->delivery_radius_km} km).",
-                ]);
             }
 
             if (empty($validated['courier']['courierCompany']) || empty($validated['courier']['courierType'])) {
