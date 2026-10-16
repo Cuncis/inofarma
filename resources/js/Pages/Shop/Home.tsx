@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
+import NearestPharmacies from '@/Components/Shop/NearestPharmacies';
 import BrandStrip from '@/Components/Shop/BrandStrip';
 import Carousel from '@/Components/Shop/Carousel';
 import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
@@ -139,6 +140,11 @@ export default function Home() {
                 <div>
                     <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
                     <BenefitsGrid />
+                </div>
+
+                <div>
+                    <SectionHeading title="Apotek Inofarma Terdekat" className="px-3.5" />
+                    <NearestPharmacies />
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ import Carousel from './Carousel';
 import CategoryShortcuts from './CategoryShortcuts';
 import DesktopHeader from './DesktopHeader';
 import HeroCarousel from './HeroCarousel';
+import NearestPharmacies from './NearestPharmacies';
 import ProductGrid from './ProductGrid';
 import Testimonials from './Testimonials';
 import { useShopCatalog } from './data';
@@ -64,6 +65,11 @@ export default function DesktopHome({ promoSlides, bottomSlides }: {
             <section className="mt-10">
                 <h2 className="mb-4 font-display text-[19px] text-brand">Keuntungan Belanja di Inofarma</h2>
                 <BenefitsGrid className="grid-cols-9" />
+            </section>
+
+            <section className="mt-10">
+                <h2 className="mb-4 font-display text-[19px] text-brand">Apotek Inofarma Terdekat</h2>
+                <NearestPharmacies className="px-0" desktop />
             </section>
         </DesktopLayout>
     );
