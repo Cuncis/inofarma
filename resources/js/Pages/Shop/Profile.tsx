@@ -7,8 +7,8 @@ import Icon, { type IconName } from '@/Components/Shop/Icon';
 import IconLink from '@/Components/Shop/IconLink';
 import TabBar from '@/Components/Shop/TabBar';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
+import UserAvatar from '@/Components/Shop/UserAvatar';
 import useShopUser from '@/Components/Shop/useShopUser';
-import { asset } from '@/Components/Shop/data';
 import LegalModal from '@/Components/Shop/LegalModal';
 import type { LegalDocumentKey } from '@/Components/Shop/legalDocuments';
 
@@ -39,8 +39,8 @@ export default function Profile() {
             <DesktopPage title="Profil" heading="Akun saya" breadcrumb={[{ label: 'Akun saya' }]}>
                 <div className="grid grid-cols-[300px_1fr] items-start gap-8">
                     <section className="border border-line bg-white p-8 text-center">
-                        <div className="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full border-4 border-brand">
-                            <img src={asset.user('01')} alt={user.name} className="h-full w-full object-cover" />
+                        <div className="mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full border-2 border-[#1773b0]">
+                            <UserAvatar label={user.name} />
                         </div>
 
                         <div className="font-display text-[18px]">{user.name}</div>
@@ -110,12 +110,8 @@ export default function Profile() {
         >
             <div className="flex-1 overflow-y-auto p-4 pb-[70px]">
                 <div className="flex flex-col items-center pb-[18px] pt-5">
-                    <div className="mb-3 h-[88px] w-[88px] overflow-hidden rounded-full border-4 border-brand">
-                        <img
-                            src={asset.user('01')}
-                            alt={user.name}
-                            className="h-full w-full object-cover"
-                        />
+                    <div className="mb-3 h-[88px] w-[88px] overflow-hidden rounded-full border-2 border-[#1773b0]">
+                        <UserAvatar label={user.name} />
                     </div>
 
                     <div className="mb-[3px] font-display text-[17px]">{user.name}</div>

@@ -5,8 +5,8 @@ import AppBar from '@/Components/Shop/AppBar';
 import Button from '@/Components/Shop/Button';
 import Field from '@/Components/Shop/Field';
 import Icon from '@/Components/Shop/Icon';
+import UserAvatar from '@/Components/Shop/UserAvatar';
 import useShopUser from '@/Components/Shop/useShopUser';
-import { asset } from '@/Components/Shop/data';
 
 export default function EditProfile({ addresses }: { addresses: SavedAddress[] }) {
     const user = useShopUser();
@@ -27,12 +27,8 @@ export default function EditProfile({ addresses }: { addresses: SavedAddress[] }
                 onSubmit={submit}
                 className="flex flex-1 flex-col items-center overflow-y-auto bg-canvas px-[22px] py-[18px]"
             >
-                <div className="mx-auto mb-[18px] mt-3.5 h-[108px] w-[108px] overflow-hidden rounded-full border-[5px] border-brand">
-                    <img
-                        src={asset.user('01')}
-                        alt={user.name}
-                        className="h-full w-full object-cover"
-                    />
+                <div className="mx-auto mb-[18px] mt-3.5 h-[108px] w-[108px] overflow-hidden rounded-full border-2 border-[#1773b0]">
+                    <UserAvatar label={user.name} />
                 </div>
 
                 <div className="w-full">
