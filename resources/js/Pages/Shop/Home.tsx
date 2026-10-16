@@ -3,6 +3,7 @@ import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
 import NearestPharmacies from '@/Components/Shop/NearestPharmacies';
+import TestimonialSlider from '@/Components/Shop/TestimonialSlider';
 import BrandStrip from '@/Components/Shop/BrandStrip';
 import Carousel from '@/Components/Shop/Carousel';
 import CategoryShortcuts from '@/Components/Shop/CategoryShortcuts';
@@ -14,7 +15,6 @@ import SearchBarTrigger from '@/Components/Shop/SearchBarTrigger';
 import SectionHeading from '@/Components/Shop/SectionHeading';
 import SearchOverlay from '@/Components/Shop/SearchOverlay';
 import TabBar from '@/Components/Shop/TabBar';
-import Testimonials from '@/Components/Shop/Testimonials';
 import useCartCount from '@/Components/Shop/useCartCount';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { useShopCatalog } from '@/Components/Shop/data';
@@ -133,11 +133,6 @@ export default function Home() {
                 </div>
 
                 <div>
-                    <SectionHeading title="Testimoni Sobat Ino" className="px-3.5" />
-                    <Testimonials />
-                </div>
-
-                <div>
                     <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
                     <BenefitsGrid />
                 </div>
@@ -145,6 +140,11 @@ export default function Home() {
                 <div>
                     <SectionHeading title="Apotek Inofarma Terdekat" className="px-3.5" />
                     <NearestPharmacies />
+                </div>
+
+                <div>
+                    <SectionHeading title="Testimoni Sobat Ino" className="px-3.5" />
+                    <TestimonialSlider />
                 </div>
             </div>
 

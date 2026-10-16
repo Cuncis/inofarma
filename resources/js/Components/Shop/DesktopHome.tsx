@@ -8,7 +8,7 @@ import DesktopHeader from './DesktopHeader';
 import HeroCarousel from './HeroCarousel';
 import NearestPharmacies from './NearestPharmacies';
 import ProductGrid from './ProductGrid';
-import Testimonials from './Testimonials';
+import TestimonialSlider from './TestimonialSlider';
 import { useShopCatalog } from './data';
 
 function ProductSection({ title, products }: { title: string, products: ProductTile[] }) {
@@ -58,11 +58,6 @@ export default function DesktopHome({ promoSlides, bottomSlides }: {
             </section>
 
             <section className="mt-10">
-                <h2 className="mb-4 font-display text-[19px] text-brand">Testimoni Sobat Ino</h2>
-                <Testimonials className="px-0" />
-            </section>
-
-            <section className="mt-10">
                 <h2 className="mb-4 font-display text-[19px] text-brand">Keuntungan Belanja di Inofarma</h2>
                 <BenefitsGrid className="grid-cols-9" />
             </section>
@@ -70,6 +65,11 @@ export default function DesktopHome({ promoSlides, bottomSlides }: {
             <section className="mt-10">
                 <h2 className="mb-4 font-display text-[19px] text-brand">Apotek Inofarma Terdekat</h2>
                 <NearestPharmacies className="px-0" desktop />
+            </section>
+
+            <section className="mt-10">
+                <h2 className="mb-4 font-display text-[19px] text-brand">Testimoni Sobat Ino</h2>
+                <TestimonialSlider className="px-0" />
             </section>
         </DesktopLayout>
     );
