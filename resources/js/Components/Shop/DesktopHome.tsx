@@ -6,6 +6,7 @@ import Carousel from './Carousel';
 import CategoryShortcuts from './CategoryShortcuts';
 import DesktopHeader from './DesktopHeader';
 import HeroCarousel from './HeroCarousel';
+import HomeInfo from './HomeInfo';
 import NearestPharmacies from './NearestPharmacies';
 import ProductGrid from './ProductGrid';
 import TestimonialSlider from './TestimonialSlider';
@@ -71,6 +72,8 @@ export default function DesktopHome({ promoSlides, bottomSlides }: {
                 <h2 className="mb-4 font-display text-[19px] text-brand">Testimoni Sobat Ino</h2>
                 <TestimonialSlider className="px-0" />
             </section>
+
+            <HomeInfo className="px-0" />
         </DesktopLayout>
     );
 }

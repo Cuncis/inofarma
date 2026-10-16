@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
 import BenefitsGrid from '@/Components/Shop/BenefitsGrid';
+import HomeInfo from '@/Components/Shop/HomeInfo';
 import NearestPharmacies from '@/Components/Shop/NearestPharmacies';
 import TestimonialSlider from '@/Components/Shop/TestimonialSlider';
 import BrandStrip from '@/Components/Shop/BrandStrip';
@@ -146,6 +147,8 @@ export default function Home() {
                     <SectionHeading title="Testimoni Sobat Ino" className="px-3.5" />
                     <TestimonialSlider />
                 </div>
+
+                <HomeInfo />
             </div>
 
             <SearchOverlay open={searching} onClose={() => setSearching(false)} />
