@@ -46,7 +46,7 @@ export default function LegalModal({ document: key, onClose }: {
                 <div className="overflow-y-auto px-5 py-4 text-[13.5px] leading-6 text-[#333]">
                     {legal.sections.map((section) => (
                         <section key={section.title} className="mb-5">
-                            <h3 className="mb-2 text-[15px] font-bold text-black">{section.title}</h3>
+                            <h3 className="mb-2 text-[15px] font-bold text-[#232323]">{section.title}</h3>
                             {section.clauses.map((clause) => (
                                 <div key={clause.number} className="mb-2.5">
                                     <p>

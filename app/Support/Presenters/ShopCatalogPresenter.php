@@ -5,6 +5,8 @@ namespace App\Support\Presenters;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\AdminOptions;
+use App\Support\Auth\Scopes\BranchScope;
+use Illuminate\Support\Carbon;
 
 /**
  * The catalogue as the storefront needs it.
@@ -27,6 +29,11 @@ class ShopCatalogPresenter
             ->active()
             ->with(['category', 'images'])
             ->withSum('stocks', 'quantity')
+            // The soonest expiry among batches still on a shelf, across every branch.
+            ->withMin(['batches as earliest_expiry' => fn ($batches) => $batches
+                ->withoutGlobalScope(BranchScope::class)
+                ->where('quantity', '>', 0)
+                ->whereDate('expires_at', '>=', now())], 'expires_at')
             ->orderBy('id')
             ->get();
 
@@ -95,6 +102,7 @@ class ShopCatalogPresenter
             'maxQtyPerOrder' => $product->max_qty_per_order,
             'purchaseLimit' => $product->purchaseLimit(),
             'storage' => AdminOptions::toLabel(AdminOptions::STORAGE_CONDITIONS, $product->storage),
+            'expiresAt' => $product->earliest_expiry ? Carbon::parse($product->earliest_expiry)->translatedFormat('d M Y') : null,
         ];
     }
 }

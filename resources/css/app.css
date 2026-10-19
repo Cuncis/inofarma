@@ -23,7 +23,7 @@
   --color-link: #005bd3;
 
   --color-blush: #ebebf8;
-  --color-ink: #222222;
+  --color-ink: #232323;
   --color-lilac: #faf9ff;
   --color-shell: #d8dce3;
   --color-star: #fe7900;
@@ -106,6 +106,13 @@
 }
 
 @layer base {
+    /* Storefront text that sets no color of its own: dark gray, not pure black. */
+    html.shop-zoom body {
+        color: #232323;
+    }
+}
+
+@layer base {
     /**
      * The storefront screens are locked to a mobile-width canvas on every device, so
      * the page itself never scrolls — each screen scrolls inside its own frame.
@@ -147,7 +154,7 @@
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
     input:-webkit-autofill:active {
-        -webkit-text-fill-color: #222222;
+        -webkit-text-fill-color: #232323;
         box-shadow: 0 0 0 1000px #ffffff inset;
         transition: background-color 9999s ease-in-out 0s;
     }

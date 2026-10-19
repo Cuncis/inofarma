@@ -281,18 +281,15 @@ function BuyBox({ product }: { product: CatalogProduct }) {
 }
 
 function Description({ product }: { product: CatalogProduct }) {
-    const rows = [
+    const rows: [string, string | null | undefined][] = [
         ['Nama Produk & Sediaan', product.name],
         ['Indikasi', product.indication],
         ['Komposisi & Kekuatan', product.composition],
-        ['Aturan Pakai', product.dosage],
-        ['Efek Samping', product.sideEffects],
         ['Golongan Produk', product.drugClass],
         ['Kemasan', product.variants?.join(', ')],
-        ['Produsen', product.manufacturer],
-        ['Nomor Izin Edar (NIE)', product.nie],
-        ['Kondisi Penyimpanan', product.storage],
-    ].filter(([, value]) => Boolean(value));
+        ['Nomor Izin Edar', product.nie],
+        ['Tanggal Kadaluarsa', product.expiresAt],
+    ].filter(([, value]) => Boolean(value)) as [string, string][];
 
     return (
         <div className="border border-line bg-white p-8">
@@ -304,12 +301,10 @@ function Description({ product }: { product: CatalogProduct }) {
                 </div>
             ) : null}
 
-            {product.blurb ? <p className="mb-6 whitespace-pre-line text-[13px] leading-relaxed text-muted">{product.blurb}</p> : null}
-
             <dl>
                 {rows.map(([label, value]) => (
                     <div key={label} className="border-b border-line py-4 last:border-b-0">
-                        <dt className="mb-1.5 text-[11px] font-bold text-muted">{label}:</dt>
+                        <dt className="mb-1.5 text-[13px] font-bold text-ink">{label}:</dt>
                         <dd className="text-[13px] leading-7 text-muted">{value}</dd>
                     </div>
                 ))}

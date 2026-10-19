@@ -52,6 +52,8 @@ interface CatalogProduct {
     purchaseLimit?: number;
     /** Suhu Ruang | Sejuk (15-25°C) | Dingin/Kulkas (2-8°C). */
     storage?: string;
+    /** Soonest expiry among batches in stock, e.g. "12 Mar 2027". */
+    expiresAt?: string | null;
 }
 
 interface CatalogCategory {

@@ -43,7 +43,7 @@
                     @endif
 
                     <tr>
-                        <td style="padding:32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#222222;">
+                        <td style="padding:32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#232323;">
                             <div class="{{ $isCustom ? 'nl-custom' : 'nl' }}">{!! $body !!}</div>
                         </td>
                     </tr>

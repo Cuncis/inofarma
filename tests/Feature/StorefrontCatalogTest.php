@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Customer;
+use App\Models\InventoryBatch;
 use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,6 +60,21 @@ class StorefrontCatalogTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('catalog.products', self::PRODUCT_COUNT)
             );
+    }
+
+    public function test_the_shop_shows_the_soonest_expiry_among_batches_in_stock(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+        $branch = Branch::first();
+        InventoryBatch::withoutGlobalScopes()->where('product_id', $product->id)->delete();
+
+        InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 5, 'expires_at' => '2030-08-20']);
+        InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 5, 'expires_at' => '2029-03-05']);
+        InventoryBatch::factory()->for($branch)->for($product)->create(['quantity' => 0, 'expires_at' => '2028-01-01']);
+
+        $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('catalog.products.0.expiresAt', '05 Mar 2029')
+        );
     }
 
     public function test_a_price_changed_in_the_admin_shows_up_in_the_shop(): void
