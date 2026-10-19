@@ -37,6 +37,7 @@ class RolePermissionSeeder extends Seeder
             'Inventaris:Lihat', 'Inventaris:Sesuaikan Stok', 'Inventaris:Terima Barang',
             'Cabang:Lihat', 'Cabang:Ubah',
             'Inbox:Lihat', 'Inbox:Balas',
+            'Media:Lihat', 'Media:Unggah',
             'Laporan:Lihat', 'Laporan:Ekspor',
         ]);
 

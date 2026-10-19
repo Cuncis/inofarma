@@ -19,6 +19,7 @@ class PermissionCatalog
         'Inventaris' => ['Lihat', 'Sesuaikan Stok', 'Terima Barang'],
         'Cabang' => ['Lihat', 'Tambah', 'Ubah', 'Hapus'],
         'Inbox' => ['Lihat', 'Balas'],
+        'Media' => ['Lihat', 'Unggah', 'Hapus'],
         'Laporan' => ['Lihat', 'Ekspor'],
         'Pengaturan' => ['Lihat', 'Ubah'],
         'Peran' => ['Lihat', 'Ubah'],
