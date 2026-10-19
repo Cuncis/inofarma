@@ -7,7 +7,7 @@
                 <x-filament::button type="submit" icon="heroicon-o-check">
                     {{ __('Simpan') }}
                 </x-filament::button>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('Perubahan langsung tampil di Beranda setelah disimpan.') }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('Perubahan langsung tampil di toko setelah disimpan.') }}</span>
             </div>
         @endif
     </form>

@@ -86,6 +86,35 @@ interface HomeContent {
     contacts: { icon: 'phone' | 'email', title: string, lines: string[] }[];
 }
 
+/** A content page made of titled sections (`App\Support\DocumentPageContent`). */
+interface ContentDocument {
+    title: string;
+    sections: { title: string, paragraphs: string[] }[];
+}
+
+/** Syarat & Ketentuan or Kebijakan Privasi, numbered by the server. */
+interface LegalDocument {
+    title: string;
+    sections: { title: string, clauses: { number: string, text: string, items: string[] }[] }[];
+    contactHeading: string;
+    updatedAt: string;
+    company: { name: string, email: string, phone: string, address: string };
+}
+
+interface FaqItem {
+    question: string;
+    paragraphs: string[];
+}
+
+/** The desktop footer (`App\Support\SiteFooterContent::forStorefront()`). */
+interface SiteFooter {
+    aboutTitle: string;
+    aboutText: string;
+    menuTitle: string;
+    links: { label: string, href: string, external: boolean }[];
+    copyright: string;
+}
+
 interface CatalogCategory {
     name: string;
     slug: string;

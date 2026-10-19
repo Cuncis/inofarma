@@ -18,6 +18,8 @@ use App\Http\Controllers\Shop\RegionController;
 use App\Http\Controllers\Shop\ShippingController;
 use App\Http\Controllers\Webhooks\BiteshipWebhookController;
 use App\Http\Controllers\Webhooks\DokuWebhookController;
+use App\Support\DocumentPageContent;
+use App\Support\FaqContent;
 use App\Support\HomePageContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -102,14 +104,8 @@ $beShopScreens = [
     'promocodes-empty' => 'PromocodesEmpty',
     'order-history-empty' => 'OrderHistoryEmpty',
     'my-promocodes' => 'MyPromocodes',
-    'shipping-info' => 'ShippingInfo',
-    'faq' => 'Faq',
     'reviews' => 'Reviews',
     'leave-a-review' => 'LeaveAReview',
-
-    // Fase 9.1 — legal page, public. Syarat & Ketentuan and Kebijakan Privasi are
-    // popups (Components/Shop/LegalModal.tsx), not pages.
-    'kebijakan-pengembalian-dana' => 'RefundPolicy',
 ];
 
 /**
@@ -139,6 +135,22 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
     foreach ($beShopScreens as $slug => $component) {
         Route::get($slug, fn () => Inertia::render("Shop/{$component}"))->name($slug);
     }
+
+    /*
+     * Content pages, edited in the admin under Konten Website. Syarat &
+     * Ketentuan and Kebijakan Privasi are popups (Components/Shop/LegalModal.tsx),
+     * not pages, so they load their text from `konten/dokumen/{document}`.
+     */
+    Route::get('faq', fn () => Inertia::render('Shop/Faq', ['faqs' => FaqContent::forStorefront()]))->name('faq');
+    Route::get('shipping-info', fn () => Inertia::render('Shop/ShippingInfo', [
+        'document' => DocumentPageContent::forStorefront(DocumentPageContent::SHIPPING),
+    ]))->name('shipping-info');
+    Route::get('kebijakan-pengembalian-dana', fn () => Inertia::render('Shop/RefundPolicy', [
+        'document' => DocumentPageContent::forStorefront(DocumentPageContent::REFUND),
+    ]))->name('kebijakan-pengembalian-dana');
+    Route::get('konten/dokumen/{document}', fn (string $document) => response()->json(DocumentPageContent::forStorefront($document)))
+        ->whereIn('document', DocumentPageContent::LEGAL)
+        ->name('konten.dokumen');
 
     /**
      * Customer auth (Fase 3.3) — the `customer` guard. `signin`/`signup` etc.

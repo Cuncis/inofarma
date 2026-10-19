@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import ChatWidget from '@/Components/Shop/ChatWidget';
 import NewsletterSignup from '@/Components/Shop/NewsletterSignup';
 
@@ -15,6 +15,9 @@ export default function DesktopLayout({ title, children, header = null, narrow =
   header?: import('react').ReactNode,
   narrow?: boolean,
 }) {
+    // Edited in the admin under Konten Website > Footer & Perusahaan.
+    const footer = usePage().props.siteFooter;
+
     return (
         <>
             <Head title={title} />
@@ -27,25 +30,25 @@ export default function DesktopLayout({ title, children, header = null, narrow =
                     <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] gap-16 px-6 py-12">
                         <div>
                             <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[1.5px]">
-                                Tentang Apotek Inofarma
+                                {footer?.aboutTitle}
                             </h3>
                             <p className="max-w-sm text-[11px] leading-relaxed text-white/75">
-                                Temukan Solusi Kesehatan Terhemat dan Terlengkap yang Selalu Dekat untuk
-                                Masyarakat.
+                                {footer?.aboutText}
                             </p>
                         </div>
 
-                        <nav aria-label="Menu utama">
-                            <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[1.5px]">Menu Utama</h3>
+                        <nav aria-label={footer?.menuTitle}>
+                            <h3 className="mb-4 text-[10px] font-bold uppercase tracking-[1.5px]">{footer?.menuTitle}</h3>
                             <ul className="space-y-3 text-[11px] text-white/75">
-                                <li><Link href="/">Beranda</Link></li>
-                                <li><Link href="/shop">Semua Produk</Link></li>
-                                <li>
-                                    <a href="http://info.inofarma.com/" target="_blank" rel="noopener noreferrer">
-                                        Tentang Kami
-                                    </a>
-                                </li>
-                                <li><Link href="/cabang-kami">Cabang Kami</Link></li>
+                                {(footer?.links ?? []).map((link, index) => (
+                                    <li key={`${index}-${link.href}`}>
+                                        {link.external ? (
+                                            <a href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                                        ) : (
+                                            <Link href={link.href}>{link.label}</Link>
+                                        )}
+                                    </li>
+                                ))}
                             </ul>
                         </nav>
 
@@ -53,7 +56,7 @@ export default function DesktopLayout({ title, children, header = null, narrow =
                     </div>
 
                     <div className="border-t border-white/15 py-4 text-center text-[10px] text-white/60">
-                        &copy; {new Date().getFullYear()} inofarma.com. Hak cipta dilindungi.
+                        &copy; {new Date().getFullYear()} {footer?.copyright}
                     </div>
                 </footer>
             </div>

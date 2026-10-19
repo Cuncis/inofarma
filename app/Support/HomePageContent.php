@@ -3,14 +3,13 @@
 namespace App\Support;
 
 use App\Models\Category;
-use App\Models\Setting;
 use Illuminate\Support\Str;
 
 /**
  * The storefront home page's editable content: carousels, the "Semua Produk"
  * icon, brand logos, benefits, testimonials and the closing texts. Edited in
- * the admin under Konten Website > Beranda and stored as one national
- * `Setting` row. A section nobody has saved yet shows {@see DEFAULTS}, the
+ * the admin under Konten Website > Beranda and stored through
+ * {@see ContentStore}. A section nobody has saved yet shows {@see DEFAULTS}, the
  * content the page shipped with.
  *
  * The category icons are not here: each one is the `image_path` of its
@@ -159,8 +158,7 @@ class HomePageContent
      */
     public static function all(): array
     {
-        $saved = json_decode((string) Setting::get(self::KEY, null, '{}'), true);
-        $saved = is_array($saved) ? array_intersect_key($saved, self::DEFAULTS) : [];
+        $saved = array_intersect_key(ContentStore::read(self::KEY), self::DEFAULTS);
 
         // Headings are merged one by one, so a heading added later still gets its default.
         $saved['headings'] = array_replace(self::HEADINGS, array_intersect_key((array) ($saved['headings'] ?? []), self::HEADINGS));
@@ -189,10 +187,7 @@ class HomePageContent
             $content['allProductsIcon'] = self::imageUrl($content['allProductsIcon']);
         }
 
-        Setting::updateOrCreate(
-            ['branch_id' => null, 'key' => self::KEY],
-            ['value' => json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'type' => 'json'],
-        );
+        ContentStore::write(self::KEY, $content);
     }
 
     /**
@@ -217,14 +212,14 @@ class HomePageContent
             'testimonials' => array_values($content['testimonials']),
             'texts' => array_map(fn (array $text) => [
                 'title' => $text['title'],
-                'paragraphs' => self::splitParagraphs((string) $text['body']),
+                'paragraphs' => ContentStore::paragraphs((string) $text['body']),
             ], $content['texts']),
             'contactTitle' => $content['contactTitle'],
             'contactIntro' => $content['contactIntro'],
             'contacts' => array_map(fn (array $contact) => [
                 'icon' => in_array($contact['icon'] ?? null, self::CONTACT_ICONS, true) ? $contact['icon'] : 'phone',
                 'title' => $contact['title'],
-                'lines' => self::splitLines((string) $contact['lines']),
+                'lines' => ContentStore::lines((string) $contact['lines']),
             ], $content['contacts']),
         ];
     }
@@ -263,21 +258,5 @@ class HomePageContent
         }
 
         return $item;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private static function splitParagraphs(string $body): array
-    {
-        return array_values(array_filter(array_map('trim', preg_split('/\R\s*\R/', trim($body)) ?: [])));
-    }
-
-    /**
-     * @return list<string>
-     */
-    private static function splitLines(string $lines): array
-    {
-        return array_values(array_filter(array_map('trim', preg_split('/\R/', trim($lines)) ?: [])));
     }
 }

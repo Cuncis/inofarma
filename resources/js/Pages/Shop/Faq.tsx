@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import MobileLayout from '@/Layouts/MobileLayout';
 import AppBar from '@/Components/Shop/AppBar';
-import { faqs } from '@/Components/Shop/data';
 
-export default function Faq() {
-    const [open, setOpen] = useState<string | null>(faqs[0].question);
+/** `faqs` is edited in the admin under Konten Website > FAQ. The first answer starts open. */
+export default function Faq({ faqs }: { faqs: FaqItem[] }) {
+    const [open, setOpen] = useState<number | null>(faqs.length > 0 ? 0 : null);
 
     return (
         <MobileLayout title="FAQ" header={<AppBar title="FAQ" back="/profile" tone="brand" />}>
             <div className="flex-1 overflow-y-auto p-3.5">
-                {faqs.map((faq) => {
-                    const expanded = open === faq.question;
+                {faqs.map((faq, index) => {
+                    const expanded = open === index;
 
                     return (
-                        <div key={faq.question} className="mb-2 border border-line bg-white">
+                        <div key={`${index}-${faq.question}`} className="mb-2 border border-line bg-white">
                             <button
                                 type="button"
-                                onClick={() => setOpen(expanded ? null : faq.question)}
+                                onClick={() => setOpen(expanded ? null : index)}
                                 aria-expanded={expanded}
                                 className="flex w-full justify-between p-3.5 text-left text-[13px] font-bold"
                             >
@@ -42,9 +42,10 @@ export default function Faq() {
                                 }`}
                             >
                                 <div className="overflow-hidden">
-                                    <div className="px-3.5 pb-3.5 text-xs leading-relaxed text-muted">
-                                        {faq.answer ??
-                                            'Tim kami siap membantu, hubungi kami lewat aplikasi dan kami akan membalas dalam satu hari kerja.'}
+                                    <div className="space-y-2 px-3.5 pb-3.5 text-xs leading-relaxed text-muted">
+                                        {faq.paragraphs.map((paragraph, paragraphIndex) => (
+                                            <p key={paragraphIndex}>{paragraph}</p>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

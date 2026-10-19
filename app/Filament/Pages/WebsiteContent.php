@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Konten Website: the storefront pages whose content staff can change without
- * touching code. Each page has its own editor under this menu; for now that
- * is only Beranda ({@see EditHomePage}).
+ * touching code. Each page has its own editor under this menu
+ * ({@see ContentEditorPage}), listed in {@see EDITORS}.
  */
 class WebsiteContent extends Page
 {
@@ -43,17 +43,31 @@ class WebsiteContent extends Page
     }
 
     /**
-     * @return list<array{title: string, description: string, url: string, storefrontUrl: string}>
+     * The editors listed here, in this order.
+     *
+     * @var list<class-string<ContentEditorPage>>
+     */
+    public const EDITORS = [
+        EditHomePage::class,
+        EditFaqPage::class,
+        EditShippingInfoPage::class,
+        EditRefundPolicyPage::class,
+        EditTermsPage::class,
+        EditPrivacyPolicyPage::class,
+        EditSiteFooterPage::class,
+    ];
+
+    /**
+     * @return list<array{title: string, description: string, icon: string|BackedEnum|null, url: string, storefrontUrl: ?string}>
      */
     public function editablePages(): array
     {
-        return [
-            [
-                'title' => __('Beranda'),
-                'description' => __('Hero carousel, ikon kategori, banner promo, brand, keuntungan, testimoni, dan teks penutup.'),
-                'url' => EditHomePage::getUrl(),
-                'storefrontUrl' => route('home'),
-            ],
-        ];
+        return array_map(fn (string $editor) => [
+            'title' => $editor::getNavigationLabel(),
+            'description' => $editor::description(),
+            'icon' => $editor::getNavigationIcon(),
+            'url' => $editor::getUrl(),
+            'storefrontUrl' => $editor::storefrontUrl(),
+        ], self::EDITORS);
     }
 }

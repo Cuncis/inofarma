@@ -9,7 +9,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Models/Order.php, app/Models/Product.php | .ai/rules/app-models.md |
 | app/Support/Cart/** | .ai/rules/cart.md |
 | app/Support/Payments/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/PaymentController.php,app/Models/Payment.php,app/Console/Commands/ExpireUnpaidOrders.php,app/Support/OrderCancellation.php | .ai/rules/commands-support.md |
-| app/Support/HomePageContent.php,app/Filament/Pages/EditHomePage.php,app/Filament/Pages/WebsiteContent.php,resources/js/Pages/Shop/Home.tsx,resources/js/Components/Shop/DesktopHome.tsx | .ai/rules/components-shop.md |
+| app/Support/HomePageContent.php,app/Filament/Pages/EditHomePage.php,app/Filament/Pages/WebsiteContent.php,resources/js/Pages/Shop/Home.tsx,resources/js/Components/Shop/DesktopHome.tsx,app/Support/ContentStore.php,app/Support/FaqContent.php,app/Support/DocumentPage*.php,app/Support/SiteFooterContent.php,app/Filament/Pages/ContentEditorPage.php,app/Filament/Pages/Edit*Page.php,resources/js/Pages/Shop/Faq.tsx,resources/js/Pages/Shop/ShippingInfo.tsx,resources/js/Pages/Shop/RefundPolicy.tsx,resources/js/Components/Shop/LegalModal.tsx,resources/js/Layouts/DesktopLayout.tsx | .ai/rules/components-shop.md |
 | app/Support/Auth/**,app/Http/Controllers/Admin/**,app/Filament/Resources/BranchStocks/**,app/Filament/Resources/StockTransfers/** | .ai/rules/controllers-admin.md |
 | resources/js/Pages/Shop/OrderDetail.tsx,resources/js/Pages/Shop/TrackOrder.tsx,app/Http/Controllers/Shop/OrderController.php | .ai/rules/controllers-shop.md |
 | app/Http/Controllers/** | .ai/rules/controllers.md |

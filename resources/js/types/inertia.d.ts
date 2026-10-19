@@ -8,6 +8,7 @@ declare module '@inertiajs/core' {
             flash: { success: string | null; error: string | null };
             catalog?: Catalog;
             cartCount?: number;
+            siteFooter?: SiteFooter;
         };
     }
 }

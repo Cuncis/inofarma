@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Support\Cart\CartManager;
 use App\Support\ChatSettings;
 use App\Support\Presenters\ShopCatalogPresenter;
+use App\Support\SiteFooterContent;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -56,6 +57,9 @@ class HandleInertiaRequests extends Middleware
 
             // Welcome message and quick questions for the chat window (edited in the admin Inbox).
             'chatSettings' => fn () => ChatSettings::forStorefront(),
+
+            // The desktop footer (edited in the admin under Konten Website > Footer & Perusahaan).
+            'siteFooter' => fn () => SiteFooterContent::forStorefront(),
 
             // Badge count on the "Pesanan" tab — cheap for a guest (a session
             // read) and one query for a signed-in customer.

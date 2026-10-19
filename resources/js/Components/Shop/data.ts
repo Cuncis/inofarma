@@ -170,18 +170,6 @@ export const promocodes = [
     },
 ];
 
-export const faqs = [
-    {
-        question: 'Apakah saya bisa memesan secara online?',
-        answer: 'Tentu, Anda bisa memesan langsung lewat situs web atau aplikasi kami kapan saja.',
-        open: true,
-    },
-    { question: 'Apakah tersedia produk perawatan kulit?', open: false },
-    { question: 'Apakah ada layanan bungkus kado?', open: false },
-    { question: 'Apakah produk Anda bebas uji coba hewan?', open: false },
-    { question: 'Bagaimana cara melacak pesanan saya?', open: false },
-];
-
 /** Price brackets used by the filter screen, in rupiah. */
 export const priceRanges = [
     { label: 'Di bawah Rp 25.000', max: 25000 },
