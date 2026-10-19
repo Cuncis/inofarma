@@ -30,50 +30,53 @@ function ProductSection({ title, products }: { title: string, products: ProductT
 
 /**
  * Desktop version of the storefront home: full-width header, single centred
- * column, no bottom tab bar. Slides come from the mobile page so both
- * layouts always show the same campaigns.
+ * column, no bottom tab bar. Gets the same `content` as the mobile page so
+ * both layouts always show the same campaigns.
  */
-export default function DesktopHome({ promoSlides, bottomSlides }: {
-  promoSlides: { image: string, href: string, alt: string }[],
-  bottomSlides: { image: string, href: string, alt: string }[],
-}) {
+export default function DesktopHome({ content }: { content: HomeContent }) {
     const { recommended, newArrivals, trendingProducts } = useShopCatalog();
 
     return (
         <DesktopLayout title="Beranda" header={<DesktopHeader />}>
-            <HeroCarousel className="mt-6" />
+            <HeroCarousel slides={content.hero} className="mt-6" />
 
-            <CategoryShortcuts className="mt-6" />
+            <CategoryShortcuts allProductsIcon={content.allProductsIcon} className="mt-6" />
 
-            <Carousel slides={promoSlides} aspect="aspect-1740/396" className="mt-10" />
+            <Carousel slides={content.promo} aspect="aspect-1740/396" className="mt-10" />
 
-            <ProductSection title="Rekomendasi Untukmu" products={recommended} />
-            <ProductSection title="Produk Kesehatan Terbaru" products={newArrivals} />
-            <ProductSection title="Produk Terlaris Kami" products={trendingProducts} />
+            <ProductSection title={content.headings.recommended} products={recommended} />
+            <ProductSection title={content.headings.newArrivals} products={newArrivals} />
+            <ProductSection title={content.headings.trending} products={trendingProducts} />
 
-            <Carousel slides={bottomSlides} aspect="aspect-1920/601" className="mt-12" />
+            <Carousel slides={content.bottom} aspect="aspect-1920/601" className="mt-12" />
+
+            {content.brands.length > 0 ? (
+                <section className="mt-10">
+                    <h2 className="mb-4 font-display text-[19px] text-brand">{content.headings.brands}</h2>
+                    <BrandStrip brands={content.brands} className="px-0" spread />
+                </section>
+            ) : null}
+
+            {content.benefits.length > 0 ? (
+                <section className="mt-10">
+                    <h2 className="mb-4 font-display text-[19px] text-brand">{content.headings.benefits}</h2>
+                    <BenefitsGrid benefits={content.benefits} className="grid-cols-9" />
+                </section>
+            ) : null}
 
             <section className="mt-10">
-                <h2 className="mb-4 font-display text-[19px] text-brand">Brand Terlaris</h2>
-                <BrandStrip className="px-0" spread />
-            </section>
-
-            <section className="mt-10">
-                <h2 className="mb-4 font-display text-[19px] text-brand">Keuntungan Belanja di Inofarma</h2>
-                <BenefitsGrid className="grid-cols-9" />
-            </section>
-
-            <section className="mt-10">
-                <h2 className="mb-4 font-display text-[19px] text-brand">Apotek Inofarma Terdekat</h2>
+                <h2 className="mb-4 font-display text-[19px] text-brand">{content.headings.nearest}</h2>
                 <NearestPharmacies className="px-0" desktop />
             </section>
 
-            <section className="mt-10">
-                <h2 className="mb-4 font-display text-[19px] text-brand">Testimoni Sobat Ino</h2>
-                <TestimonialSlider className="px-0" />
-            </section>
+            {content.testimonials.length > 0 ? (
+                <section className="mt-10">
+                    <h2 className="mb-4 font-display text-[19px] text-brand">{content.headings.testimonials}</h2>
+                    <TestimonialSlider testimonials={content.testimonials} className="px-0" />
+                </section>
+            ) : null}
 
-            <HomeInfo className="px-0" />
+            <HomeInfo content={content} className="px-0" />
         </DesktopLayout>
     );
 }

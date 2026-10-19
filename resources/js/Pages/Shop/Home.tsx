@@ -20,45 +20,15 @@ import useCartCount from '@/Components/Shop/useCartCount';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { useShopCatalog } from '@/Components/Shop/data';
 
-const PROMO_SLIDES = [
-    {
-        image: '/media/images/promo/sehat-ga-mesti-mahal.png',
-        href: '/signup',
-        alt: 'Sehat ga mesti mahal, ayo daftar member Sobat Ino',
-    },
-    {
-        image: '/media/images/promo/harga-sobat-produk-lengkap.png',
-        href: '/signup',
-        alt: 'Harga Sobat, Produk Lengkap, gabung Sobat Ino sekarang',
-    },
-];
-
-const BOTTOM_SLIDES = [
-    {
-        image: '/media/images/promo/pengiriman-instan-24-jam.png',
-        href: '/cabang-kami',
-        alt: 'Pengiriman instan dengan layanan antar 24 jam',
-    },
-    {
-        image: '/media/images/promo/temukan-cabang-terdekat.png',
-        href: '/cabang-kami',
-        alt: 'Temukan cabang Inofarma terdekat',
-    },
-    {
-        image: '/media/images/promo/selalu-lebih-hemat.png',
-        href: '/shop',
-        alt: 'Selalu lebih hemat, lebih lengkap',
-    },
-];
-
-export default function Home() {
+/** `content` is edited in the admin under Konten Website > Beranda. */
+export default function Home({ content }: { content: HomeContent }) {
     const { recommended, newArrivals, trendingProducts } = useShopCatalog();
     const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
     const isDesktop = useIsDesktop();
 
     if (isDesktop) {
-        return <DesktopHome promoSlides={PROMO_SLIDES} bottomSlides={BOTTOM_SLIDES} />;
+        return <DesktopHome content={content} />;
     }
 
     return (
@@ -82,19 +52,19 @@ export default function Home() {
             footer={<TabBar active="home" />}
         >
             <div className="flex-1 overflow-y-auto pb-5">
-                <HeroCarousel />
+                <HeroCarousel slides={content.hero} />
 
-                <CategoryShortcuts />
+                <CategoryShortcuts allProductsIcon={content.allProductsIcon} />
 
                 <Carousel
-                    slides={PROMO_SLIDES}
+                    slides={content.promo}
                     aspect="aspect-1740/396"
                     className="mx-3.5 mb-3.5 mt-1"
                 />
 
                 <div>
                     <SectionHeading
-                        title="Rekomendasi Untukmu"
+                        title={content.headings.recommended}
                         action="Lihat semua"
                         actionHref="/shop"
                         className="px-3.5"
@@ -104,7 +74,7 @@ export default function Home() {
 
                 <div>
                     <SectionHeading
-                        title="Produk Kesehatan Terbaru"
+                        title={content.headings.newArrivals}
                         action="Lihat semua"
                         actionHref="/shop"
                         className="px-3.5"
@@ -114,7 +84,7 @@ export default function Home() {
 
                 <div>
                     <SectionHeading
-                        title="Produk Terlaris Kami"
+                        title={content.headings.trending}
                         action="Lihat semua"
                         actionHref="/shop"
                         className="px-3.5"
@@ -123,32 +93,38 @@ export default function Home() {
                 </div>
 
                 <Carousel
-                    slides={BOTTOM_SLIDES}
+                    slides={content.bottom}
                     aspect="aspect-1920/601"
                     className="mx-3.5 mt-6"
                 />
 
-                <div>
-                    <SectionHeading title="Brand Terlaris" className="px-3.5" />
-                    <BrandStrip />
-                </div>
+                {content.brands.length > 0 ? (
+                    <div>
+                        <SectionHeading title={content.headings.brands} className="px-3.5" />
+                        <BrandStrip brands={content.brands} />
+                    </div>
+                ) : null}
+
+                {content.benefits.length > 0 ? (
+                    <div>
+                        <SectionHeading title={content.headings.benefits} className="px-3.5" />
+                        <BenefitsGrid benefits={content.benefits} />
+                    </div>
+                ) : null}
 
                 <div>
-                    <SectionHeading title="Keuntungan Belanja di Inofarma" className="px-3.5" />
-                    <BenefitsGrid />
-                </div>
-
-                <div>
-                    <SectionHeading title="Apotek Inofarma Terdekat" className="px-3.5" />
+                    <SectionHeading title={content.headings.nearest} className="px-3.5" />
                     <NearestPharmacies />
                 </div>
 
-                <div>
-                    <SectionHeading title="Testimoni Sobat Ino" className="px-3.5" />
-                    <TestimonialSlider />
-                </div>
+                {content.testimonials.length > 0 ? (
+                    <div>
+                        <SectionHeading title={content.headings.testimonials} className="px-3.5" />
+                        <TestimonialSlider testimonials={content.testimonials} />
+                    </div>
+                ) : null}
 
-                <HomeInfo />
+                <HomeInfo content={content} />
             </div>
 
             <SearchOverlay open={searching} onClose={() => setSearching(false)} />

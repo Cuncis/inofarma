@@ -1,24 +1,8 @@
 /**
- * The home page's closing sections: two short centered texts about Apotek
- * Inofarma and a "Hubungi Inofarma Kapan Saja" contact block. Static copy,
- * like `BenefitsGrid` and `TestimonialSlider`.
+ * The home page's closing sections: short centered texts about Apotek
+ * Inofarma and a contact block. All of it is edited in the admin under
+ * Konten Website > Beranda; only the two contact icons are drawn here.
  */
-const TEXTS = [
-    {
-        title: 'Apotek Inofarma: Solusi Kesehatan Terhemat dan Terlengkap',
-        paragraphs: [
-            'Apotek Inofarma hadir sebagai solusi kesehatan terpercaya dengan jaringan apotek yang mudah dijangkau dan layanan yang selalu mengutamakan kebutuhan pelanggan. Kami menyediakan produk kesehatan terlengkap, vitamin, suplemen, dan perawatan diri dengan harga terhemat dan layanan yang bersahabat. Apotek Inofarma juga memberikan konsultasi obat gratis dan cek kesehatan dasar dengan apoteker profesional. Kami berkomitmen untuk selalu menghadirkan program dan penawaran menarik, siap membantu Anda menjaga kesehatan dengan cara yang mudah, aman, dan praktis.',
-        ],
-    },
-    {
-        title: 'Belanja Obat Praktis dengan Layanan Antar 24 Jam',
-        paragraphs: [
-            'Belanja produk kesehatan kini lebih mudah bersama Apotek Inofarma. Dengan layanan apotek buka 24 jam dan antar obat gratis*, kami siap memenuhi kebutuhan kesehatan Anda kapan saja, di mana saja. Pemesanan obat dapat dilakukan dengan mudah melalui WhatsApp, sehingga Anda dapat menerima obat dengan cepat tanpa repot. Apotek Inofarma juga menyediakan tes darah cepat (asam urat, gula darah, kolesterol total) dengan harga terjangkau untuk membantu Anda memantau kesehatan secara berkala. Selain itu, pelanggan setia Sobat Ino dapat menikmati berbagai benefit member eksklusif (untuk pembelian di outlet). Semua produk dijamin asli, terdaftar BPOM, dan berkualitas tinggi. Bersama Apotek Inofarma, kesehatan selalu lebih dekat, hemat, dan bersahabat.',
-            '*S&K berlaku',
-        ],
-    },
-];
-
 function PhoneIcon() {
     return (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -39,31 +23,19 @@ function EmailIcon() {
     );
 }
 
-const CONTACTS = [
-    {
-        icon: <PhoneIcon />,
-        title: 'Layanan Pelanggan Inofarma',
-        lines: ['Email: cs@inofarma.com', 'WhatsApp: 0812-1401-8964', 'Phone: (021) 50959952'],
-    },
-    {
-        icon: <EmailIcon />,
-        title: 'Layanan Pengaduan Konsumen',
-        lines: [
-            'Direktorat Jenderal Perlindungan Konsumen Tertib Niaga',
-            'Kementerian Perdagangan RI',
-            'WhatsApp: 0853-1111-1010',
-        ],
-    },
-];
+const CONTACT_ICONS = { phone: <PhoneIcon />, email: <EmailIcon /> };
 
-export default function HomeInfo({ className = 'px-3.5' }) {
+export default function HomeInfo({ content, className = 'px-3.5' }: {
+  content: Pick<HomeContent, 'texts' | 'contactTitle' | 'contactIntro' | 'contacts'>,
+  className?: string,
+}) {
     return (
         <div className={`${className} mx-auto max-w-[760px] text-center`}>
-            {TEXTS.map((text) => (
-                <section key={text.title} className="mt-8">
+            {content.texts.map((text, index) => (
+                <section key={`${index}-${text.title}`} className="mt-8">
                     <h2 className="font-display text-[18px] leading-snug text-brand lg:text-[24px]">{text.title}</h2>
-                    {text.paragraphs.map((paragraph) => (
-                        <p key={paragraph} className="mt-3 text-[12.5px] leading-relaxed text-muted lg:text-[14px]">
+                    {text.paragraphs.map((paragraph, paragraphIndex) => (
+                        <p key={paragraphIndex} className="mt-3 text-[12.5px] leading-relaxed text-muted lg:text-[14px]">
                             {paragraph}
                         </p>
                     ))}
@@ -71,19 +43,21 @@ export default function HomeInfo({ className = 'px-3.5' }) {
             ))}
 
             <section className="mt-10">
-                <h2 className="font-display text-[18px] leading-snug text-brand lg:text-[24px]">Hubungi Inofarma Kapan Saja</h2>
-                <p className="mt-3 text-[12.5px] leading-relaxed text-muted lg:text-[14px]">
-                    Hubungi kami untuk pertanyaan seputar produk, pesanan, maupun layanan dari Apotek Inofarma. Kami selalu siap untuk membantu kebutuhan kesehatan Anda.
-                </p>
+                <h2 className="font-display text-[18px] leading-snug text-brand lg:text-[24px]">{content.contactTitle}</h2>
+                {content.contactIntro ? (
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-muted lg:text-[14px]">
+                        {content.contactIntro}
+                    </p>
+                ) : null}
 
                 <div className="mt-5 grid gap-3 text-left lg:grid-cols-2 lg:gap-4">
-                    {CONTACTS.map((contact) => (
-                        <div key={contact.title} className="flex items-start gap-3 rounded-2xl border border-line bg-white p-4">
-                            <span className="mt-0.5 shrink-0">{contact.icon}</span>
+                    {content.contacts.map((contact, index) => (
+                        <div key={`${index}-${contact.title}`} className="flex items-start gap-3 rounded-2xl border border-line bg-white p-4">
+                            <span className="mt-0.5 shrink-0">{CONTACT_ICONS[contact.icon]}</span>
                             <div>
                                 <p className="text-[13px] font-bold text-ink">{contact.title}</p>
-                                {contact.lines.map((line) => (
-                                    <p key={line} className="mt-1 text-[12.5px] text-muted">{line}</p>
+                                {contact.lines.map((line, lineIndex) => (
+                                    <p key={lineIndex} className="mt-1 text-[12.5px] text-muted">{line}</p>
                                 ))}
                             </div>
                         </div>

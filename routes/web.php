@@ -18,11 +18,13 @@ use App\Http\Controllers\Shop\RegionController;
 use App\Http\Controllers\Shop\ShippingController;
 use App\Http\Controllers\Webhooks\BiteshipWebhookController;
 use App\Http\Controllers\Webhooks\DokuWebhookController;
+use App\Support\HomePageContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', fn () => Inertia::render('Shop/Home'))->name('home');
+// Carousels, logos and texts are edited in the admin under Konten Website > Beranda.
+Route::get('/', fn () => Inertia::render('Shop/Home', ['content' => HomePageContent::forStorefront()]))->name('home');
 
 /**
  * DOKU's server-to-server notification (Fase 6). Lives outside `ui`/`admin`

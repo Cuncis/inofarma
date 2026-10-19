@@ -38,6 +38,7 @@ class RolePermissionSeeder extends Seeder
             'Cabang:Lihat', 'Cabang:Ubah',
             'Inbox:Lihat', 'Inbox:Balas',
             'Media:Lihat', 'Media:Unggah',
+            'Konten:Lihat', 'Konten:Ubah',
             'Laporan:Lihat', 'Laporan:Ekspor',
         ]);
 

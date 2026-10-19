@@ -48,12 +48,42 @@ interface CatalogProduct {
     warning?: string;
     manufacturer?: string;
     maxQtyPerOrder?: number;
-    /** The most of this product one order may hold (the same cap for every product). */
+    /** The most of this product one order may hold (its own limit, 2 unless staff changed it). */
     purchaseLimit?: number;
     /** Suhu Ruang | Sejuk (15-25°C) | Dingin/Kulkas (2-8°C). */
     storage?: string;
     /** Soonest expiry among batches in stock, e.g. "12 Mar 2027". */
     expiresAt?: string | null;
+}
+
+interface HomeSlide {
+    image: string;
+    href: string;
+    alt: string;
+}
+
+/** The home page's editable content (`App\Support\HomePageContent::forStorefront()`). */
+interface HomeContent {
+    headings: {
+        recommended: string,
+        newArrivals: string,
+        trending: string,
+        brands: string,
+        benefits: string,
+        nearest: string,
+        testimonials: string,
+    };
+    hero: HomeSlide[];
+    promo: HomeSlide[];
+    bottom: HomeSlide[];
+    allProductsIcon: string;
+    brands: { name: string, image: string }[];
+    benefits: { label: string, image: string }[];
+    testimonials: { name: string, branch: string, image: string, quote: string }[];
+    texts: { title: string, paragraphs: string[] }[];
+    contactTitle: string;
+    contactIntro: string;
+    contacts: { icon: 'phone' | 'email', title: string, lines: string[] }[];
 }
 
 interface CatalogCategory {

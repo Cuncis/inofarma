@@ -20,6 +20,7 @@ class PermissionCatalog
         'Cabang' => ['Lihat', 'Tambah', 'Ubah', 'Hapus'],
         'Inbox' => ['Lihat', 'Balas'],
         'Media' => ['Lihat', 'Unggah', 'Hapus'],
+        'Konten' => ['Lihat', 'Ubah'],
         'Laporan' => ['Lihat', 'Ekspor'],
         'Pengaturan' => ['Lihat', 'Ubah'],
         'Peran' => ['Lihat', 'Ubah'],

@@ -143,6 +143,11 @@ export default function Carousel({ slides, aspect = 'aspect-video', className = 
         }
     };
 
+    // A carousel emptied in the admin (Konten Website) is simply left out.
+    if (slides.length === 0) {
+        return null;
+    }
+
     return (
         <div className={`relative overflow-hidden rounded-[2px] border border-line ${className}`}>
             <div
@@ -153,18 +158,27 @@ export default function Carousel({ slides, aspect = 'aspect-video', className = 
                 onMouseDown={onMouseDown}
                 onClickCapture={onClickCapture}
             >
-                {slides.map((slide) => (
-                    <Link key={slide.image} href={slide.href} className={`${aspect} w-full shrink-0`}>
-                        <img src={slide.image} alt={slide.alt} className="h-full w-full object-cover" />
-                    </Link>
-                ))}
+                {slides.map((slide, slideIndex) => {
+                    const image = <img src={slide.image} alt={slide.alt} className="h-full w-full object-cover" />;
+
+                    // A full https:// link leaves the shop, so it is a plain anchor rather than an Inertia visit.
+                    return /^https?:\/\//.test(slide.href) ? (
+                        <a key={`${slideIndex}-${slide.image}`} href={slide.href} target="_blank" rel="noopener noreferrer" className={`${aspect} w-full shrink-0`}>
+                            {image}
+                        </a>
+                    ) : (
+                        <Link key={`${slideIndex}-${slide.image}`} href={slide.href} className={`${aspect} w-full shrink-0`}>
+                            {image}
+                        </Link>
+                    );
+                })}
             </div>
 
             {slides.length > 1 ? (
                 <div className="absolute bottom-2.5 left-0 flex w-full justify-center gap-1.5">
                     {slides.map((slide, slideIndex) => (
                         <button
-                            key={slide.image}
+                            key={`${slideIndex}-${slide.image}`}
                             type="button"
                             onClick={() => goTo(slideIndex)}
                             aria-label={`Slide ${slideIndex + 1}`}
