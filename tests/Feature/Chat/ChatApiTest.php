@@ -4,6 +4,8 @@ namespace Tests\Feature\Chat;
 
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Models\Customer;
+use App\Models\Order;
 use App\Models\Subscriber;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -152,5 +154,46 @@ class ChatApiTest extends TestCase
         }
 
         $this->postJson('/api/chat', $this->startPayload(['email' => 'u6@example.com']))->assertStatus(429);
+    }
+
+    public function test_a_visitor_can_track_an_order_with_its_number_and_the_account_email(): void
+    {
+        $customer = Customer::factory()->create(['email' => 'sari@example.com']);
+        $order = Order::factory()->for($customer)->create(['status' => 'pembayaran diterima', 'payment_status' => 'lunas']);
+
+        $this->postJson('/api/chat/lacak-pesanan', ['order_number' => $order->number, 'email' => 'Sari@Example.com'])
+            ->assertOk()
+            ->assertJsonPath('order.number', $order->number)
+            ->assertJsonPath('order.status', 'Pembayaran Diterima')
+            ->assertJsonPath('order.payment', 'Sudah dibayar')
+            ->assertJsonMissingPath('order.email')
+            ->assertJsonMissingPath('order.recipientPhone');
+    }
+
+    public function test_tracking_with_a_wrong_email_or_number_gives_the_same_not_found_answer(): void
+    {
+        $customer = Customer::factory()->create(['email' => 'sari@example.com']);
+        $order = Order::factory()->for($customer)->create();
+
+        $wrongEmail = $this->postJson('/api/chat/lacak-pesanan', ['order_number' => $order->number, 'email' => 'orang@example.com']);
+        $wrongNumber = $this->postJson('/api/chat/lacak-pesanan', ['order_number' => 'TIDAK-ADA', 'email' => 'sari@example.com']);
+
+        $wrongEmail->assertNotFound();
+        $wrongNumber->assertNotFound();
+        $this->assertSame($wrongEmail->json('message'), $wrongNumber->json('message'));
+    }
+
+    public function test_tracking_needs_both_fields(): void
+    {
+        $this->postJson('/api/chat/lacak-pesanan', [])->assertUnprocessable()->assertJsonValidationErrors(['order_number', 'email']);
+    }
+
+    public function test_tracking_is_rate_limited(): void
+    {
+        foreach (range(1, 8) as $attempt) {
+            $this->postJson('/api/chat/lacak-pesanan', ['order_number' => 'X', 'email' => 'a@example.com'])->assertNotFound();
+        }
+
+        $this->postJson('/api/chat/lacak-pesanan', ['order_number' => 'X', 'email' => 'a@example.com'])->assertTooManyRequests();
     }
 }

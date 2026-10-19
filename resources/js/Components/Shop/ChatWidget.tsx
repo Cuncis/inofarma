@@ -1,4 +1,5 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import useDragScroll from './useDragScroll';
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 type Message = {
@@ -9,6 +10,26 @@ type Message = {
 };
 
 type Profile = { name: string; email: string };
+type QuickQuestion = {
+    question: string;
+    url: string | null;
+    type: 'message' | 'track_order' | 'auto_reply' | 'whatsapp' | 'phone' | 'ask_product';
+    answer: string | null;
+    phone: string | null;
+};
+/** A line shown only to this visitor (a shortcut's fixed answer), never stored in the inbox. */
+type LocalNote = { id: number; mine: boolean; text: string };
+type TrackedOrder = {
+    number: string;
+    status: string;
+    step: string | null;
+    payment: string | null;
+    fulfilment: string;
+    date: string;
+    total: number;
+    courier: string | null;
+    waybill: string | null;
+};
 
 const TOKEN_KEY = 'inofarma-chat-token';
 const PROFILE_KEY = 'inofarma-chat-profile';
@@ -83,7 +104,11 @@ export default function ChatWidget({
     placement: 'frame' | 'viewport';
     showLauncher?: boolean;
 }) {
-    const shopUser = usePage().props.shopUser;
+    const { shopUser, chatSettings } = usePage().props as {
+        shopUser?: { name: string; email: string } | null;
+        chatSettings?: { welcome: string; quickQuestions: QuickQuestion[] };
+    };
+    const quickQuestions = chatSettings?.quickQuestions ?? [];
 
     const [open, setOpen] = useState(false);
     const [token, setToken] = useState<string | null>(null);
@@ -98,6 +123,15 @@ export default function ChatWidget({
     const [subscribe, setSubscribe] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [notes, setNotes] = useState<LocalNote[]>([]);
+    const [askOpen, setAskOpen] = useState(false);
+    const [askProduct, setAskProduct] = useState('');
+    const [trackOpen, setTrackOpen] = useState(false);
+    const [trackNumber, setTrackNumber] = useState('');
+    const [trackEmail, setTrackEmail] = useState('');
+    const [trackBusy, setTrackBusy] = useState(false);
+    const [trackError, setTrackError] = useState<string | null>(null);
+    const [trackResult, setTrackResult] = useState<TrackedOrder | null>(null);
 
     const listRef = useRef<HTMLDivElement>(null);
     const lastIdRef = useRef(0);
@@ -202,7 +236,7 @@ export default function ChatWidget({
 
     useEffect(() => {
         listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-    }, [messages, open, sending]);
+    }, [messages, open, sending, trackOpen, trackResult, notes, askOpen]);
 
     useEffect(() => {
         if (! open) {
@@ -273,7 +307,11 @@ export default function ChatWidget({
     async function sendMessage(event: FormEvent) {
         event.preventDefault();
 
-        if (sending || draft.trim() === '' || ! token) {
+        await sendText(draft);
+    }
+
+    async function sendText(text: string) {
+        if (sending || text.trim() === '' || ! token) {
             return;
         }
 
@@ -284,7 +322,7 @@ export default function ChatWidget({
             const response = await fetch('/api/chat/pesan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Chat-Token': token },
-                body: JSON.stringify({ message: draft.trim() }),
+                body: JSON.stringify({ message: text.trim() }),
             });
 
             if (response.status === 404) {
@@ -302,7 +340,7 @@ export default function ChatWidget({
 
             const data: { message: Message } = await response.json();
 
-            setDraft('');
+            setDraft((current) => (current === text ? '' : current));
             markActivity();
             merge([data.message]);
         } catch {
@@ -311,6 +349,128 @@ export default function ChatWidget({
             setSending(false);
         }
     }
+
+    function pickQuickQuestion(item: QuickQuestion) {
+        if (item.type === 'track_order') {
+            setTrackResult(null);
+            setTrackError(null);
+            setTrackEmail((current) => current || shopUser?.email || profile?.email || '');
+            setAskOpen(false);
+            setTrackOpen(true);
+
+            return;
+        }
+
+        if (item.type === 'ask_product') {
+            setTrackOpen(false);
+            setAskOpen(true);
+
+            return;
+        }
+
+        if (item.type === 'auto_reply') {
+            const stamp = Date.now();
+
+            setNotes((current) => [
+                ...current,
+                { id: stamp, mine: true, text: item.question },
+                { id: stamp + 1, mine: false, text: item.answer ?? '' },
+            ]);
+
+            return;
+        }
+
+        if (token) {
+            void sendText(item.question);
+        } else {
+            setPending(item.question);
+        }
+    }
+
+    async function submitTrack(event: FormEvent) {
+        event.preventDefault();
+
+        if (trackBusy) {
+            return;
+        }
+
+        setTrackBusy(true);
+        setTrackError(null);
+
+        try {
+            const response = await fetch('/api/chat/lacak-pesanan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ order_number: trackNumber.trim(), email: trackEmail.trim() }),
+            });
+
+            if (response.ok) {
+                const data: { order: TrackedOrder } = await response.json();
+
+                setTrackResult(data.order);
+                setTrackOpen(false);
+                setTrackNumber('');
+
+                return;
+            }
+
+            if (response.status === 404) {
+                const body = await response.json().catch(() => null);
+                setTrackError(body?.message ?? 'Pesanan tidak ditemukan.');
+            } else {
+                setTrackError(await failureMessage(response));
+            }
+        } catch {
+            setTrackError('Tidak bisa terhubung. Periksa koneksi Anda.');
+        } finally {
+            setTrackBusy(false);
+        }
+    }
+
+    function submitAsk(event: FormEvent) {
+        event.preventDefault();
+
+        const product = askProduct.trim();
+
+        if (product === '') {
+            return;
+        }
+
+        const message = `Halo, apakah ${product} tersedia?`;
+
+        setAskOpen(false);
+        setAskProduct('');
+
+        if (token) {
+            void sendText(message);
+        } else {
+            setPending(message);
+        }
+    }
+
+    const trackCard = (
+        <>
+            {notes.map((note) => (
+                <Bubble key={note.id} mine={note.mine}>{note.text}</Bubble>
+            ))}
+            {askOpen ? (
+                <AskProductCard value={askProduct} onChange={setAskProduct} onSubmit={submitAsk} onCancel={() => setAskOpen(false)} />
+            ) : null}
+            {trackOpen ? (
+                <TrackOrderCard
+                    number={trackNumber}
+                    email={trackEmail}
+                    onNumber={setTrackNumber}
+                    onEmail={setTrackEmail}
+                    onSubmit={submitTrack}
+                    onCancel={() => setTrackOpen(false)}
+                    busy={trackBusy}
+                    error={trackError}
+                />
+            ) : null}
+            {trackResult ? <TrackResultBubble order={trackResult} /> : null}
+        </>
+    );
 
     const anchor = placement === 'frame' ? 'absolute' : 'fixed';
 
@@ -344,9 +504,9 @@ export default function ChatWidget({
                             />
                         </g>
                     </svg>
-                    <span className="hidden text-[14px] font-semibold lg:inline">Tanya apa saja</span>
+                    <span className="hidden text-[13px] font-semibold lg:inline">Tanya apa saja</span>
                     {unread > 0 ? (
-                        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold text-white">
+                        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
                             {unread}
                         </span>
                     ) : null}
@@ -357,12 +517,12 @@ export default function ChatWidget({
                 <section
                     role="dialog"
                     aria-label="Chat dengan admin Inofarma"
-                    className={`${anchor} inset-x-3 bottom-3 top-14 z-40 flex flex-col overflow-hidden rounded-2xl border border-line bg-white font-shop text-ink shadow-[0_8px_32px_rgba(0,0,0,.22)] lg:inset-x-auto lg:bottom-6 lg:right-6 lg:top-auto lg:h-[560px] lg:w-[380px]`}
+                    className={`${anchor} inset-x-3 bottom-3 top-14 z-40 flex flex-col overflow-hidden rounded-2xl border border-line bg-white font-shop text-ink shadow-[0_8px_32px_rgba(0,0,0,.22)] lg:inset-x-auto lg:bottom-6 lg:right-6 lg:top-auto lg:h-[520px] lg:w-[350px]`}
                 >
                     <header className="flex items-center justify-between gap-2 bg-brand px-4 py-3 text-white">
                         <div className="min-w-0">
-                            <p className="text-[14px] font-semibold">Chat dengan Admin</p>
-                            <p className="text-[11px] opacity-80">Apotek Inofarma membalas secepatnya</p>
+                            <p className="text-[13px] font-semibold">Chat dengan Admin</p>
+                            <p className="text-[10px] opacity-80">Apotek Inofarma membalas secepatnya</p>
                         </div>
                         <button
                             type="button"
@@ -384,7 +544,8 @@ export default function ChatWidget({
                                         {message.body}
                                     </Bubble>
                                 ))}
-                                <p className="px-2 pt-1 text-center text-[11.5px] leading-snug text-muted">
+                                {trackCard}
+                                <p className="px-2 pt-1 text-center text-[10.5px] leading-snug text-muted">
                                     {profile?.email
                                         ? `Balasan admin juga kami kirim ke ${profile.email} bila Anda sedang tidak membuka chat.`
                                         : 'Balasan admin juga kami kirim ke email Anda bila Anda sedang tidak membuka chat.'}
@@ -392,14 +553,16 @@ export default function ChatWidget({
                             </div>
 
                             <form onSubmit={sendMessage} className="border-t border-line bg-white p-2.5">
-                                {error ? <p role="alert" className="px-1 pb-2 text-[12px] text-danger">{error}</p> : null}
+                                {error ? <p role="alert" className="px-1 pb-2 text-[11px] text-danger">{error}</p> : null}
+                                <QuickQuestions questions={quickQuestions} onPick={pickQuickQuestion} disabled={sending} />
                                 <MessageInput draft={draft} setDraft={setDraft} disabled={sending} />
                             </form>
                         </>
                     ) : pending === null ? (
                         <>
                             <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-canvas px-3 py-3" aria-live="polite">
-                                <Bubble mine={false}>Halo! Ada yang bisa kami bantu? Tulis pertanyaan Anda di bawah, admin kami siap membantu.</Bubble>
+                                <Bubble mine={false}>{chatSettings?.welcome ?? 'Halo! Ada yang bisa kami bantu? Tulis pertanyaan Anda di bawah, admin kami siap membantu.'}</Bubble>
+                                {trackCard}
                             </div>
 
                             <form
@@ -413,19 +576,20 @@ export default function ChatWidget({
                                 }}
                                 className="border-t border-line bg-white p-2.5"
                             >
+                                <QuickQuestions questions={quickQuestions} onPick={pickQuickQuestion} disabled={false} />
                                 <MessageInput draft={draft} setDraft={setDraft} disabled={false} autoFocus />
                             </form>
                         </>
                     ) : (
                         <form onSubmit={startChat} className="flex flex-1 flex-col gap-4 overflow-y-auto bg-white p-5">
                             <div>
-                                <h3 className="text-[20px] font-semibold text-ink">Sebelum kita mulai</h3>
-                                <p className="mt-1.5 text-[13px] leading-snug text-muted">
+                                <h3 className="text-[19px] font-semibold text-ink">Sebelum kita mulai</h3>
+                                <p className="mt-1.5 text-[12px] leading-snug text-muted">
                                     Harap berikan informasi Anda agar kami dapat membalas jika Anda meninggalkan obrolan.
                                 </p>
                             </div>
 
-                            <label className="block text-[12px] font-semibold text-ink">
+                            <label className="block text-[11px] font-semibold text-ink">
                                 Nama
                                 <input
                                     value={name}
@@ -433,11 +597,11 @@ export default function ChatWidget({
                                     required
                                     maxLength={120}
                                     autoComplete="name"
-                                    className="mt-1 h-11 w-full rounded-lg border border-line bg-canvas px-3 text-[14px] font-normal outline-none focus:border-brand"
+                                    className="mt-1 h-11 w-full rounded-lg border border-line bg-canvas px-3 text-[13px] font-normal outline-none focus:border-brand"
                                 />
                             </label>
 
-                            <label className="block text-[12px] font-semibold text-ink">
+                            <label className="block text-[11px] font-semibold text-ink">
                                 Email
                                 <input
                                     type="email"
@@ -446,7 +610,7 @@ export default function ChatWidget({
                                     required
                                     maxLength={190}
                                     autoComplete="email"
-                                    className="mt-1 h-11 w-full rounded-lg border border-line bg-canvas px-3 text-[14px] font-normal outline-none focus:border-brand"
+                                    className="mt-1 h-11 w-full rounded-lg border border-line bg-canvas px-3 text-[13px] font-normal outline-none focus:border-brand"
                                 />
                             </label>
 
@@ -461,18 +625,18 @@ export default function ChatWidget({
                                 className="absolute -left-[9999px] h-0 w-0 opacity-0"
                             />
 
-                            {error ? <p role="alert" className="text-[12px] text-danger">{error}</p> : null}
+                            {error ? <p role="alert" className="text-[11px] text-danger">{error}</p> : null}
 
                             <div className="space-y-3">
                                 <button
                                     type="submit"
                                     disabled={sending}
-                                    className="h-12 w-full rounded-full bg-brand text-[14px] font-semibold text-white disabled:opacity-50"
+                                    className="h-12 w-full rounded-full bg-brand text-[13px] font-semibold text-white disabled:opacity-50"
                                 >
                                     {sending ? 'Mengirim...' : 'Mulai Obrolan'}
                                 </button>
 
-                                <label className="flex items-start gap-2 text-[12.5px] leading-snug text-ink">
+                                <label className="flex items-start gap-2 text-[11.5px] leading-snug text-ink">
                                     <input
                                         type="checkbox"
                                         checked={subscribe}
@@ -490,7 +654,7 @@ export default function ChatWidget({
                                     setPending(null);
                                     setError(null);
                                 }}
-                                className="mt-auto self-start text-[12px] text-link underline"
+                                className="mt-auto self-start text-[11px] text-link underline"
                             >
                                 Ubah pesan saya
                             </button>
@@ -502,19 +666,249 @@ export default function ChatWidget({
     );
 }
 
+function QuickQuestions({ questions, onPick, disabled }: { questions: QuickQuestion[]; onPick: (item: QuickQuestion) => void; disabled: boolean }) {
+    const drag = useDragScroll();
+    const [moreToRight, setMoreToRight] = useState(false);
+
+    // Shows the right arrow only while there are buttons hidden past the edge.
+    useEffect(() => {
+        const strip = drag.ref.current;
+
+        if (! strip) {
+            return;
+        }
+
+        const update = () => setMoreToRight(strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 2);
+
+        update();
+        strip.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+
+        return () => {
+            strip.removeEventListener('scroll', update);
+            window.removeEventListener('resize', update);
+        };
+    }, [drag.ref, questions.length]);
+
+    if (questions.length === 0) {
+        return null;
+    }
+
+    const chipClass = 'shrink-0 whitespace-nowrap rounded-full border border-brand/30 bg-white px-3 py-1.5 text-[11.5px] leading-snug text-brand hover:bg-blush disabled:opacity-50';
+
+    return (
+        <div className="relative">
+            <div {...drag} className={`flex gap-1.5 overflow-x-auto pb-2 pl-1 pr-9 scrollbar-none ${drag.className}`}>
+                {questions.map((item) => {
+                    if (item.type === 'whatsapp' && item.phone) {
+                        return (
+                            <a
+                                key={item.question}
+                                href={`https://wa.me/${item.phone}?text=${encodeURIComponent(item.question)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={chipClass}
+                            >
+                                {item.question}
+                            </a>
+                        );
+                    }
+
+                    if (item.type === 'phone' && item.phone) {
+                        return (
+                            <a key={item.question} href={`tel:+${item.phone}`} className={chipClass}>
+                                {item.question}
+                            </a>
+                        );
+                    }
+
+                    if (! item.url) {
+                        return (
+                            <button key={item.question} type="button" disabled={disabled} onClick={() => onPick(item)} className={chipClass}>
+                                {item.question}
+                            </button>
+                        );
+                    }
+
+                    // A question with a link opens that page, instead of sending a message.
+                    return item.url.startsWith('/') ? (
+                        <Link key={item.question} href={item.url} className={chipClass}>
+                            {item.question}
+                        </Link>
+                    ) : (
+                        <a key={item.question} href={item.url} target="_blank" rel="noopener noreferrer" className={chipClass}>
+                            {item.question}
+                        </a>
+                    );
+                })}
+            </div>
+            {moreToRight ? (
+                <button
+                    type="button"
+                    aria-label="Lihat pertanyaan berikutnya"
+                    onClick={() => drag.ref.current?.scrollBy({ left: 160, behavior: 'smooth' })}
+                    className="absolute bottom-2 right-0 flex h-[30px] w-8 items-center justify-end bg-gradient-to-l from-white from-60% to-transparent pr-1 text-brand"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </button>
+            ) : null}
+        </div>
+    );
+}
+
+function AskProductCard({
+    value,
+    onChange,
+    onSubmit,
+    onCancel,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    onSubmit: (event: FormEvent) => void;
+    onCancel: () => void;
+}) {
+    return (
+        <div className="flex justify-start">
+            <form onSubmit={onSubmit} className="w-full max-w-[92%] rounded-2xl rounded-bl-md bg-white p-4 shadow-sm">
+                <h3 className="text-[16px] font-semibold text-ink">Cek ketersediaan obat</h3>
+                <p className="mt-0.5 text-[11.5px] text-muted">Tulis nama obat yang Anda cari, admin kami akan mengeceknya.</p>
+
+                <label className="mt-3 block text-[11px] font-semibold text-ink">
+                    Nama Obat
+                    <input
+                        value={value}
+                        onChange={(event) => onChange(event.target.value)}
+                        required
+                        maxLength={120}
+                        autoFocus
+                        className="mt-1 h-10 w-full rounded-lg border border-line bg-canvas px-3 text-[13px] font-normal outline-none focus:border-brand"
+                    />
+                </label>
+
+                <div className="mt-3 flex items-center gap-3">
+                    <button type="submit" className="h-10 flex-1 rounded-full bg-brand text-[12.5px] font-semibold text-white">
+                        Tanyakan
+                    </button>
+                    <button type="button" onClick={onCancel} className="text-[11px] text-link underline">Batal</button>
+                </div>
+            </form>
+        </div>
+    );
+}
+
+function TrackOrderCard({
+    number,
+    email,
+    onNumber,
+    onEmail,
+    onSubmit,
+    onCancel,
+    busy,
+    error,
+}: {
+    number: string;
+    email: string;
+    onNumber: (value: string) => void;
+    onEmail: (value: string) => void;
+    onSubmit: (event: FormEvent) => void;
+    onCancel: () => void;
+    busy: boolean;
+    error: string | null;
+}) {
+    return (
+        <div className="flex justify-start">
+            <form onSubmit={onSubmit} className="w-full max-w-[92%] rounded-2xl rounded-bl-md bg-white p-4 shadow-sm">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 8 12 3 3 8m18 0-9 5m9-5v8l-9 5m0-8L3 8m9 5v8M3 8v8l9 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </span>
+                <h3 className="mt-3 text-[16px] font-semibold text-ink">Lacak pesanan saya</h3>
+                <p className="mt-0.5 text-[11.5px] text-muted">Harap berikan informasi Anda.</p>
+
+                <label className="mt-3 block text-[11px] font-semibold text-ink">
+                    Nomer Pesanan
+                    <input
+                        value={number}
+                        onChange={(event) => onNumber(event.target.value)}
+                        required
+                        maxLength={60}
+                        autoComplete="off"
+                        className="mt-1 h-10 w-full rounded-lg border border-line bg-canvas px-3 text-[13px] font-normal outline-none focus:border-brand"
+                    />
+                </label>
+
+                <label className="mt-3 block text-[11px] font-semibold text-ink">
+                    Alamat Email
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(event) => onEmail(event.target.value)}
+                        required
+                        maxLength={190}
+                        autoComplete="email"
+                        className="mt-1 h-10 w-full rounded-lg border border-line bg-canvas px-3 text-[13px] font-normal outline-none focus:border-brand"
+                    />
+                </label>
+
+                {error ? <p role="alert" className="mt-2 text-[11px] text-danger">{error}</p> : null}
+
+                <div className="mt-3 flex items-center gap-3">
+                    <button
+                        type="submit"
+                        disabled={busy}
+                        className="h-10 flex-1 rounded-full bg-brand text-[12.5px] font-semibold text-white disabled:opacity-50"
+                    >
+                        {busy ? 'Mencari...' : 'Lacak'}
+                    </button>
+                    <button type="button" onClick={onCancel} className="text-[11px] text-link underline">Batal</button>
+                </div>
+            </form>
+        </div>
+    );
+}
+
+function TrackResultBubble({ order }: { order: TrackedOrder }) {
+    const rows: [string, string | null][] = [
+        ['Status', order.step ?? order.status],
+        ['Pembayaran', order.payment],
+        ['Cara terima', order.fulfilment],
+        ['Tanggal', order.date],
+        ['Total', `Rp ${order.total.toLocaleString('id-ID')}`],
+        ['Kurir', order.courier],
+        ['No. resi', order.waybill],
+    ];
+
+    return (
+        <Bubble mine={false}>
+            <p className="font-semibold">Pesanan {order.number}</p>
+            <dl className="mt-1.5 space-y-0.5">
+                {rows.filter(([, value]) => value).map(([label, value]) => (
+                    <div key={label} className="flex gap-2 text-[12px]">
+                        <dt className="w-[88px] shrink-0 text-muted">{label}</dt>
+                        <dd>{value}</dd>
+                    </div>
+                ))}
+            </dl>
+        </Bubble>
+    );
+}
+
 function Bubble({ mine, time, children }: { mine: boolean; time?: string; children: ReactNode }) {
     return (
         <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
             <div className="max-w-[85%]">
-                {mine ? null : <p className="mb-0.5 px-1 text-[11px] font-semibold text-brand">Admin Inofarma</p>}
+                {mine ? null : <p className="mb-0.5 px-1 text-[10px] font-semibold text-brand">Admin Inofarma</p>}
                 <div
-                    className={`whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-[1.45] ${
+                    className={`whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-[12.5px] leading-[1.45] ${
                         mine ? 'rounded-br-md bg-brand text-white' : 'rounded-bl-md bg-white text-ink shadow-sm'
                     }`}
                 >
                     {children}
                 </div>
-                {time ? <p className={`mt-0.5 px-1 text-[10.5px] text-muted ${mine ? 'text-right' : ''}`}>{time}</p> : null}
+                {time ? <p className={`mt-0.5 px-1 text-[10px] text-muted ${mine ? 'text-right' : ''}`}>{time}</p> : null}
             </div>
         </div>
     );
@@ -540,12 +934,12 @@ function MessageInput({
                 placeholder="Tulis pesan"
                 aria-label="Pesan Anda"
                 autoFocus={autoFocus}
-                className="h-10 min-w-0 flex-1 rounded-full border border-line bg-canvas px-4 text-[14px] outline-none focus:border-brand"
+                className="h-10 min-w-0 flex-1 rounded-full border border-line bg-canvas px-4 text-[13px] outline-none focus:border-brand"
             />
             <button
                 type="submit"
                 disabled={disabled || draft.trim() === ''}
-                className="h-10 shrink-0 rounded-full bg-brand px-4 text-[13px] font-semibold text-white disabled:opacity-50"
+                className="h-10 shrink-0 rounded-full bg-brand px-4 text-[12px] font-semibold text-white disabled:opacity-50"
             >
                 Kirim
             </button>

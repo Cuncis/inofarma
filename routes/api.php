@@ -35,4 +35,5 @@ Route::prefix('chat')->name('api.chat.')->group(function () {
     Route::post('/', [ChatController::class, 'start'])->middleware('throttle:chat-start')->name('start');
     Route::get('/', [ChatController::class, 'show'])->middleware('throttle:chat-poll')->name('show');
     Route::post('pesan', [ChatController::class, 'send'])->middleware('throttle:chat-send')->name('send');
+    Route::post('lacak-pesanan', [ChatController::class, 'trackOrder'])->middleware('throttle:chat-track')->name('track-order');
 });

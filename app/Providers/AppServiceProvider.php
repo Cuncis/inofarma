@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         // enough polling for a couple of open tabs.
         RateLimiter::for('chat-start', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
         RateLimiter::for('chat-send', fn (Request $request) => Limit::perMinute(15)->by($request->ip()));
+        RateLimiter::for('chat-track', fn (Request $request) => Limit::perMinute(8)->by($request->ip()));
         RateLimiter::for('chat-poll', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
 
         // Super Admin bypasses every permission check — spatie/laravel-permission

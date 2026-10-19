@@ -10,6 +10,7 @@ use App\Models\ChatMessage;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\ChatReplied;
+use App\Support\ChatSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -65,6 +66,118 @@ class ChatInboxTest extends TestCase
             ->filterTable('needs_reply')
             ->assertCanSeeTableRecords([$waiting])
             ->assertCanNotSeeTableRecords([$answered]);
+    }
+
+    public function test_staff_can_set_the_welcome_message_and_quick_questions(): void
+    {
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', [
+                'welcome_message' => 'Selamat datang di Inofarma!',
+                'quick_questions' => [['question' => 'Apakah obat ini ready?', 'url' => '/shop'], ['question' => 'Jam buka apotek?', 'url' => null]],
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame('Selamat datang di Inofarma!', ChatSettings::welcomeMessage());
+        $this->assertSame([
+            ['question' => 'Apakah obat ini ready?', 'url' => '/shop', 'type' => 'message', 'answer' => null, 'phone' => null],
+            ['question' => 'Jam buka apotek?', 'url' => null, 'type' => 'message', 'answer' => null, 'phone' => null],
+        ], ChatSettings::quickQuestions());
+    }
+
+    public function test_a_shortcut_can_be_the_track_order_form_and_then_carries_no_link(): void
+    {
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', [
+                'welcome_message' => 'Halo',
+                'quick_questions' => [['type' => 'track_order', 'question' => 'Lacak Pesanan', 'url' => '/shop']],
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame([['question' => 'Lacak Pesanan', 'url' => null, 'type' => 'track_order', 'answer' => null, 'phone' => null]], ChatSettings::quickQuestions());
+    }
+
+    public function test_the_other_shortcut_types_keep_only_the_detail_they_need(): void
+    {
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', [
+                'welcome_message' => 'Halo',
+                'quick_questions' => [
+                    ['type' => 'auto_reply', 'question' => 'Jam buka?', 'answer' => 'Buka 24 jam setiap hari.', 'url' => '/shop', 'phone' => '0812'],
+                    ['type' => 'whatsapp', 'question' => 'Chat WhatsApp', 'phone' => '0812-1401-8964', 'answer' => 'abaikan'],
+                    ['type' => 'phone', 'question' => 'Telepon kami', 'phone' => '+62 21 5095 9952'],
+                    ['type' => 'ask_product', 'question' => 'Cek ketersediaan obat'],
+                ],
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame([
+            ['question' => 'Jam buka?', 'url' => null, 'type' => 'auto_reply', 'answer' => 'Buka 24 jam setiap hari.', 'phone' => null],
+            ['question' => 'Chat WhatsApp', 'url' => null, 'type' => 'whatsapp', 'answer' => null, 'phone' => '6281214018964'],
+            ['question' => 'Telepon kami', 'url' => null, 'type' => 'phone', 'answer' => null, 'phone' => '622150959952'],
+            ['question' => 'Cek ketersediaan obat', 'url' => null, 'type' => 'ask_product', 'answer' => null, 'phone' => null],
+        ], ChatSettings::quickQuestions());
+    }
+
+    public function test_an_auto_reply_needs_an_answer_and_a_call_needs_a_number(): void
+    {
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', [
+                'welcome_message' => 'Halo',
+                'quick_questions' => [
+                    ['type' => 'auto_reply', 'question' => 'Jam buka?', 'answer' => ''],
+                    ['type' => 'phone', 'question' => 'Telepon kami', 'phone' => ''],
+                ],
+            ])
+            ->assertHasActionErrors();
+    }
+
+    public function test_a_quick_question_link_must_be_a_path_or_an_http_url(): void
+    {
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', [
+                'welcome_message' => 'Halo',
+                'quick_questions' => [['question' => 'Tanya', 'url' => 'javascript:alert(1)']],
+            ])
+            ->assertHasActionErrors();
+    }
+
+    public function test_the_welcome_message_is_required_and_questions_are_capped(): void
+    {
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', ['welcome_message' => '', 'quick_questions' => []])
+            ->assertHasActionErrors(['welcome_message' => 'required']);
+
+        Livewire::test(ListChatConversations::class)
+            ->callAction('chatSettings', [
+                'welcome_message' => 'Halo',
+                'quick_questions' => collect(range(1, ChatSettings::MAX_QUESTIONS + 1))->map(fn ($n) => ['question' => "Tanya {$n}"])->all(),
+            ])
+            ->assertHasActionErrors();
+    }
+
+    public function test_the_storefront_gets_the_chat_settings_with_a_default_welcome(): void
+    {
+        $this->get('/')->assertInertia(fn ($page) => $page
+            ->where('chatSettings.welcome', ChatSettings::DEFAULT_WELCOME)
+            ->where('chatSettings.quickQuestions', [])
+        );
+
+        ChatSettings::save('Halo Sobat Ino', ['Ada promo?', '  ', 'Jam buka?']);
+
+        $this->get('/')->assertInertia(fn ($page) => $page
+            ->where('chatSettings.welcome', 'Halo Sobat Ino')
+            ->where('chatSettings.quickQuestions', [
+                ['question' => 'Ada promo?', 'url' => null, 'type' => 'message', 'answer' => null, 'phone' => null],
+                ['question' => 'Jam buka?', 'url' => null, 'type' => 'message', 'answer' => null, 'phone' => null],
+            ])
+        );
+    }
+
+    public function test_the_settings_action_is_hidden_without_the_reply_permission(): void
+    {
+        $this->signInAs('Pelihat Inbox', ['Inbox:Lihat']);
+
+        Livewire::test(ListChatConversations::class)->assertActionHidden('chatSettings');
     }
 
     public function test_the_navigation_badge_counts_conversations_waiting_for_a_reply(): void

@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SendChatMessageRequest;
 use App\Http\Requests\StartChatRequest;
+use App\Http\Requests\TrackChatOrderRequest;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Models\Order;
 use App\Models\Subscriber;
+use App\Support\AdminOptions;
+use App\Support\Presenters\ShopOrderPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -46,6 +50,45 @@ class ChatController extends Controller
             'token' => $conversation->token,
             'messages' => $this->present($conversation->messages()->get()),
         ], 201);
+    }
+
+    /**
+     * The "Lacak Pesanan" shortcut: an order's status for whoever knows both
+     * its number and the email on the account. A wrong pair gets the same
+     * answer whether the number or the email was wrong.
+     */
+    public function trackOrder(TrackChatOrderRequest $request): JsonResponse
+    {
+        $order = Order::query()
+            ->with('shipment')
+            ->where('number', trim($request->validated('order_number')))
+            ->whereHas('customer', fn ($customer) => $customer->where('email', mb_strtolower(trim($request->validated('email')))))
+            ->first();
+
+        if (! $order) {
+            return response()->json(['message' => 'Pesanan tidak ditemukan. Periksa nomor pesanan dan alamat email Anda.'], 404);
+        }
+
+        $steps = collect(ShopOrderPresenter::steps($order));
+        $current = $steps->firstWhere('state', 'current') ?? $steps->last(fn (array $step) => $step['state'] === 'done');
+
+        return response()->json(['order' => [
+            'number' => $order->number,
+            'status' => AdminOptions::toLabel(AdminOptions::ORDER_STATUSES, $order->status),
+            'step' => $current['label'] ?? null,
+            'payment' => match ($order->payment_status) {
+                'lunas' => 'Sudah dibayar',
+                'belum bayar' => 'Belum dibayar',
+                'gagal' => 'Pembayaran gagal',
+                'refund' => 'Dana dikembalikan',
+                default => null,
+            },
+            'fulfilment' => AdminOptions::toLabel(AdminOptions::FULFILMENTS, $order->fulfilment),
+            'date' => $order->created_at?->translatedFormat('d M Y'),
+            'total' => $order->grand_total,
+            'courier' => $order->shipment ? trim($order->shipment->courier_name.' '.$order->shipment->courier_service_name) : null,
+            'waybill' => $order->shipment?->waybill_id,
+        ]]);
     }
 
     /**
