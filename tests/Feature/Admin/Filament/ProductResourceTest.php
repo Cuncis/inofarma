@@ -8,15 +8,19 @@ use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Pages\ViewProduct;
 use App\Filament\Resources\Products\RelationManagers\ImagesRelationManager;
+use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\BranchStock;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\Role;
 use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Concerns\SeedsDemoCatalogue;
@@ -231,14 +235,107 @@ class ProductResourceTest extends TestCase
         }
     }
 
-    public function test_the_product_form_no_longer_asks_for_size_weight_or_a_purchase_limit(): void
+    public function test_the_product_form_no_longer_asks_for_size_or_weight(): void
     {
         Livewire::test(CreateProduct::class)
             ->assertFormFieldDoesNotExist('weight_grams')
-            ->assertFormFieldDoesNotExist('max_qty_per_order')
             ->assertFormFieldDoesNotExist('length_cm')
             ->assertFormFieldDoesNotExist('width_cm')
             ->assertFormFieldDoesNotExist('height_cm');
+    }
+
+    public function test_the_purchase_limit_starts_at_two_and_can_be_changed_on_the_edit_form(): void
+    {
+        Livewire::test(CreateProduct::class)->assertFormSet(['max_qty_per_order' => 2]);
+
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+
+        Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+            ->assertFormSet(['max_qty_per_order' => 2])
+            ->fillForm(['max_qty_per_order' => 4])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame(4, $product->refresh()->purchaseLimit());
+
+        foreach ([0, '', 1.5] as $invalid) {
+            Livewire::test(EditProduct::class, ['record' => $product->getKey()])
+                ->fillForm(['max_qty_per_order' => $invalid])
+                ->call('save')
+                ->assertHasFormErrors(['max_qty_per_order']);
+        }
+
+        $this->assertSame(4, $product->refresh()->max_qty_per_order);
+    }
+
+    public function test_the_purchase_limit_can_be_set_on_many_products_at_once(): void
+    {
+        $products = Product::whereIn('sku', ['PRD-001', 'PRD-002'])->get();
+        $untouched = Product::where('sku', 'PRD-003')->firstOrFail();
+
+        Livewire::test(ListProducts::class)
+            ->callTableBulkAction('setPurchaseLimit', $products, ['max_qty_per_order' => 6])
+            ->assertHasNoTableBulkActionErrors()
+            ->assertNotified(__(':count produk diperbarui.', ['count' => 2]));
+
+        $products->each(fn (Product $product) => $this->assertSame(6, $product->refresh()->purchaseLimit()));
+        $this->assertSame(2, $untouched->refresh()->purchaseLimit());
+    }
+
+    public function test_the_bulk_purchase_limit_must_be_a_whole_number_of_at_least_one(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+
+        foreach ([0, '', 'dua', 1.5] as $invalid) {
+            Livewire::test(ListProducts::class)
+                ->callTableBulkAction('setPurchaseLimit', [$product], ['max_qty_per_order' => $invalid])
+                ->assertHasTableBulkActionErrors(['max_qty_per_order']);
+        }
+
+        $this->assertSame(2, $product->refresh()->max_qty_per_order);
+    }
+
+    public function test_the_status_can_be_set_on_many_products_at_once_and_each_change_is_audited(): void
+    {
+        $products = Product::whereIn('sku', ['PRD-001', 'PRD-002'])->get();
+        $products->first()->update(['status' => 'nonaktif']);
+        $before = AuditLog::where('action', 'produk_diubah')->count();
+
+        Livewire::test(ListProducts::class)
+            ->callTableBulkAction('setStatus', $products, ['status' => 'nonaktif'])
+            ->assertHasNoTableBulkActionErrors();
+
+        $products->each(fn (Product $product) => $this->assertSame('nonaktif', $product->refresh()->status));
+
+        // Only PRD-002 actually changed, so only it is logged.
+        $logs = AuditLog::where('action', 'produk_diubah')->get()->slice($before);
+        $this->assertCount(1, $logs);
+        $this->assertSame(['status' => 'aktif'], $logs->first()->old_values);
+        $this->assertSame(['status' => 'nonaktif'], $logs->first()->new_values);
+    }
+
+    public function test_the_bulk_status_only_accepts_a_known_status(): void
+    {
+        $product = Product::where('sku', 'PRD-001')->firstOrFail();
+
+        Livewire::test(ListProducts::class)
+            ->callTableBulkAction('setStatus', [$product], ['status' => 'dihapus'])
+            ->assertHasTableBulkActionErrors(['status']);
+
+        $this->assertSame('aktif', $product->refresh()->status);
+    }
+
+    public function test_someone_who_cannot_edit_products_does_not_get_the_bulk_updates(): void
+    {
+        $this->post('/admin/keluar');
+        Role::findOrCreate('Pelihat Produk', 'web')->syncPermissions(['Produk:Lihat']);
+        $user = User::factory()->create(['password' => Hash::make('password'), 'is_active' => true]);
+        $user->assignRole('Pelihat Produk');
+        $this->post('/admin/masuk', ['email' => $user->email, 'password' => 'password']);
+
+        Livewire::test(ListProducts::class)
+            ->assertTableBulkActionHidden('setPurchaseLimit')
+            ->assertTableBulkActionHidden('setStatus');
     }
 
     public function test_a_new_product_defaults_to_bebas(): void

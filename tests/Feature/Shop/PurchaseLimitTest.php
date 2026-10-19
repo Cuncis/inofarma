@@ -43,12 +43,42 @@ class PurchaseLimitTest extends TestCase
         ], 200)]);
     }
 
-    public function test_every_product_is_limited_to_two_unless_it_has_a_lower_limit_of_its_own(): void
+    public function test_a_product_is_limited_by_its_own_max_and_falls_back_to_two(): void
     {
         $this->assertSame(2, Product::factory()->make(['max_qty_per_order' => null])->purchaseLimit());
-        $this->assertSame(2, Product::factory()->make(['max_qty_per_order' => 5])->purchaseLimit());
+        $this->assertSame(5, Product::factory()->make(['max_qty_per_order' => 5])->purchaseLimit());
         $this->assertSame(2, Product::factory()->make(['max_qty_per_order' => 2])->purchaseLimit());
         $this->assertSame(1, Product::factory()->make(['max_qty_per_order' => 1])->purchaseLimit());
+    }
+
+    public function test_a_new_product_starts_at_a_limit_of_two(): void
+    {
+        $this->assertSame(2, Product::factory()->create()->refresh()->max_qty_per_order);
+    }
+
+    public function test_the_migration_sets_every_product_to_two_but_keeps_a_limit_of_one(): void
+    {
+        $none = Product::factory()->create();
+        $one = Product::factory()->create(['max_qty_per_order' => 1]);
+        $five = Product::factory()->create(['max_qty_per_order' => 5]);
+        Product::whereKey($none->id)->update(['max_qty_per_order' => null]);
+
+        (require database_path('migrations/2026_10_19_154643_set_every_product_purchase_limit_to_two.php'))->up();
+
+        $this->assertSame(2, $none->refresh()->max_qty_per_order);
+        $this->assertSame(1, $one->refresh()->max_qty_per_order);
+        $this->assertSame(2, $five->refresh()->max_qty_per_order);
+    }
+
+    public function test_a_higher_limit_of_its_own_lets_the_shopper_check_out_more(): void
+    {
+        $this->fakeDoku();
+        [, $branch] = $this->shopperWithProduct(4, ['max_qty_per_order' => 5]);
+
+        $this->post('/checkout', ['fulfilment' => 'ambil', 'paymentMethod' => 'online', 'pickupBranchId' => $branch->code, 'pickupEta' => 'Hari ini'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(1, Order::count());
     }
 
     public function test_the_cart_and_product_data_tell_the_storefront_the_limit(): void

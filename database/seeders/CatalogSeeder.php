@@ -106,7 +106,7 @@ class CatalogSeeder extends Seeder
      * @var array<string, array{nie: ?string, composition: ?string, indication: ?string, dosage: ?string, sideEffects: ?string, warning: ?string, manufacturer: string, storage: string, maxQty: ?int, drugClass?: string}>
      */
     private const PHARMA = [
-        'PRD-001' => ['nie' => 'DBL7813704133A1', 'composition' => 'Tiap tablet mengandung Paracetamol 500 mg.', 'indication' => 'Meredakan demam dan nyeri ringan hingga sedang seperti sakit kepala dan nyeri otot.', 'dosage' => 'Dewasa: 1 tablet, 3-4 kali sehari setelah makan. Maksimal 8 tablet per hari.', 'sideEffects' => 'Jarang: mual atau ruam kulit. Hindari melebihi dosis anjuran karena berisiko pada fungsi hati.', 'warning' => null, 'manufacturer' => 'Apotek Inofarma', 'storage' => 'suhu ruang', 'maxQty' => 5],
+        'PRD-001' => ['nie' => 'DBL7813704133A1', 'composition' => 'Tiap tablet mengandung Paracetamol 500 mg.', 'indication' => 'Meredakan demam dan nyeri ringan hingga sedang seperti sakit kepala dan nyeri otot.', 'dosage' => 'Dewasa: 1 tablet, 3-4 kali sehari setelah makan. Maksimal 8 tablet per hari.', 'sideEffects' => 'Jarang: mual atau ruam kulit. Hindari melebihi dosis anjuran karena berisiko pada fungsi hati.', 'warning' => null, 'manufacturer' => 'Apotek Inofarma', 'storage' => 'suhu ruang', 'maxQty' => 2],
         'PRD-002' => ['nie' => 'DKL0332701910A1', 'composition' => 'Tiap 5 ml mengandung Parasetamol 120 mg.', 'indication' => 'Menurunkan demam dan meredakan nyeri ringan hingga sedang.', 'dosage' => 'Anak 2-6 tahun: 1-2 sendok takar (5-10 ml), 3-4 kali sehari.', 'sideEffects' => 'Jarang: reaksi alergi pada kulit. Hentikan bila muncul ruam.', 'warning' => null, 'manufacturer' => 'Apotek Inofarma', 'storage' => 'suhu ruang', 'maxQty' => null],
         'PRD-003' => ['nie' => 'SD202312345', 'composition' => 'Tiap tablet effervescent mengandung Vitamin C (Asam Askorbat) 1000 mg.', 'indication' => 'Membantu memenuhi kebutuhan vitamin C harian dan menjaga daya tahan tubuh.', 'dosage' => 'Dewasa: 1 tablet per hari, dilarutkan dalam segelas air.', 'sideEffects' => 'Gangguan pencernaan ringan bila dikonsumsi berlebihan.', 'warning' => null, 'manufacturer' => 'Apotek Inofarma', 'storage' => 'suhu ruang', 'maxQty' => null],
         'PRD-004' => ['nie' => null, 'composition' => 'Masker bedah 3 lapis dengan filter tengah.', 'indication' => 'Perlindungan pernapasan sehari-hari dari droplet dan partikel debu.', 'dosage' => 'Sekali pakai, ganti setiap 4-6 jam pemakaian.', 'sideEffects' => null, 'warning' => null, 'manufacturer' => 'Apotek Inofarma', 'storage' => 'suhu ruang', 'maxQty' => null],
@@ -214,7 +214,7 @@ class CatalogSeeder extends Seeder
                     'side_effects' => $pharma['sideEffects'],
                     'warning' => $pharma['warning'],
                     'manufacturer' => $pharma['manufacturer'],
-                    'max_qty_per_order' => $pharma['maxQty'],
+                    'max_qty_per_order' => $pharma['maxQty'] ?? Product::MAX_QUANTITY_PER_ORDER,
                     'storage' => $pharma['storage'],
                     'requires_prescription' => $prescription,
                     'weight_grams' => 150,

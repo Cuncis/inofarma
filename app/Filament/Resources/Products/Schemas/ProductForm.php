@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Models\Product;
 use App\Support\AdminOptions;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -66,6 +67,15 @@ class ProductForm
                             ->maxValue(1000000000)
                             ->gt('price')
                             ->validationMessages(['gt' => __('Harga coret harus lebih besar dari harga jual.')]),
+                        TextInput::make('max_qty_per_order')
+                            ->label(__('Maks. pembelian per transaksi'))
+                            ->numeric()
+                            ->integer()
+                            ->minValue(1)
+                            ->maxValue(65535)
+                            ->default(Product::MAX_QUANTITY_PER_ORDER)
+                            ->helperText(__('Pembeli yang melewati batas ini melihat pesan: ":message".', ['message' => __(Product::OVER_LIMIT_MESSAGE)]))
+                            ->required(),
                         Textarea::make('blurb')
                             ->label(__('Deskripsi'))
                             ->helperText(__('Tulis komposisi, indikasi, aturan pakai, efek samping, produsen, nomor izin edar, dan kondisi penyimpanan di sini.'))

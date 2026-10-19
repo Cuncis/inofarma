@@ -21,10 +21,10 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /** The most of one product a shopper may buy in a single order. The same for every product. */
+    /** The most of one product a shopper may buy in a single order, for a product without a limit of its own. */
     public const MAX_QUANTITY_PER_ORDER = 2;
 
-    /** Shown wherever a quantity goes over {@see MAX_QUANTITY_PER_ORDER}. The storefront has the same text in `lib/purchaseLimit.ts`. */
+    /** Shown wherever a quantity goes over the product's {@see purchaseLimit()}. The storefront has the same text in `lib/purchaseLimit.ts`. */
     public const OVER_LIMIT_MESSAGE = 'Produk ini memiliki maksimum jumlah pembelian untuk pemakaian 3 hari';
 
     protected $fillable = [
@@ -34,6 +34,11 @@ class Product extends Model
         'side_effects', 'warning', 'manufacturer', 'requires_prescription',
         'max_qty_per_order', 'storage', 'weight_grams', 'length_cm', 'width_cm',
         'height_cm', 'sold_count', 'rating', 'status',
+    ];
+
+    /** New products start at the default limit, so it shows (and can be changed) in the list and the export. */
+    protected $attributes = [
+        'max_qty_per_order' => self::MAX_QUANTITY_PER_ORDER,
     ];
 
     protected function casts(): array
@@ -54,14 +59,12 @@ class Product extends Model
     }
 
     /**
-     * How many of this product one order may hold. Every product shares the
-     * same cap; a product with its own, lower `max_qty_per_order` keeps it.
+     * How many of this product one order may hold: the product's own
+     * `max_qty_per_order`, or {@see MAX_QUANTITY_PER_ORDER} when it has none.
      */
     public function purchaseLimit(): int
     {
-        return $this->max_qty_per_order
-            ? min(self::MAX_QUANTITY_PER_ORDER, $this->max_qty_per_order)
-            : self::MAX_QUANTITY_PER_ORDER;
+        return $this->max_qty_per_order ?: self::MAX_QUANTITY_PER_ORDER;
     }
 
     /**

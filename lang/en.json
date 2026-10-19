@@ -532,5 +532,14 @@
     "Gambar atau PDF, maksimal :size MB per file.": "Images or PDFs, up to :size MB each.",
     "Mengunggah…": "Uploading…",
     "Seret file ke sini untuk mengunggah, atau": "Drag files here to upload, or",
-    "Pilih file": "Choose files"
+    "Pilih file": "Choose files",
+    "Maks. Beli": "Max Qty",
+    "Ubah Maks. Pembelian": "Change Purchase Limit",
+    "Maks. pembelian per transaksi": "Max purchase per order",
+    "Pembeli yang melewati batas ini melihat pesan: \":message\".": "Shoppers who go over this limit see: \":message\".",
+    "Ubah Status": "Change Status",
+    ":count produk diperbarui.": ":count products updated.",
+    "Produk ini memiliki maksimum jumlah pembelian untuk pemakaian 3 hari": "This product has a maximum purchase quantity for 3 days of use",
+    "Kolom :column: maksimum pembelian per transaksi. Kosong berarti :default. Pembeli yang melewatinya melihat pesan \":message\".": "Column :column: maximum purchase per order. Empty means :default. Shoppers who go over it see \":message\".",
+    "Kolom :column: :values.": "Column :column: :values."
 }

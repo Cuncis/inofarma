@@ -4,6 +4,8 @@
             <div class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                 <p>{{ __('Unduh template lewat tombol Export & Template, isi, lalu import. Produk dan stok ada dalam satu file: satu baris per produk, cabang, dan batch.') }}</p>
                 <p>{{ __('SKU yang sudah ada diperbarui, bukan diduplikasi. Untuk produk yang sudah ada, cukup isi sku dan kolom stok. Stok per produk dan cabang diganti sesuai file.') }}</p>
+                <p>{!! __('Kolom :column: maksimum pembelian per transaksi. Kosong berarti :default. Pembeli yang melewatinya melihat pesan ":message".', ['column' => '<code>max_qty_per_order</code>', 'default' => \App\Models\Product::MAX_QUANTITY_PER_ORDER, 'message' => e(__(\App\Models\Product::OVER_LIMIT_MESSAGE))]) !!}</p>
+                <p>{!! __('Kolom :column: :values.', ['column' => '<code>status</code>', 'values' => '<code>aktif</code>, <code>nonaktif</code>, <code>arsip</code>']) !!}</p>
             </div>
         @elseif (($result['kind'] ?? 'produk') === 'produk-stok')
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">

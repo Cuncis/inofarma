@@ -37,7 +37,7 @@ class ProductTemplate
                 'blurb' => 'Pereda demam dan nyeri.', 'description' => 'Obat penurun demam dan pereda nyeri ringan.',
                 'indication' => 'Demam, sakit kepala, nyeri ringan', 'dosage' => '3 kali sehari 1 tablet',
                 'side_effects' => '', 'warning' => '', 'storage' => 'suhu ruang', 'weight_grams' => '20',
-                'max_qty_per_order' => '5', 'status' => 'aktif', 'image_url' => 'https://contoh.com/foto/paracetamol.jpg',
+                'max_qty_per_order' => '2', 'status' => 'aktif', 'image_url' => 'https://contoh.com/foto/paracetamol.jpg',
             ],
             [
                 'sku' => 'PRD-002', 'name' => 'Vitamin C 1000 mg Botol 30', 'slug' => '',
@@ -46,7 +46,7 @@ class ProductTemplate
                 'nie_bpom' => '', 'composition' => 'Vitamin C 1000 mg', 'manufacturer' => '',
                 'blurb' => '', 'description' => '', 'indication' => '', 'dosage' => '',
                 'side_effects' => '', 'warning' => '', 'storage' => 'suhu ruang', 'weight_grams' => '150',
-                'max_qty_per_order' => '', 'status' => 'aktif', 'image_url' => 'https://contoh.com/foto/vit-c-1.jpg|https://contoh.com/foto/vit-c-2.jpg',
+                'max_qty_per_order' => '2', 'status' => 'aktif', 'image_url' => 'https://contoh.com/foto/vit-c-1.jpg|https://contoh.com/foto/vit-c-2.jpg',
             ],
         ];
     }

@@ -1,6 +1,6 @@
 /**
- * The per-order cap on one product. Every product has the same cap (the server
- * sends it as `purchaseLimit`), and a cart or product page may go over it so
+ * The per-order cap on one product. Each product has its own cap, 2 unless
+ * staff changed it (the server sends it as `purchaseLimit`), and a cart or product page may go over it so
  * the shopper sees which line is the problem: the message shows in red and the
  * add-to-cart and checkout buttons turn gray until the quantity is back
  * within the limit. The server enforces the same rule at checkout.

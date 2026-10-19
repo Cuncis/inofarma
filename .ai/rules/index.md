@@ -6,7 +6,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | app/Support/Shipping/**,app/Support/Pickup/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/ShippingController.php,app/Filament/Resources/Orders/**,app/Filament/Resources/Pickups/**,app/Models/Shipment.php | .ai/rules/admin-models.md |
 | app/Http/Controllers/Api/**,app/Support/LocationPreference.php,routes/api.php | .ai/rules/api-support.md |
-| app/Models/Order.php | .ai/rules/app-models.md |
+| app/Models/Order.php, app/Models/Product.php | .ai/rules/app-models.md |
 | app/Support/Cart/** | .ai/rules/cart.md |
 | app/Support/Payments/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/PaymentController.php,app/Models/Payment.php,app/Console/Commands/ExpireUnpaidOrders.php,app/Support/OrderCancellation.php | .ai/rules/commands-support.md |
 | app/Support/Auth/**,app/Http/Controllers/Admin/**,app/Filament/Resources/BranchStocks/**,app/Filament/Resources/StockTransfers/** | .ai/rules/controllers-admin.md |
@@ -33,7 +33,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | public/** | .ai/rules/public.md |
 | app/Support/Shipping/**,app/Filament/Resources/Orders/** | .ai/rules/shipping-http-controllers-admin.md |
 | app/Support/Shipping/** | .ai/rules/shipping.md |
-| app/Http/Controllers/Shop/PrivacyController.php,app/Http/Controllers/Shop/AuthController.php,app/Support/Money.php,resources/js/Components/Shop/useLocationConsent.ts,resources/js/Pages/Shop/Terms.tsx,resources/js/Pages/Shop/PrivacyPolicy.tsx,resources/js/Pages/Shop/RefundPolicy.tsx,resources/js/Pages/Shop/ShippingInfo.tsx,app/Filament/Resources/Products/** | .ai/rules/shop-http-controllers-admin.md |
+| app/Http/Controllers/Shop/PrivacyController.php,app/Http/Controllers/Shop/AuthController.php,app/Support/Money.php,resources/js/Components/Shop/useLocationConsent.ts,resources/js/Components/Shop/legalDocuments.ts,resources/js/Components/Shop/LegalModal.tsx,resources/js/Pages/Shop/RefundPolicy.tsx,resources/js/Pages/Shop/ShippingInfo.tsx,app/Filament/Resources/Products/** | .ai/rules/shop-http-controllers-admin.md |
 | resources/js/{Pages,Components}/Shop/** | .ai/rules/shop.md |
 | app/Support/ProductCsvImporter.php,app/Filament/Pages/ProductImport.php | .ai/rules/support-http-controllers-admin.md |
 | app/Support/**, app/Http/Controllers/Admin/**, app/Filament/** | .ai/rules/support.md |
