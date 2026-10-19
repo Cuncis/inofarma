@@ -362,3 +362,9 @@ input[type='time'].fi-input::-webkit-datetime-edit {
 [data-lang][data-active] {
     background-color: var(--gray-100, rgb(0 0 0 / 0.06));
 }
+
+/* File upload: underline only the "Browse" link, not the rest of the drop label. */
+.fi-fo-file-upload .filepond--label-action {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
