@@ -77,8 +77,22 @@ function ZoomImage({ src, alt }: { src: string; alt: string }) {
     const ratio = element && element.naturalWidth ? element.naturalWidth / element.naturalHeight : 1;
     let zoom: React.ReactNode = null;
 
-    if (hover) {
-        const { rect, x, y } = hover;
+    if (hover && element) {
+        // Under the storefront's CSS `zoom`, the browser reports the photo's rect,
+        // the cursor and the window width in screen pixels, but `left`/`top`/
+        // `width` are laid out in unzoomed pixels. Convert before positioning.
+        const factor = element.offsetWidth ? hover.rect.width / element.offsetWidth : 1;
+        const rect = {
+            left: hover.rect.left / factor,
+            right: hover.rect.right / factor,
+            top: hover.rect.top / factor,
+            width: hover.rect.width / factor,
+            height: hover.rect.height / factor,
+        };
+        const x = hover.x / factor;
+        const y = hover.y / factor;
+        const viewportWidth = window.innerWidth / factor;
+        const viewportHeight = window.innerHeight / factor;
         const width = Math.min(rect.width, rect.height * ratio);
         const height = width / ratio;
         const offsetX = (rect.width - width) / 2;
@@ -88,7 +102,7 @@ function ZoomImage({ src, alt }: { src: string; alt: string }) {
         const lensTop = Math.min(Math.max(y - lensSize / 2, offsetY), offsetY + height - lensSize);
         const scale = PANEL_SIZE / lensSize;
         const inside = x >= offsetX && x <= offsetX + width && y >= offsetY && y <= offsetY + height;
-        const panelLeft = window.innerWidth - rect.right >= PANEL_SIZE + PANEL_GAP
+        const panelLeft = viewportWidth - rect.right >= PANEL_SIZE + PANEL_GAP
             ? rect.right + PANEL_GAP
             : Math.max(8, rect.left - PANEL_GAP - PANEL_SIZE);
 
@@ -101,7 +115,7 @@ function ZoomImage({ src, alt }: { src: string; alt: string }) {
                 <div
                     className="pointer-events-none fixed z-50 overflow-hidden rounded-[2px] border border-line bg-white shadow-pop"
                     style={{
-                        top: rect.top,
+                        top: Math.max(8, Math.min(rect.top, viewportHeight - PANEL_SIZE - 8)),
                         left: panelLeft,
                         width: PANEL_SIZE,
                         height: PANEL_SIZE,
