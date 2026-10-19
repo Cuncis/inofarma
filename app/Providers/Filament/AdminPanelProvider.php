@@ -36,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
             // of shipping its own login page — see the `admin` middleware
             // alias below, the same one guarding that flow.
             ->brandName('Inofarma')
+            ->favicon(asset('favicon.png'))
             ->font('Inter')
             ->colors([
                 'primary' => Color::hex('#303030'),

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>Berhenti Berlangganan - Apotek Inofarma</title>
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon.png') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <style>
         body { margin:0; background:#F3F5F6; font-family:Arial,Helvetica,sans-serif; color:#222; }
         main { max-width:460px; margin:64px auto; background:#fff; border:1px solid #eee; padding:32px; text-align:center; }
