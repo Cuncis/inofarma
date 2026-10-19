@@ -207,3 +207,39 @@
         color: #1773b0;
     }
 }
+
+/*
+ * Storefront on a desktop monitor: the layout is drawn at phone-friendly pixel
+ * sizes, so at a browser's 100% it reads small. `zoom` scales the whole
+ * storefront the way the browser's own zoom would (150% on a wide monitor),
+ * with media queries still seeing the real window width, so the desktop layout
+ * stays on. Smaller windows get a smaller factor so the page still fits.
+ * `vh` units are scaled by `zoom` too, so full-height boxes divide it back out.
+ * The admin panel is left alone.
+ */
+@media (min-width: 1280px) {
+  html.shop-zoom {
+    --shop-zoom: 1.25;
+    zoom: var(--shop-zoom);
+  }
+}
+
+@media (min-width: 1700px) {
+  html.shop-zoom {
+    --shop-zoom: 1.5;
+  }
+}
+
+@media (min-width: 1280px) {
+  html.shop-zoom .min-h-screen {
+    min-height: calc(100vh / var(--shop-zoom));
+  }
+
+  html.shop-zoom .h-screen {
+    height: calc(100vh / var(--shop-zoom));
+  }
+
+  html.shop-zoom .\[height\:100dvh\] {
+    height: calc(100dvh / var(--shop-zoom));
+  }
+}

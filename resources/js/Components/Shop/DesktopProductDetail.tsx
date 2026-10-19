@@ -311,6 +311,26 @@ function Description({ product }: { product: CatalogProduct }) {
 export default function DesktopProductDetail({ product }: { product: CatalogProduct }) {
     const { shopProducts } = useShopCatalog();
 
+    // The buy box sticks just below the sticky header, whatever its height
+    // (the notice in it wraps to a second line on narrower windows).
+    const [stickyTop, setStickyTop] = useState(150);
+
+    useEffect(() => {
+        const header = document.querySelector<HTMLElement>('header .sticky');
+
+        if (! header) {
+            return;
+        }
+
+        const measure = () => setStickyTop(header.offsetHeight + 12);
+        measure();
+
+        const observer = new ResizeObserver(measure);
+        observer.observe(header);
+
+        return () => observer.disconnect();
+    }, []);
+
     const related = shopProducts
         .filter((tile) => tile.category === product.category && tile.id !== product.id)
         .slice(0, 6);
@@ -331,7 +351,14 @@ export default function DesktopProductDetail({ product }: { product: CatalogProd
                     <Description product={product} />
                 </div>
 
-                <BuyBox product={product} />
+                {/* Stays in view beside the long description; the grid ends before
+                    "Produk Lainnya", so it stops sticking there. */}
+                <div
+                    className="sticky overflow-y-auto"
+                    style={{ top: stickyTop, maxHeight: `calc(100vh / var(--shop-zoom, 1) - ${stickyTop + 20}px)` }}
+                >
+                    <BuyBox product={product} />
+                </div>
             </div>
 
             {related.length ? (
