@@ -20,8 +20,8 @@
         "concurrently": "^10.0.5",
         "laravel-vite-plugin": "^3.1",
         "postcss": "^8.4.31",
-        "react": "^19.3.0",
-        "react-dom": "^19.3.0",
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
         "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2",
         "vite": "^8.2.1"

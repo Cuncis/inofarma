@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Pages\Page;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,9 @@ class WebsiteContent extends Page
     protected string $view = 'filament.pages.website-content';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPaintBrush;
+
+    /** Full width, so the image grids and repeaters have room. */
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     protected static ?int $navigationSort = 7;
 

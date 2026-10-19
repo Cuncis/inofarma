@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Ubah gambar dan teks halaman toko tanpa mengubah kode. Pilih halaman yang ingin diubah.') }}</p>
 
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         @foreach ($this->editablePages() as $page)
             <div class="flex flex-col gap-3 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="flex items-center gap-3">

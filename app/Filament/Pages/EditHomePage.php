@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
@@ -36,6 +37,9 @@ class EditHomePage extends Page
     protected string $view = 'filament.pages.edit-home-page';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
+
+    /** Full width, so the image grids and repeaters have room. */
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     protected static ?int $navigationSort = 1;
 
@@ -110,7 +114,7 @@ class EditHomePage extends Page
                                 Section::make()
                                     ->description(__('Nama tiap ikon adalah nama kategorinya, jadi tautan ke toko tetap benar. Nama dan urutan diubah di menu Kategori.'))
                                     ->schema([
-                                        Grid::make(['default' => 2, 'md' => 4])
+                                        Grid::make(['default' => 2, 'md' => 4, '2xl' => 8])
                                             ->schema([
                                                 ...$this->categories()->map(fn (Category $category) => $this->image("categoryIcons.category{$category->id}")
                                                     ->label($category->name)
@@ -142,7 +146,7 @@ class EditHomePage extends Page
                                         TextInput::make('name')->label(__('Nama Brand'))->required()->maxLength(60),
                                         $this->image('image')->label(__('Logo'))->required(),
                                     ])
-                                    ->grid(['default' => 1, 'md' => 3])
+                                    ->grid(['default' => 1, 'md' => 3, 'xl' => 4, '2xl' => 6])
                                     ->itemLabel(fn (array $state) => $state['name'] ?? null)
                                     ->addActionLabel(__('Tambah brand'))
                                     ->reorderable()
@@ -158,7 +162,7 @@ class EditHomePage extends Page
                                         TextInput::make('label')->label(__('Judul'))->required()->maxLength(60),
                                         $this->image('image')->label(__('Ikon'))->required(),
                                     ])
-                                    ->grid(['default' => 1, 'md' => 3])
+                                    ->grid(['default' => 1, 'md' => 3, 'xl' => 4, '2xl' => 6])
                                     ->itemLabel(fn (array $state) => $state['label'] ?? null)
                                     ->addActionLabel(__('Tambah keuntungan'))
                                     ->reorderable()
@@ -179,7 +183,7 @@ class EditHomePage extends Page
                                         ]),
                                         Textarea::make('quote')->label(__('Ulasan'))->required()->rows(3)->maxLength(600),
                                     ])
-                                    ->grid(['default' => 1, 'lg' => 2])
+                                    ->grid(['default' => 1, 'lg' => 2, '2xl' => 3])
                                     ->itemLabel(fn (array $state) => $state['name'] ?? null)
                                     ->addActionLabel(__('Tambah testimoni'))
                                     ->reorderable()
@@ -313,7 +317,7 @@ class EditHomePage extends Page
                         ->maxLength(200),
                 ]),
             ])
-            ->grid(['default' => 1, 'lg' => 2])
+            ->grid(['default' => 1, 'lg' => 2, '2xl' => 3])
             ->itemLabel(fn (array $state) => $state['alt'] ?? null)
             ->addActionLabel(__('Tambah slide'))
             ->reorderable()
