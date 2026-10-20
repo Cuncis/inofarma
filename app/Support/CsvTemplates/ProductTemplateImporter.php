@@ -3,7 +3,6 @@
 namespace App\Support\CsvTemplates;
 
 use App\Models\Product;
-use App\Models\Supplier;
 use App\Support\CategoryResolver;
 use App\Support\ProductImageFetcher;
 use App\Support\Slug;
@@ -22,6 +21,11 @@ use RuntimeException;
  * Only product data is touched. Stock comes in through
  * {@see StockTemplateImporter}.
  *
+ * Slug, supplier and cost price are not part of the file: the slug is made
+ * from the name for a new product and never changed by an import, and the
+ * other two are edited in the admin. Old files that still carry those columns
+ * import fine, the columns are ignored.
+ *
  * Bebas terbatas products must show a warning label by law, so one imported
  * without warning text is saved as `nonaktif` until an admin fills it in.
  */
@@ -31,8 +35,6 @@ class ProductTemplateImporter
         'nie_bpom', 'composition', 'manufacturer', 'blurb', 'description',
         'indication', 'dosage', 'side_effects', 'warning',
     ];
-
-    private const MONEY_COLUMNS = ['old_price', 'cost_price'];
 
     private const TRUE_VALUES = ['1', 'ya', 'yes', 'true'];
 
@@ -140,19 +142,13 @@ class ProductTemplateImporter
             }
         }
 
-        foreach (self::MONEY_COLUMNS as $column) {
-            if ($has($column)) {
-                $attributes[$column] = $cells[$column] !== '' ? (int) $cells[$column] : null;
-            }
+        if ($has('old_price')) {
+            $attributes['old_price'] = $cells['old_price'] !== '' ? (int) $cells['old_price'] : null;
         }
 
         if ($has('max_qty_per_order')) {
             $maxQty = (int) $cells['max_qty_per_order'];
             $attributes['max_qty_per_order'] = $maxQty > 0 ? $maxQty : null;
-        }
-
-        if ($has('supplier')) {
-            $attributes['supplier_id'] = $cells['supplier'] !== '' ? $this->supplierId($cells['supplier']) : null;
         }
 
         foreach (['storage', 'status'] as $column) {
@@ -165,8 +161,8 @@ class ProductTemplateImporter
             $attributes['requires_prescription'] = in_array($cells['requires_prescription'], self::TRUE_VALUES, true);
         }
 
-        if ($isNew || $has('slug') || $has('name')) {
-            $attributes['slug'] = $this->slugFor($product, $cells, $has('slug'));
+        if ($isNew) {
+            $attributes['slug'] = Slug::unique(Product::withTrashed(), $cells['name']);
         }
 
         $product->fill($attributes);
@@ -199,13 +195,10 @@ class ProductTemplateImporter
         $rules = [
             'sku' => ['required', 'string', 'max:40'],
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'max:255'],
             'category' => ['required', 'string', 'max:255'],
-            'supplier' => ['nullable', 'string', 'max:255'],
             'unit' => ['required', 'string', 'max:30'],
             'price' => ['required', $digits],
             'old_price' => ['nullable', $digits],
-            'cost_price' => ['nullable', $digits],
             'drug_class' => ['required', 'in:'.implode(',', ProductTemplate::DRUG_CLASSES)],
             'requires_prescription' => ['nullable', 'in:'.implode(',', [...self::TRUE_VALUES, ...self::FALSE_VALUES])],
             'nie_bpom' => ['nullable', 'max:40'],
@@ -226,7 +219,6 @@ class ProductTemplateImporter
 
         $validator = Validator::make($cells, $rules, [
             'regex' => 'Kolom :attribute harus berupa bilangan bulat tanpa titik, koma, atau "Rp" (contoh: 15000).',
-            'slug.regex' => 'Kolom slug hanya boleh huruf kecil, angka, dan tanda hubung.',
             'in' => 'Kolom :attribute berisi nilai yang tidak dikenal.',
             'required' => 'Kolom :attribute wajib diisi.',
             'max' => 'Kolom :attribute terlalu panjang atau terlalu besar.',
@@ -235,44 +227,6 @@ class ProductTemplateImporter
         if ($validator->fails()) {
             throw new RuntimeException($validator->errors()->first());
         }
-    }
-
-    private function supplierId(string $name): int
-    {
-        $supplier = Supplier::where('name', $name)->first();
-
-        if ($supplier === null) {
-            throw new RuntimeException("Pemasok \"{$name}\" tidak ditemukan. Tambahkan dulu di menu Pemasok.");
-        }
-
-        return $supplier->id;
-    }
-
-    /**
-     * New products get the given slug or one made from the name. Existing
-     * products keep their slug (it is in storefront URLs) unless the file
-     * gives a different one on purpose.
-     *
-     * @param  array<string, string>  $cells
-     */
-    private function slugFor(Product $product, array $cells, bool $hasSlugColumn): string
-    {
-        $given = $hasSlugColumn ? $cells['slug'] : '';
-
-        if ($given === '') {
-            return $product->exists ? $product->slug : Slug::unique(Product::withTrashed(), $cells['name']);
-        }
-
-        $taken = Product::withTrashed()
-            ->where('slug', $given)
-            ->when($product->exists, fn ($query) => $query->whereKeyNot($product->getKey()))
-            ->exists();
-
-        if ($taken) {
-            throw new RuntimeException("Slug \"{$given}\" sudah dipakai produk lain.");
-        }
-
-        return $given;
     }
 
     /**

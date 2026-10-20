@@ -16,7 +16,8 @@ use RuntimeException;
  *   and an empty cell means "leave as is", never "clear". Two rows that give a
  *   column different values are an error for the whole SKU.
  * - A product that already exists needs only `sku` plus the columns to change,
- *   so a plain stock count is `sku, branch, batch_number, expires_at, quantity`.
+ *   so a plain stock count is `sku, branch, expires_at, quantity` (`batch_number`
+ *   is optional).
  *   A new product needs every required product column.
  * - Rows without any stock cell only create or update the product.
  * - For each product and branch the stock rows are the complete batch list

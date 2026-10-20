@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\Auth\Scopes\BranchScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,6 +68,15 @@ class InventoryBatch extends Model
     public function scopeExpired(Builder $query): Builder
     {
         return $query->where('quantity', '>', 0)->whereDate('expires_at', '<', now());
+    }
+
+    /**
+     * Nomor batch otomatis bila staf tidak mengisinya: satu batch per tanggal
+     * kedaluwarsa, sehingga FEFO dan pengingat kedaluwarsa tetap berjalan.
+     */
+    public static function numberForExpiry(string $expiresAt): string
+    {
+        return 'EXP-'.Carbon::parse($expiresAt)->format('Ymd');
     }
 
     public function getDaysUntilExpiryAttribute(): int

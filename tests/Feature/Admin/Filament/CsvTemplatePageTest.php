@@ -113,8 +113,9 @@ class CsvTemplatePageTest extends TestCase
             ->assertFileDownloaded('template-produk-stok.csv');
 
         $sample = $this->streamed((new TemplateExporter)->catalogSample());
-        $this->assertStringStartsWith("\xEF\xBB\xBFsku,name,slug,category,", $sample);
-        $this->assertStringContainsString(',branch,batch_number,expires_at,quantity,', $sample);
+        $this->assertStringStartsWith("\xEF\xBB\xBFsku,name,category,unit,price,old_price,drug_class,", $sample);
+        $this->assertStringContainsString(',branch,batch_number,expires_at,quantity,is_listed', $sample);
+        $this->assertStringNotContainsString('slug', strtok($sample, "\n"));
 
         $path = tempnam(sys_get_temp_dir(), 'csv');
         file_put_contents($path, $sample);

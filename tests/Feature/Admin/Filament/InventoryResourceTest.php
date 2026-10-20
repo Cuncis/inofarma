@@ -119,11 +119,34 @@ class InventoryResourceTest extends TestCase
                 'batchNumber' => 'B-NEW-001',
                 'expiresAt' => now()->addYear()->toDateString(),
                 'quantity' => 100,
-                'costPrice' => 8000,
             ]);
 
         $this->assertDatabaseHas('inventory_batches', [
-            'batch_number' => 'B-NEW-001', 'quantity' => 100, 'cost_price' => 8000,
+            'batch_number' => 'B-NEW-001', 'quantity' => 100,
+        ]);
+    }
+
+    public function test_receiving_stock_without_a_batch_number_groups_it_by_expiry_date(): void
+    {
+        $stock = BranchStock::whereHas('branch', fn ($q) => $q->where('code', 'CB-001'))
+            ->whereHas('product', fn ($q) => $q->where('sku', 'PRD-001'))
+            ->firstOrFail();
+        $expiresAt = now()->addYears(3)->startOfMonth();
+
+        foreach ([30, 20] as $quantity) {
+            Livewire::test(ListBranchStocks::class)
+                ->callTableAction('terima', $stock, data: [
+                    'expiresAt' => $expiresAt->toDateString(),
+                    'quantity' => $quantity,
+                ])
+                ->assertHasNoTableActionErrors();
+        }
+
+        $this->assertDatabaseHas('inventory_batches', [
+            'branch_id' => $stock->branch_id,
+            'product_id' => $stock->product_id,
+            'batch_number' => 'EXP-'.$expiresAt->format('Ymd'),
+            'quantity' => 50,
         ]);
     }
 
@@ -141,12 +164,12 @@ class InventoryResourceTest extends TestCase
                 'batchNumber' => 'B-AWAL-001',
                 'expiresAt' => now()->addYear()->toDateString(),
                 'quantity' => 40,
-                'costPrice' => 5000,
             ])
             ->assertHasNoActionErrors();
 
         $stock = BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->firstOrFail();
         $this->assertSame(40, $stock->quantity);
+        $this->assertSame(0, $stock->reorder_point);
         $this->assertDatabaseHas('inventory_batches', [
             'branch_id' => $branch->id, 'product_id' => $product->id, 'batch_number' => 'B-AWAL-001', 'quantity' => 40,
         ]);
@@ -176,8 +199,9 @@ class InventoryResourceTest extends TestCase
     public function test_initial_stock_needs_a_branch_product_and_batch_details(): void
     {
         Livewire::test(ListBranchStocks::class)
-            ->callAction('stokAwal', data: ['branchId' => null, 'productId' => null, 'batchNumber' => '', 'quantity' => null])
-            ->assertHasActionErrors(['branchId' => 'required', 'productId' => 'required', 'batchNumber' => 'required', 'quantity' => 'required']);
+            ->callAction('stokAwal', data: ['branchId' => null, 'productId' => null, 'batchNumber' => '', 'expiresAt' => null, 'quantity' => null])
+            ->assertHasActionErrors(['branchId' => 'required', 'productId' => 'required', 'expiresAt' => 'required', 'quantity' => 'required'])
+            ->assertHasNoActionErrors(['batchNumber']);
     }
 
     public function test_initial_stock_requires_a_future_expiry_date(): void

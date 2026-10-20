@@ -150,27 +150,92 @@ class StockTemplateImporterTest extends TestCase
         $this->assertSame('2027-06-30', InventoryBatch::where('branch_id', $branch->id)->first()->expires_at->toDateString());
     }
 
-    public function test_branch_level_settings_are_applied_and_cost_and_received_date_are_saved(): void
+    public function test_is_listed_is_applied_and_the_received_date_defaults_to_today(): void
     {
         $branch = Branch::factory()->create(['code' => 'CB-707']);
         $product = Product::factory()->create(['sku' => 'STK-10']);
 
         (new StockTemplateImporter)->import($this->writeCsv(
-            [...self::HEADER, 'batch_cost_price', 'received_at', 'reorder_point', 'price_override', 'is_listed'],
+            [...self::HEADER, 'is_listed'],
             [
-                ['STK-10', 'CB-707', 'B1', '2028-03-31', '10', '3500', '2026-09-01', '', '', ''],
-                ['STK-10', 'CB-707', 'B2', '2028-09-30', '10', '3600', '', '40', '8000', '0'],
+                ['STK-10', 'CB-707', 'B1', '2028-03-31', '10', ''],
+                ['STK-10', 'CB-707', 'B2', '2028-09-30', '10', '0'],
             ],
         ));
 
         $stock = BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->first();
-        $this->assertSame(40, $stock->reorder_point);
-        $this->assertSame(8000, $stock->price_override);
         $this->assertFalse($stock->is_listed);
+        $this->assertSame(now()->toDateString(), InventoryBatch::where('batch_number', 'B1')->first()->received_at->toDateString());
+    }
 
-        $batch = InventoryBatch::where('batch_number', 'B1')->first();
-        $this->assertSame(3500, $batch->cost_price);
-        $this->assertSame('2026-09-01', $batch->received_at->toDateString());
+    public function test_removed_columns_in_an_old_file_are_ignored(): void
+    {
+        $branch = Branch::factory()->create(['code' => 'CB-711']);
+        $product = Product::factory()->create(['sku' => 'STK-14']);
+
+        $summary = (new StockTemplateImporter)->import($this->writeCsv(
+            [...self::HEADER, 'batch_cost_price', 'received_at', 'price_override', 'reorder_point'],
+            [['STK-14', 'CB-711', 'B1', '2028-03-31', '10', 'abc', '2026-09-01', '8000', '40']],
+        ));
+
+        $this->assertSame([], $summary['failed']);
+        $stock = BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->first();
+        $this->assertNull($stock->price_override);
+        $this->assertSame(0, $stock->reorder_point);
+        $this->assertNull(InventoryBatch::where('batch_number', 'B1')->first()->cost_price);
+    }
+
+    public function test_new_stock_gets_no_reorder_point(): void
+    {
+        $branch = Branch::factory()->create(['code' => 'CB-712']);
+        $product = Product::factory()->create(['sku' => 'STK-15']);
+
+        (new StockTemplateImporter)->import($this->writeCsv(self::HEADER, [['STK-15', 'CB-712', 'B1', '2028-03-31', '5']]));
+
+        $stock = BranchStock::where('branch_id', $branch->id)->where('product_id', $product->id)->first();
+        $this->assertSame(0, $stock->reorder_point);
+        $this->assertFalse($stock->is_low);
+    }
+
+    public function test_an_empty_batch_number_becomes_one_batch_per_expiry_date(): void
+    {
+        $branch = Branch::factory()->create(['code' => 'CB-713']);
+        $product = Product::factory()->create(['sku' => 'STK-16']);
+
+        $summary = (new StockTemplateImporter)->import($this->writeCsv(['sku', 'branch_code', 'expires_at', 'quantity'], [
+            ['STK-16', 'CB-713', '2028-03-31', '10'],
+            ['STK-16', 'CB-713', '30/09/2028', '4'],
+        ]));
+
+        $this->assertSame([], $summary['failed']);
+        $this->assertSame(14, $this->quantityAt($branch, $product));
+        $this->assertSame(10, InventoryBatch::where('batch_number', 'EXP-20280331')->value('quantity'));
+        $this->assertSame(4, InventoryBatch::where('batch_number', 'EXP-20280930')->value('quantity'));
+
+        $again = (new StockTemplateImporter)->import($this->writeCsv(['sku', 'branch_code', 'batch_number', 'expires_at', 'quantity'], [
+            ['STK-16', 'CB-713', '', '2028-03-31', '8'],
+            ['STK-16', 'CB-713', '', '2028-09-30', '4'],
+        ]));
+
+        $this->assertSame([], $again['failed']);
+        $this->assertSame(2, InventoryBatch::where('product_id', $product->id)->count());
+        $this->assertSame(12, $this->quantityAt($branch, $product));
+    }
+
+    public function test_the_same_expiry_twice_without_a_batch_number_is_a_row_error(): void
+    {
+        $branch = Branch::factory()->create(['code' => 'CB-714']);
+        $product = Product::factory()->create(['sku' => 'STK-17']);
+        BranchStock::factory()->for($branch)->for($product)->create(['quantity' => 9]);
+
+        $summary = (new StockTemplateImporter)->import($this->writeCsv(['sku', 'branch_code', 'expires_at', 'quantity'], [
+            ['STK-17', 'CB-714', '2028-03-31', '10'],
+            ['STK-17', 'CB-714', '2028-03-31', '4'],
+        ]));
+
+        $this->assertSame(0, $summary['groups']);
+        $this->assertStringContainsString('Gabungkan jumlahnya', $summary['failed'][0]['message']);
+        $this->assertSame(9, $this->quantityAt($branch, $product));
     }
 
     public function test_a_branch_confined_importer_refuses_other_branches(): void

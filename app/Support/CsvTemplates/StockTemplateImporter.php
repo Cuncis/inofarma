@@ -3,6 +3,7 @@
 namespace App\Support\CsvTemplates;
 
 use App\Models\Branch;
+use App\Models\InventoryBatch;
 use App\Models\Product;
 use App\Support\Inventory\StockReplacer;
 use Carbon\Carbon;
@@ -11,6 +12,9 @@ use RuntimeException;
 
 /**
  * Replaces batch stock from `stok.csv` (see {@see StockTemplate}).
+ *
+ * `batch_number` is optional: an empty one becomes one batch per expiry date
+ * ({@see InventoryBatch::numberForExpiry()}).
  *
  * The rows for one product at one branch are the complete list of its batches:
  * quantities are set to the file's numbers, and batches the branch holds that
@@ -148,12 +152,9 @@ class StockTemplateImporter
     private function collectRow(array $cells, array $header, array &$group): void
     {
         $validator = Validator::make($cells, [
-            'batch_number' => ['required', 'max:60'],
+            'batch_number' => ['nullable', 'max:60'],
             'expires_at' => ['required'],
             'quantity' => ['required', 'regex:/^\d+$/'],
-            'batch_cost_price' => ['nullable', 'regex:/^\d+$/'],
-            'reorder_point' => ['nullable', 'regex:/^\d+$/'],
-            'price_override' => ['nullable', 'regex:/^\d+$/'],
         ], [
             'required' => 'Kolom :attribute wajib diisi.',
             'regex' => 'Kolom :attribute harus berupa bilangan bulat tanpa titik atau koma.',
@@ -164,25 +165,21 @@ class StockTemplateImporter
             throw new RuntimeException($validator->errors()->first());
         }
 
-        $batchKey = mb_strtolower($cells['batch_number']);
+        $expiresAt = $this->date($cells['expires_at'], 'expires_at');
+        $batchNumber = ($cells['batch_number'] ?? '') !== '' ? $cells['batch_number'] : InventoryBatch::numberForExpiry($expiresAt);
+        $batchKey = mb_strtolower($batchNumber);
 
         if (isset($group['seen'][$batchKey])) {
-            throw new RuntimeException("Batch {$cells['batch_number']} muncul lebih dari sekali untuk produk dan cabang yang sama.");
+            throw new RuntimeException(($cells['batch_number'] ?? '') !== ''
+                ? "Batch {$batchNumber} muncul lebih dari sekali untuk produk dan cabang yang sama."
+                : "Tanggal kedaluwarsa {$expiresAt} tanpa batch_number muncul lebih dari sekali untuk produk dan cabang yang sama. Gabungkan jumlahnya dalam satu baris.");
         }
 
         $entry = [
-            'batch_number' => $cells['batch_number'],
-            'expires_at' => $this->date($cells['expires_at'], 'expires_at'),
+            'batch_number' => $batchNumber,
+            'expires_at' => $expiresAt,
             'quantity' => (int) $cells['quantity'],
         ];
-
-        if (in_array('batch_cost_price', $header, true) && ($cells['batch_cost_price'] ?? '') !== '') {
-            $entry['cost_price'] = (int) $cells['batch_cost_price'];
-        }
-
-        if (in_array('received_at', $header, true) && ($cells['received_at'] ?? '') !== '') {
-            $entry['received_at'] = $this->date($cells['received_at'], 'received_at');
-        }
 
         $this->collectSettings($cells, $header, $group['settings']);
 
@@ -200,12 +197,6 @@ class StockTemplateImporter
      */
     private function collectSettings(array $cells, array $header, array &$settings): void
     {
-        foreach (['reorder_point', 'price_override'] as $column) {
-            if (in_array($column, $header, true) && ($cells[$column] ?? '') !== '' && ! isset($settings[$column])) {
-                $settings[$column] = (int) $cells[$column];
-            }
-        }
-
         if (in_array('is_listed', $header, true) && ($cells['is_listed'] ?? '') !== '' && ! isset($settings['is_listed'])) {
             $value = mb_strtolower($cells['is_listed']);
 

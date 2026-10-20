@@ -489,6 +489,7 @@
     "Ditampilkan langsung di chat saat tombol ditekan.": "Shown in the chat right away when the button is tapped.",
     "Nomor telepon / WhatsApp": "Phone / WhatsApp number",
     "Boleh diawali 0 atau 62. Contoh: 0812-1401-8964.": "May start with 0 or 62. Example: 0812-1401-8964.",
+    "Boleh dikosongkan. Batch dibuat otomatis per tanggal kedaluwarsa.": "Optional. Batches are created automatically per expiry date.",
     "Media File": "Media Files",
     "Upload File": "Upload File",
     "File": "File",

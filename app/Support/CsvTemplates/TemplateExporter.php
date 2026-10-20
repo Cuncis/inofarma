@@ -18,7 +18,7 @@ class TemplateExporter
     {
         return $this->download('produk-'.now()->format('Ymd-His').'.csv', ProductTemplate::COLUMNS, function ($out) {
             Product::query()
-                ->with(['category', 'supplier', 'images'])
+                ->with(['category', 'images'])
                 ->orderBy('sku')
                 ->chunk(500, function ($products) use ($out) {
                     foreach ($products as $product) {
@@ -53,10 +53,6 @@ class TemplateExporter
                             'batch_number' => $batch->batch_number,
                             'expires_at' => $batch->expires_at->toDateString(),
                             'quantity' => $batch->quantity,
-                            'batch_cost_price' => $batch->cost_price,
-                            'received_at' => $batch->received_at?->toDateString(),
-                            'reorder_point' => $branchStock?->reorder_point,
-                            'price_override' => $branchStock?->price_override,
                             'is_listed' => $branchStock === null ? null : (int) $branchStock->is_listed,
                         ]);
                     }
@@ -79,7 +75,7 @@ class TemplateExporter
                 : collect();
 
             Product::query()
-                ->with(['category', 'supplier', 'images'])
+                ->with(['category', 'images'])
                 ->orderBy('sku')
                 ->chunk(500, function ($products) use ($out, $columns, $includeStock, $settings) {
                     $batches = $includeStock
@@ -112,10 +108,6 @@ class TemplateExporter
                                 'batch_number' => $batch->batch_number,
                                 'expires_at' => $batch->expires_at->toDateString(),
                                 'quantity' => $batch->quantity,
-                                'batch_cost_price' => $batch->cost_price,
-                                'received_at' => $batch->received_at?->toDateString(),
-                                'reorder_point' => $branchStock?->reorder_point,
-                                'price_override' => $branchStock?->price_override,
                                 'is_listed' => $branchStock === null ? null : (int) $branchStock->is_listed,
                             ]);
                         }
@@ -187,13 +179,10 @@ class TemplateExporter
         return [
             'sku' => $product->sku,
             'name' => $product->name,
-            'slug' => $product->slug,
             'category' => $product->category?->name,
-            'supplier' => $product->supplier?->name,
             'unit' => $product->unit,
             'price' => $product->price,
             'old_price' => $product->old_price,
-            'cost_price' => $product->cost_price,
             'drug_class' => $product->drug_class,
             'requires_prescription' => (int) $product->requires_prescription,
             'nie_bpom' => $product->nie_bpom,

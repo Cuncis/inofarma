@@ -38,7 +38,7 @@ class StockAdjuster
         return DB::transaction(function () use ($branch, $product, $delta, $type, $userId, $note) {
             $stock = BranchStock::withoutGlobalScope(BranchScope::class)->lockForUpdate()->firstOrCreate(
                 ['branch_id' => $branch->id, 'product_id' => $product->id],
-                ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 20, 'is_listed' => true],
+                ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 0, 'is_listed' => true],
             );
 
             $newQuantity = $stock->quantity + $delta;

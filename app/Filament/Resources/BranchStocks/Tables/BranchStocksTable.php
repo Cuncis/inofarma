@@ -4,6 +4,7 @@ namespace App\Filament\Resources\BranchStocks\Tables;
 
 use App\Models\Branch;
 use App\Models\BranchStock;
+use App\Models\InventoryBatch;
 use App\Models\Product;
 use App\Support\AdminOptions;
 use App\Support\Inventory\InsufficientStockException;
@@ -21,7 +22,6 @@ use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -54,12 +54,6 @@ class BranchStocksTable
                 TextColumn::make('available')
                     ->label(__('Tersedia'))
                     ->alignRight(),
-                TextColumn::make('reorder_point')
-                    ->label(__('Titik Pesan Ulang'))
-                    ->alignRight(),
-                IconColumn::make('is_low')
-                    ->label(__('Stok Menipis'))
-                    ->boolean(),
             ])
             ->filters([
                 SelectFilter::make('branch_id')
@@ -214,8 +208,8 @@ class BranchStocksTable
         return [
             TextInput::make('batchNumber')
                 ->label(__('Nomor Batch'))
-                ->required()
-                ->maxLength(60),
+                ->maxLength(60)
+                ->helperText(__('Boleh dikosongkan. Batch dibuat otomatis per tanggal kedaluwarsa.')),
             DatePicker::make('expiresAt')
                 ->label(__('Tanggal Kedaluwarsa'))
                 ->required()
@@ -227,12 +221,6 @@ class BranchStocksTable
                 ->minValue(1)
                 ->maxValue(100000)
                 ->required(),
-            TextInput::make('costPrice')
-                ->label(__('Harga Beli'))
-                ->numeric()
-                ->integer()
-                ->minValue(0)
-                ->maxValue(1000000000),
             Textarea::make('note')
                 ->label(__('Catatan'))
                 ->maxLength(255),
@@ -251,10 +239,9 @@ class BranchStocksTable
             $branch,
             $product,
             [[
-                'batch_number' => $data['batchNumber'],
+                'batch_number' => filled($data['batchNumber'] ?? null) ? $data['batchNumber'] : InventoryBatch::numberForExpiry($data['expiresAt']),
                 'expires_at' => $data['expiresAt'],
                 'quantity' => $data['quantity'],
-                'cost_price' => $data['costPrice'] ?? null,
             ]],
             'pembelian',
             null,

@@ -29,7 +29,7 @@ use RuntimeException;
 class StockReplacer
 {
     /**
-     * @param  list<array{batch_number: string, expires_at: string, quantity: int, cost_price?: int|null, received_at?: string|null}>  $batches
+     * @param  list<array{batch_number: string, expires_at: string, quantity: int, cost_price?: int|null}>  $batches
      * @param  array{reorder_point?: int, price_override?: int, is_listed?: bool}  $settings
      * @return array{batches: int, zeroed: int}
      *
@@ -46,7 +46,7 @@ class StockReplacer
         return DB::transaction(function () use ($branch, $product, $batches, $settings, $userId, $note) {
             $stock = BranchStock::withoutGlobalScope(BranchScope::class)->lockForUpdate()->firstOrCreate(
                 ['branch_id' => $branch->id, 'product_id' => $product->id],
-                ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 20, 'is_listed' => true],
+                ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 0, 'is_listed' => true],
             );
 
             $newTotal = array_sum(array_column($batches, 'quantity'));
@@ -79,7 +79,7 @@ class StockReplacer
 
                 $batch->expires_at = $entry['expires_at'];
                 $batch->cost_price = $entry['cost_price'] ?? $batch->cost_price;
-                $batch->received_at = $entry['received_at'] ?? $batch->received_at ?? now();
+                $batch->received_at ??= now();
                 $batch->quantity = $entry['quantity'];
                 $batch->save();
 

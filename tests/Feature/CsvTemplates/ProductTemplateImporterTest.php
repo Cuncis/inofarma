@@ -39,11 +39,9 @@ class ProductTemplateImporterTest extends TestCase
 
     public function test_a_row_creates_a_product_with_every_mapped_field(): void
     {
-        $supplier = Supplier::factory()->create(['name' => 'PBF Sehat']);
-
         $path = $this->writeCsv(
-            [...self::REQUIRED, 'slug', 'supplier', 'old_price', 'cost_price', 'requires_prescription', 'max_qty_per_order', 'storage', 'status', 'nie_bpom'],
-            [['PRD-900', 'Paracetamol 500', 'Obat Bebas', 'Strip', '5000', 'bebas', '20', 'paracetamol-500', 'PBF Sehat', '6000', '3500', 'ya', '5', 'sejuk', 'aktif', 'DBL123']],
+            [...self::REQUIRED, 'old_price', 'requires_prescription', 'max_qty_per_order', 'storage', 'status', 'nie_bpom'],
+            [['PRD-900', 'Paracetamol 500', 'Obat Bebas', 'Strip', '5000', 'bebas', '20', '6000', 'ya', '5', 'sejuk', 'aktif', 'DBL123']],
         );
 
         $summary = (new ProductTemplateImporter)->import($path);
@@ -55,10 +53,8 @@ class ProductTemplateImporterTest extends TestCase
         $this->assertSame('Paracetamol 500', $product->name);
         $this->assertSame('paracetamol-500', $product->slug);
         $this->assertSame('Obat Bebas', $product->category->name);
-        $this->assertSame($supplier->id, $product->supplier_id);
         $this->assertSame(5000, $product->price);
         $this->assertSame(6000, $product->old_price);
-        $this->assertSame(3500, $product->cost_price);
         $this->assertTrue($product->requires_prescription);
         $this->assertSame(5, $product->max_qty_per_order);
         $this->assertSame('sejuk', $product->storage);
@@ -95,7 +91,7 @@ class ProductTemplateImporterTest extends TestCase
         $this->assertDatabaseHas('products', ['sku' => 'PRD-902']);
     }
 
-    public function test_reimport_updates_in_place_and_keeps_the_slug_unless_one_is_given(): void
+    public function test_reimport_updates_in_place_and_keeps_the_slug(): void
     {
         $importer = new ProductTemplateImporter;
         $header = [...self::REQUIRED, 'blurb'];
@@ -160,20 +156,27 @@ class ProductTemplateImporterTest extends TestCase
         $this->assertDatabaseHas('products', ['sku' => 'PRD-909']);
     }
 
-    public function test_an_unknown_supplier_and_a_taken_slug_fail_the_row(): void
+    public function test_slug_supplier_and_cost_price_in_an_old_file_are_ignored(): void
     {
-        Product::factory()->create(['sku' => 'PRD-910', 'slug' => 'sudah-dipakai']);
+        $supplier = Supplier::factory()->create(['name' => 'PBF Sehat']);
+        Product::factory()->create(['sku' => 'PRD-910', 'slug' => 'tetap-sama', 'supplier_id' => $supplier->id, 'cost_price' => 777]);
 
-        $path = $this->writeCsv([...self::REQUIRED, 'supplier', 'slug'], [
-            ['PRD-911', 'Pemasok Hantu', 'Kesehatan', 'Pcs', '1000', 'bebas', '10', 'PBF Tidak Ada', ''],
-            ['PRD-912', 'Slug Bentrok', 'Kesehatan', 'Pcs', '1000', 'bebas', '10', '', 'sudah-dipakai'],
-        ]);
+        $summary = (new ProductTemplateImporter)->import($this->writeCsv([...self::REQUIRED, 'slug', 'supplier', 'cost_price'], [
+            ['PRD-910', 'Nama Baru', 'Kesehatan', 'Pcs', '1000', 'bebas', '10', 'Bukan Slug!', 'PBF Tidak Ada', 'abc'],
+            ['PRD-911', 'Produk Baru', 'Kesehatan', 'Pcs', '1000', 'bebas', '10', 'tetap-sama', 'PBF Tidak Ada', '500'],
+        ]));
 
-        $summary = (new ProductTemplateImporter)->import($path);
+        $this->assertSame([], $summary['failed']);
 
-        $this->assertSame(0, $summary['created']);
-        $this->assertStringContainsString('PBF Tidak Ada', $summary['failed'][0]['message']);
-        $this->assertStringContainsString('sudah-dipakai', $summary['failed'][1]['message']);
+        $existing = Product::where('sku', 'PRD-910')->first();
+        $this->assertSame('tetap-sama', $existing->slug);
+        $this->assertSame($supplier->id, $existing->supplier_id);
+        $this->assertSame(777, $existing->cost_price);
+
+        $new = Product::where('sku', 'PRD-911')->first();
+        $this->assertSame('produk-baru', $new->slug);
+        $this->assertNull($new->supplier_id);
+        $this->assertNull($new->cost_price);
     }
 
     public function test_a_file_missing_a_required_column_is_rejected_outright(): void

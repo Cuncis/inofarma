@@ -138,7 +138,7 @@ class StockAllocator
         return DB::transaction(function () use ($branch, $product, $manifest, $type, $reference, $userId, $note) {
             $stock = BranchStock::withoutGlobalScope(BranchScope::class)->lockForUpdate()->firstOrCreate(
                 ['branch_id' => $branch->id, 'product_id' => $product->id],
-                ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 20, 'is_listed' => true],
+                ['quantity' => 0, 'reserved_quantity' => 0, 'reorder_point' => 0, 'is_listed' => true],
             );
 
             $total = 0;
