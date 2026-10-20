@@ -11,8 +11,8 @@ const STORAGE_KEY = 'inofarma_location_consent';
  * so there is nothing to send until the answer is already yes.
  *
  * Shared by every screen that calls `navigator.geolocation` —
- * `Shop/OurBranches.jsx` and `Shop/AddNewAddress.jsx` — so agreeing once
- * covers both instead of asking again per screen.
+ * currently `Shop/AddNewAddress.tsx` — so agreeing once covers every one of
+ * them instead of asking again per screen.
  */
 export default function useLocationConsent() {
     const [consented, setConsented] = useState(

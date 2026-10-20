@@ -4,6 +4,8 @@ namespace App\Support\Presenters;
 
 use App\Models\Branch;
 use App\Models\Product;
+use App\Support\HomePageContent;
+use App\Support\SiteFooterContent;
 use Illuminate\Support\Collection;
 
 /**
@@ -13,7 +15,7 @@ use Illuminate\Support\Collection;
 class StorefrontBranchPresenter
 {
     /**
-     * The "Cabang Kami" listing — every active branch, no product involved.
+     * Every active branch for the branch locator API, no product involved.
      *
      * @param  iterable<Branch>  $branches
      * @return list<array<string, mixed>>
@@ -28,13 +30,79 @@ class StorefrontBranchPresenter
             'phone' => $branch->phone,
             'whatsapp' => $branch->whatsapp,
             'todaysHours' => $branch->todays_hours,
-            // Fase 9.1: "Halaman Cabang" must show, per branch, its SIA and
-            // its APJ's name + SIPA number — a compliance/trust requirement,
-            // not just contact info.
             'siaNumber' => $branch->sia_number,
             'apjName' => $branch->apj_name,
             'apjSipaNumber' => $branch->apj_sipa_number,
         ])->values()->all();
+    }
+
+    /**
+     * The photo cards of "Apotek Inofarma Terdekat" on the homepage, and the
+     * "Apotek Terdekat Lainnya" list under an apotek's own page.
+     *
+     * @param  iterable<Branch>  $branches  each with a `photo_path`
+     * @return list<array{slug: string, name: string, photoUrl: string, fullAddress: string, apjName: ?string}>
+     */
+    public static function cards(iterable $branches): array
+    {
+        return collect($branches)->map(fn (Branch $branch) => [
+            'slug' => $branch->slug,
+            'name' => $branch->name,
+            'photoUrl' => HomePageContent::imageUrl($branch->photo_path),
+            'fullAddress' => $branch->full_address,
+            'apjName' => $branch->apj_name,
+        ])->values()->all();
+    }
+
+    /**
+     * One apotek's own page. Fase 9.1: it must show its SIA and its APJ's
+     * name + SIPA number, a compliance/trust requirement, not just contact info.
+     *
+     * @return array<string, mixed>
+     */
+    public static function page(Branch $branch): array
+    {
+        return [
+            'slug' => $branch->slug,
+            'name' => $branch->name,
+            'status' => $branch->status,
+            'photoUrl' => $branch->photo_path ? HomePageContent::imageUrl($branch->photo_path) : null,
+            'fullAddress' => $branch->full_address,
+            'siaNumber' => $branch->sia_number,
+            'apjName' => $branch->apj_name,
+            'apjSipaNumber' => $branch->apj_sipa_number,
+            'practiceSchedule' => $branch->practice_schedule,
+            'storeSchedule' => $branch->store_schedule,
+            'contactUrl' => self::contactUrl($branch),
+            'mapsUrl' => $branch->maps_url,
+        ];
+    }
+
+    /**
+     * "Hubungi Kami": the branch's WhatsApp, else its phone, else the
+     * company's customer service number (on WhatsApp).
+     */
+    private static function contactUrl(Branch $branch): ?string
+    {
+        if ($branch->whatsapp) {
+            return self::whatsappUrl($branch->whatsapp);
+        }
+
+        if ($branch->phone) {
+            return 'tel:'.preg_replace('/[^\d+]/', '', $branch->phone);
+        }
+
+        $companyPhone = SiteFooterContent::company()['phone'];
+
+        return $companyPhone !== '' ? self::whatsappUrl($companyPhone) : null;
+    }
+
+    /** `0812-1401-8964` and `+62 812 1401 8964` both become `https://wa.me/6281214018964`. */
+    private static function whatsappUrl(string $number): string
+    {
+        $digits = preg_replace('/\D/', '', $number);
+
+        return 'https://wa.me/'.(str_starts_with($digits, '0') ? '62'.substr($digits, 1) : $digits);
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Branches\Schemas;
 
 use App\Support\AdminOptions;
+use App\Support\HomePageContent;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -94,6 +96,35 @@ class BranchForm
                         TextInput::make('apj_sipa_number')
                             ->label(__('Nomor SIPA APJ'))
                             ->maxLength(60),
+                        TextInput::make('practice_schedule')
+                            ->label(__('Waktu Praktik'))
+                            ->placeholder('Senin - Jumat (08.00-16.00)')
+                            ->maxLength(120),
+                        TextInput::make('store_schedule')
+                            ->label(__('Jadwal Toko'))
+                            ->placeholder('Senin - Jumat (08.00-16.00)')
+                            ->maxLength(120),
+                    ]),
+
+                Section::make(__('Halaman Apotek'))
+                    ->description(__('Cabang dengan foto tampil di bagian Apotek Inofarma Terdekat di beranda dan punya halaman sendiri di toko.'))
+                    ->components([
+                        FileUpload::make('photo_path')
+                            ->label(__('Foto Apotek'))
+                            ->image()
+                            ->acceptedFileTypes(HomePageContent::IMAGE_TYPES)
+                            ->maxSize(HomePageContent::MAX_IMAGE_SIZE)
+                            ->disk(config('filesystems.uploads'))
+                            ->directory(HomePageContent::UPLOAD_DIRECTORY)
+                            ->visibility('public')
+                            ->fetchFileInformation(false)
+                            ->getUploadedFileUsing(fn (string $file) => [
+                                'name' => basename(parse_url($file, PHP_URL_PATH) ?: $file),
+                                'size' => 0,
+                                'type' => null,
+                                'url' => HomePageContent::imageUrl($file),
+                            ])
+                            ->openable(),
                     ]),
 
                 Section::make(__('Layanan'))

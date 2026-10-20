@@ -65,15 +65,15 @@ class HomePageContent
             ['image' => '/media/images/hero/coming-soon.webp', 'href' => '/shop', 'alt' => 'Coming soon! Website masih dalam persiapan, stay tuned'],
             ['image' => '/media/images/hero/hero-banner-1.jpg', 'href' => '/shop', 'alt' => 'Lebih hemat, lebih lengkap, belanja produk kesehatan di Apotek Inofarma'],
             ['image' => '/media/images/hero/hero-banner-2.jpg', 'href' => '/signup', 'alt' => 'Gabung Sobat Ino, daftar gratis dan dapatkan harga spesial'],
-            ['image' => '/media/images/hero/hero-banner-3.jpg', 'href' => '/cabang-kami', 'alt' => 'Inofarma siap antar 24/7'],
+            ['image' => '/media/images/hero/hero-banner-3.jpg', 'href' => '/apotek/pisangan-lama', 'alt' => 'Inofarma siap antar 24/7'],
         ],
         'promo' => [
             ['image' => '/media/images/promo/sehat-ga-mesti-mahal.png', 'href' => '/signup', 'alt' => 'Sehat ga mesti mahal, ayo daftar member Sobat Ino'],
             ['image' => '/media/images/promo/harga-sobat-produk-lengkap.png', 'href' => '/signup', 'alt' => 'Harga Sobat, Produk Lengkap, gabung Sobat Ino sekarang'],
         ],
         'bottom' => [
-            ['image' => '/media/images/promo/pengiriman-instan-24-jam.png', 'href' => '/cabang-kami', 'alt' => 'Pengiriman instan dengan layanan antar 24 jam'],
-            ['image' => '/media/images/promo/temukan-cabang-terdekat.png', 'href' => '/cabang-kami', 'alt' => 'Temukan cabang Inofarma terdekat'],
+            ['image' => '/media/images/promo/pengiriman-instan-24-jam.png', 'href' => '/apotek/pisangan-lama', 'alt' => 'Pengiriman instan dengan layanan antar 24 jam'],
+            ['image' => '/media/images/promo/temukan-cabang-terdekat.png', 'href' => '/apotek/pisangan-lama', 'alt' => 'Temukan cabang Inofarma terdekat'],
             ['image' => '/media/images/promo/selalu-lebih-hemat.png', 'href' => '/shop', 'alt' => 'Selalu lebih hemat, lebih lengkap'],
         ],
         'allProductsIcon' => '/media/images/categories/semua-produk.png',

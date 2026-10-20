@@ -61,7 +61,7 @@ class DocumentPageDefaults
             ],
             4 => [
                 'title' => 'Pertanyaan Status Refund',
-                'body' => 'Hubungi cabang tempat pesanan Anda dibuat, nomor telepon dan WhatsApp cabang tersedia di halaman Cabang Kami dan pada halaman Lacak Pesanan Anda.',
+                'body' => 'Hubungi cabang tempat pesanan Anda dibuat, nomor telepon dan WhatsApp cabang tersedia di halaman tiap apotek (bagian Apotek Inofarma Terdekat di beranda) dan pada halaman Lacak Pesanan Anda.',
             ],
         ],
     ];

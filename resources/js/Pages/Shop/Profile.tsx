@@ -16,7 +16,6 @@ import type { LegalDocumentKey } from '@/Components/Shop/legalDocuments';
 const menu: { label: string; icon: IconName; href?: string; legal?: LegalDocumentKey }[] = [
     { label: 'Ubah profil', icon: 'user', href: '/edit-profile' },
     { label: 'Alamat saya', icon: 'pin', href: '/my-address' },
-    { label: 'Cabang kami', icon: 'pin', href: '/cabang-kami' },
     { label: 'Kode promo saya', icon: 'promo', href: '/my-promocodes' },
     { label: 'Riwayat pesanan', icon: 'file', href: '/order-history' },
     { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/shipping-info' },

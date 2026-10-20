@@ -4,14 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Branch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia;
 use Tests\Concerns\SeedsDemoCatalogue;
 use Tests\TestCase;
 
 /**
  * Fase 2.3: location-based branch search — the JSON endpoints the storefront
- * calls once the browser's geolocation resolves, the "Cabang Kami" page, and
- * the session-backed fallback for shoppers who decline the location prompt.
+ * calls once the browser's geolocation resolves, and the session-backed
+ * fallback for shoppers who decline the location prompt. Each apotek's own
+ * page is covered by {@see BranchPageTest}.
  */
 class BranchLocatorTest extends TestCase
 {
@@ -29,48 +29,6 @@ class BranchLocatorTest extends TestCase
             'latitude' => -6.20 - $index * 0.03,
             'longitude' => 106.85 + $index * 0.03,
         ]));
-    }
-
-    public function test_our_branches_page_lists_every_active_branch(): void
-    {
-        $this->get('/cabang-kami')
-            ->assertOk()
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->component('Shop/OurBranches')
-                ->has('branches', self::BRANCH_COUNT)
-            );
-    }
-
-    /** ROADMAP.md Fase 9.1: "Halaman Cabang" must show SIA and the APJ's name + SIPA number per branch. */
-    public function test_our_branches_page_shows_sia_and_apj_details(): void
-    {
-        $branch = Branch::where('sia_number', '!=', null)->first()
-            ?? Branch::first();
-        $branch->update([
-            'sia_number' => 'SIA-TEST-001',
-            'apj_name' => 'apt. Siti Aminah, S.Farm.',
-            'apj_sipa_number' => 'SIPA-TEST-001',
-        ]);
-
-        $this->get('/cabang-kami')
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->where('branches', fn ($branches) => collect($branches)->contains(
-                    fn ($row) => $row['siaNumber'] === 'SIA-TEST-001'
-                        && $row['apjName'] === 'apt. Siti Aminah, S.Farm.'
-                        && $row['apjSipaNumber'] === 'SIPA-TEST-001'
-                ))
-            );
-    }
-
-    public function test_the_fallback_area_list_only_offers_real_coverage(): void
-    {
-        $this->get('/cabang-kami')
-            ->assertInertia(fn (AssertableInertia $page) => $page
-                ->has('areas')
-                ->where('areas.0.provinsi', fn (string $provinsi) => in_array(
-                    $provinsi, ['DKI Jakarta', 'Banten', 'Jawa Barat'], true,
-                ))
-            );
     }
 
     public function test_nearest_branches_are_sorted_by_distance_from_a_point(): void

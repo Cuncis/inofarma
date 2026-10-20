@@ -20,15 +20,18 @@ import useCartCount from '@/Components/Shop/useCartCount';
 import useIsDesktop from '@/Components/Shop/useIsDesktop';
 import { useShopCatalog } from '@/Components/Shop/data';
 
-/** `content` is edited in the admin under Konten Website > Beranda. */
-export default function Home({ content }: { content: HomeContent }) {
+/**
+ * `content` is edited in the admin under Konten Website > Beranda; `pharmacies`
+ * are the branches with a photo, from Cabang.
+ */
+export default function Home({ content, pharmacies }: { content: HomeContent; pharmacies: BranchCard[] }) {
     const { recommended, newArrivals, trendingProducts } = useShopCatalog();
     const cartCount = useCartCount();
     const [searching, setSearching] = useState(false);
     const isDesktop = useIsDesktop();
 
     if (isDesktop) {
-        return <DesktopHome content={content} />;
+        return <DesktopHome content={content} pharmacies={pharmacies} />;
     }
 
     return (
@@ -112,10 +115,12 @@ export default function Home({ content }: { content: HomeContent }) {
                     </div>
                 ) : null}
 
-                <div>
-                    <SectionHeading title={content.headings.nearest} className="px-3.5" />
-                    <NearestPharmacies />
-                </div>
+                {pharmacies.length > 0 ? (
+                    <div>
+                        <SectionHeading title={content.headings.nearest} className="px-3.5" />
+                        <NearestPharmacies pharmacies={pharmacies} />
+                    </div>
+                ) : null}
 
                 {content.testimonials.length > 0 ? (
                     <div>

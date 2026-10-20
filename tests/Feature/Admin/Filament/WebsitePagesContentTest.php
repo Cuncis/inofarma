@@ -192,7 +192,7 @@ class WebsitePagesContentTest extends TestCase
     {
         $this->get('/')->assertInertia(fn (AssertableInertia $page) => $page
             ->where('siteFooter.aboutTitle', 'Tentang Apotek Inofarma')
-            ->has('siteFooter.links', 4)
+            ->has('siteFooter.links', 3)
             ->where('siteFooter.links.2.external', true)
             ->where('siteFooter.links.0.external', false));
 

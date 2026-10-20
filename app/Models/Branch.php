@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Satu apotek fisik dengan izin dan apoteker penanggung jawab sendiri.
@@ -21,7 +22,7 @@ class Branch extends Model
         'code', 'name', 'slug', 'address_line', 'kelurahan', 'kecamatan',
         'kota', 'provinsi', 'postal_code', 'latitude', 'longitude', 'maps_url',
         'phone', 'whatsapp', 'sia_number', 'apj_name', 'apj_sipa_number',
-        'operating_hours', 'supports_delivery', 'supports_pickup',
+        'practice_schedule', 'store_schedule', 'photo_path', 'operating_hours', 'supports_delivery', 'supports_pickup',
         'delivery_radius_km', 'status',
     ];
 
@@ -95,6 +96,37 @@ class Branch extends Model
                 cos(radians(longitude) - radians(?)) +
                 sin(radians(?)) * sin(radians(latitude))
             )) END AS distance_km', [$latitude, $longitude, $latitude]);
+    }
+
+    /** Apotek yang tampil di toko dengan foto: kartu beranda dan halaman apoteknya. */
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->active()->whereNotNull('photo_path');
+    }
+
+    /**
+     * Terdekat dulu dari sebuah titik bila titiknya diketahui; cabang tanpa
+     * koordinat ikut di urutan terakhir. Tanpa titik, urut nama.
+     */
+    public function scopeClosestTo(Builder $query, ?float $latitude, ?float $longitude): Builder
+    {
+        if ($latitude === null || $longitude === null) {
+            return $query->orderBy('name');
+        }
+
+        return $query->withDistanceFrom($latitude, $longitude)
+            ->orderByRaw('distance_km IS NULL')
+            ->orderBy('distance_km')
+            ->orderBy('name');
+    }
+
+    /**
+     * Slug untuk halaman apotek di toko: nama tanpa awalan "Apotek Inofarma",
+     * jadi alamatnya `/apotek/jengki`, bukan `/apotek/apotek-inofarma-jengki`.
+     */
+    public static function slugSource(string $name): string
+    {
+        return Str::after($name, 'Apotek Inofarma ') ?: $name;
     }
 
     public function getFullAddressAttribute(): string

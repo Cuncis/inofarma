@@ -37,7 +37,7 @@ class CreateBranch extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['code'] = CodeSequence::next(Branch::withTrashed(), 'code', 'CB-');
-        $data['slug'] = Slug::unique(Branch::withTrashed(), $data['name']);
+        $data['slug'] = Slug::unique(Branch::withTrashed(), Branch::slugSource($data['name']));
         $data['operating_hours'] = self::DEFAULT_HOURS;
         $data['maps_url'] = self::mapsUrl($data);
 

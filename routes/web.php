@@ -18,15 +18,27 @@ use App\Http\Controllers\Shop\RegionController;
 use App\Http\Controllers\Shop\ShippingController;
 use App\Http\Controllers\Webhooks\BiteshipWebhookController;
 use App\Http\Controllers\Webhooks\DokuWebhookController;
+use App\Models\Branch;
 use App\Support\DocumentPageContent;
 use App\Support\FaqContent;
 use App\Support\HomePageContent;
+use App\Support\LocationPreference;
+use App\Support\Presenters\StorefrontBranchPresenter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Carousels, logos and texts are edited in the admin under Konten Website > Beranda.
-Route::get('/', fn () => Inertia::render('Shop/Home', ['content' => HomePageContent::forStorefront()]))->name('home');
+Route::get('/', function (Request $request) {
+    $coordinates = LocationPreference::coordinates($request);
+
+    return Inertia::render('Shop/Home', [
+        'content' => HomePageContent::forStorefront(),
+        'pharmacies' => StorefrontBranchPresenter::cards(
+            Branch::featured()->closestTo($coordinates['lat'] ?? null, $coordinates['lng'] ?? null)->get(),
+        ),
+    ]);
+})->name('home');
 
 /**
  * DOKU's server-to-server notification (Fase 6). Lives outside `ui`/`admin`
@@ -177,13 +189,17 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
     });
 
     /**
-     * "Cabang Kami" — every branch, nearest first once we know where the
-     * shopper is. The location itself is saved through `LocationController`,
-     * not through this page, so it can be set from anywhere (the geolocation
-     * prompt, the product page's branch picker) and not just from here.
+     * Each apotek's own page, linked from its homepage card. The old
+     * "Cabang Kami" list was removed; its address now leads to the homepage,
+     * where the apotek cards are, so saved links and banners keep working.
      */
-    Route::get('cabang-kami', [ShopBranchController::class, 'index'])->name('cabang-kami');
+    Route::get('apotek/{branch:slug}', [ShopBranchController::class, 'show'])->name('apotek.show');
+    Route::permanentRedirect('cabang-kami', '/');
 
+    /**
+     * The shopper's location is saved through `LocationController` so it can
+     * be set from anywhere (the geolocation prompt, the pickup popup).
+     */
     Route::post('lokasi', [LocationController::class, 'store'])->name('lokasi.store');
     Route::delete('lokasi', [LocationController::class, 'destroy'])->name('lokasi.destroy');
 

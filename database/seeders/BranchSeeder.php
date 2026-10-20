@@ -6,7 +6,6 @@ use App\Models\Branch;
 use App\Support\CodeSequence;
 use App\Support\Slug;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 /**
  * Empat cabang Apotek Inofarma: Jengki, Kalisari, Kayu Manis, dan Pisangan Lama.
@@ -47,7 +46,7 @@ class BranchSeeder extends Seeder
             Branch::create([
                 ...collect($branch)->except('supports_delivery')->all(),
                 'code' => CodeSequence::next(Branch::withTrashed(), 'code', 'CB-'),
-                'slug' => Slug::unique(Branch::withTrashed(), Str::after($branch['name'], 'Apotek Inofarma ')),
+                'slug' => Slug::unique(Branch::withTrashed(), Branch::slugSource($branch['name'])),
                 'operating_hours' => $hours,
                 'supports_delivery' => $branch['supports_delivery'] ?? true,
                 'supports_pickup' => true,
@@ -65,6 +64,12 @@ class BranchSeeder extends Seeder
         return [
             [
                 'name' => 'Apotek Inofarma Jengki',
+                'photo_path' => '/media/images/apotek/jengki.png',
+                'sia_number' => '30092400346910003',
+                'apj_name' => 'apt. Yulita Fitri Rosanti, S.Farm',
+                'apj_sipa_number' => '8/B.19/31.75.08.1003.39.K-2/3/TM.09.19/e/2025',
+                'practice_schedule' => 'Senin - Jumat (08.00-16.00)',
+                'store_schedule' => 'Senin - Jumat (08.00-16.00)',
                 'supports_delivery' => false,
                 'address_line' => 'Jl. Jengki No.28, RT.8/RW.4',
                 'kelurahan' => 'Kebon Pala',
@@ -75,6 +80,12 @@ class BranchSeeder extends Seeder
             ],
             [
                 'name' => 'Apotek Inofarma Kalisari',
+                'photo_path' => '/media/images/apotek/kalisari.png',
+                'sia_number' => '30092400346910005',
+                'apj_name' => 'apt. Naomy Octavinna, S.Farm',
+                'apj_sipa_number' => '1/B.19/31.75.05.1004.41.R-1/4/TM.09/e/2025',
+                'practice_schedule' => 'Senin - Sabtu (08.00-15.00)',
+                'store_schedule' => 'Senin - Sabtu (08.00-15.00)',
                 'supports_delivery' => false,
                 'address_line' => 'Jl. Kalisari III Nomor 69, RT 003/RW 03',
                 'kelurahan' => 'Kalisari',
@@ -85,6 +96,12 @@ class BranchSeeder extends Seeder
             ],
             [
                 'name' => 'Apotek Inofarma Kayu Manis',
+                'photo_path' => '/media/images/apotek/kayu-manis.png',
+                'sia_number' => '30092400346910004',
+                'apj_name' => 'apt. Nadia Tria Nurchasanah, S.Farm',
+                'apj_sipa_number' => '15/B.19/31.75.04.1005.38.R-1/3/TM.09.19/e/2025',
+                'practice_schedule' => 'Senin - Jumat (08.00-21.00) Shift',
+                'store_schedule' => 'Senin - Jumat (08.00-21.00) Shift',
                 'supports_delivery' => false,
                 'address_line' => 'Jalan Kayu Manis, RT 006/RW 05',
                 'kelurahan' => 'Balekambang',
@@ -95,6 +112,12 @@ class BranchSeeder extends Seeder
             ],
             [
                 'name' => 'Apotek Inofarma Pisangan Lama',
+                'photo_path' => '/media/images/apotek/pisangan-lama.png',
+                'sia_number' => '30092400346910006',
+                'apj_name' => 'apt. Fitria Ayuni, S.Farm',
+                'apj_sipa_number' => '13/B.19/31.75.02.1002.42.K-3.b/3/TM.09.19/e/2025',
+                'practice_schedule' => 'Senin - Jumat (08.00-17.00)',
+                'store_schedule' => 'Senin - Jumat (08.00-17.00)',
                 'address_line' => 'Jalan Pisangan Lama III No.2, RT.8/RW.4',
                 'kelurahan' => 'Pisangan Timur',
                 'kecamatan' => 'Pulo Gadung',

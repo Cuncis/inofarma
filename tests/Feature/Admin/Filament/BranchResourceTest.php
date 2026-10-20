@@ -74,6 +74,7 @@ class BranchResourceTest extends TestCase
 
         $branch = Branch::where('name', 'Apotek Inofarma Cinere')->firstOrFail();
         $this->assertSame('CB-005', $branch->code);
+        $this->assertSame('cinere', $branch->slug);
         $this->assertSame(-6.3167, (float) $branch->latitude);
         $this->assertNotNull($branch->maps_url);
         $this->assertNotEmpty($branch->operating_hours);

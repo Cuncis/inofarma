@@ -33,7 +33,6 @@ class SiteFooterContent
             ['label' => 'Beranda', 'href' => '/'],
             ['label' => 'Semua Produk', 'href' => '/shop'],
             ['label' => 'Tentang Kami', 'href' => 'http://info.inofarma.com/'],
-            ['label' => 'Cabang Kami', 'href' => '/cabang-kami'],
         ],
         'copyright' => 'inofarma.com. Hak cipta dilindungi.',
         'company' => [

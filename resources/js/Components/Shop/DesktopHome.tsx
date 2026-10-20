@@ -33,7 +33,7 @@ function ProductSection({ title, products }: { title: string, products: ProductT
  * column, no bottom tab bar. Gets the same `content` as the mobile page so
  * both layouts always show the same campaigns.
  */
-export default function DesktopHome({ content }: { content: HomeContent }) {
+export default function DesktopHome({ content, pharmacies }: { content: HomeContent; pharmacies: BranchCard[] }) {
     const { recommended, newArrivals, trendingProducts } = useShopCatalog();
 
     return (
@@ -64,10 +64,12 @@ export default function DesktopHome({ content }: { content: HomeContent }) {
                 </section>
             ) : null}
 
-            <section className="mt-10">
-                <h2 className="mb-4 font-display text-[19px] text-brand">{content.headings.nearest}</h2>
-                <NearestPharmacies className="px-0" desktop />
-            </section>
+            {pharmacies.length > 0 ? (
+                <section className="mt-10">
+                    <h2 className="mb-4 font-display text-[19px] text-brand">{content.headings.nearest}</h2>
+                    <NearestPharmacies pharmacies={pharmacies} className="px-0" desktop />
+                </section>
+            ) : null}
 
             {content.testimonials.length > 0 ? (
                 <section className="mt-10">

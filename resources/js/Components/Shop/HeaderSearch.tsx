@@ -4,7 +4,6 @@ import Icon from './Icon';
 import { money, productMatchesSearch, useShopCatalog } from './data';
 
 const PAGES: { label: string; href: string }[] = [
-    { label: 'Cabang Kami', href: '/cabang-kami' },
     { label: 'Info Pengiriman', href: '/shipping-info' },
     { label: 'Pertanyaan Umum (FAQ)', href: '/faq' },
     { label: 'Kebijakan Pengembalian Dana', href: '/kebijakan-pengembalian-dana' },

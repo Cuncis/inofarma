@@ -47,7 +47,7 @@ class EditBranch extends EditRecord
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $data['slug'] = Slug::unique(Branch::withTrashed(), $data['name'], 'slug', $this->record->id);
+        $data['slug'] = Slug::unique(Branch::withTrashed(), Branch::slugSource($data['name']), 'slug', $this->record->id);
         $data['maps_url'] = isset($data['latitude'], $data['longitude'])
             ? "https://www.google.com/maps?q={$data['latitude']},{$data['longitude']}"
             : null;

@@ -6,7 +6,7 @@ paths:
 # Shop Http Controllers Admin
 
 ## Compliance conventions (Fase 9): consent, PDP self-service, audit trail
-Two separate consent gates exist, never merge them: account consent (`Customer.consent_at`/`consent_version`, ticked at registration via `Shop/SignUp.tsx`, enforced by `AuthController::register()`'s `'consent' => ['accepted']` rule) vs. location consent (`useLocationConsent()`, a localStorage flag shared by every `navigator.geolocation` call site — currently `Shop/OurBranches.tsx` and `Shop/AddNewAddress.tsx`). Any new screen that calls `navigator.geolocation` must gate it behind `useLocationConsent()` too, not just wire the browser's own permission prompt.
+Two separate consent gates exist, never merge them: account consent (`Customer.consent_at`/`consent_version`, ticked at registration via `Shop/SignUp.tsx`, enforced by `AuthController::register()`'s `'consent' => ['accepted']` rule) vs. location consent (`useLocationConsent()`, a localStorage flag shared by every `navigator.geolocation` call site — currently `Shop/AddNewAddress.tsx` (the old `Shop/OurBranches.tsx` was removed)). Any new screen that calls `navigator.geolocation` must gate it behind `useLocationConsent()` too, not just wire the browser's own permission prompt.
 
 PDP self-service lives at `/privasi-saya` (`Shop\PrivacyController`) — `export()` streams a JSON download, `destroyAccount()` (password-confirmed) clears addresses/cart, scrambles name/email/phone, then soft-deletes. Order history is deliberately preserved (bookkeeping obligation) — never hard-delete or anonymize `orders` rows on account deletion.
 

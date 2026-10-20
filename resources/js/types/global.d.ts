@@ -229,27 +229,29 @@ interface OrderLine {
     lineTotal: number;
 }
 
-/** A branch as the "Cabang Kami" page lists it. */
-interface StorefrontBranch {
-    id: string;
+/** An apotek card: the homepage's "Apotek Inofarma Terdekat" and "Apotek Terdekat Lainnya". */
+interface BranchCard {
+    slug: string;
     name: string;
-    kota: string;
+    photoUrl: string;
     fullAddress: string;
-    distanceKm: number | null;
-    isOpenNow: boolean;
-    todaysHours?: string | null;
-    supportsDelivery: boolean;
-    supportsPickup: boolean;
-    siaNumber?: string | null;
-    apjName?: string | null;
-    apjSipaNumber?: string | null;
-    phone?: string | null;
-    mapsUrl?: string | null;
+    apjName: string | null;
 }
 
-interface CoverageArea {
-    provinsi: string;
-    kota: string;
+/** One apotek's own page (`/apotek/{slug}`). */
+interface BranchPage {
+    slug: string;
+    name: string;
+    status: string;
+    photoUrl: string | null;
+    fullAddress: string;
+    siaNumber: string | null;
+    apjName: string | null;
+    apjSipaNumber: string | null;
+    practiceSchedule: string | null;
+    storeSchedule: string | null;
+    contactUrl: string | null;
+    mapsUrl: string | null;
 }
 
 /** One line of the cart as `CartPresenter` returns it. */
