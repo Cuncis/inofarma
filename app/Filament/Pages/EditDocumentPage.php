@@ -80,6 +80,7 @@ abstract class EditDocumentPage extends ContentEditorPage
             ->addActionLabel(__('Tambah bagian'))
             ->reorderable()
             ->collapsible()
+            ->collapsed()
             ->minItems(1)
             ->maxItems(30);
     }
