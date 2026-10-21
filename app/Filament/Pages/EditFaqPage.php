@@ -71,6 +71,7 @@ class EditFaqPage extends ContentEditorPage
                 ->addActionLabel(__('Tambah pertanyaan'))
                 ->reorderable()
                 ->collapsible()
+                ->collapsed()
                 ->minItems(1)
                 ->maxItems(FaqContent::MAX_QUESTIONS),
         ];
