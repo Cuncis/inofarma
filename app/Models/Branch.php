@@ -74,11 +74,7 @@ class Branch extends Model
     public function scopeNearest(Builder $query, float $latitude, float $longitude): Builder
     {
         return $query
-            ->selectRaw('branches.*, (6371 * acos(
-                cos(radians(?)) * cos(radians(latitude)) *
-                cos(radians(longitude) - radians(?)) +
-                sin(radians(?)) * sin(radians(latitude))
-            )) AS distance_km', [$latitude, $longitude, $latitude])
+            ->selectRaw('branches.*, '.self::distanceSql($query).' AS distance_km', [$latitude, $longitude, $latitude])
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->orderBy('distance_km');
@@ -91,11 +87,26 @@ class Branch extends Model
      */
     public function scopeWithDistanceFrom(Builder $query, float $latitude, float $longitude): Builder
     {
-        return $query->selectRaw('branches.*, CASE WHEN latitude IS NULL OR longitude IS NULL THEN NULL ELSE (6371 * acos(
+        return $query->selectRaw('branches.*, CASE WHEN latitude IS NULL OR longitude IS NULL THEN NULL ELSE '.self::distanceSql($query).' END AS distance_km', [$latitude, $longitude, $latitude]);
+    }
+
+    /**
+     * Haversine distance in km from the bound point (lat, lng, lat) to the row.
+     *
+     * The cosine is clamped to [-1, 1] first: at the branch's own coordinates
+     * rounding can give 1.0000000000000002, which MySQL and SQLite turn into a
+     * null distance and PostgreSQL rejects with an error. SQLite has no
+     * LEAST/GREATEST, but its multi-argument MIN/MAX do the same.
+     */
+    private static function distanceSql(Builder $query): string
+    {
+        [$least, $greatest] = $query->getConnection()->getDriverName() === 'sqlite' ? ['min', 'max'] : ['least', 'greatest'];
+
+        return "(6371 * acos({$least}(1, {$greatest}(-1,
                 cos(radians(?)) * cos(radians(latitude)) *
                 cos(radians(longitude) - radians(?)) +
                 sin(radians(?)) * sin(radians(latitude))
-            )) END AS distance_km', [$latitude, $longitude, $latitude]);
+            ))))";
     }
 
     /** Apotek yang tampil di toko dengan foto: kartu beranda dan halaman apoteknya. */
@@ -114,8 +125,10 @@ class Branch extends Model
             return $query->orderBy('name');
         }
 
+        // Sorts on the coordinates rather than `distance_km IS NULL`: PostgreSQL
+        // only accepts a select alias as a bare ORDER BY term, never inside an expression.
         return $query->withDistanceFrom($latitude, $longitude)
-            ->orderByRaw('distance_km IS NULL')
+            ->orderByRaw('latitude IS NULL OR longitude IS NULL')
             ->orderBy('distance_km')
             ->orderBy('name');
     }

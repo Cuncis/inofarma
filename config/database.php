@@ -64,6 +64,21 @@ return [
             ]) : [],
         ],
 
+        // The old MySQL database, read only by `db:copy-from-mysql` while
+        // moving to PostgreSQL. Remove once production runs on PostgreSQL.
+        'mysql_source' => [
+            'driver' => 'mysql',
+            'host' => env('MYSQL_SOURCE_HOST', '127.0.0.1'),
+            'port' => env('MYSQL_SOURCE_PORT', '3306'),
+            'database' => env('MYSQL_SOURCE_DATABASE', 'inofarma_db'),
+            'username' => env('MYSQL_SOURCE_USERNAME', 'root'),
+            'password' => env('MYSQL_SOURCE_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

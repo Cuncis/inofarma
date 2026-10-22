@@ -38,10 +38,23 @@ return new class extends Migration
     }
 
     /**
+     * PostgreSQL has no enum column: Laravel stores it as varchar plus a check
+     * constraint (`orders_status_check`), and `->change()` cannot rewrite that,
+     * so the constraint is replaced instead.
+     *
      * @param  list<string>  $statuses
      */
     private function setStatuses(array $statuses): void
     {
+        if (DB::getDriverName() === 'pgsql') {
+            $allowed = implode(', ', array_map(fn (string $status) => DB::getPdo()->quote($status), $statuses));
+
+            DB::statement('alter table orders drop constraint if exists orders_status_check');
+            DB::statement("alter table orders add constraint orders_status_check check (status in ({$allowed}))");
+
+            return;
+        }
+
         Schema::table('orders', function (Blueprint $table) use ($statuses) {
             $table->enum('status', $statuses)->default('menunggu pembayaran')->change();
         });

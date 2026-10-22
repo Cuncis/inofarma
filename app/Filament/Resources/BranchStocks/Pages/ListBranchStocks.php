@@ -139,7 +139,7 @@ class ListBranchStocks extends ListRecords
     {
         return Product::query()
             ->where('status', '!=', 'arsip')
-            ->where(fn ($query) => $query->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%"))
+            ->where(fn ($query) => $query->whereLike('name', "%{$search}%")->orWhereLike('sku', "%{$search}%"))
             ->orderBy('name')
             ->limit(50)
             ->get()

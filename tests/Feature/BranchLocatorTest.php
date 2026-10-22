@@ -44,6 +44,18 @@ class BranchLocatorTest extends TestCase
         $this->assertSame($distances->sort()->values()->all(), $distances->values()->all());
     }
 
+    public function test_standing_exactly_at_a_branch_gives_zero_distance(): void
+    {
+        // At this latitude the Haversine cosine rounds to 1.0000000000000002,
+        // just outside acos()'s domain: MySQL and SQLite return null there and
+        // PostgreSQL raises an error, unless the value is clamped.
+        Branch::orderBy('id')->first()->update(['latitude' => -6.2740, 'longitude' => 106.85]);
+
+        $this->getJson('/api/cabang/terdekat?lat=-6.2740&lng=106.85')
+            ->assertOk()
+            ->assertJsonPath('branches.0.distanceKm', 0);
+    }
+
     public function test_without_coordinates_branches_still_list_but_carry_no_distance(): void
     {
         $this->getJson('/api/cabang/terdekat')
