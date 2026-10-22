@@ -6,6 +6,7 @@ use App\Filament\Resources\Newsletters\NewsletterResource;
 use App\Filament\Resources\Subscribers\Pages\ListSubscribers;
 use App\Filament\Resources\Subscribers\Tables\SubscribersTable;
 use App\Models\Subscriber;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 
 class SubscriberResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Subscriber::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
@@ -38,14 +41,21 @@ class SubscriberResource extends Resource
         return __('plural:Subscriber');
     }
 
+    /**
+     * Subscribers are added by the storefront or by import, never created here.
+     *
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
+    {
+        return [
+            'viewAny' => 'Konten:Lihat',
+        ];
+    }
+
     public static function table(Table $table): Table
     {
         return SubscribersTable::configure($table);
-    }
-
-    public static function canCreate(): bool
-    {
-        return false;
     }
 
     public static function getPages(): array

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Branches\Schemas;
 
 use App\Support\AdminOptions;
+use App\Support\Auth\SuperAdmin;
 use App\Support\HomePageContent;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -112,7 +113,7 @@ class BranchForm
                         FileUpload::make('photo_path')
                             ->label(__('Foto Apotek'))
                             ->image()
-                            ->acceptedFileTypes(HomePageContent::IMAGE_TYPES)
+                            ->acceptedFileTypes(fn () => SuperAdmin::uploadTypes(HomePageContent::IMAGE_TYPES))
                             ->maxSize(HomePageContent::MAX_IMAGE_SIZE)
                             ->disk(config('filesystems.uploads'))
                             ->directory(HomePageContent::UPLOAD_DIRECTORY)

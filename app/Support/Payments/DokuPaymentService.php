@@ -8,6 +8,7 @@ use App\Support\Notifications\WhatsAppClient;
 use App\Support\OrderCancellation;
 use App\Support\Payments\Doku\DokuClient;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -164,6 +165,18 @@ class DokuPaymentService
         $payment = Payment::where('invoice_number', $invoiceNumber)->first();
 
         if (! $payment) {
+            return null;
+        }
+
+        // The signature proves DOKU sent it; the amount check makes sure the
+        // money matches this attempt before an order is ever marked paid.
+        $amount = $payload['order']['amount'] ?? null;
+
+        if ($status === 'success' && $amount !== null && (int) round((float) $amount) !== $payment->amount) {
+            Log::warning('Notifikasi DOKU ditolak: jumlah tidak cocok.', [
+                'invoice_number' => $invoiceNumber, 'expected' => $payment->amount, 'received' => $amount,
+            ]);
+
             return null;
         }
 

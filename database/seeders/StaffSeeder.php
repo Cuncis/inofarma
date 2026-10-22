@@ -17,6 +17,15 @@ class StaffSeeder extends Seeder
 {
     public function run(): void
     {
+        // Every account here signs in with "password". Seeding them on the live
+        // server would leave a Super Admin anyone can guess; create real staff
+        // from the admin panel (Staf) instead.
+        if (app()->isProduction()) {
+            $this->command?->warn('StaffSeeder dilewati di production: akun demo memakai kata sandi "password".');
+
+            return;
+        }
+
         $superAdmin = User::factory()->create([
             'name' => 'Admin Pusat',
             'email' => 'admin@inofarma.co.id',

@@ -8,6 +8,7 @@ use App\Filament\Resources\Branches\Pages\ListBranches;
 use App\Filament\Resources\Branches\Schemas\BranchForm;
 use App\Filament\Resources\Branches\Tables\BranchesTable;
 use App\Models\Branch;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -15,10 +16,11 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class BranchResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Branch::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
@@ -39,9 +41,17 @@ class BranchResource extends Resource
 
     protected static ?string $slug = 'cabang';
 
-    public static function canViewAny(): bool
+    /**
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
     {
-        return (bool) Auth::guard('web')->user()?->can('Cabang:Lihat');
+        return [
+            'viewAny' => 'Cabang:Lihat',
+            'create' => 'Cabang:Tambah',
+            'update' => 'Cabang:Ubah',
+            'delete' => 'Cabang:Hapus',
+        ];
     }
 
     public static function form(Schema $schema): Schema

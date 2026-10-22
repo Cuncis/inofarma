@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Support\Auth\SuperAdmin;
 use App\Support\MediaLibrary;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -148,10 +149,12 @@ class MediaFiles extends Page
         try {
             $this->validate([
                 'dropped' => ['required', 'array', 'max:20'],
-                'dropped.*' => ['file', 'mimetypes:'.implode(',', self::ACCEPTED_TYPES), 'max:'.self::MAX_SIZE],
+                'dropped.*' => ['file', 'mimetypes:'.implode(',', SuperAdmin::uploadTypes(self::ACCEPTED_TYPES)), 'max:'.self::MAX_SIZE],
             ], [
                 'dropped.max' => __('Maksimal :max file sekali unggah.'),
-                'dropped.*.mimetypes' => __('Hanya gambar (JPG, PNG, GIF, WebP, SVG, AVIF) dan PDF yang bisa diunggah.'),
+                'dropped.*.mimetypes' => SuperAdmin::check()
+                    ? __('Hanya gambar (JPG, PNG, GIF, WebP, SVG, AVIF) dan PDF yang bisa diunggah.')
+                    : __('Hanya gambar (JPG, PNG, GIF, WebP, AVIF) dan PDF yang bisa diunggah. SVG hanya bisa diunggah Super Admin.'),
                 'dropped.*.max' => __('Ukuran file maksimal :max KB.'),
             ]);
         } catch (ValidationException $exception) {
@@ -163,7 +166,7 @@ class MediaFiles extends Page
         }
 
         foreach ($this->dropped as $file) {
-            $file->storePubliclyAs(MediaLibrary::UPLOAD_DIRECTORY, MediaLibrary::storedName($file->getClientOriginalName()), config('filesystems.uploads'));
+            $file->storePubliclyAs(MediaLibrary::UPLOAD_DIRECTORY, MediaLibrary::storedName($file), config('filesystems.uploads'));
         }
 
         $count = count($this->dropped);
@@ -186,12 +189,12 @@ class MediaFiles extends Page
                         ->label(__('File'))
                         ->multiple()
                         ->required()
-                        ->acceptedFileTypes(self::ACCEPTED_TYPES)
+                        ->acceptedFileTypes(fn () => SuperAdmin::uploadTypes(self::ACCEPTED_TYPES))
                         ->maxSize(self::MAX_SIZE)
                         ->disk(config('filesystems.uploads'))
                         ->directory(MediaLibrary::UPLOAD_DIRECTORY)
                         ->visibility('public')
-                        ->getUploadedFileNameForStorageUsing(fn (TemporaryUploadedFile $file) => MediaLibrary::storedName($file->getClientOriginalName())),
+                        ->getUploadedFileNameForStorageUsing(fn (TemporaryUploadedFile $file) => MediaLibrary::storedName($file)),
                 ])
                 ->action(function (array $data) {
                     MediaLibrary::forget();

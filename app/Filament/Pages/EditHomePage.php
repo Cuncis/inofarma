@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Category;
+use App\Support\Auth\SuperAdmin;
 use App\Support\HomePageContent;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
@@ -287,7 +288,7 @@ class EditHomePage extends ContentEditorPage
     {
         return FileUpload::make($name)
             ->image()
-            ->acceptedFileTypes(HomePageContent::IMAGE_TYPES)
+            ->acceptedFileTypes(fn () => SuperAdmin::uploadTypes(HomePageContent::IMAGE_TYPES))
             ->maxSize(HomePageContent::MAX_IMAGE_SIZE)
             ->disk(config('filesystems.uploads'))
             ->directory(HomePageContent::UPLOAD_DIRECTORY)

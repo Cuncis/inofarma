@@ -8,6 +8,7 @@ use App\Filament\Resources\Newsletters\Pages\ListNewsletters;
 use App\Filament\Resources\Newsletters\Schemas\NewsletterForm;
 use App\Filament\Resources\Newsletters\Tables\NewslettersTable;
 use App\Models\Newsletter;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class NewsletterResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Newsletter::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
@@ -34,6 +37,21 @@ class NewsletterResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('plural:Newsletter');
+    }
+
+    /**
+     * A newsletter is website content mailed to every subscriber.
+     *
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
+    {
+        return [
+            'viewAny' => 'Konten:Lihat',
+            'create' => 'Konten:Ubah',
+            'update' => 'Konten:Ubah',
+            'delete' => 'Konten:Ubah',
+        ];
     }
 
     public static function form(Schema $schema): Schema

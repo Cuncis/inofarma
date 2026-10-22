@@ -22,7 +22,8 @@ class ViewStockTransfer extends ViewRecord
             Action::make('ship')
                 ->label(__('Kirim'))
                 ->icon(Heroicon::OutlinedTruck)
-                ->visible(fn (StockTransfer $record) => $record->can_be_shipped && self::onSide($record->from_branch_id))
+                ->visible(fn (StockTransfer $record) => $record->can_be_shipped && self::onSide($record->from_branch_id)
+                    && Auth::guard('web')->user()?->can('Inventaris:Sesuaikan Stok'))
                 ->action(function (StockTransfer $record) {
                     try {
                         $updated = app(StockTransferManager::class)->ship($record, Auth::guard('web')->id());
@@ -40,7 +41,8 @@ class ViewStockTransfer extends ViewRecord
             Action::make('receive')
                 ->label(__('Terima'))
                 ->icon(Heroicon::OutlinedInboxArrowDown)
-                ->visible(fn (StockTransfer $record) => $record->can_be_received && self::onSide($record->to_branch_id))
+                ->visible(fn (StockTransfer $record) => $record->can_be_received && self::onSide($record->to_branch_id)
+                    && Auth::guard('web')->user()?->can('Inventaris:Terima Barang'))
                 ->action(function (StockTransfer $record) {
                     try {
                         $updated = app(StockTransferManager::class)->receive($record, Auth::guard('web')->id());
@@ -60,7 +62,8 @@ class ViewStockTransfer extends ViewRecord
                 ->color('danger')
                 ->icon(Heroicon::OutlinedXCircle)
                 ->requiresConfirmation()
-                ->visible(fn (StockTransfer $record) => $record->can_be_cancelled && self::onSide($record->from_branch_id))
+                ->visible(fn (StockTransfer $record) => $record->can_be_cancelled && self::onSide($record->from_branch_id)
+                    && Auth::guard('web')->user()?->can('Inventaris:Sesuaikan Stok'))
                 ->action(function (StockTransfer $record) {
                     try {
                         $updated = app(StockTransferManager::class)->cancel($record);

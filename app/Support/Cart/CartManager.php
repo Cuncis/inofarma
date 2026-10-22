@@ -392,6 +392,36 @@ class CartManager
     }
 
     /**
+     * Checks the cart's coupon again at checkout, against the branch the order
+     * is actually placed at and the cart as it is now. A coupon is only checked
+     * when it is applied, and since then the cart may have dropped below the
+     * minimum, the coupon may have been switched off or used up, or pickup may
+     * have moved the order to a branch the coupon does not cover. A coupon that
+     * no longer applies is taken off the cart, so the shopper sees the new
+     * total and the next submit goes through without it.
+     *
+     * @param  list<array{product: Product, quantity: int}>  $lines
+     *
+     * @throws ValidationException
+     */
+    public function assertCouponStillUsable(?Coupon $coupon, Branch $branch, array $lines): void
+    {
+        if (! $coupon) {
+            return;
+        }
+
+        try {
+            $this->assertCouponUsable($coupon->fresh(), $branch, self::subtotal($branch, $lines));
+        } catch (ValidationException $exception) {
+            $this->removeCoupon();
+
+            throw ValidationException::withMessages([
+                'code' => $exception->validator->errors()->first('code').' Kode promo dilepas dari pesanan, periksa lagi totalnya.',
+            ]);
+        }
+    }
+
+    /**
      * @throws ValidationException
      */
     private function assertCouponUsable(?Coupon $coupon, Branch $branch, int $subtotal): void

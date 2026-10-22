@@ -61,7 +61,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
     // No saved address: the shopper types one into this same form.
     const typingAddress = ! cart.address;
 
-    const errors = formErrors as typeof formErrors & { address?: string; quantity?: string; pickupBranchId?: string };
+    const errors = formErrors as typeof formErrors & { address?: string; quantity?: string; pickupBranchId?: string; code?: string };
     const [legalOpen, setLegalOpen] = useState<LegalDocumentKey | null>(null);
     const pickedPickupByHand = useRef(false);
     const selectedPickup = pickupBranches.find((candidate) => candidate.id === data.pickupBranchId) ?? null;
@@ -474,6 +474,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                         className="block w-full resize-none rounded-[10px] border border-[#d9d9d9] bg-white px-3 py-3 text-[14px] placeholder:text-[#707070] focus:border-[#1773b0] focus:shadow-[0_0_0_1px_#1773b0] focus:outline-none focus:ring-0"
                     />
                     <FieldError message={errors.quantity} />
+                    <FieldError message={errors.code} />
                 </section>
 
                 {isGuest ? (

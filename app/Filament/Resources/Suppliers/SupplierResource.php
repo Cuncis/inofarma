@@ -9,6 +9,7 @@ use App\Filament\Resources\Suppliers\Pages\ListSuppliers;
 use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Filament\Resources\Suppliers\Tables\SuppliersTable;
 use App\Models\Supplier;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SupplierResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Supplier::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTruck;
@@ -43,6 +46,21 @@ class SupplierResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $slug = 'pemasok';
+
+    /**
+     * Pemasok is product master data, so it follows the Produk permissions.
+     *
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
+    {
+        return [
+            'viewAny' => 'Produk:Lihat',
+            'create' => 'Produk:Tambah',
+            'update' => 'Produk:Ubah',
+            'delete' => 'Produk:Hapus',
+        ];
+    }
 
     public static function form(Schema $schema): Schema
     {

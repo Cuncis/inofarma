@@ -126,6 +126,20 @@ class PaymentWebhookTest extends TestCase
         $this->assertSame('success', $payment->fresh()->status);
     }
 
+    public function test_a_success_notification_for_a_different_amount_does_not_mark_the_order_paid(): void
+    {
+        $payment = $this->makeOrderWithPayment();
+
+        $this->notify([
+            'channel' => ['id' => 'VIRTUAL_ACCOUNT_BCA'],
+            'transaction' => ['status' => 'SUCCESS'],
+            'order' => ['invoice_number' => $payment->invoice_number, 'amount' => 1000],
+        ])->assertOk();
+
+        $this->assertSame('pending', $payment->fresh()->status);
+        $this->assertSame('belum bayar', $payment->order->fresh()->payment_status);
+    }
+
     public function test_a_duplicate_success_notification_does_not_double_apply(): void
     {
         $payment = $this->makeOrderWithPayment();

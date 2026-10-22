@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Validation\ValidationException;
 
@@ -31,6 +32,9 @@ class AuthController extends Controller
      * on the account it silently creates for a guest at checkout.
      */
     public const CONSENT_VERSION = '1.0';
+
+    /** Wrong OTP guesses allowed before the code is thrown away and a new one is needed. */
+    private const MAX_OTP_ATTEMPTS = 5;
 
     public function login(Request $request): RedirectResponse
     {
@@ -107,6 +111,7 @@ class AuthController extends Controller
         ]);
 
         Auth::guard('customer')->login($customer);
+        $request->session()->regenerate();
         $customer->sendEmailVerificationNotification();
 
         return redirect()->route('ui.verify-phone');
@@ -148,14 +153,25 @@ class AuthController extends Controller
      */
     public function sendPhoneOtp(Request $request): RedirectResponse
     {
-        $data = $request->validate(['phone' => ['required', 'string', 'max:30']]);
-
         $customer = $request->user('customer');
-        $customer->forceFill(['phone' => $data['phone']])->save();
+
+        $data = $request->validate([
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+\-\s()]+$/', Rule::unique('customers', 'phone')->ignore($customer->id)],
+        ], [
+            'phone.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, dan tanda + - ( ).',
+            'phone.unique' => 'Nomor telepon ini sudah dipakai akun lain.',
+        ]);
+
+        // A new number is not verified just because the old one was.
+        $customer->forceFill([
+            'phone' => $data['phone'],
+            'phone_verified_at' => $customer->phone === $data['phone'] ? $customer->phone_verified_at : null,
+        ])->save();
 
         $code = $customer->issuePhoneOtp();
+        RateLimiter::clear($this->otpThrottleKey($customer));
 
-        Log::info("OTP untuk {$customer->phone}: {$code}");
+        $this->logOtp($customer, $code);
 
         return redirect()->route('ui.otp-code')->with('success', $this->otpFlashMessage($code));
     }
@@ -165,10 +181,23 @@ class AuthController extends Controller
         $data = $request->validate(['code' => ['required', 'string']]);
 
         $customer = $request->user('customer');
+        $throttleKey = $this->otpThrottleKey($customer);
+
+        // Five wrong guesses use the code up, so a 6-digit code cannot be
+        // walked through before it expires.
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_OTP_ATTEMPTS)) {
+            $customer->forceFill(['phone_otp_code' => null, 'phone_otp_expires_at' => null])->save();
+
+            throw ValidationException::withMessages(['code' => 'Terlalu banyak percobaan. Kirim ulang kode OTP.']);
+        }
 
         if (! $customer->verifyPhoneOtp($data['code'])) {
+            RateLimiter::hit($throttleKey, 600);
+
             throw ValidationException::withMessages(['code' => 'Kode OTP salah atau sudah kedaluwarsa.']);
         }
+
+        RateLimiter::clear($throttleKey);
 
         return redirect()->route('ui.account-created');
     }
@@ -177,10 +206,27 @@ class AuthController extends Controller
     {
         $customer = $request->user('customer');
         $code = $customer->issuePhoneOtp();
+        RateLimiter::clear($this->otpThrottleKey($customer));
 
-        Log::info("OTP untuk {$customer->phone}: {$code}");
+        $this->logOtp($customer, $code);
 
         return back()->with('success', $this->otpFlashMessage($code, resent: true));
+    }
+
+    private function otpThrottleKey(Customer $customer): string
+    {
+        return 'phone-otp:'.$customer->id;
+    }
+
+    /**
+     * Development only, like the flash below: a live code sitting in the
+     * production log is readable by anyone with log access.
+     */
+    private function logOtp(Customer $customer, string $code): void
+    {
+        if (! app()->isProduction()) {
+            Log::info("OTP untuk {$customer->phone}: {$code}");
+        }
     }
 
     /**

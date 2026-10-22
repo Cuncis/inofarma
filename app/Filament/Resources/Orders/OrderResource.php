@@ -10,6 +10,8 @@ use App\Filament\Resources\Orders\Schemas\OrderForm;
 use App\Filament\Resources\Orders\Schemas\OrderInfolist;
 use App\Filament\Resources\Orders\Tables\OrdersTable;
 use App\Models\Order;
+use App\Support\Auth\AuthorizesByPermission;
+use App\Support\Auth\SuperAdmin;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,7 +19,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Line items are snapshotted from the catalogue at write time — see
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class OrderResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Order::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
@@ -46,9 +49,19 @@ class OrderResource extends Resource
 
     protected static ?string $slug = 'pesanan';
 
-    public static function canViewAny(): bool
+    /**
+     * Deleting an order removes a financial record, so only Super Admin may.
+     *
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
     {
-        return (bool) Auth::guard('web')->user()?->can('Pesanan:Lihat');
+        return [
+            'viewAny' => 'Pesanan:Lihat',
+            'create' => 'Pesanan:Proses',
+            'update' => 'Pesanan:Proses',
+            'delete' => SuperAdmin::ROLE,
+        ];
     }
 
     public static function form(Schema $schema): Schema

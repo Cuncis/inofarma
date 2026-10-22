@@ -8,6 +8,8 @@ use App\Filament\Resources\Coupons\Pages\ListCoupons;
 use App\Filament\Resources\Coupons\Schemas\CouponForm;
 use App\Filament\Resources\Coupons\Tables\CouponsTable;
 use App\Models\Coupon;
+use App\Support\Auth\AuthorizesByPermission;
+use App\Support\Auth\SuperAdmin;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,6 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CouponResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Coupon::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
@@ -37,6 +41,21 @@ class CouponResource extends Resource
     protected static ?string $recordTitleAttribute = 'code';
 
     protected static ?string $slug = 'kupon';
+
+    /**
+     * A coupon sets prices, so only Super Admin manages coupons.
+     *
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
+    {
+        return [
+            'viewAny' => SuperAdmin::ROLE,
+            'create' => SuperAdmin::ROLE,
+            'update' => SuperAdmin::ROLE,
+            'delete' => SuperAdmin::ROLE,
+        ];
+    }
 
     public static function form(Schema $schema): Schema
     {

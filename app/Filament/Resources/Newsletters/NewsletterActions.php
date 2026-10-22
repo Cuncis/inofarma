@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\TagsInput;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\HtmlString;
 
@@ -51,6 +52,7 @@ class NewsletterActions
             ->label(__('Kirim Email Uji'))
             ->icon(Heroicon::OutlinedPaperAirplane)
             ->color('gray')
+            ->visible(fn () => (bool) Auth::guard('web')->user()?->can('Konten:Ubah'))
             ->modalHeading(__('Kirim Email Uji'))
             ->modalDescription(__('Email uji dikirim hanya ke alamat di bawah, bukan ke pelanggan.'))
             ->modalSubmitActionLabel(__('Kirim'))
@@ -87,7 +89,7 @@ class NewsletterActions
             ->label(__('Kirim ke Subscriber'))
             ->icon(Heroicon::OutlinedPaperAirplane)
             ->color('primary')
-            ->visible(fn (Newsletter $record) => $record->isDraft())
+            ->visible(fn (Newsletter $record) => $record->isDraft() && Auth::guard('web')->user()?->can('Konten:Ubah'))
             ->requiresConfirmation()
             ->modalHeading(__('Kirim newsletter sekarang?'))
             ->modalDescription(fn () => __('Newsletter akan dikirim ke :count subscriber. Setelah dikirim, tindakan ini tidak bisa dibatalkan.', [

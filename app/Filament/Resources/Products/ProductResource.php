@@ -11,6 +11,7 @@ use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Schemas\ProductInfolist;
 use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,7 +19,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Product CRUD for the admin — see ProductController's docblock. Images are
@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ProductResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
@@ -47,9 +49,17 @@ class ProductResource extends Resource
 
     protected static ?string $slug = 'produk';
 
-    public static function canViewAny(): bool
+    /**
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
     {
-        return (bool) Auth::guard('web')->user()?->can('Produk:Lihat');
+        return [
+            'viewAny' => 'Produk:Lihat',
+            'create' => 'Produk:Tambah',
+            'update' => 'Produk:Ubah',
+            'delete' => 'Produk:Hapus',
+        ];
     }
 
     public static function form(Schema $schema): Schema

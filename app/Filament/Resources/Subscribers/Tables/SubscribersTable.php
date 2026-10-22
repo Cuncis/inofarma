@@ -12,6 +12,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class SubscribersTable
 {
@@ -52,6 +53,7 @@ class SubscribersTable
                     ->label(__('Import CSV'))
                     ->icon(Heroicon::OutlinedArrowUpTray)
                     ->color('gray')
+                    ->visible(fn () => (bool) Auth::guard('web')->user()?->can('Konten:Ubah'))
                     ->modalHeading(__('Import Subscriber dari CSV'))
                     ->modalDescription(__('Satu alamat email per baris, atau file dengan kolom "email". Email yang sudah ada dilewati, dan yang pernah berhenti tidak akan didaftarkan ulang.'))
                     ->schema([
@@ -88,7 +90,7 @@ class SubscribersTable
                     ->requiresConfirmation()
                     ->modalHeading(__('Berhentikan langganan?'))
                     ->modalDescription(fn (Subscriber $record) => __(':email tidak akan menerima newsletter lagi.', ['email' => $record->email]))
-                    ->visible(fn (Subscriber $record) => $record->isSubscribed())
+                    ->visible(fn (Subscriber $record) => $record->isSubscribed() && Auth::guard('web')->user()?->can('Konten:Ubah'))
                     ->action(function (Subscriber $record) {
                         $record->unsubscribe();
 

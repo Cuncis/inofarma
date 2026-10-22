@@ -8,6 +8,7 @@ use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
 use App\Filament\Resources\Customers\Tables\CustomersTable;
 use App\Models\Customer;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -15,10 +16,11 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Auth;
 
 class CustomerResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Customer::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
@@ -39,9 +41,17 @@ class CustomerResource extends Resource
 
     protected static ?string $slug = 'pelanggan';
 
-    public static function canViewAny(): bool
+    /**
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
     {
-        return (bool) Auth::guard('web')->user()?->can('Pelanggan:Lihat');
+        return [
+            'viewAny' => 'Pelanggan:Lihat',
+            'create' => 'Pelanggan:Tambah',
+            'update' => 'Pelanggan:Ubah',
+            'delete' => 'Pelanggan:Hapus',
+        ];
     }
 
     public static function form(Schema $schema): Schema

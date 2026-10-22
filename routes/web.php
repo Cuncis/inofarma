@@ -67,12 +67,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('masuk', [AdminAuthController::class, 'show'])->name('masuk');
     Route::post('masuk', [AdminAuthController::class, 'login'])->name('masuk.store');
     Route::get('lupa-sandi', [AdminAuthController::class, 'forgotPassword'])->name('lupa-sandi');
-    Route::post('lupa-sandi', [AdminAuthController::class, 'sendResetLink'])->name('lupa-sandi.store');
+    Route::post('lupa-sandi', [AdminAuthController::class, 'sendResetLink'])->middleware('throttle:6,1')->name('lupa-sandi.store');
     Route::get('atur-ulang-sandi/{token}', [AdminAuthController::class, 'showResetPassword'])->name('atur-ulang-sandi');
-    Route::post('atur-ulang-sandi', [AdminAuthController::class, 'resetPassword'])->name('atur-ulang-sandi.store');
+    Route::post('atur-ulang-sandi', [AdminAuthController::class, 'resetPassword'])->middleware('throttle:6,1')->name('atur-ulang-sandi.store');
 
     Route::get('dua-faktor', [TwoFactorChallengeController::class, 'show'])->name('dua-faktor');
-    Route::post('dua-faktor', [TwoFactorChallengeController::class, 'store'])->name('dua-faktor.store');
+    Route::post('dua-faktor', [TwoFactorChallengeController::class, 'store'])->middleware('throttle:10,1')->name('dua-faktor.store');
 
     /**
      * Every other /admin screen is the Filament panel now (see
@@ -170,9 +170,9 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
      * are the actions those forms post to.
      */
     Route::post('signin', [ShopAuthController::class, 'login'])->name('signin.store');
-    Route::post('daftar', [ShopAuthController::class, 'register'])->name('daftar.store');
-    Route::post('lupa-sandi', [ShopAuthController::class, 'sendResetLink'])->name('forgot-password.store');
-    Route::post('atur-ulang-sandi', [ShopAuthController::class, 'resetPassword'])->name('reset-password.store');
+    Route::post('daftar', [ShopAuthController::class, 'register'])->middleware('throttle:6,1')->name('daftar.store');
+    Route::post('lupa-sandi', [ShopAuthController::class, 'sendResetLink'])->middleware('throttle:6,1')->name('forgot-password.store');
+    Route::post('atur-ulang-sandi', [ShopAuthController::class, 'resetPassword'])->middleware('throttle:6,1')->name('reset-password.store');
 
     Route::get('verifikasi-email/{id}/{hash}', [ShopAuthController::class, 'verifyEmail'])
         ->middleware(['signed', 'throttle:6,1'])
@@ -183,9 +183,9 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
         Route::post('kirim-verifikasi-email', [ShopAuthController::class, 'sendVerificationEmail'])
             ->middleware('throttle:6,1')
             ->name('kirim-verifikasi-email');
-        Route::post('verify-phone', [ShopAuthController::class, 'sendPhoneOtp'])->name('verify-phone.store');
-        Route::post('otp-code', [ShopAuthController::class, 'verifyPhoneOtp'])->name('otp-code.store');
-        Route::post('otp-code/kirim-ulang', [ShopAuthController::class, 'resendPhoneOtp'])->name('otp-code.resend');
+        Route::post('verify-phone', [ShopAuthController::class, 'sendPhoneOtp'])->middleware('throttle:3,10')->name('verify-phone.store');
+        Route::post('otp-code', [ShopAuthController::class, 'verifyPhoneOtp'])->middleware('throttle:10,1')->name('otp-code.store');
+        Route::post('otp-code/kirim-ulang', [ShopAuthController::class, 'resendPhoneOtp'])->middleware('throttle:3,10')->name('otp-code.resend');
     });
 
     /**
@@ -229,8 +229,8 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
      */
     Route::get('checkout/tamu', fn () => redirect()->route('ui.checkout'))->name('checkout.tamu');
     Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout');
-    Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('checkout/ongkir', [ShippingController::class, 'rates'])->name('checkout.ongkir');
+    Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+    Route::get('checkout/ongkir', [ShippingController::class, 'rates'])->middleware('throttle:30,1')->name('checkout.ongkir');
 
     Route::middleware('customer')->group(function () {
         Route::get('profile', fn () => Inertia::render('Shop/Profile'))->name('profile');

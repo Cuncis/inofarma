@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -96,12 +97,16 @@ class MediaLibrary
 
     /**
      * A readable, collision-proof file name: "banner-promo-x7k2p.png".
+     *
+     * The extension comes from the file's detected type, never from the name
+     * the browser sent: a PNG named "page.html" passes the image check, and
+     * kept as .html on the public disk it would run as a page on this domain.
      */
-    public static function storedName(string $originalName): string
+    public static function storedName(UploadedFile $file): string
     {
-        $base = Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) ?: 'file';
+        $base = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'file';
 
-        return $base.'-'.Str::lower(Str::random(5)).'.'.Str::lower(pathinfo($originalName, PATHINFO_EXTENSION));
+        return $base.'-'.Str::lower(Str::random(5)).'.'.($file->guessExtension() ?? 'bin');
     }
 
     /**

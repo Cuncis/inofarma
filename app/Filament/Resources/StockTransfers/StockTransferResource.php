@@ -10,12 +10,12 @@ use App\Filament\Resources\StockTransfers\Schemas\StockTransferForm;
 use App\Filament\Resources\StockTransfers\Schemas\StockTransferInfolist;
 use App\Filament\Resources\StockTransfers\Tables\StockTransfersTable;
 use App\Models\StockTransfer;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Moving stock between branches — see StockTransferManager for the
@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class StockTransferResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = StockTransfer::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
@@ -54,9 +56,15 @@ class StockTransferResource extends Resource
 
     protected static ?string $slug = 'inventaris/transfer';
 
-    public static function canViewAny(): bool
+    /**
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
     {
-        return (bool) Auth::guard('web')->user()?->can('Inventaris:Lihat');
+        return [
+            'viewAny' => 'Inventaris:Lihat',
+            'create' => 'Inventaris:Sesuaikan Stok',
+        ];
     }
 
     public static function form(Schema $schema): Schema

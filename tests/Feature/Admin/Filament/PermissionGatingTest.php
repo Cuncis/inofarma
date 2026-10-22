@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin\Filament;
 
 use App\Filament\Resources\Invoices\Pages\ViewInvoice;
+use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
 use App\Models\Role;
 use App\Models\User;
@@ -141,14 +142,91 @@ class PermissionGatingTest extends TestCase
         $this->get('/admin/peran/create')->assertOk();
     }
 
-    public function test_catalogue_screens_have_no_permission_gate_matching_legacy(): void
+    /**
+     * These used to be open to any staff login, which let a Kasir create a
+     * 100% coupon. Product master data follows Produk; coupons are Super Admin only.
+     */
+    public function test_catalogue_screens_require_produk_and_coupons_are_super_admin_only(): void
     {
         $this->signInAs('Staf Biasa', []);
 
+        $this->get('/admin/atribut')->assertForbidden();
+        $this->get('/admin/pemasok')->assertForbidden();
+        $this->get('/admin/kupon')->assertForbidden();
+        $this->get('/admin/kategori')->assertForbidden();
+
+        $this->signInAs('Produk Lihat Saja', ['Produk:Lihat']);
+
         $this->get('/admin/atribut')->assertOk();
         $this->get('/admin/pemasok')->assertOk();
-        $this->get('/admin/kupon')->assertOk();
         $this->get('/admin/kategori')->assertOk();
+        $this->get('/admin/kategori/create')->assertForbidden();
+        $this->get('/admin/kupon')->assertForbidden();
+
+        $this->signInAs('Pengaturan Penuh', ['Pengaturan:Lihat', 'Pengaturan:Ubah']);
+
+        $this->get('/admin/kupon')->assertForbidden();
+
+        $this->post('/admin/keluar');
+        $this->signInAsAdmin();
+
+        $this->get('/admin/kupon')->assertOk();
+        $this->get('/admin/kupon/create')->assertOk();
+    }
+
+    public function test_only_super_admin_may_delete_an_order(): void
+    {
+        $order = Order::factory()->create();
+
+        Role::findOrCreate('Semua Pesanan', 'web')->syncPermissions(['Pesanan:Lihat', 'Pesanan:Proses', 'Pesanan:Batalkan', 'Pengaturan:Ubah']);
+        $manager = User::factory()->create(['is_active' => true]);
+        $manager->assignRole('Semua Pesanan');
+
+        $this->actingAs($manager, 'web');
+        $this->assertTrue(OrderResource::canEdit($order));
+        $this->assertFalse(OrderResource::canDelete($order));
+        $this->assertFalse(OrderResource::canForceDelete($order));
+
+        $this->actingAs(User::where('email', 'admin@inofarma.co.id')->first(), 'web');
+        $this->assertTrue(OrderResource::canDelete($order));
+    }
+
+    /**
+     * Opening a screen is not permission to change it: every resource maps
+     * create/edit/delete to its own Tambah/Ubah/Hapus (or Proses) ability.
+     */
+    public function test_view_permission_alone_cannot_create_or_edit(): void
+    {
+        $order = Order::factory()->create();
+
+        $this->signInAs('Lihat Saja', ['Produk:Lihat', 'Pelanggan:Lihat', 'Pesanan:Lihat', 'Cabang:Lihat', 'Inventaris:Lihat']);
+
+        $this->get('/admin/produk/create')->assertForbidden();
+        $this->get('/admin/pelanggan/create')->assertForbidden();
+        $this->get('/admin/cabang/create')->assertForbidden();
+        $this->get('/admin/pesanan/create')->assertForbidden();
+        $this->get("/admin/pesanan/{$order->id}/edit")->assertForbidden();
+        $this->get('/admin/inventaris/transfer/create')->assertForbidden();
+
+        $this->signInAs('Produk Tambah', ['Produk:Lihat', 'Produk:Tambah']);
+        $this->get('/admin/produk/create')->assertOk();
+
+        $this->signInAs('Pesanan Proses', ['Pesanan:Lihat', 'Pesanan:Proses']);
+        $this->get("/admin/pesanan/{$order->id}/edit")->assertOk();
+    }
+
+    public function test_newsletter_and_subscriber_screens_require_konten(): void
+    {
+        $this->signInAs('Staf Biasa', []);
+
+        $this->get('/admin/newsletter')->assertForbidden();
+        $this->get('/admin/subscriber')->assertForbidden();
+
+        $this->signInAs('Konten Lihat', ['Konten:Lihat']);
+
+        $this->get('/admin/newsletter')->assertOk();
+        $this->get('/admin/subscriber')->assertOk();
+        $this->get('/admin/newsletter/create')->assertForbidden();
     }
 
     public function test_produk_requires_produk_lihat(): void

@@ -184,6 +184,8 @@ class CheckoutController extends Controller
             $branch = $this->pickupBranchFor($validated['pickupBranchId']);
         }
 
+        $cart->assertCouponStillUsable($data['coupon'], $branch, $data['lines']);
+
         // Everything that can be refused has been; only now does a guest become
         // a real account, so a bad address never leaves a stray customer behind.
         if ($isGuest) {
@@ -297,7 +299,13 @@ class CheckoutController extends Controller
      */
     private function placeOrder(Customer $customer, array $data, Branch $branch, array $validated): Order
     {
-        $coupon = $data['coupon'];
+        $coupon = $data['coupon'] ? Coupon::whereKey($data['coupon']->id)->lockForUpdate()->first() : null;
+
+        // Locked, so two orders racing for a coupon's last use cannot both get it.
+        if ($coupon?->is_exhausted) {
+            throw ValidationException::withMessages(['code' => 'Kuota kode promo sudah habis.']);
+        }
+
         $subtotal = CartManager::subtotal($branch, $data['lines']);
         $discount = $coupon ? $coupon->discountFor($subtotal) : 0;
         $freeShipping = $coupon?->is_free_shipping ?? false;

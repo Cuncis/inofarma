@@ -9,6 +9,7 @@ use App\Filament\Resources\Attributes\Schemas\AttributeForm;
 use App\Filament\Resources\Attributes\Tables\AttributesTable;
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\Attribute;
+use App\Support\Auth\AuthorizesByPermission;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AttributeResource extends Resource
 {
+    use AuthorizesByPermission;
+
     protected static ?string $model = Attribute::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
@@ -43,6 +46,21 @@ class AttributeResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $slug = 'atribut';
+
+    /**
+     * Atribut is product master data, so it follows the Produk permissions.
+     *
+     * @return array{viewAny: string, create?: string, update?: string, delete?: string}
+     */
+    protected static function permissions(): array
+    {
+        return [
+            'viewAny' => 'Produk:Lihat',
+            'create' => 'Produk:Tambah',
+            'update' => 'Produk:Ubah',
+            'delete' => 'Produk:Hapus',
+        ];
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -13,6 +13,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
@@ -28,6 +29,24 @@ class ImagesRelationManager extends RelationManager
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('Gambar');
+    }
+
+    /**
+     * Opening a product only needs Produk:Lihat; changing its photos needs Produk:Ubah.
+     */
+    private function canChangeImages(): bool
+    {
+        return (bool) Auth::guard('web')->user()?->can('Produk:Ubah');
+    }
+
+    protected function canDelete(Model $record): bool
+    {
+        return $this->canChangeImages();
+    }
+
+    protected function canReorder(): bool
+    {
+        return $this->canChangeImages();
     }
 
     public function table(Table $table): Table
@@ -49,6 +68,7 @@ class ImagesRelationManager extends RelationManager
             ->headerActions([
                 Action::make('upload')
                     ->label(__('Upload Gambar'))
+                    ->visible(fn () => $this->canChangeImages())
                     ->schema([
                         FileUpload::make('images')
                             ->label(__('Gambar'))
@@ -77,7 +97,7 @@ class ImagesRelationManager extends RelationManager
             ->recordActions([
                 Action::make('makePrimary')
                     ->label(__('Jadikan Utama'))
-                    ->visible(fn (ProductImage $record) => ! $record->is_primary)
+                    ->visible(fn (ProductImage $record) => ! $record->is_primary && $this->canChangeImages())
                     ->action(function (ProductImage $record) {
                         $this->getOwnerRecord()->images()->update(['is_primary' => false]);
                         $record->update(['is_primary' => true]);

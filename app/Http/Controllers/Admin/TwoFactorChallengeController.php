@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +23,12 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  */
 class TwoFactorChallengeController extends Controller
 {
+    /**
+     * A 6-digit code has only a million values, so guesses are capped per
+     * account, not per IP: the pending login is tied to the user id.
+     */
+    private const MAX_ATTEMPTS = 5;
+
     public function show(Request $request): Response|RedirectResponse
     {
         if (! $request->session()->has('admin_2fa.user_id')) {
@@ -44,7 +51,16 @@ class TwoFactorChallengeController extends Controller
         $request->validate(['code' => ['required', 'string']]);
         $code = str_replace(' ', '', $request->string('code'));
 
+        $throttleKey = 'admin-2fa:'.$user->id;
+
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_ATTEMPTS)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            throw ValidationException::withMessages(['code' => "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik."]);
+        }
+
         if ($this->verifyRecoveryCode($user, $code) || $this->verifyTotpCode($user, $code)) {
+            RateLimiter::clear($throttleKey);
             $request->session()->forget('admin_2fa.user_id');
 
             app(AdminAuthController::class)->establishSession($request, $user);
@@ -54,6 +70,8 @@ class TwoFactorChallengeController extends Controller
             // show()/login() for the full reasoning.
             return Inertia::location(url('/admin'));
         }
+
+        RateLimiter::hit($throttleKey);
 
         throw ValidationException::withMessages(['code' => 'Kode tidak valid.']);
     }

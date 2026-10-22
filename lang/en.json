@@ -527,6 +527,7 @@
     "Berikutnya": "Next",
     "Maksimal :max file sekali unggah.": "At most :max files per upload.",
     "Hanya gambar (JPG, PNG, GIF, WebP, SVG, AVIF) dan PDF yang bisa diunggah.": "Only images (JPG, PNG, GIF, WebP, SVG, AVIF) and PDFs can be uploaded.",
+    "Hanya gambar (JPG, PNG, GIF, WebP, AVIF) dan PDF yang bisa diunggah. SVG hanya bisa diunggah Super Admin.": "Only images (JPG, PNG, GIF, WebP, AVIF) and PDFs can be uploaded. Only Super Admin can upload SVG.",
     "Ukuran file maksimal :max KB.": "Files can be at most :max KB.",
     "Upload gagal": "Upload failed",
     "Lepaskan file untuk mengunggah": "Drop files to upload",
