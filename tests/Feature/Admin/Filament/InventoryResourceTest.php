@@ -41,8 +41,15 @@ class InventoryResourceTest extends TestCase
             ->firstOrFail();
 
         Livewire::test(ListBranchStocks::class)
-            ->assertCanSeeTableRecords([$stock])
             ->assertCountTableRecords(BranchStock::whereHas('product')->count());
+
+        // Narrowed down because the list opens sorted by quantity and this row
+        // is not on page one. Without it the check only passed while the row's
+        // id was 1, by matching the `records.10` key of another row.
+        Livewire::test(ListBranchStocks::class)
+            ->filterTable('branch_id', $stock->branch_id)
+            ->searchTable('PRD-001')
+            ->assertCanSeeTableRecords([$stock]);
     }
 
     public function test_stock_can_be_adjusted_up(): void

@@ -80,7 +80,7 @@ class CopyFromMysqlTest extends TestCase
         $this->insertIntoSource('branches', Branch::factory()->make(['id' => 5]));
 
         $this->artisan('db:copy-from-mysql')
-            ->expectsConfirmation('Semua isi :memory: (sqlite) akan dihapus lalu diisi dari MySQL. Lanjutkan?', 'no')
+            ->expectsConfirmation('Semua isi '.DB::connection()->getDatabaseName().' ('.DB::connection()->getDriverName().') akan dihapus lalu diisi dari MySQL. Lanjutkan?', 'no')
             ->assertFailed();
 
         $this->assertDatabaseMissing('branches', ['id' => 5]);
@@ -88,11 +88,19 @@ class CopyFromMysqlTest extends TestCase
 
     public function test_it_refuses_to_copy_into_the_source_itself(): void
     {
+        $default = config('database.default');
         config(['database.default' => CopyFromMysql::SOURCE]);
 
-        $this->artisan('db:copy-from-mysql', ['--force' => true])
-            ->expectsOutputToContain('Basis data utama masih MySQL')
-            ->assertFailed();
+        try {
+            $this->artisan('db:copy-from-mysql', ['--force' => true])
+                ->expectsOutputToContain('Basis data utama masih MySQL')
+                ->assertFailed();
+        } finally {
+            // RefreshDatabase rolls back whichever connection is the default at
+            // tear-down; leaving the source there leaves the real test
+            // transaction open and breaks every test class that runs after this one.
+            config(['database.default' => $default]);
+        }
     }
 
     private function insertIntoSource(string $table, object $model): void
