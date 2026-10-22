@@ -24,6 +24,7 @@ use App\Support\FaqContent;
 use App\Support\HomePageContent;
 use App\Support\LocationPreference;
 use App\Support\Presenters\StorefrontBranchPresenter;
+use App\Support\PrivacyPolicyContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -150,9 +151,13 @@ Route::name('ui.')->group(function () use ($beShopScreens) {
 
     /*
      * Content pages, edited in the admin under Konten Website. Syarat &
-     * Ketentuan and Kebijakan Privasi are popups (Components/Shop/LegalModal.tsx),
-     * not pages, so they load their text from `konten/dokumen/{document}`.
+     * Ketentuan is a popup (Components/Shop/LegalModal.tsx), not a page, so it
+     * loads its text from `konten/dokumen/{document}`. Kebijakan Privasi is
+     * its own page at `/pp` (fixed text in App\Support\PrivacyPolicyContent).
      */
+    Route::get('pp', fn () => Inertia::render('Shop/PrivacyPolicy', [
+        'document' => PrivacyPolicyContent::forStorefront(),
+    ]))->name('privacy-policy');
     Route::get('faq', fn () => Inertia::render('Shop/Faq', ['faqs' => FaqContent::forStorefront()]))->name('faq');
     Route::get('shipping-info', fn () => Inertia::render('Shop/ShippingInfo', [
         'document' => DocumentPageContent::forStorefront(DocumentPageContent::SHIPPING),

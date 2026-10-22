@@ -482,7 +482,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                         <CheckoutCheckbox checked={data.consent} onChange={(event) => setData('consent', event.target.checked)}>
                             Saya sudah membaca dan menyetujui{' '}
                             <button type="button" onClick={() => setLegalOpen('terms')} className="underline">Syarat &amp; Ketentuan</button> dan{' '}
-                            <button type="button" onClick={() => setLegalOpen('privacy')} className="underline">Kebijakan Privasi</button> Inofarma.
+                            <a href="/pp" target="_blank" rel="noopener noreferrer" className="underline">Kebijakan Privasi</a> Inofarma.
                         </CheckoutCheckbox>
                         <FieldError message={addressErrors.consent} />
                     </div>
@@ -498,7 +498,7 @@ export default function Checkout({ cart, pickupBranches, canDeliver, isGuest, pr
                 <footer className="mt-10 flex flex-wrap gap-x-4 gap-y-1 border-t border-[#d9d9d9] pt-4 text-[13px]">
                     <Link href="/kebijakan-pengembalian-dana" className="underline">Kebijakan pengembalian</Link>
                     <Link href="/shipping-info" className="underline">Pengiriman</Link>
-                    <button type="button" onClick={() => setLegalOpen('privacy')} className="underline">Kebijakan privasi</button>
+                    <a href="/pp" target="_blank" rel="noopener noreferrer" className="underline">Kebijakan privasi</a>
                     <button type="button" onClick={() => setLegalOpen('terms')} className="underline">Syarat &amp; ketentuan</button>
                 </footer>
             </form>

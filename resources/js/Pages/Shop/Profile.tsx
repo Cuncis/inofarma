@@ -21,7 +21,7 @@ const menu: { label: string; icon: IconName; href?: string; legal?: LegalDocumen
     { label: 'Info pengiriman & pembayaran', icon: 'info', href: '/shipping-info' },
     { label: 'Kebijakan pengembalian dana', icon: 'info', href: '/kebijakan-pengembalian-dana' },
     { label: 'Syarat & ketentuan', icon: 'info', legal: 'terms' },
-    { label: 'Kebijakan privasi', icon: 'info', legal: 'privacy' },
+    { label: 'Kebijakan privasi', icon: 'info', href: '/pp' },
     { label: 'Privasi saya', icon: 'user', href: '/privasi-saya' },
     { label: 'Tentang kami', icon: 'info', href: 'http://info.inofarma.com/' },
     { label: 'FAQ', icon: 'help', href: '/faq' },

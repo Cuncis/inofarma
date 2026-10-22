@@ -92,6 +92,17 @@ interface ContentDocument {
     sections: { title: string, paragraphs: string[] }[];
 }
 
+/** A block inside the standalone Kebijakan Privasi page: prose or a bullet list. */
+type PolicyBlock = { type: 'paragraph'; text: string } | { type: 'list'; items: string[] };
+
+/** The standalone Kebijakan Privasi page at `/pp` (`App\Support\PrivacyPolicyContent`). */
+interface PrivacyPolicyDocument {
+    title: string;
+    intro: PolicyBlock[];
+    sections: { title: string; blocks: PolicyBlock[] }[];
+    updatedAt: string;
+}
+
 /** Syarat & Ketentuan or Kebijakan Privasi, numbered by the server. */
 interface LegalDocument {
     title: string;

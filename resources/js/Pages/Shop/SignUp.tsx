@@ -93,9 +93,9 @@ export default function SignUp() {
                             Syarat &amp; Ketentuan
                         </button>{' '}
                         dan{' '}
-                        <button type="button" onClick={() => setLegalOpen('privacy')} className="text-brand underline">
+                        <a href="/pp" target="_blank" rel="noopener noreferrer" className="text-brand underline">
                             Kebijakan Privasi
-                        </button>{' '}
+                        </a>{' '}
                         Inofarma.
                     </span>
                 </label>
