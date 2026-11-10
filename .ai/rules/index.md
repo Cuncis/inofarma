@@ -10,7 +10,9 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Controllers/Shop/BranchController.php,resources/js/Pages/Shop/BranchDetail.tsx,resources/js/Components/Shop/NearestPharmacies.tsx,app/Support/Presenters/StorefrontBranchPresenter.php,app/Filament/Resources/Branches/** | .ai/rules/branches.md |
 | app/Support/Cart/** | .ai/rules/cart.md |
 | app/Support/Payments/**,app/Http/Controllers/Webhooks/**,app/Http/Controllers/Shop/CheckoutController.php,app/Http/Controllers/Shop/PaymentController.php,app/Models/Payment.php,app/Console/Commands/ExpireUnpaidOrders.php,app/Support/OrderCancellation.php | .ai/rules/commands-support.md |
+| app/Console/Commands/MoveUploadsToBucket.php | .ai/rules/commands.md |
 | app/Support/HomePageContent.php,app/Filament/Pages/EditHomePage.php,app/Filament/Pages/WebsiteContent.php,resources/js/Pages/Shop/Home.tsx,resources/js/Components/Shop/DesktopHome.tsx,app/Support/ContentStore.php,app/Support/FaqContent.php,app/Support/DocumentPage*.php,app/Support/SiteFooterContent.php,app/Filament/Pages/ContentEditorPage.php,app/Filament/Pages/Edit*Page.php,resources/js/Pages/Shop/Faq.tsx,resources/js/Pages/Shop/ShippingInfo.tsx,resources/js/Pages/Shop/RefundPolicy.tsx,resources/js/Components/Shop/LegalModal.tsx,resources/js/Layouts/DesktopLayout.tsx | .ai/rules/components-shop.md |
+| config/filesystems.php | .ai/rules/config.md |
 | app/Support/Auth/**,app/Http/Controllers/Admin/**,app/Filament/Resources/BranchStocks/**,app/Filament/Resources/StockTransfers/** | .ai/rules/controllers-admin.md |
 | resources/js/Pages/Shop/OrderDetail.tsx,resources/js/Pages/Shop/TrackOrder.tsx,app/Http/Controllers/Shop/OrderController.php | .ai/rules/controllers-shop.md |
 | app/Http/Controllers/** | .ai/rules/controllers.md |
@@ -30,7 +32,9 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Support/ProductImageUploader.php,app/Filament/Resources/Products/RelationManagers/ImagesRelationManager.php,app/Models/ProductImage.php | .ai/rules/models.md |
 | app/Filament/Resources/Newsletters/** | .ai/rules/newsletters.md |
 | app/Observers/ChatMessageObserver.php | .ai/rules/observers.md |
+| app/Filament/Resources/Orders/** | .ai/rules/orders.md |
 | app/Http/Controllers/Shop/CheckoutController.php,app/Support/Cart/**,resources/js/Pages/Shop/Checkout.tsx,resources/js/Pages/Shop/Cart.tsx | .ai/rules/pages-shop.md |
+| app/Filament/Resources/*/Pages/Edit*.php | .ai/rules/pages.md |
 | app/Support/Payments/** | .ai/rules/payments.md |
 | app/Observers/**,app/Notifications/**,app/Support/Notifications/**,app/Support/Money.php,app/Console/Commands/NotifyExpiringBatches.php,app/Console/Commands/NotifyApproachingPickupDeadlines.php,app/Providers/Filament/AdminPanelProvider.php | .ai/rules/presenters.md |
 | public/** | .ai/rules/public.md |
